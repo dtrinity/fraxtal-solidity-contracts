@@ -1,0 +1,46 @@
+node_modules
+.env
+
+# TypeChain files
+/typechain
+/typechain-types
+
+# solidity-coverage files
+/coverage
+/coverage.json
+
+.DS_Store
+package-lock.json
+
+typechain
+typechain-types
+
+# Hardhat files
+cache
+ignition/deployments
+
+# Local artifacts
+artifacts
+artifacts/*
+
+*.dbg.json
+
+# Don't want to cache the localhost deployment
+deployments/localhost
+deployments/hardhat
+deployments/**/solcInputs
+
+deployments/test-tokens/localhost
+deployments/test-tokens/hardhat
+deployments/test-tokens/**/solcInputs
+
+deployments-log/localhost*.log
+deployments-log/hardhat*.log
+
+# Yarn files
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+
+# Plandex AI CLI tool
+.plandex

@@ -1,0 +1,260 @@
+{
+  "address": "0xd95BeAdA78EB50b8791511Df47bAE7a1C59FB360",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IStaticOracle",
+          "name": "_STATIC_ORACLE",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_quoteToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint128",
+          "name": "_quoteTokenAmount",
+          "type": "uint128"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_quotePeriodSeconds",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "_priceDecimals",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "BASE_CURRENCY",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "BASE_CURRENCY_UNIT",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PRICE_DECIMALS",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PRICE_UNIT",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "QUOTE_PERIOD_SECONDS",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "QUOTE_TOKEN",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "QUOTE_TOKEN_AMOUNT",
+      "outputs": [
+        {
+          "internalType": "uint128",
+          "name": "",
+          "type": "uint128"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "QUOTE_TOKEN_DECIMALS",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "QUOTE_TOKEN_UNIT",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "STATIC_ORACLE",
+      "outputs": [
+        {
+          "internalType": "contract IStaticOracle",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_baseToken",
+          "type": "address"
+        }
+      ],
+      "name": "getAssetPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x7d72cdeeb204bcc4134ace5270c0e2e8c510003be2a00480af9b9ce9e3ab01a5",
+  "receipt": {
+    "to": null,
+    "from": "0x53Ae1433Ab4563d7D5a84d27524784837259f105",
+    "contractAddress": "0xd95BeAdA78EB50b8791511Df47bAE7a1C59FB360",
+    "transactionIndex": 1,
+    "gasUsed": "481242",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x02243286dbafedaa34e0caf0e2bbb712e1612879a72314b9ca6a61b597e54829",
+    "transactionHash": "0x7d72cdeeb204bcc4134ace5270c0e2e8c510003be2a00480af9b9ce9e3ab01a5",
+    "logs": [],
+    "blockNumber": 10335952,
+    "cumulativeGasUsed": "527208",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x0261560D217eBFb575ece90dfbf86659cF2f74cf",
+    "0x4D6E79013212F10A026A1FB0b926C9Fd0432b96c",
+    "1000000000",
+    60,
+    8
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "7fa5b64a3eb9eafb03a0cc4bd54c068f",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.24+commit.e11b9ed9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract IStaticOracle\",\"name\":\"_STATIC_ORACLE\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_quoteToken\",\"type\":\"address\"},{\"internalType\":\"uint128\",\"name\":\"_quoteTokenAmount\",\"type\":\"uint128\"},{\"internalType\":\"uint32\",\"name\":\"_quotePeriodSeconds\",\"type\":\"uint32\"},{\"internalType\":\"uint8\",\"name\":\"_priceDecimals\",\"type\":\"uint8\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"BASE_CURRENCY\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"BASE_CURRENCY_UNIT\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"PRICE_DECIMALS\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"PRICE_UNIT\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"QUOTE_PERIOD_SECONDS\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"QUOTE_TOKEN\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"QUOTE_TOKEN_AMOUNT\",\"outputs\":[{\"internalType\":\"uint128\",\"name\":\"\",\"type\":\"uint128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"QUOTE_TOKEN_DECIMALS\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"QUOTE_TOKEN_UNIT\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"STATIC_ORACLE\",\"outputs\":[{\"internalType\":\"contract IStaticOracle\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_baseToken\",\"type\":\"address\"}],\"name\":\"getAssetPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"BASE_CURRENCY()\":{\"details\":\"Address 0x0 is reserved for USD as base currency.\",\"returns\":{\"_0\":\"Returns the base currency address.\"}},\"BASE_CURRENCY_UNIT()\":{\"details\":\"1 ether for ETH, 1e8 for USD.\",\"returns\":{\"_0\":\"Returns the base currency unit.\"}},\"getAssetPrice(address)\":{\"params\":{\"asset\":\"The address of the asset\"},\"returns\":{\"_0\":\"The price of the asset\"}}},\"title\":\"Uniswap V3 Static Oracle Wrapper\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"BASE_CURRENCY()\":{\"notice\":\"Returns the base currency address\"},\"BASE_CURRENCY_UNIT()\":{\"notice\":\"Returns the base currency unit\"},\"getAssetPrice(address)\":{\"notice\":\"Returns the asset price in the base currency\"}},\"notice\":\"Oracle contract for price quoting against Uniswap V3 pools\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/dex_oracle/StaticOracleWrapper.sol\":\"StaticOracleWrapper\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"contracts/dex/core/interfaces/IUniswapV3Factory.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-2.0-or-later\\npragma solidity >=0.5.0;\\n\\n/// @title The interface for the Uniswap V3 Factory\\n/// @notice The Uniswap V3 Factory facilitates creation of Uniswap V3 pools and control over the protocol fees\\ninterface IUniswapV3Factory {\\n    /// @notice Emitted when the owner of the factory is changed\\n    /// @param oldOwner The owner before the owner was changed\\n    /// @param newOwner The owner after the owner was changed\\n    event OwnerChanged(address indexed oldOwner, address indexed newOwner);\\n\\n    /// @notice Emitted when a pool is created\\n    /// @param token0 The first token of the pool by address sort order\\n    /// @param token1 The second token of the pool by address sort order\\n    /// @param fee The fee collected upon every swap in the pool, denominated in hundredths of a bip\\n    /// @param tickSpacing The minimum number of ticks between initialized ticks\\n    /// @param pool The address of the created pool\\n    event PoolCreated(\\n        address indexed token0,\\n        address indexed token1,\\n        uint24 indexed fee,\\n        int24 tickSpacing,\\n        address pool\\n    );\\n\\n    /// @notice Emitted when a new fee amount is enabled for pool creation via the factory\\n    /// @param fee The enabled fee, denominated in hundredths of a bip\\n    /// @param tickSpacing The minimum number of ticks between initialized ticks for pools created with the given fee\\n    event FeeAmountEnabled(uint24 indexed fee, int24 indexed tickSpacing);\\n\\n    /// @notice Returns the current owner of the factory\\n    /// @dev Can be changed by the current owner via setOwner\\n    /// @return The address of the factory owner\\n    function owner() external view returns (address);\\n\\n    /// @notice Returns the tick spacing for a given fee amount, if enabled, or 0 if not enabled\\n    /// @dev A fee amount can never be removed, so this value should be hard coded or cached in the calling context\\n    /// @param fee The enabled fee, denominated in hundredths of a bip. Returns 0 in case of unenabled fee\\n    /// @return The tick spacing\\n    function feeAmountTickSpacing(uint24 fee) external view returns (int24);\\n\\n    /// @notice Returns the pool address for a given pair of tokens and a fee, or address 0 if it does not exist\\n    /// @dev tokenA and tokenB may be passed in either token0/token1 or token1/token0 order\\n    /// @param tokenA The contract address of either token0 or token1\\n    /// @param tokenB The contract address of the other token\\n    /// @param fee The fee collected upon every swap in the pool, denominated in hundredths of a bip\\n    /// @return pool The pool address\\n    function getPool(\\n        address tokenA,\\n        address tokenB,\\n        uint24 fee\\n    ) external view returns (address pool);\\n\\n    /// @notice Creates a pool for the given two tokens and fee\\n    /// @param tokenA One of the two tokens in the desired pool\\n    /// @param tokenB The other of the two tokens in the desired pool\\n    /// @param fee The desired fee for the pool\\n    /// @dev tokenA and tokenB may be passed in either order: token0/token1 or token1/token0. tickSpacing is retrieved\\n    /// from the fee. The call will revert if the pool already exists, the fee is invalid, or the token arguments\\n    /// are invalid.\\n    /// @return pool The address of the newly created pool\\n    function createPool(\\n        address tokenA,\\n        address tokenB,\\n        uint24 fee\\n    ) external returns (address pool);\\n\\n    /// @notice Updates the owner of the factory\\n    /// @dev Must be called by the current owner\\n    /// @param _owner The new owner of the factory\\n    function setOwner(address _owner) external;\\n\\n    /// @notice Enables a fee amount with the given tickSpacing\\n    /// @dev Fee amounts may never be removed once enabled\\n    /// @param fee The fee amount to enable, denominated in hundredths of a bip (i.e. 1e-6)\\n    /// @param tickSpacing The spacing between ticks to be enforced for all pools created with the given fee amount\\n    function enableFeeAmount(uint24 fee, int24 tickSpacing) external;\\n}\\n\",\"keccak256\":\"0xcc3d0c93fc9ac0febbe09f941b465b57f750bcf3b48432da0b97dc289cfdc489\",\"license\":\"GPL-2.0-or-later\"},\"contracts/dex_oracle/StaticOracleWrapper.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-2.0-or-later\\npragma solidity ^0.8.0;\\npragma abicoder v2;\\n\\nimport {IPriceOracleGetter} from \\\"../lending/core/interfaces/IPriceOracleGetter.sol\\\";\\n\\nimport \\\"./interfaces/IStaticOracle.sol\\\";\\n\\n/// @title Uniswap V3 Static Oracle Wrapper\\n/// @notice Oracle contract for price quoting against Uniswap V3 pools\\ncontract StaticOracleWrapper is IPriceOracleGetter {\\n    IStaticOracle public immutable STATIC_ORACLE;\\n    address public immutable QUOTE_TOKEN;\\n    uint8 public immutable QUOTE_TOKEN_DECIMALS;\\n    uint256 public immutable QUOTE_TOKEN_UNIT;\\n    uint128 public immutable QUOTE_TOKEN_AMOUNT;\\n    uint32 public immutable QUOTE_PERIOD_SECONDS;\\n    uint8 public immutable PRICE_DECIMALS;\\n    uint256 public immutable PRICE_UNIT;\\n\\n    constructor(\\n        IStaticOracle _STATIC_ORACLE,\\n        address _quoteToken,\\n        uint128 _quoteTokenAmount,\\n        uint32 _quotePeriodSeconds,\\n        uint8 _priceDecimals\\n    ) {\\n        STATIC_ORACLE = _STATIC_ORACLE;\\n        QUOTE_TOKEN = _quoteToken;\\n\\n        (bool success, bytes memory data) = _quoteToken.staticcall(\\n            abi.encodeWithSignature(\\\"decimals()\\\")\\n        );\\n        require(success, \\\"Failed to get quote token decimals\\\");\\n\\n        QUOTE_TOKEN_DECIMALS = abi.decode(data, (uint8));\\n        QUOTE_TOKEN_UNIT = 10 ** QUOTE_TOKEN_DECIMALS;\\n        QUOTE_TOKEN_AMOUNT = _quoteTokenAmount;\\n        QUOTE_PERIOD_SECONDS = _quotePeriodSeconds;\\n        PRICE_DECIMALS = _priceDecimals;\\n        PRICE_UNIT = 10 ** PRICE_DECIMALS;\\n    }\\n\\n    /// @inheritdoc IPriceOracleGetter\\n    function getAssetPrice(address _baseToken) external view returns (uint256) {\\n        if (_baseToken == QUOTE_TOKEN) {\\n            return PRICE_UNIT;\\n        }\\n\\n        uint256 _baseAmount;\\n        address[] memory queriedPools;\\n        (_baseAmount, queriedPools) = STATIC_ORACLE\\n            .quoteAllAvailablePoolsWithTimePeriod(\\n                QUOTE_TOKEN_AMOUNT,\\n                QUOTE_TOKEN,\\n                _baseToken,\\n                QUOTE_PERIOD_SECONDS\\n            );\\n        require(_baseAmount > 0, \\\"No price available\\\");\\n        require(queriedPools.length > 0, \\\"No pools queried\\\");\\n\\n        // Get quote token decimals\\n        (bool success, bytes memory data) = _baseToken.staticcall(\\n            abi.encodeWithSignature(\\\"decimals()\\\")\\n        );\\n        require(success, \\\"Failed to get base token decimals\\\");\\n\\n        // Calculate price based the following formula:\\n        //      (quoteAmount / quoteTokenUnit) / (baseTokenAmount / baseTokenUnit)\\n        //  <=> (quoteAmount * baseTokenUnit) / (baseTokenAmount * quoteTokenUnit)\\n        // To avoid losing precision, we multiply by 10^PRICE_DECIMALS\\n        // <=> (quoteAmount * baseTokenUnit * 10^PRICE_DECIMALS) / (baseTokenAmount * quoteTokenUnit)\\n        uint8 _baseTokenDecimals = abi.decode(data, (uint8));\\n        uint256 _baseTokenUnit = 10 ** _baseTokenDecimals;\\n\\n        uint256 _price = (QUOTE_TOKEN_AMOUNT * _baseTokenUnit * PRICE_UNIT) /\\n            (_baseAmount * QUOTE_TOKEN_UNIT);\\n\\n        return _price;\\n    }\\n\\n    /// @inheritdoc IPriceOracleGetter\\n    function BASE_CURRENCY() external view returns (address) {\\n        // Just to follow the interface, we return the quote token here\\n        return QUOTE_TOKEN;\\n    }\\n\\n    /// @inheritdoc IPriceOracleGetter\\n    function BASE_CURRENCY_UNIT() external view returns (uint256) {\\n        // The BASE_CURRENCY_UNIT is not the same as QUOTE_TOKEN_UNIT, instead, it is the\\n        // price unit of the quote token. We return PRICE_UNIT here to avoid breaking\\n        // assumptions in the AaveOracle contract.\\n        return PRICE_UNIT;\\n    }\\n}\\n\",\"keccak256\":\"0x960b9d30849ddf8d906f5f3b6c408609fea5fbc2ef554a612fa1155e5048a8e1\",\"license\":\"GPL-2.0-or-later\"},\"contracts/dex_oracle/interfaces/IStaticOracle.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-2.0-or-later\\n\\npragma solidity >=0.7.6 <0.9.0;\\n\\nimport \\\"../../dex/core/interfaces/IUniswapV3Factory.sol\\\";\\n\\n/// @title Uniswap V3 Static Oracle\\n/// @notice Oracle contract for calculating price quoting against Uniswap V3\\ninterface IStaticOracle {\\n    /// @notice Returns the address of the Uniswap V3 factory\\n    /// @dev This value is assigned during deployment and cannot be changed\\n    /// @return The address of the Uniswap V3 factory\\n    function UNISWAP_V3_FACTORY() external view returns (IUniswapV3Factory);\\n\\n    /// @notice Returns how many observations are needed per minute in Uniswap V3 oracles, on the deployed chain\\n    /// @dev This value is assigned during deployment and cannot be changed\\n    /// @return Number of observation that are needed per minute\\n    function CARDINALITY_PER_MINUTE() external view returns (uint8);\\n\\n    /// @notice Returns all supported fee tiers\\n    /// @return The supported fee tiers\\n    function supportedFeeTiers() external view returns (uint24[] memory);\\n\\n    /// @notice Returns whether a specific pair can be supported by the oracle\\n    /// @dev The pair can be provided in tokenA/tokenB or tokenB/tokenA order\\n    /// @return Whether the given pair can be supported by the oracle\\n    function isPairSupported(\\n        address tokenA,\\n        address tokenB\\n    ) external view returns (bool);\\n\\n    /// @notice Returns all existing pools for the given pair\\n    /// @dev The pair can be provided in tokenA/tokenB or tokenB/tokenA order\\n    /// @return All existing pools for the given pair\\n    function getAllPoolsForPair(\\n        address tokenA,\\n        address tokenB\\n    ) external view returns (address[] memory);\\n\\n    /// @notice Returns a quote, based on the given tokens and amount, by querying all of the pair's pools\\n    /// @dev If some pools are not configured correctly for the given period, then they will be ignored\\n    /// @dev Will revert if there are no pools available/configured for the pair and period combination\\n    /// @param baseAmount Amount of token to be converted\\n    /// @param baseToken Address of an ERC20 token contract used as the baseAmount denomination\\n    /// @param quoteToken Address of an ERC20 token contract used as the quoteAmount denomination\\n    /// @param period Number of seconds from which to calculate the TWAP\\n    /// @return quoteAmount Amount of quoteToken received for baseAmount of baseToken\\n    /// @return queriedPools The pools that were queried to calculate the quote\\n    function quoteAllAvailablePoolsWithTimePeriod(\\n        uint128 baseAmount,\\n        address baseToken,\\n        address quoteToken,\\n        uint32 period\\n    )\\n        external\\n        view\\n        returns (uint256 quoteAmount, address[] memory queriedPools);\\n\\n    /// @notice Returns a quote, based on the given tokens and amount, by querying only the specified fee tiers\\n    /// @dev Will revert if the pair does not have a pool for one of the given fee tiers, or if one of the pools\\n    /// is not prepared/configured correctly for the given period\\n    /// @param baseAmount Amount of token to be converted\\n    /// @param baseToken Address of an ERC20 token contract used as the baseAmount denomination\\n    /// @param quoteToken Address of an ERC20 token contract used as the quoteAmount denomination\\n    /// @param feeTiers The fee tiers to consider when calculating the quote\\n    /// @param period Number of seconds from which to calculate the TWAP\\n    /// @return quoteAmount Amount of quoteToken received for baseAmount of baseToken\\n    /// @return queriedPools The pools that were queried to calculate the quote\\n    function quoteSpecificFeeTiersWithTimePeriod(\\n        uint128 baseAmount,\\n        address baseToken,\\n        address quoteToken,\\n        uint24[] calldata feeTiers,\\n        uint32 period\\n    )\\n        external\\n        view\\n        returns (uint256 quoteAmount, address[] memory queriedPools);\\n\\n    /// @notice Returns a quote, based on the given tokens and amount, by querying only the specified pools\\n    /// @dev Will revert if one of the pools is not prepared/configured correctly for the given period\\n    /// @param baseAmount Amount of token to be converted\\n    /// @param baseToken Address of an ERC20 token contract used as the baseAmount denomination\\n    /// @param quoteToken Address of an ERC20 token contract used as the quoteAmount denomination\\n    /// @param pools The pools to consider when calculating the quote\\n    /// @param period Number of seconds from which to calculate the TWAP\\n    /// @return quoteAmount Amount of quoteToken received for baseAmount of baseToken\\n    function quoteSpecificPoolsWithTimePeriod(\\n        uint128 baseAmount,\\n        address baseToken,\\n        address quoteToken,\\n        address[] calldata pools,\\n        uint32 period\\n    ) external view returns (uint256 quoteAmount);\\n\\n    /// @notice Will initialize all existing pools for the given pair, so that they can be queried with the given period in the future\\n    /// @dev Will revert if there are no pools available for the pair and period combination\\n    /// @param tokenA One of the pair's tokens\\n    /// @param tokenB The other of the pair's tokens\\n    /// @param period The period that will be guaranteed when quoting\\n    /// @return preparedPools The pools that were prepared\\n    function prepareAllAvailablePoolsWithTimePeriod(\\n        address tokenA,\\n        address tokenB,\\n        uint32 period\\n    ) external returns (address[] memory preparedPools);\\n\\n    /// @notice Will initialize the pair's pools with the specified fee tiers, so that they can be queried with the given period in the future\\n    /// @dev Will revert if the pair does not have a pool for a given fee tier\\n    /// @param tokenA One of the pair's tokens\\n    /// @param tokenB The other of the pair's tokens\\n    /// @param feeTiers The fee tiers to consider when searching for the pair's pools\\n    /// @param period The period that will be guaranteed when quoting\\n    /// @return preparedPools The pools that were prepared\\n    function prepareSpecificFeeTiersWithTimePeriod(\\n        address tokenA,\\n        address tokenB,\\n        uint24[] calldata feeTiers,\\n        uint32 period\\n    ) external returns (address[] memory preparedPools);\\n\\n    /// @notice Returns a quote, based on the given tokens and amount, by querying all of the pair's pools\\n    /// @dev If some pools are not configured correctly for the given period + offset, then they will be ignored\\n    /// @dev Will revert if there are no pools available/configured for the pair and period combination\\n    /// @param baseAmount Amount of token to be converted\\n    /// @param baseToken Address of an ERC20 token contract used as the baseAmount denomination\\n    /// @param quoteToken Address of an ERC20 token contract used as the quoteAmount denomination\\n    /// @param period Length in seconds of the TWAP calculation length\\n    /// @param offset Number of seconds ago to start the TWAP calculation\\n    /// @return quoteAmount Amount of quoteToken received for baseAmount of baseToken\\n    /// @return queriedPools The pools that were queried to calculate the quote\\n    function quoteAllAvailablePoolsWithOffsetTimePeriod(\\n        uint128 baseAmount,\\n        address baseToken,\\n        address quoteToken,\\n        uint32 period,\\n        uint32 offset\\n    )\\n        external\\n        view\\n        returns (uint256 quoteAmount, address[] memory queriedPools);\\n\\n    /// @notice Returns a quote, based on the given tokens and amount, by querying only the specified fee tiers\\n    /// @dev Will revert if the pair does not have a pool for one of the given fee tiers\\n    /// @dev Will revert if one of the pools is not prepared/configured correctly for the given period + offset\\n    /// @param baseAmount Amount of token to be converted\\n    /// @param baseToken Address of an ERC20 token contract used as the baseAmount denomination\\n    /// @param quoteToken Address of an ERC20 token contract used as the quoteAmount denomination\\n    /// @param feeTiers The fee tiers to consider when calculating the quote\\n    /// @param period Length in seconds of the TWAP calculation length\\n    /// @param offset Number of seconds ago to start the TWAP calculation\\n    /// @return quoteAmount Amount of quoteToken received for baseAmount of baseToken\\n    /// @return queriedPools The pools that were queried to calculate the quote\\n    function quoteSpecificFeeTiersWithOffsetTimePeriod(\\n        uint128 baseAmount,\\n        address baseToken,\\n        address quoteToken,\\n        uint24[] calldata feeTiers,\\n        uint32 period,\\n        uint32 offset\\n    )\\n        external\\n        view\\n        returns (uint256 quoteAmount, address[] memory queriedPools);\\n\\n    /// @notice Returns a quote, based on the given tokens and amount, by querying only the specified pools\\n    /// @dev Will revert if one of the pools is not prepared/configured correctly for the given period\\n    /// @param baseAmount Amount of token to be converted\\n    /// @param baseToken Address of an ERC20 token contract used as the baseAmount denomination\\n    /// @param quoteToken Address of an ERC20 token contract used as the quoteAmount denomination\\n    /// @param pools The pools to consider when calculating the quote\\n    /// @param period Length in seconds of the TWAP calculation length\\n    /// @param offset Number of seconds ago to start the TWAP calculation\\n    /// @return quoteAmount Amount of quoteToken received for baseAmount of baseToken\\n    function quoteSpecificPoolsWithOffsettedTimePeriod(\\n        uint128 baseAmount,\\n        address baseToken,\\n        address quoteToken,\\n        address[] calldata pools,\\n        uint32 period,\\n        uint32 offset\\n    ) external view returns (uint256 quoteAmount);\\n\\n    /// @notice Will initialize all given pools, so that they can be queried with the given period in the future\\n    /// @param pools The pools to initialize\\n    /// @param period The period that will be guaranteed when quoting\\n    function prepareSpecificPoolsWithTimePeriod(\\n        address[] calldata pools,\\n        uint32 period\\n    ) external;\\n\\n    /// @notice Will increase observations for all existing pools for the given pair, so they start accruing information for twap calculations\\n    /// @dev Will revert if there are no pools available for the pair and period combination\\n    /// @param tokenA One of the pair's tokens\\n    /// @param tokenB The other of the pair's tokens\\n    /// @param cardinality The cardinality that will be guaranteed when quoting\\n    /// @return preparedPools The pools that were prepared\\n    function prepareAllAvailablePoolsWithCardinality(\\n        address tokenA,\\n        address tokenB,\\n        uint16 cardinality\\n    ) external returns (address[] memory preparedPools);\\n\\n    /// @notice Will increase the pair's pools with the specified fee tiers observations, so they start accruing information for twap calculations\\n    /// @dev Will revert if the pair does not have a pool for a given fee tier\\n    /// @param tokenA One of the pair's tokens\\n    /// @param tokenB The other of the pair's tokens\\n    /// @param feeTiers The fee tiers to consider when searching for the pair's pools\\n    /// @param cardinality The cardinality that will be guaranteed when quoting\\n    /// @return preparedPools The pools that were prepared\\n    function prepareSpecificFeeTiersWithCardinality(\\n        address tokenA,\\n        address tokenB,\\n        uint24[] calldata feeTiers,\\n        uint16 cardinality\\n    ) external returns (address[] memory preparedPools);\\n\\n    /// @notice Will increase all given pools observations, so they start accruing information for twap calculations\\n    /// @param pools The pools to initialize\\n    /// @param cardinality The cardinality that will be guaranteed when quoting\\n    function prepareSpecificPoolsWithCardinality(\\n        address[] calldata pools,\\n        uint16 cardinality\\n    ) external;\\n\\n    /// @notice Adds support for a new fee tier\\n    /// @dev Will revert if the given tier is invalid, or already supported\\n    /// @param feeTier The new fee tier to add\\n    function addNewFeeTier(uint24 feeTier) external;\\n}\\n\",\"keccak256\":\"0xb2f4550340eaa20f2327edfdca7f9d2891d8c6a40d4ad48c1d9021a7e4951c56\",\"license\":\"GPL-2.0-or-later\"},\"contracts/lending/core/interfaces/IPriceOracleGetter.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity ^0.8.0;\\n\\n/**\\n * @title IPriceOracleGetter\\n * @author Aave\\n * @notice Interface for the Aave price oracle.\\n */\\ninterface IPriceOracleGetter {\\n    /**\\n     * @notice Returns the base currency address\\n     * @dev Address 0x0 is reserved for USD as base currency.\\n     * @return Returns the base currency address.\\n     */\\n    function BASE_CURRENCY() external view returns (address);\\n\\n    /**\\n     * @notice Returns the base currency unit\\n     * @dev 1 ether for ETH, 1e8 for USD.\\n     * @return Returns the base currency unit.\\n     */\\n    function BASE_CURRENCY_UNIT() external view returns (uint256);\\n\\n    /**\\n     * @notice Returns the asset price in the base currency\\n     * @param asset The address of the asset\\n     * @return The price of the asset\\n     */\\n    function getAssetPrice(address asset) external view returns (uint256);\\n}\\n\",\"keccak256\":\"0x8c254b3ea9802d3fe13e05f69663c64d093d617f1fe55c2b2fb9820c5cd80679\",\"license\":\"AGPL-3.0\"}},\"version\":1}",
+  "bytecode": "0x6101806040908082523461024b5760a081610a1380380380916100228285610250565b83398101031261024b5780516001600160a01b039290838116810361024b57602080840151948516850361024b5783830151946001600160801b038616860361024b5760608501519463ffffffff8616860361024b5760806100849101610273565b60809390935260a0819052835163313ce56760e01b838201908152600482526001600160401b039291808701848111828210176102355787526000928392839251915afa3d1561022c573d928311610218578551926100ec601f8201601f1916860185610250565b83523d828585013e5b156101c95782828051810103126101c657506101176101219260ff9201610273565b8060c05216610281565b60e05261010093845261012092835261014260ff6101409280845216610281565b91610160928352519261076a94856102a9863960805185818161022f0152610401015260a0518581816102740152610352015260c051856101f7015260e05185818161017f015261050c01525184818161013f015261039801525183818160b601526103d10152518260f70152518181816102c0015281816104e401526107120152f35b80fd5b845162461bcd60e51b815260048101849052602260248201527f4661696c656420746f206765742071756f746520746f6b656e20646563696d616044820152616c7360f01b6064820152608490fd5b634e487b7160e01b82526041600452602482fd5b606092506100f5565b634e487b7160e01b600052604160045260246000fd5b600080fd5b601f909101601f19168101906001600160401b0382119082101761023557604052565b519060ff8216820361024b57565b60ff16604d811161029257600a0a90565b634e487b7160e01b600052601160045260246000fdfe60806040818152600436101561001457600080fd5b600091823560e01c90816312adcebf1461021b57508063329afacd146101de57806378892cea146101635780638c89b64f1461011b578063b3596f07146101a2578063c432505414610168578063e19f470014610163578063eb38eeee14610120578063ed435e581461011b578063f1a640f8146100de5763f5615cea1461009b57600080fd5b346100da57816003193601126100da576020905163ffffffff7f0000000000000000000000000000000000000000000000000000000000000000168152f35b5080fd5b50346100da57816003193601126100da576020905160ff7f0000000000000000000000000000000000000000000000000000000000000000168152f35b6102a8565b50346100da57816003193601126100da57602090516001600160801b037f0000000000000000000000000000000000000000000000000000000000000000168152f35b61025e565b50346100da57816003193601126100da57602090517f00000000000000000000000000000000000000000000000000000000000000008152f35b50346100da5760203660031901126100da57600435916001600160a01b03831683036101db57506101d4602092610344565b9051908152f35b80fd5b50346100da57816003193601126100da576020905160ff7f0000000000000000000000000000000000000000000000000000000000000000168152f35b8390346100da57816003193601126100da577f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b346102a35760003660031901126102a3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b600080fd5b346102a35760003660031901126102a35760206040517f00000000000000000000000000000000000000000000000000000000000000008152f35b90601f8019910116810190811067ffffffffffffffff82111761030557604052565b634e487b7160e01b600052604160045260246000fd5b8181029291811591840414171561032e57565b634e487b7160e01b600052601160045260246000fd5b6001600160a01b03818116917f000000000000000000000000000000000000000000000000000000000000000082169083821461070c57604093845191630757bc8160e01b83526004956001600160801b037f00000000000000000000000000000000000000000000000000000000000000001692838886015260249586860152604485015263ffffffff7f000000000000000000000000000000000000000000000000000000000000000016606485015260009384816084818a7f0000000000000000000000000000000000000000000000000000000000000000165afa908115610702578597869261064c575b505086156106155751156105e15780519060209283830163313ce56760e01b81528984528284019367ffffffffffffffff94818110868211176105cf5784525187928392905afa3d156105c6573d9283116105b45781519261049e601f8201601f19168601856102e3565b83523d868585013e5b156105695750818180518101031261056557015160ff811680910361056157604d811161054f576104e26105319261050992600a0a9061031b565b7f00000000000000000000000000000000000000000000000000000000000000009061031b565b937f00000000000000000000000000000000000000000000000000000000000000009061031b565b93841561053f575050500490565b634e487b7160e01b825260129052fd5b5050634e487b7160e01b815260118452fd5b8280fd5b8380fd5b5162461bcd60e51b81528088018390526021818701527f4661696c656420746f20676574206261736520746f6b656e20646563696d616c6044820152607360f81b6064820152608490fd5b634e487b7160e01b8652604189528686fd5b606092506104a7565b634e487b7160e01b895260418c528989fd5b5162461bcd60e51b81526020818801526010818601526f139bc81c1bdbdb1cc81c5d595c9a595960821b6044820152606490fd5b815162461bcd60e51b81526020818a0152601281880152714e6f20707269636520617661696c61626c6560701b6044820152606490fd5b915096503d8086893e61065f81896102e3565b87019082888303126106fe57875191602091828a015167ffffffffffffffff9a8b82116106f657019082601f830112156106fa5781519a8b116105cf578a60051b9186519b6106b18d878601906102e3565b8c5284808d01938201019384116106f6578401915b8383106106da575050505050953880610433565b825182811681036106f25781529184019184016106c6565b8a80fd5b8980fd5b8880fd5b8580fd5b82513d87823e3d90fd5b505050507f00000000000000000000000000000000000000000000000000000000000000009056fea2646970667358221220efbd09d24cc72b09b1c5ca4f5bb72ec4804beab0d22e0f16a790603f87ed316164736f6c63430008180033",
+  "deployedBytecode": "0x60806040818152600436101561001457600080fd5b600091823560e01c90816312adcebf1461021b57508063329afacd146101de57806378892cea146101635780638c89b64f1461011b578063b3596f07146101a2578063c432505414610168578063e19f470014610163578063eb38eeee14610120578063ed435e581461011b578063f1a640f8146100de5763f5615cea1461009b57600080fd5b346100da57816003193601126100da576020905163ffffffff7f0000000000000000000000000000000000000000000000000000000000000000168152f35b5080fd5b50346100da57816003193601126100da576020905160ff7f0000000000000000000000000000000000000000000000000000000000000000168152f35b6102a8565b50346100da57816003193601126100da57602090516001600160801b037f0000000000000000000000000000000000000000000000000000000000000000168152f35b61025e565b50346100da57816003193601126100da57602090517f00000000000000000000000000000000000000000000000000000000000000008152f35b50346100da5760203660031901126100da57600435916001600160a01b03831683036101db57506101d4602092610344565b9051908152f35b80fd5b50346100da57816003193601126100da576020905160ff7f0000000000000000000000000000000000000000000000000000000000000000168152f35b8390346100da57816003193601126100da577f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b346102a35760003660031901126102a3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b600080fd5b346102a35760003660031901126102a35760206040517f00000000000000000000000000000000000000000000000000000000000000008152f35b90601f8019910116810190811067ffffffffffffffff82111761030557604052565b634e487b7160e01b600052604160045260246000fd5b8181029291811591840414171561032e57565b634e487b7160e01b600052601160045260246000fd5b6001600160a01b03818116917f000000000000000000000000000000000000000000000000000000000000000082169083821461070c57604093845191630757bc8160e01b83526004956001600160801b037f00000000000000000000000000000000000000000000000000000000000000001692838886015260249586860152604485015263ffffffff7f000000000000000000000000000000000000000000000000000000000000000016606485015260009384816084818a7f0000000000000000000000000000000000000000000000000000000000000000165afa908115610702578597869261064c575b505086156106155751156105e15780519060209283830163313ce56760e01b81528984528284019367ffffffffffffffff94818110868211176105cf5784525187928392905afa3d156105c6573d9283116105b45781519261049e601f8201601f19168601856102e3565b83523d868585013e5b156105695750818180518101031261056557015160ff811680910361056157604d811161054f576104e26105319261050992600a0a9061031b565b7f00000000000000000000000000000000000000000000000000000000000000009061031b565b937f00000000000000000000000000000000000000000000000000000000000000009061031b565b93841561053f575050500490565b634e487b7160e01b825260129052fd5b5050634e487b7160e01b815260118452fd5b8280fd5b8380fd5b5162461bcd60e51b81528088018390526021818701527f4661696c656420746f20676574206261736520746f6b656e20646563696d616c6044820152607360f81b6064820152608490fd5b634e487b7160e01b8652604189528686fd5b606092506104a7565b634e487b7160e01b895260418c528989fd5b5162461bcd60e51b81526020818801526010818601526f139bc81c1bdbdb1cc81c5d595c9a595960821b6044820152606490fd5b815162461bcd60e51b81526020818a0152601281880152714e6f20707269636520617661696c61626c6560701b6044820152606490fd5b915096503d8086893e61065f81896102e3565b87019082888303126106fe57875191602091828a015167ffffffffffffffff9a8b82116106f657019082601f830112156106fa5781519a8b116105cf578a60051b9186519b6106b18d878601906102e3565b8c5284808d01938201019384116106f6578401915b8383106106da575050505050953880610433565b825182811681036106f25781529184019184016106c6565b8a80fd5b8980fd5b8880fd5b8580fd5b82513d87823e3d90fd5b505050507f00000000000000000000000000000000000000000000000000000000000000009056fea2646970667358221220efbd09d24cc72b09b1c5ca4f5bb72ec4804beab0d22e0f16a790603f87ed316164736f6c63430008180033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "BASE_CURRENCY()": {
+        "details": "Address 0x0 is reserved for USD as base currency.",
+        "returns": {
+          "_0": "Returns the base currency address."
+        }
+      },
+      "BASE_CURRENCY_UNIT()": {
+        "details": "1 ether for ETH, 1e8 for USD.",
+        "returns": {
+          "_0": "Returns the base currency unit."
+        }
+      },
+      "getAssetPrice(address)": {
+        "params": {
+          "asset": "The address of the asset"
+        },
+        "returns": {
+          "_0": "The price of the asset"
+        }
+      }
+    },
+    "title": "Uniswap V3 Static Oracle Wrapper",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "BASE_CURRENCY()": {
+        "notice": "Returns the base currency address"
+      },
+      "BASE_CURRENCY_UNIT()": {
+        "notice": "Returns the base currency unit"
+      },
+      "getAssetPrice(address)": {
+        "notice": "Returns the asset price in the base currency"
+      }
+    },
+    "notice": "Oracle contract for price quoting against Uniswap V3 pools",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}

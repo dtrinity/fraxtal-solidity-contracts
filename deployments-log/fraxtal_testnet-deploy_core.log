@@ -1,0 +1,31 @@
+Nothing to compile
+No need to generate any newer typings.
+This script is only for localhost network
+This script is only for localhost network
+This script is only for localhost and hardhat network
+This script is only for localhost and hardhat network
+This script is only for localhost and hardhat network
+This script is only for localhost and hardhat network
+-----------------
+Deploying 'EmissionManager' contract
+  - Address : 0x0b246Aa2E64eecDB8ac6B6e4E86BB151adAD287E
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0x1ae7fa8c77b38fb146ed6dbd86f75c9b0a10fcfff81ae6538f0e9cd5acfc1c9a
+  - GasUsed : 738631
+-----------------
+-----------------
+Deploying 'IncentivesV2-Implementation' contract
+  - Address : 0xc3b22eBC688050c8beeAd766Cd855D0Eea678821
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0x10954e9013cdb0e1b4668aa5c3e78cca5ec98b74ae661a9644f324f2686eb1ff
+  - GasUsed : 2959933
+-----------------
+[Deployment] Attached Rewards implementation and deployed proxy contract: 
+- Tx hash: 0x84b5e5edbcff719c740c2152822b915365a213fb340a7c23fdb7781ee0922da0
+-----------------
+Deploying 'PullRewardsTransferStrategy' contract
+  - Address : 0x18001a4C3D747D4f8a39206d860ac57dCC0A172e
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0xfc297ea0c39850c3abf3ce76fb2a376838ac70b2428e65ee7c93e2626eb0e125
+  - GasUsed : 313485
+-----------------

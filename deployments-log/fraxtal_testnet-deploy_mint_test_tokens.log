@@ -1,0 +1,14 @@
+Deploying test tokens
+-----------------
+Deploying 'sDAI' contract
+  - Address : 0x4CB47b0FD8f8EfF846889D3BEaD1c33bc93C7FD6
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0x504ed486ca67e4461d950c05be5d48a934a6c779e622a25d2bcacfcfeed68dff
+  - GasUsed : 916490
+-----------------
+
+Checking balances after deployment
+-----------------
+  Account 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+   + 0x4CB47b0FD8f8EfF846889D3BEaD1c33bc93C7FD6 - sDAI: 1000000000000.0 (1000000000000000000000000000000)
+-----------------

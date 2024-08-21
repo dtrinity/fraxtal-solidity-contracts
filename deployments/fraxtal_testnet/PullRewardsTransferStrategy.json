@@ -1,0 +1,226 @@
+{
+  "address": "0x5551201CaBA73b6DBfA1d8f443058655125E974d",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "incentivesController",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "rewardsAdmin",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "rewardsVault",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "EmergencyWithdrawal",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "emergencyWithdrawal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getIncentivesController",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getRewardsAdmin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getRewardsVault",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "reward",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "performTransfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xfe3538ac71db6e8e7b42e9e6193047749a8e711f22e2f4f4c4e780d24b9b5b2f",
+  "receipt": {
+    "to": null,
+    "from": "0x53Ae1433Ab4563d7D5a84d27524784837259f105",
+    "contractAddress": "0x5551201CaBA73b6DBfA1d8f443058655125E974d",
+    "transactionIndex": 1,
+    "gasUsed": "313485",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xbf968e5892b9b6474c3ad7ffcc3bccb3f5923bb92ddd9f1bc8cf8513e412924a",
+    "transactionHash": "0xfe3538ac71db6e8e7b42e9e6193047749a8e711f22e2f4f4c4e780d24b9b5b2f",
+    "logs": [],
+    "blockNumber": 10695187,
+    "cumulativeGasUsed": "359451",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x35Fe3cCF702704d11A83a33317764bc4Cd4aA38a",
+    "0x53Ae1433Ab4563d7D5a84d27524784837259f105",
+    "0x8be82f6e0e96ef6857a1828223F627a55DCf0fd3"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "76058931534ddb088c0cc35104d985c0",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.24+commit.e11b9ed9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"incentivesController\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"rewardsAdmin\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"rewardsVault\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"EmergencyWithdrawal\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"emergencyWithdrawal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getIncentivesController\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRewardsAdmin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRewardsVault\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"reward\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"performTransfer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Aave*\",\"kind\":\"dev\",\"methods\":{\"emergencyWithdrawal(address,address,uint256)\":{\"details\":\"Perform an emergency token withdrawal only callable by the Rewards admin\",\"params\":{\"amount\":\"Amount of the withdrawal\",\"to\":\"Address of the recipient of the withdrawal\",\"token\":\"Address of the token to withdraw funds from this contract\"}},\"getIncentivesController()\":{\"returns\":{\"_0\":\"Returns the address of the Incentives Controller\"}},\"getRewardsAdmin()\":{\"returns\":{\"_0\":\"Returns the address of the Rewards admin\"}},\"getRewardsVault()\":{\"returns\":{\"_0\":\"Address of the rewards vault\"}},\"performTransfer(address,address,uint256)\":{\"details\":\"Perform custom transfer logic via delegate call from source contract to a TransferStrategy implementation\",\"params\":{\"amount\":\"Amount to transfer to the \\\"to\\\" address parameter\",\"reward\":\"Address of the reward token\",\"to\":\"Account to transfer rewards\"},\"returns\":{\"_0\":\"Returns true bool if transfer logic succeeds\"}}},\"title\":\"PullRewardsTransferStrategy\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Transfer strategy that pulls ERC20 rewards from an external account to the user address. The external account could be a smart contract or EOA that must approve to the PullRewardsTransferStrategy contract address.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/lending/periphery/rewards/transfer-strategies/PullRewardsTransferStrategy.sol\":\"PullRewardsTransferStrategy\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"contracts/lending/core/dependencies/gnosis/contracts/GPv2SafeERC20.sol\":{\"content\":\"// SPDX-License-Identifier: LGPL-3.0-or-later\\npragma solidity ^0.8.0;\\n\\nimport {IERC20} from \\\"../../openzeppelin/contracts/IERC20.sol\\\";\\n\\n/// @title Gnosis Protocol v2 Safe ERC20 Transfer Library\\n/// @author Gnosis Developers\\n/// @dev Gas-efficient version of Openzeppelin's SafeERC20 contract.\\nlibrary GPv2SafeERC20 {\\n    /// @dev Wrapper around a call to the ERC20 function `transfer` that reverts\\n    /// also when the token returns `false`.\\n    function safeTransfer(IERC20 token, address to, uint256 value) internal {\\n        bytes4 selector_ = token.transfer.selector;\\n\\n        // solhint-disable-next-line no-inline-assembly\\n        assembly {\\n            let freeMemoryPointer := mload(0x40)\\n            mstore(freeMemoryPointer, selector_)\\n            mstore(\\n                add(freeMemoryPointer, 4),\\n                and(to, 0xffffffffffffffffffffffffffffffffffffffff)\\n            )\\n            mstore(add(freeMemoryPointer, 36), value)\\n\\n            if iszero(call(gas(), token, 0, freeMemoryPointer, 68, 0, 0)) {\\n                returndatacopy(0, 0, returndatasize())\\n                revert(0, returndatasize())\\n            }\\n        }\\n\\n        require(getLastTransferResult(token), \\\"GPv2: failed transfer\\\");\\n    }\\n\\n    /// @dev Wrapper around a call to the ERC20 function `transferFrom` that\\n    /// reverts also when the token returns `false`.\\n    function safeTransferFrom(\\n        IERC20 token,\\n        address from,\\n        address to,\\n        uint256 value\\n    ) internal {\\n        bytes4 selector_ = token.transferFrom.selector;\\n\\n        // solhint-disable-next-line no-inline-assembly\\n        assembly {\\n            let freeMemoryPointer := mload(0x40)\\n            mstore(freeMemoryPointer, selector_)\\n            mstore(\\n                add(freeMemoryPointer, 4),\\n                and(from, 0xffffffffffffffffffffffffffffffffffffffff)\\n            )\\n            mstore(\\n                add(freeMemoryPointer, 36),\\n                and(to, 0xffffffffffffffffffffffffffffffffffffffff)\\n            )\\n            mstore(add(freeMemoryPointer, 68), value)\\n\\n            if iszero(call(gas(), token, 0, freeMemoryPointer, 100, 0, 0)) {\\n                returndatacopy(0, 0, returndatasize())\\n                revert(0, returndatasize())\\n            }\\n        }\\n\\n        require(getLastTransferResult(token), \\\"GPv2: failed transferFrom\\\");\\n    }\\n\\n    /// @dev Verifies that the last return was a successful `transfer*` call.\\n    /// This is done by checking that the return data is either empty, or\\n    /// is a valid ABI encoded boolean.\\n    function getLastTransferResult(\\n        IERC20 token\\n    ) private view returns (bool success) {\\n        // NOTE: Inspecting previous return data requires assembly. Note that\\n        // we write the return data to memory 0 in the case where the return\\n        // data size is 32, this is OK since the first 64 bytes of memory are\\n        // reserved by Solidy as a scratch space that can be used within\\n        // assembly blocks.\\n        // <https://docs.soliditylang.org/en/v0.7.6/internals/layout_in_memory.html>\\n        // solhint-disable-next-line no-inline-assembly\\n        assembly {\\n            /// @dev Revert with an ABI encoded Solidity error with a message\\n            /// that fits into 32-bytes.\\n            ///\\n            /// An ABI encoded Solidity error has the following memory layout:\\n            ///\\n            /// ------------+----------------------------------\\n            ///  byte range | value\\n            /// ------------+----------------------------------\\n            ///  0x00..0x04 |        selector(\\\"Error(string)\\\")\\n            ///  0x04..0x24 |      string offset (always 0x20)\\n            ///  0x24..0x44 |                    string length\\n            ///  0x44..0x64 | string value, padded to 32-bytes\\n            function revertWithMessage(length, message) {\\n                mstore(0x00, \\\"\\\\x08\\\\xc3\\\\x79\\\\xa0\\\")\\n                mstore(0x04, 0x20)\\n                mstore(0x24, length)\\n                mstore(0x44, message)\\n                revert(0x00, 0x64)\\n            }\\n\\n            switch returndatasize()\\n            // Non-standard ERC20 transfer without return.\\n            case 0 {\\n                // NOTE: When the return data size is 0, verify that there\\n                // is code at the address. This is done in order to maintain\\n                // compatibility with Solidity calling conventions.\\n                // <https://docs.soliditylang.org/en/v0.7.6/control-structures.html#external-function-calls>\\n                if iszero(extcodesize(token)) {\\n                    revertWithMessage(20, \\\"GPv2: not a contract\\\")\\n                }\\n\\n                success := 1\\n            }\\n            // Standard ERC20 transfer returning boolean success value.\\n            case 32 {\\n                returndatacopy(0, 0, returndatasize())\\n\\n                // NOTE: For ABI encoding v1, any non-zero value is accepted\\n                // as `true` for a boolean. In order to stay compatible with\\n                // OpenZeppelin's `SafeERC20` library which is known to work\\n                // with the existing ERC20 implementation we care about,\\n                // make sure we return success for any non-zero return value\\n                // from the `transfer*` call.\\n                success := iszero(iszero(mload(0)))\\n            }\\n            default {\\n                revertWithMessage(31, \\\"GPv2: malformed transfer result\\\")\\n            }\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xbb738dfa9c39a42af1926397e25a0970bc37c8d45848a2b0be672b9b9c135e6b\",\"license\":\"LGPL-3.0-or-later\"},\"contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `recipient`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(\\n        address recipient,\\n        uint256 amount\\n    ) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(\\n        address owner,\\n        address spender\\n    ) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `sender` to `recipient` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(\\n        address sender,\\n        address recipient,\\n        uint256 amount\\n    ) external returns (bool);\\n\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(\\n        address indexed owner,\\n        address indexed spender,\\n        uint256 value\\n    );\\n}\\n\",\"keccak256\":\"0x9f865ae3d19d19b2ed680009d6a83ae7fdd80594a86fccf567523d68760a648e\",\"license\":\"AGPL-3.0\"},\"contracts/lending/periphery/rewards/interfaces/IPullRewardsTransferStrategy.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity ^0.8.10;\\n\\nimport {ITransferStrategyBase} from \\\"./ITransferStrategyBase.sol\\\";\\n\\n/**\\n * @title IPullRewardsTransferStrategy\\n * @author Aave\\n **/\\ninterface IPullRewardsTransferStrategy is ITransferStrategyBase {\\n    /**\\n     * @return Address of the rewards vault\\n     */\\n    function getRewardsVault() external view returns (address);\\n}\\n\",\"keccak256\":\"0x27bc73398fa7bdd4caec1569c5568bfddaeed91f5dec4377b5ccfcff1b717b34\",\"license\":\"AGPL-3.0\"},\"contracts/lending/periphery/rewards/interfaces/ITransferStrategyBase.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity ^0.8.10;\\n\\ninterface ITransferStrategyBase {\\n    event EmergencyWithdrawal(\\n        address indexed caller,\\n        address indexed token,\\n        address indexed to,\\n        uint256 amount\\n    );\\n\\n    /**\\n     * @dev Perform custom transfer logic via delegate call from source contract to a TransferStrategy implementation\\n     * @param to Account to transfer rewards\\n     * @param reward Address of the reward token\\n     * @param amount Amount to transfer to the \\\"to\\\" address parameter\\n     * @return Returns true bool if transfer logic succeeds\\n     */\\n    function performTransfer(\\n        address to,\\n        address reward,\\n        uint256 amount\\n    ) external returns (bool);\\n\\n    /**\\n     * @return Returns the address of the Incentives Controller\\n     */\\n    function getIncentivesController() external view returns (address);\\n\\n    /**\\n     * @return Returns the address of the Rewards admin\\n     */\\n    function getRewardsAdmin() external view returns (address);\\n\\n    /**\\n     * @dev Perform an emergency token withdrawal only callable by the Rewards admin\\n     * @param token Address of the token to withdraw funds from this contract\\n     * @param to Address of the recipient of the withdrawal\\n     * @param amount Amount of the withdrawal\\n     */\\n    function emergencyWithdrawal(\\n        address token,\\n        address to,\\n        uint256 amount\\n    ) external;\\n}\\n\",\"keccak256\":\"0x39a4561d50a2a96849f0551fdf3efb10a1bde2e3fdf17bee9c87e877b03d26e7\",\"license\":\"AGPL-3.0\"},\"contracts/lending/periphery/rewards/transfer-strategies/PullRewardsTransferStrategy.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity ^0.8.10;\\n\\nimport {IPullRewardsTransferStrategy} from \\\"../interfaces/IPullRewardsTransferStrategy.sol\\\";\\nimport {ITransferStrategyBase} from \\\"../interfaces/ITransferStrategyBase.sol\\\";\\nimport {TransferStrategyBase} from \\\"./TransferStrategyBase.sol\\\";\\nimport {GPv2SafeERC20} from \\\"contracts/lending/core/dependencies/gnosis/contracts/GPv2SafeERC20.sol\\\";\\nimport {IERC20} from \\\"contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol\\\";\\n\\n/**\\n * @title PullRewardsTransferStrategy\\n * @notice Transfer strategy that pulls ERC20 rewards from an external account to the user address.\\n * The external account could be a smart contract or EOA that must approve to the PullRewardsTransferStrategy contract address.\\n * @author Aave\\n **/\\ncontract PullRewardsTransferStrategy is\\n    TransferStrategyBase,\\n    IPullRewardsTransferStrategy\\n{\\n    using GPv2SafeERC20 for IERC20;\\n\\n    address internal immutable REWARDS_VAULT;\\n\\n    constructor(\\n        address incentivesController,\\n        address rewardsAdmin,\\n        address rewardsVault\\n    ) TransferStrategyBase(incentivesController, rewardsAdmin) {\\n        REWARDS_VAULT = rewardsVault;\\n    }\\n\\n    /// @inheritdoc TransferStrategyBase\\n    function performTransfer(\\n        address to,\\n        address reward,\\n        uint256 amount\\n    )\\n        external\\n        override(TransferStrategyBase, ITransferStrategyBase)\\n        onlyIncentivesController\\n        returns (bool)\\n    {\\n        IERC20(reward).safeTransferFrom(REWARDS_VAULT, to, amount);\\n\\n        return true;\\n    }\\n\\n    /// @inheritdoc IPullRewardsTransferStrategy\\n    function getRewardsVault() external view returns (address) {\\n        return REWARDS_VAULT;\\n    }\\n}\\n\",\"keccak256\":\"0x4157c906d943dfb823172d4f99bcc5667b2a4c0eca3476a85e4b68fc0344b8ed\",\"license\":\"AGPL-3.0\"},\"contracts/lending/periphery/rewards/transfer-strategies/TransferStrategyBase.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity ^0.8.10;\\n\\nimport {ITransferStrategyBase} from \\\"../interfaces/ITransferStrategyBase.sol\\\";\\nimport {GPv2SafeERC20} from \\\"contracts/lending/core/dependencies/gnosis/contracts/GPv2SafeERC20.sol\\\";\\nimport {IERC20} from \\\"contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol\\\";\\n\\n/**\\n * @title TransferStrategyStorage\\n * @author Aave\\n **/\\nabstract contract TransferStrategyBase is ITransferStrategyBase {\\n    using GPv2SafeERC20 for IERC20;\\n\\n    address internal immutable INCENTIVES_CONTROLLER;\\n    address internal immutable REWARDS_ADMIN;\\n\\n    constructor(address incentivesController, address rewardsAdmin) {\\n        INCENTIVES_CONTROLLER = incentivesController;\\n        REWARDS_ADMIN = rewardsAdmin;\\n    }\\n\\n    /**\\n     * @dev Modifier for incentives controller only functions\\n     */\\n    modifier onlyIncentivesController() {\\n        require(\\n            INCENTIVES_CONTROLLER == msg.sender,\\n            \\\"CALLER_NOT_INCENTIVES_CONTROLLER\\\"\\n        );\\n        _;\\n    }\\n\\n    /**\\n     * @dev Modifier for reward admin only functions\\n     */\\n    modifier onlyRewardsAdmin() {\\n        require(msg.sender == REWARDS_ADMIN, \\\"ONLY_REWARDS_ADMIN\\\");\\n        _;\\n    }\\n\\n    /// @inheritdoc ITransferStrategyBase\\n    function getIncentivesController()\\n        external\\n        view\\n        override\\n        returns (address)\\n    {\\n        return INCENTIVES_CONTROLLER;\\n    }\\n\\n    /// @inheritdoc ITransferStrategyBase\\n    function getRewardsAdmin() external view override returns (address) {\\n        return REWARDS_ADMIN;\\n    }\\n\\n    /// @inheritdoc ITransferStrategyBase\\n    function performTransfer(\\n        address to,\\n        address reward,\\n        uint256 amount\\n    ) external virtual returns (bool);\\n\\n    /// @inheritdoc ITransferStrategyBase\\n    function emergencyWithdrawal(\\n        address token,\\n        address to,\\n        uint256 amount\\n    ) external onlyRewardsAdmin {\\n        IERC20(token).safeTransfer(to, amount);\\n\\n        emit EmergencyWithdrawal(msg.sender, token, to, amount);\\n    }\\n}\\n\",\"keccak256\":\"0x800895523dd22dfeba472b2f791d41055788f9d579b703f2df2e18c582780919\",\"license\":\"AGPL-3.0\"}},\"version\":1}",
+  "bytecode": "0x60e0346100a757601f61058138819003918201601f19168301916001600160401b038311848410176100ac578084926060946040528339810103126100a757610047816100c2565b906100606040610059602084016100c2565b92016100c2565b9160805260a05260c0526040516104aa90816100d78239608051818181608501526101ee015260a0518181816102360152610363015260c05181818160bc01526103a80152f35b600080fd5b634e487b7160e01b600052604160045260246000fd5b51906001600160a01b03821682036100a75756fe6080604052600436101561001257600080fd5b6000803560e01c90816316beb9821461006a5750806375d26413146100655780638d8e5da714610060578063c62554431461005b5763e23ddec51461005657600080fd5b610392565b61034d565b61021d565b6101d8565b3461019b576100783661019e565b906001600160a01b0390337f000000000000000000000000000000000000000000000000000000000000000083160361015d578116926323b872dd60e01b608052817f0000000000000000000000000000000000000000000000000000000000000000166084521660a45260c45281806064608082855af115610154576100fe906103d7565b1561010f5760405160018152602090f35b60405162461bcd60e51b815260206004820152601960248201527f475076323a206661696c6564207472616e7366657246726f6d000000000000006044820152606490fd5b503d81803e3d90fd5b62461bcd60e51b6080526020608452602060a4527f43414c4c45525f4e4f545f494e43454e54495645535f434f4e54524f4c4c455260c45260646080fd5b80fd5b60609060031901126101d3576001600160a01b039060043582811681036101d3579160243590811681036101d3579060443590565b600080fd5b346101d35760003660031901126101d3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b346101d35761022b3661019e565b6001600160a01b03907f000000000000000000000000000000000000000000000000000000000000000082163303610313578160449416916040519363a9059cbb60e01b8552169283600482015281602482015260008095819282865af11561030a57610297826103d7565b156102cd5760405190815233907f7dc4ea712e6400e67a5abca1a983e5c420c386c19936dc120cd860b50b8e257990602090a480f35b60405162461bcd60e51b815260206004820152601560248201527423a83b191d103330b4b632b2103a3930b739b332b960591b6044820152606490fd5b833d81803e3d90fd5b60405162461bcd60e51b815260206004820152601260248201527127a7262cafa922aba0a92229afa0a226a4a760711b6044820152606490fd5b346101d35760003660031901126101d3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b346101d35760003660031901126101d3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b3d90811561043257506020146104255762461bcd60e51b6000526020600452601f6024527f475076323a206d616c666f726d6564207472616e7366657220726573756c740060445260646000fd5b3d6000803e600051151590565b90503b1561043f57600190565b62461bcd60e51b600052602060045260146024527311d41d8c8e881b9bdd08184818dbdb9d1c9858dd60621b60445260646000fdfea2646970667358221220e274758b3f18f98a1225d4f7748426eb15366464255217f99d91889058dff7ff64736f6c63430008180033",
+  "deployedBytecode": "0x6080604052600436101561001257600080fd5b6000803560e01c90816316beb9821461006a5750806375d26413146100655780638d8e5da714610060578063c62554431461005b5763e23ddec51461005657600080fd5b610392565b61034d565b61021d565b6101d8565b3461019b576100783661019e565b906001600160a01b0390337f000000000000000000000000000000000000000000000000000000000000000083160361015d578116926323b872dd60e01b608052817f0000000000000000000000000000000000000000000000000000000000000000166084521660a45260c45281806064608082855af115610154576100fe906103d7565b1561010f5760405160018152602090f35b60405162461bcd60e51b815260206004820152601960248201527f475076323a206661696c6564207472616e7366657246726f6d000000000000006044820152606490fd5b503d81803e3d90fd5b62461bcd60e51b6080526020608452602060a4527f43414c4c45525f4e4f545f494e43454e54495645535f434f4e54524f4c4c455260c45260646080fd5b80fd5b60609060031901126101d3576001600160a01b039060043582811681036101d3579160243590811681036101d3579060443590565b600080fd5b346101d35760003660031901126101d3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b346101d35761022b3661019e565b6001600160a01b03907f000000000000000000000000000000000000000000000000000000000000000082163303610313578160449416916040519363a9059cbb60e01b8552169283600482015281602482015260008095819282865af11561030a57610297826103d7565b156102cd5760405190815233907f7dc4ea712e6400e67a5abca1a983e5c420c386c19936dc120cd860b50b8e257990602090a480f35b60405162461bcd60e51b815260206004820152601560248201527423a83b191d103330b4b632b2103a3930b739b332b960591b6044820152606490fd5b833d81803e3d90fd5b60405162461bcd60e51b815260206004820152601260248201527127a7262cafa922aba0a92229afa0a226a4a760711b6044820152606490fd5b346101d35760003660031901126101d3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b346101d35760003660031901126101d3576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b3d90811561043257506020146104255762461bcd60e51b6000526020600452601f6024527f475076323a206d616c666f726d6564207472616e7366657220726573756c740060445260646000fd5b3d6000803e600051151590565b90503b1561043f57600190565b62461bcd60e51b600052602060045260146024527311d41d8c8e881b9bdd08184818dbdb9d1c9858dd60621b60445260646000fdfea2646970667358221220e274758b3f18f98a1225d4f7748426eb15366464255217f99d91889058dff7ff64736f6c63430008180033",
+  "devdoc": {
+    "author": "Aave*",
+    "kind": "dev",
+    "methods": {
+      "emergencyWithdrawal(address,address,uint256)": {
+        "details": "Perform an emergency token withdrawal only callable by the Rewards admin",
+        "params": {
+          "amount": "Amount of the withdrawal",
+          "to": "Address of the recipient of the withdrawal",
+          "token": "Address of the token to withdraw funds from this contract"
+        }
+      },
+      "getIncentivesController()": {
+        "returns": {
+          "_0": "Returns the address of the Incentives Controller"
+        }
+      },
+      "getRewardsAdmin()": {
+        "returns": {
+          "_0": "Returns the address of the Rewards admin"
+        }
+      },
+      "getRewardsVault()": {
+        "returns": {
+          "_0": "Address of the rewards vault"
+        }
+      },
+      "performTransfer(address,address,uint256)": {
+        "details": "Perform custom transfer logic via delegate call from source contract to a TransferStrategy implementation",
+        "params": {
+          "amount": "Amount to transfer to the \"to\" address parameter",
+          "reward": "Address of the reward token",
+          "to": "Account to transfer rewards"
+        },
+        "returns": {
+          "_0": "Returns true bool if transfer logic succeeds"
+        }
+      }
+    },
+    "title": "PullRewardsTransferStrategy",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "notice": "Transfer strategy that pulls ERC20 rewards from an external account to the user address. The external account could be a smart contract or EOA that must approve to the PullRewardsTransferStrategy contract address.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}

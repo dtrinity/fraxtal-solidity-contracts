@@ -1,0 +1,17 @@
+// This config is only for Typescript type checking purposes
+// It extends the main tsconfig.json file and excludes the typechain-types folder
+// as it is generated code and should not be type checked
+//
+// We include the typechain-types folder in the main tsconfig.json file so that VSCode will show the
+// generated contract types in the editor, which avoid filling wrong parameters types in the deploy/test scripts
+{
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "typechain-types",
+    "typechain",
+    "legacy-tests",
+    "test",
+    "utils/liquidator-bot", // We use some typechain types in the liquidator bot
+    "scripts/liquidator-bot" // We use some typechain types in the liquidator bot
+  ]
+}

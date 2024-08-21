@@ -1,0 +1,14 @@
+-----------------
+Deploying 'SFRAX-TestnetPriceAggregator' contract
+  - Address : 0xDa2f92D37F45934C808A636fe6958B3F5C0D5dB9
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0x0d130421a46eac00a39eac1bded88d3e776c88785c257705106b3b4661432cbf
+  - GasUsed : 114548
+-----------------
+-----------------
+Deploying 'SFRXETH-TestnetPriceAggregator' contract
+  - Address : 0x59567d4ee815D451B624D4BB4CdFaE9f5b9bBF1e
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0x97bbeaa7f7a5f30997fe82b4c0c09b2b780349ef6e6a473c1319136ce2bc8037
+  - GasUsed : 114560
+-----------------

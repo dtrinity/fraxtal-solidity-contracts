@@ -1,0 +1,109 @@
+{
+    "env": {
+        "browser": true,
+        "es2020": true
+    },
+    "extends": [
+        "plugin:json/recommended",
+        "plugin:jsdoc/recommended",
+        "plugin:eslint-comments/recommended",
+        "prettier"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 11,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint",
+        "unused-imports",
+        "simple-import-sort",
+        "import",
+        "jsdoc",
+        "json",
+        "prettier"
+    ],
+    "ignorePatterns": [
+        "!.*",
+        "data/",
+        "contracts/",
+        "dist/",
+        "node_modules/",
+        "debug/",
+        "typechain-types/",
+        ".github/",
+        ".yarn/",
+        "legacy-tests/",
+        "typechain/"
+    ],
+    "rules": {
+        "max-len": [
+            "error",
+            {
+                "code": 140,
+                "ignoreUrls": true,
+                "ignoreStrings": true,
+                "ignoreTemplateLiterals": true,
+                "ignoreRegExpLiterals": true,
+                "ignoreComments": true
+            }
+        ],
+        "prettier/prettier": ["error"],
+        "camelcase": "error",
+        "@typescript-eslint/explicit-function-return-type": "error",
+        // "sort-imports": ["error", {
+        //     "ignoreCase": false,
+        //     "ignoreDeclarationSort": false,
+        //     "ignoreMemberSort": false,
+        //     "memberSyntaxSortOrder": [
+        //         "none",
+        //         "all",
+        //         "multiple",
+        //         "single"
+        //     ],
+        //     "allowSeparatedGroups": false
+        // }],
+        "eslint-comments/require-description": ["error"],
+        "json/*": [
+            "error",
+            {
+                "allowComments": true
+            }
+        ],
+        "padding-line-between-statements": [
+            "error",
+            {
+                "blankLine": "always",
+                "prev": ["*"],
+                "next": ["block-like"]
+            }
+        ],
+        "unused-imports/no-unused-imports": "error",
+        "unused-imports/no-unused-vars": [
+			"warn",
+			{
+                "vars": "all",
+                "varsIgnorePattern": "^_",
+                "args": "after-used",
+                "argsIgnorePattern": "^_"
+            }
+		],
+        "simple-import-sort/imports": "error",
+        "simple-import-sort/exports": "error",
+        "import/first": "error",
+        "import/newline-after-import": "error",
+        "import/no-duplicates": "error",
+        "jsdoc/require-jsdoc": "error",
+        "jsdoc/require-description": "error",
+        "jsdoc/tag-lines": [
+            "error",
+            "never",
+            {
+                "startLines": 1
+            }
+        ],
+        "jsdoc/require-param-type": "off",
+        "jsdoc/require-returns-type": "off",
+        "jsdoc/require-property-type": "off"
+    }
+}

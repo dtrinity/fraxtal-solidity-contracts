@@ -1,0 +1,15 @@
+-----------------
+Deploying 'SFRXETH-MockPriceAggregator' contract
+  - Address : 0x66B60214b7d142022aaaa14458d228CBc240e999
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0x36f13375e3d75ac3926cac180b866856fa7f617b1021acda95dd482f4a5563ff
+  - GasUsed : 152867
+-----------------
+-----------------
+Deploying 'WFRXETH-MockPriceAggregator' contract
+  - Address : 0x2fB93C42D7727C6A69B66943008C26Ec7701eAd1
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0x8441f1822ffdabd9f13a470ab98689a618b9e41fe9396d841155548b39e686b1
+  - GasUsed : 152855
+-----------------
+Successfully set new asset sources

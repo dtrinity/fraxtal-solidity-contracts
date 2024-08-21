@@ -1,0 +1,148 @@
+{
+  "address": "0xDa2f92D37F45934C808A636fe6958B3F5C0D5dB9",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "int256",
+          "name": "initialAnswer",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "int256",
+          "name": "current",
+          "type": "int256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "roundId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "updatedAt",
+          "type": "uint256"
+        }
+      ],
+      "name": "AnswerUpdated",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTokenType",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "latestAnswer",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x0d130421a46eac00a39eac1bded88d3e776c88785c257705106b3b4661432cbf",
+  "receipt": {
+    "to": null,
+    "from": "0x53Ae1433Ab4563d7D5a84d27524784837259f105",
+    "contractAddress": "0xDa2f92D37F45934C808A636fe6958B3F5C0D5dB9",
+    "transactionIndex": 1,
+    "gasUsed": "114548",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000800000000000080020000000000000000000800000000000000000000000000000000000000000000000004000000000000000000000480000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000020000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xa5316f235567e962c6e5b949be199d863dcd2e9a6280c4b36c4724af6001d67c",
+    "transactionHash": "0x0d130421a46eac00a39eac1bded88d3e776c88785c257705106b3b4661432cbf",
+    "logs": [
+      {
+        "transactionIndex": 1,
+        "blockNumber": 7884978,
+        "transactionHash": "0x0d130421a46eac00a39eac1bded88d3e776c88785c257705106b3b4661432cbf",
+        "address": "0xDa2f92D37F45934C808A636fe6958B3F5C0D5dB9",
+        "topics": [
+          "0x0559884fd3a460db3073b7fc896cc77986f16e378210ded43186175bf646fc5f",
+          "0x000000000000000000000000000000000000000000000000112210f4768db400",
+          "0x0000000000000000000000000000000000000000000000000000000000000000"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000066448824",
+        "logIndex": 0,
+        "blockHash": "0xa5316f235567e962c6e5b949be199d863dcd2e9a6280c4b36c4724af6001d67c"
+      }
+    ],
+    "blockNumber": 7884978,
+    "cumulativeGasUsed": "160610",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "1234567890000000000"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "3e6aa95ac464a60b5d3194a2a8804a1f",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.24+commit.e11b9ed9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"int256\",\"name\":\"initialAnswer\",\"type\":\"int256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"int256\",\"name\":\"current\",\"type\":\"int256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"roundId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"updatedAt\",\"type\":\"uint256\"}],\"name\":\"AnswerUpdated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTokenType\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"latestAnswer\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/lending/core/mocks/oracle/CLAggregators/MockAggregator.sol\":\"MockAggregator\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/lending/core/mocks/oracle/CLAggregators/MockAggregator.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\npragma solidity ^0.8.0;\\n\\ncontract MockAggregator {\\n    int256 private _latestAnswer;\\n\\n    event AnswerUpdated(\\n        int256 indexed current,\\n        uint256 indexed roundId,\\n        uint256 updatedAt\\n    );\\n\\n    constructor(int256 initialAnswer) {\\n        _latestAnswer = initialAnswer;\\n        emit AnswerUpdated(initialAnswer, 0, block.timestamp);\\n    }\\n\\n    function latestAnswer() external view returns (int256) {\\n        return _latestAnswer;\\n    }\\n\\n    function getTokenType() external pure returns (uint256) {\\n        return 1;\\n    }\\n\\n    function decimals() external pure returns (uint8) {\\n        return 8;\\n    }\\n}\\n\",\"keccak256\":\"0x7b68912d360c38fd0588c19730aa695418bdc37c169e0ebe94818880da5e6907\",\"license\":\"BUSL-1.1\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5060405161013838038061013883398101604081905261002f9161006f565b600081815560405142815282907f0559884fd3a460db3073b7fc896cc77986f16e378210ded43186175bf646fc5f9060200160405180910390a350610088565b60006020828403121561008157600080fd5b5051919050565b60a2806100966000396000f3fe6080604052348015600f57600080fd5b5060043610603c5760003560e01c8063313ce56714604157806350d25bcd146055578063fcab1819146066575b600080fd5b604051600881526020015b60405180910390f35b6000545b604051908152602001604c565b6001605956fea26469706673582212200659e52c5c4bb641d28432e35a20b9897308e58a587c1d0bce550dafe3c9274664736f6c63430008180033",
+  "deployedBytecode": "0x6080604052348015600f57600080fd5b5060043610603c5760003560e01c8063313ce56714604157806350d25bcd146055578063fcab1819146066575b600080fd5b604051600881526020015b60405180910390f35b6000545b604051908152602001604c565b6001605956fea26469706673582212200659e52c5c4bb641d28432e35a20b9897308e58a587c1d0bce550dafe3c9274664736f6c63430008180033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 11910,
+        "contract": "contracts/lending/core/mocks/oracle/CLAggregators/MockAggregator.sol:MockAggregator",
+        "label": "_latestAnswer",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_int256"
+      }
+    ],
+    "types": {
+      "t_int256": {
+        "encoding": "inplace",
+        "label": "int256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
