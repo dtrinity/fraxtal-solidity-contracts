@@ -10,16 +10,17 @@ import { UNISWAP_STATIC_ORACLE_WRAPPER_ID } from "../dex/deploy-ids";
 import { getStaticOraclePrice } from "../dex/oracle";
 import { getDEXPoolAddressForPair } from "../dex/pool";
 import { convertToSwapPath } from "../dex/utils";
+import { getUserHealthFactor } from "../lending/account";
 import { getUserDebtBalance, getUserSupplyBalance } from "../lending/balance";
 import { getReserveConfigurationData } from "../lending/reserve";
 import { getReserveTokensAddressesFromAddress } from "../lending/token";
+import { getCloseFactorHFThreshold } from "../lending/utils";
 import PercentMath, { pow10 } from "../maths/PercentMath";
 import { fetchTokenInfo, TokenInfo } from "../token";
 import {
   FLASH_LOAN_LIQUIDATOR_BORROW_REPAY_AAVE_ID,
   FLASH_MINT_LIQUIDATOR_BORROW_REPAY_AAVE_ID,
 } from "./deploy-ids";
-import { NotProfitableLiquidationError } from "./errors";
 
 /**
  * Get the flash mint liquidator bot contract
@@ -115,10 +116,15 @@ export async function performLiquidation(
     borrowTokenInfo.address,
   );
 
-  // Get the swap path to swap from collateralToken to borrowToken
-  // after the liquidation (if the borrowToken != collateralToken)
-  // so that we can burn the flash-minted borrowToken
-  const path = await getSwapPath(collateralTokenInfo, borrowTokenInfo);
+  let path = "0x";
+
+  if (borrowTokenInfo.address !== collateralTokenInfo.address) {
+    // Get the swap path to swap from collateralToken to borrowToken
+    // after the liquidation (if the borrowToken != collateralToken)
+    // so that we can burn the flash-minted borrowToken
+    // As we use exactOutput() swap, thus we set isExactInput = false
+    path = await getSwapPath(collateralTokenInfo, borrowTokenInfo, false);
+  }
 
   const config = await getConfig(hre);
 
@@ -194,12 +200,20 @@ export async function performLiquidation(
  *
  * @param inputTokenInfo - The token info of the input token
  * @param outputTokenInfo - The token info of the output token
+ * @param isExactInput - The flag to indicate if the swap is exact input or exact output
  * @returns The swap path
  */
-async function getSwapPath(
+export async function getSwapPath(
   inputTokenInfo: TokenInfo,
   outputTokenInfo: TokenInfo,
+  isExactInput: boolean,
 ): Promise<string> {
+  if (inputTokenInfo.address === outputTokenInfo.address) {
+    throw new Error(
+      `Input token and output token are the same: ${JSON.stringify(inputTokenInfo)} vs. ${JSON.stringify(outputTokenInfo)}`,
+    );
+  }
+
   // We assume that for each token, there is a DEX pool for swapping to dUSD
   // The quote token of the oracle is a stablecoin (in our case, dUSD)
   const { address: oracleContractAddress } = await hre.deployments.get(
@@ -227,9 +241,9 @@ async function getSwapPath(
       );
     }
     return convertToSwapPath(
-      [outputTokenInfo.address, inputTokenInfo.address],
+      [inputTokenInfo.address, outputTokenInfo.address],
       [swapPoolFeeSchema],
-      false,
+      isExactInput,
     );
   } else if (quoteTokenAddress === inputTokenInfo.address) {
     // This case mean the collateralToken is the stablecoin, thus we don't need an intermediate token
@@ -248,9 +262,9 @@ async function getSwapPath(
     }
 
     return convertToSwapPath(
-      [outputTokenInfo.address, quoteTokenAddress],
+      [quoteTokenAddress, outputTokenInfo.address],
       [swapPoolFeeSchema],
-      false,
+      isExactInput,
     );
   } else {
     // If there is a direct pool from inputToken to outputToken, we use it
@@ -262,9 +276,9 @@ async function getSwapPath(
 
     if (poolAddress !== hre.ethers.ZeroAddress) {
       return convertToSwapPath(
-        [outputTokenInfo.address, inputTokenInfo.address],
+        [inputTokenInfo.address, outputTokenInfo.address],
         [swapPoolFeeSchema],
-        false,
+        isExactInput,
       );
     }
 
@@ -294,9 +308,9 @@ async function getSwapPath(
     }
 
     return convertToSwapPath(
-      [outputTokenInfo.address, quoteTokenAddress, inputTokenInfo.address],
-      [swapPoolFeeSchema1, swapPoolFeeSchema2],
-      false,
+      [inputTokenInfo.address, quoteTokenAddress, outputTokenInfo.address],
+      [swapPoolFeeSchema2, swapPoolFeeSchema1],
+      isExactInput,
     );
   }
 }
@@ -369,6 +383,9 @@ export async function getMaxLiquidationAmount(
 
   const liquidationBonusBN = BigNumber.from(liquidationBonus);
 
+  const closeFactorHFThreshold = await getCloseFactorHFThreshold(hre);
+  const userHealthFactor = await getUserHealthFactor(borrowerAddress);
+
   const { toLiquidateAmount } = getMaxLiquidationAmountCalculation(
     collateralTokenInfo,
     totalUserCollateral,
@@ -377,6 +394,8 @@ export async function getMaxLiquidationAmount(
     totalUserDebt,
     borrowTokenPriceInUSD,
     liquidationBonusBN,
+    userHealthFactor,
+    closeFactorHFThreshold,
   );
 
   return {
@@ -395,6 +414,8 @@ export async function getMaxLiquidationAmount(
  * @param totalUserDebt - The total debt of the user
  * @param borrowTokenPriceInUSD - The price of the borrowed token in USD
  * @param liquidationBonus - The liquidation bonus
+ * @param userHealthFactor - The health factor of the user
+ * @param closeFactorHFThreshold - The close factor health factor threshold
  * @returns - The maximum liquidation amount of the borrower
  */
 export function getMaxLiquidationAmountCalculation(
@@ -405,9 +426,17 @@ export function getMaxLiquidationAmountCalculation(
   totalUserDebt: BigNumber,
   borrowTokenPriceInUSD: BigNumberish,
   liquidationBonus: BigNumber,
+  userHealthFactor: number,
+  closeFactorHFThreshold: number,
 ): {
   toLiquidateAmount: BigNumber;
 } {
+  if (userHealthFactor >= 1) {
+    return {
+      toLiquidateAmount: BigNumber.from(0),
+    };
+  }
+
   const totalUserCollateralInUSD = totalUserCollateral
     .mul(collateralTokenPriceInUSD)
     .div(pow10(collateralTokenInfo.decimals));
@@ -416,6 +445,13 @@ export function getMaxLiquidationAmountCalculation(
   //   : PercentMath.percentDiv(totalUserCollateralInUSD, liquidationBonus);
 
   let toLiquidateAmount = totalUserDebt.div(2);
+
+  if (userHealthFactor < closeFactorHFThreshold) {
+    // If the user's health factor is below the close factor threshold,
+    // we can liquidate the entire debt
+    toLiquidateAmount = totalUserDebt;
+  }
+
   const toLiquidateAmountInUSD = toLiquidateAmount
     .mul(borrowTokenPriceInUSD)
     .div(pow10(borrowTokenInfo.decimals));
@@ -425,9 +461,14 @@ export function getMaxLiquidationAmountCalculation(
       totalUserCollateralInUSD,
     )
   ) {
-    throw new NotProfitableLiquidationError(
-      `toLiquidateAmountInUSD: ${toLiquidateAmountInUSD.toString()}, liquidationBonus: ${liquidationBonus.toString()}, totalUserCollateralInUSD: ${totalUserCollateralInUSD.toString()}`,
-    );
+    // Adjust the toLiquidateAmount to be profitable
+    toLiquidateAmount = PercentMath.percentDiv(
+      totalUserCollateralInUSD,
+      liquidationBonus,
+    )
+      .mul(pow10(borrowTokenInfo.decimals))
+      .div(borrowTokenPriceInUSD);
+
     // toLiquidateAmount = toLiquidateAmount
     //   .mul(pow10(borrowTokenInfo.decimals))
     //   .div(borrowTokenPriceInUSD); // TODO: verify the formula

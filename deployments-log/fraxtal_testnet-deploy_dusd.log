@@ -1,0 +1,26 @@
+MNEMONIC_FRAXTAL_MAINNET_DEX_POOL_ADDER is not set in the .env file
+MNEMONIC_FRAXTAL_MAINNET_LENDING_REWARDS_VAULT is not set in the .env file
+Nothing to compile
+No need to generate any newer typings.
+-----------------
+Deploying 'AmoManager' contract
+  - Address : 0xf2828638927F0e084c588Dde5a4856ce35DC5E7e
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0x68303a4f5fa7cc725f67c2419cbb3f94c22cf698bbd63dd297154c3a86beb86e
+  - GasUsed : 1695945
+-----------------
+-----------------
+Deploying 'Issuer' contract
+  - Address : 0xd1Cc830c7B89661B0E29E8db04280f9d1669d116
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0xe318f2e2922b7f1895bfdc7e6a127215b93e1d4b43bec63496ffc5a32e137b90
+  - GasUsed : 1211225
+-----------------
+-----------------
+Deploying 'Redeemer' contract
+  - Address : 0xB965606028511B9292A730e636b4bd1aCdF91f05
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0x8e1251b63ef04c8d8fd18a3543090cfc1537302e1c635cca3bef3956666c42af
+  - GasUsed : 834229
+-----------------
+Allowing Redeemer to withdraw collateral

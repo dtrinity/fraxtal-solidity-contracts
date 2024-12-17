@@ -34,5 +34,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 func.id = SWAP_ROUTER_ID;
-func.tags = ["dex", "periphery"];
+func.tags = ["dex", "dex-periphery"];
 export default func;

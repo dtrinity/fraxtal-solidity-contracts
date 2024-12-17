@@ -106,7 +106,7 @@ describe("Testing DEX Oracle as Lending fallback oracle", function () {
 
     await chai
       .expect(oracleWrapperContract.getAssetPrice(token2Address))
-      .to.be.revertedWith("No defined pools");
+      .to.be.revertedWith("No existing pool for the pair");
   });
 
   it("Add pools to DEX", async function () {

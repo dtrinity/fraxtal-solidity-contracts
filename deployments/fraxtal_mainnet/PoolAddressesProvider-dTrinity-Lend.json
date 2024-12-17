@@ -1,0 +1,965 @@
+{
+  "address": "0xD9C622d64342B5FaCeef4d366B974AEf6dCB338D",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "marketId",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "ACLAdminUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "ACLManagerUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "AddressSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "proxyAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "oldImplementationAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newImplementationAddress",
+          "type": "address"
+        }
+      ],
+      "name": "AddressSetAsProxy",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "oldMarketId",
+          "type": "string"
+        },
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "newMarketId",
+          "type": "string"
+        }
+      ],
+      "name": "MarketIdSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "PoolConfiguratorUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "PoolDataProviderUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "PoolUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "PriceOracleSentinelUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "PriceOracleUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "proxyAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "implementationAddress",
+          "type": "address"
+        }
+      ],
+      "name": "ProxyCreated",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "getACLAdmin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getACLManager",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getAddressFromID",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getMarketId",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPool",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPoolConfigurator",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPoolDataProvider",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPriceOracle",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPriceOracleSentinel",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newAclAdmin",
+          "type": "address"
+        }
+      ],
+      "name": "setACLAdmin",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newAclManager",
+          "type": "address"
+        }
+      ],
+      "name": "setACLManager",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "newImplementationAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setAddressAsProxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "newMarketId",
+          "type": "string"
+        }
+      ],
+      "name": "setMarketId",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newPoolConfiguratorImpl",
+          "type": "address"
+        }
+      ],
+      "name": "setPoolConfiguratorImpl",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newDataProvider",
+          "type": "address"
+        }
+      ],
+      "name": "setPoolDataProvider",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newPoolImpl",
+          "type": "address"
+        }
+      ],
+      "name": "setPoolImpl",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newPriceOracle",
+          "type": "address"
+        }
+      ],
+      "name": "setPriceOracle",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newPriceOracleSentinel",
+          "type": "address"
+        }
+      ],
+      "name": "setPriceOracleSentinel",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x6bddb29ecc6b8f384234d0e139412722c2791a7d803c3c31b642e11a828a43e6",
+  "receipt": {
+    "to": null,
+    "from": "0x0f5e3D9AEe7Ab5fDa909Af1ef147D98a7f4B3022",
+    "contractAddress": "0xD9C622d64342B5FaCeef4d366B974AEf6dCB338D",
+    "transactionIndex": 1,
+    "gasUsed": "1551041",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000800000000000008000000000000000000000001000000000000000000000000000000000000000000400000000000000000000000000000001000008000000000000000000000400000000020000000000000000000800000000000000000000000000000000408000080000000000000000000000000000000000000000000000000000000000000040080000000000000000000000000002000000000000000000000000000000000000000000000000100000000000000000000000000000000000000020020001000000000400000000000000000000000000000000000000000000010000",
+    "blockHash": "0x15023542c00c68c6b27989034cb0cba7732d8f2af1106f7edda519bc55027fb9",
+    "transactionHash": "0x6bddb29ecc6b8f384234d0e139412722c2791a7d803c3c31b642e11a828a43e6",
+    "logs": [
+      {
+        "transactionIndex": 1,
+        "blockNumber": 12854470,
+        "transactionHash": "0x6bddb29ecc6b8f384234d0e139412722c2791a7d803c3c31b642e11a828a43e6",
+        "address": "0xD9C622d64342B5FaCeef4d366B974AEf6dCB338D",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000000f5e3d9aee7ab5fda909af1ef147d98a7f4b3022"
+        ],
+        "data": "0x",
+        "logIndex": 1,
+        "blockHash": "0x15023542c00c68c6b27989034cb0cba7732d8f2af1106f7edda519bc55027fb9"
+      },
+      {
+        "transactionIndex": 1,
+        "blockNumber": 12854470,
+        "transactionHash": "0x6bddb29ecc6b8f384234d0e139412722c2791a7d803c3c31b642e11a828a43e6",
+        "address": "0xD9C622d64342B5FaCeef4d366B974AEf6dCB338D",
+        "topics": [
+          "0xe685c8cdecc6030c45030fd54778812cb84ed8e4467c38294403d68ba7860823",
+          "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+          "0x044852b2a670ade5407e78fb2863c51de9fcb96542a07186fe3aeda6bb8a116d"
+        ],
+        "data": "0x",
+        "logIndex": 2,
+        "blockHash": "0x15023542c00c68c6b27989034cb0cba7732d8f2af1106f7edda519bc55027fb9"
+      },
+      {
+        "transactionIndex": 1,
+        "blockNumber": 12854470,
+        "transactionHash": "0x6bddb29ecc6b8f384234d0e139412722c2791a7d803c3c31b642e11a828a43e6",
+        "address": "0xD9C622d64342B5FaCeef4d366B974AEf6dCB338D",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000f5e3d9aee7ab5fda909af1ef147d98a7f4b3022",
+          "0x0000000000000000000000000f5e3d9aee7ab5fda909af1ef147d98a7f4b3022"
+        ],
+        "data": "0x",
+        "logIndex": 3,
+        "blockHash": "0x15023542c00c68c6b27989034cb0cba7732d8f2af1106f7edda519bc55027fb9"
+      }
+    ],
+    "blockNumber": 12854470,
+    "cumulativeGasUsed": "1629331",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0",
+    "0x0f5e3D9AEe7Ab5fDa909Af1ef147D98a7f4B3022"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "8ed37bb5fee79f55dbb8814c36c24c8d",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.24+commit.e11b9ed9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"marketId\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"ACLAdminUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"ACLManagerUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"AddressSet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proxyAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"oldImplementationAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newImplementationAddress\",\"type\":\"address\"}],\"name\":\"AddressSetAsProxy\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"oldMarketId\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"string\",\"name\":\"newMarketId\",\"type\":\"string\"}],\"name\":\"MarketIdSet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"PoolConfiguratorUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"PoolDataProviderUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"PoolUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"PriceOracleSentinelUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"PriceOracleUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proxyAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"implementationAddress\",\"type\":\"address\"}],\"name\":\"ProxyCreated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"getACLAdmin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getACLManager\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"}],\"name\":\"getAddressFromID\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMarketId\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPool\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPoolConfigurator\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPoolDataProvider\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPriceOracle\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPriceOracleSentinel\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAclAdmin\",\"type\":\"address\"}],\"name\":\"setACLAdmin\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newAclManager\",\"type\":\"address\"}],\"name\":\"setACLManager\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"newAddress\",\"type\":\"address\"}],\"name\":\"setAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"id\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"newImplementationAddress\",\"type\":\"address\"}],\"name\":\"setAddressAsProxy\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"newMarketId\",\"type\":\"string\"}],\"name\":\"setMarketId\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newPoolConfiguratorImpl\",\"type\":\"address\"}],\"name\":\"setPoolConfiguratorImpl\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newDataProvider\",\"type\":\"address\"}],\"name\":\"setPoolDataProvider\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newPoolImpl\",\"type\":\"address\"}],\"name\":\"setPoolImpl\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newPriceOracle\",\"type\":\"address\"}],\"name\":\"setPriceOracle\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newPriceOracleSentinel\",\"type\":\"address\"}],\"name\":\"setPriceOracleSentinel\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Aave\",\"details\":\"Acts as factory of proxies and admin of those, so with right to change its implementationsOwned by the Aave Governance\",\"events\":{\"ACLAdminUpdated(address,address)\":{\"details\":\"Emitted when the ACL admin is updated.\",\"params\":{\"newAddress\":\"The new address of the ACLAdmin\",\"oldAddress\":\"The old address of the ACLAdmin\"}},\"ACLManagerUpdated(address,address)\":{\"details\":\"Emitted when the ACL manager is updated.\",\"params\":{\"newAddress\":\"The new address of the ACLManager\",\"oldAddress\":\"The old address of the ACLManager\"}},\"AddressSet(bytes32,address,address)\":{\"details\":\"Emitted when a new non-proxied contract address is registered.\",\"params\":{\"id\":\"The identifier of the contract\",\"newAddress\":\"The address of the new contract\",\"oldAddress\":\"The address of the old contract\"}},\"AddressSetAsProxy(bytes32,address,address,address)\":{\"details\":\"Emitted when the implementation of the proxy registered with id is updated\",\"params\":{\"id\":\"The identifier of the contract\",\"newImplementationAddress\":\"The address of the new implementation contract\",\"oldImplementationAddress\":\"The address of the old implementation contract\",\"proxyAddress\":\"The address of the proxy contract\"}},\"MarketIdSet(string,string)\":{\"details\":\"Emitted when the market identifier is updated.\",\"params\":{\"newMarketId\":\"The new id of the market\",\"oldMarketId\":\"The old id of the market\"}},\"PoolConfiguratorUpdated(address,address)\":{\"details\":\"Emitted when the pool configurator is updated.\",\"params\":{\"newAddress\":\"The new address of the PoolConfigurator\",\"oldAddress\":\"The old address of the PoolConfigurator\"}},\"PoolDataProviderUpdated(address,address)\":{\"details\":\"Emitted when the pool data provider is updated.\",\"params\":{\"newAddress\":\"The new address of the PoolDataProvider\",\"oldAddress\":\"The old address of the PoolDataProvider\"}},\"PoolUpdated(address,address)\":{\"details\":\"Emitted when the pool is updated.\",\"params\":{\"newAddress\":\"The new address of the Pool\",\"oldAddress\":\"The old address of the Pool\"}},\"PriceOracleSentinelUpdated(address,address)\":{\"details\":\"Emitted when the price oracle sentinel is updated.\",\"params\":{\"newAddress\":\"The new address of the PriceOracleSentinel\",\"oldAddress\":\"The old address of the PriceOracleSentinel\"}},\"PriceOracleUpdated(address,address)\":{\"details\":\"Emitted when the price oracle is updated.\",\"params\":{\"newAddress\":\"The new address of the PriceOracle\",\"oldAddress\":\"The old address of the PriceOracle\"}},\"ProxyCreated(bytes32,address,address)\":{\"details\":\"Emitted when a new proxy is created.\",\"params\":{\"id\":\"The identifier of the proxy\",\"implementationAddress\":\"The address of the implementation contract\",\"proxyAddress\":\"The address of the created proxy contract\"}}},\"kind\":\"dev\",\"methods\":{\"constructor\":{\"details\":\"Constructor.\",\"params\":{\"marketId\":\"The identifier of the market.\",\"owner\":\"The owner address of this contract.\"}},\"getACLAdmin()\":{\"returns\":{\"_0\":\"The address of the ACL admin\"}},\"getACLManager()\":{\"returns\":{\"_0\":\"The address of the ACLManager\"}},\"getAddressFromID(bytes32)\":{\"details\":\"The returned address might be an EOA or a contract, potentially proxiedIt returns ZERO if there is no registered address with the given id\",\"params\":{\"id\":\"The id\"},\"returns\":{\"_0\":\"The address of the registered for the specified id\"}},\"getMarketId()\":{\"returns\":{\"_0\":\"The market id\"}},\"getPool()\":{\"returns\":{\"_0\":\"The Pool proxy address\"}},\"getPoolConfigurator()\":{\"returns\":{\"_0\":\"The PoolConfigurator proxy address\"}},\"getPoolDataProvider()\":{\"returns\":{\"_0\":\"The address of the DataProvider\"}},\"getPriceOracle()\":{\"returns\":{\"_0\":\"The address of the PriceOracle\"}},\"getPriceOracleSentinel()\":{\"returns\":{\"_0\":\"The address of the PriceOracleSentinel\"}},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.\"},\"setACLAdmin(address)\":{\"params\":{\"newAclAdmin\":\"The address of the new ACL admin\"}},\"setACLManager(address)\":{\"params\":{\"newAclManager\":\"The address of the new ACLManager\"}},\"setAddress(bytes32,address)\":{\"details\":\"IMPORTANT Use this function carefully, as it will do a hard replacement\",\"params\":{\"id\":\"The id\",\"newAddress\":\"The address to set\"}},\"setAddressAsProxy(bytes32,address)\":{\"details\":\"IMPORTANT Use this function carefully, only for ids that don't have an explicit setter function, in order to avoid unexpected consequences\",\"params\":{\"id\":\"The id\",\"newImplementationAddress\":\"The address of the new implementation\"}},\"setMarketId(string)\":{\"details\":\"This can be used to create an onchain registry of PoolAddressesProviders to identify and validate multiple Aave markets.\",\"params\":{\"newMarketId\":\"The market id\"}},\"setPoolConfiguratorImpl(address)\":{\"params\":{\"newPoolConfiguratorImpl\":\"The new PoolConfigurator implementation\"}},\"setPoolDataProvider(address)\":{\"params\":{\"newDataProvider\":\"The address of the new DataProvider\"}},\"setPoolImpl(address)\":{\"params\":{\"newPoolImpl\":\"The new Pool implementation\"}},\"setPriceOracle(address)\":{\"params\":{\"newPriceOracle\":\"The address of the new PriceOracle\"}},\"setPriceOracleSentinel(address)\":{\"params\":{\"newPriceOracleSentinel\":\"The address of the new PriceOracleSentinel\"}},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"title\":\"PoolAddressesProvider\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"getACLAdmin()\":{\"notice\":\"Returns the address of the ACL admin.\"},\"getACLManager()\":{\"notice\":\"Returns the address of the ACL manager.\"},\"getAddressFromID(bytes32)\":{\"notice\":\"Returns an address by its identifier.\"},\"getMarketId()\":{\"notice\":\"Returns the id of the Aave market to which this contract points to.\"},\"getPool()\":{\"notice\":\"Returns the address of the Pool proxy.\"},\"getPoolConfigurator()\":{\"notice\":\"Returns the address of the PoolConfigurator proxy.\"},\"getPoolDataProvider()\":{\"notice\":\"Returns the address of the data provider.\"},\"getPriceOracle()\":{\"notice\":\"Returns the address of the price oracle.\"},\"getPriceOracleSentinel()\":{\"notice\":\"Returns the address of the price oracle sentinel.\"},\"setACLAdmin(address)\":{\"notice\":\"Updates the address of the ACL admin.\"},\"setACLManager(address)\":{\"notice\":\"Updates the address of the ACL manager.\"},\"setAddress(bytes32,address)\":{\"notice\":\"Sets an address for an id replacing the address saved in the addresses map.\"},\"setAddressAsProxy(bytes32,address)\":{\"notice\":\"General function to update the implementation of a proxy registered with certain `id`. If there is no proxy registered, it will instantiate one and set as implementation the `newImplementationAddress`.\"},\"setMarketId(string)\":{\"notice\":\"Associates an id with a specific PoolAddressesProvider.\"},\"setPoolConfiguratorImpl(address)\":{\"notice\":\"Updates the implementation of the PoolConfigurator, or creates a proxy setting the new `PoolConfigurator` implementation when the function is called for the first time.\"},\"setPoolDataProvider(address)\":{\"notice\":\"Updates the address of the data provider.\"},\"setPoolImpl(address)\":{\"notice\":\"Updates the implementation of the Pool, or creates a proxy setting the new `pool` implementation when the function is called for the first time.\"},\"setPriceOracle(address)\":{\"notice\":\"Updates the address of the price oracle.\"},\"setPriceOracleSentinel(address)\":{\"notice\":\"Updates the address of the price oracle sentinel.\"}},\"notice\":\"Main registry of addresses part of or connected to the protocol, including permissioned roles\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/lending/core/protocol/configuration/PoolAddressesProvider.sol\":\"PoolAddressesProvider\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"contracts/lending/core/dependencies/openzeppelin/contracts/Address.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n/* \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *    _____     ______   ______     __     __   __     __     ______   __  __       *\\n *   /\\\\  __-.  /\\\\__  _\\\\ /\\\\  == \\\\   /\\\\ \\\\   /\\\\ \\\"-.\\\\ \\\\   /\\\\ \\\\   /\\\\__  _\\\\ /\\\\ \\\\_\\\\ \\\\      *\\n *   \\\\ \\\\ \\\\/\\\\ \\\\ \\\\/_/\\\\ \\\\/ \\\\ \\\\  __<   \\\\ \\\\ \\\\  \\\\ \\\\ \\\\-.  \\\\  \\\\ \\\\ \\\\  \\\\/_/\\\\ \\\\/ \\\\ \\\\____ \\\\     *\\n *    \\\\ \\\\____-    \\\\ \\\\_\\\\  \\\\ \\\\_\\\\ \\\\_\\\\  \\\\ \\\\_\\\\  \\\\ \\\\_\\\\\\\\\\\"\\\\_\\\\  \\\\ \\\\_\\\\    \\\\ \\\\_\\\\  \\\\/\\\\_____\\\\    *\\n *     \\\\/____/     \\\\/_/   \\\\/_/ /_/   \\\\/_/   \\\\/_/ \\\\/_/   \\\\/_/     \\\\/_/   \\\\/_____/    *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 dtrinity.org \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *                                                                                  *\\n *                                         \\u25b2                                        *\\n *                                        \\u25b2 \\u25b2                                       *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n * dTRINITY Protocol: https://github.com/dtrinity                                   *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 */\\n\\n// OpenZeppelin Contracts v4.4.1 (utils/Address.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Collection of functions related to the address type\\n */\\nlibrary Address {\\n    /**\\n     * @dev Returns true if `account` is a contract.\\n     *\\n     * [IMPORTANT]\\n     * ====\\n     * It is unsafe to assume that an address for which this function returns\\n     * false is an externally-owned account (EOA) and not a contract.\\n     *\\n     * Among others, `isContract` will return false for the following\\n     * types of addresses:\\n     *\\n     *  - an externally-owned account\\n     *  - a contract in construction\\n     *  - an address where a contract will be created\\n     *  - an address where a contract lived, but was destroyed\\n     * ====\\n     */\\n    function isContract(address account) internal view returns (bool) {\\n        // This method relies on extcodesize, which returns 0 for contracts in\\n        // construction, since the code is only stored at the end of the\\n        // constructor execution.\\n\\n        uint256 size;\\n        assembly {\\n            size := extcodesize(account)\\n        }\\n        return size > 0;\\n    }\\n\\n    /**\\n     * @dev Replacement for Solidity's `transfer`: sends `amount` wei to\\n     * `recipient`, forwarding all available gas and reverting on errors.\\n     *\\n     * https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost\\n     * of certain opcodes, possibly making contracts go over the 2300 gas limit\\n     * imposed by `transfer`, making them unable to receive funds via\\n     * `transfer`. {sendValue} removes this limitation.\\n     *\\n     * https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].\\n     *\\n     * IMPORTANT: because control is transferred to `recipient`, care must be\\n     * taken to not create reentrancy vulnerabilities. Consider using\\n     * {ReentrancyGuard} or the\\n     * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].\\n     */\\n    function sendValue(address payable recipient, uint256 amount) internal {\\n        require(\\n            address(this).balance >= amount,\\n            \\\"Address: insufficient balance\\\"\\n        );\\n\\n        (bool success, ) = recipient.call{value: amount}(\\\"\\\");\\n        require(\\n            success,\\n            \\\"Address: unable to send value, recipient may have reverted\\\"\\n        );\\n    }\\n\\n    /**\\n     * @dev Performs a Solidity function call using a low level `call`. A\\n     * plain `call` is an unsafe replacement for a function call: use this\\n     * function instead.\\n     *\\n     * If `target` reverts with a revert reason, it is bubbled up by this\\n     * function (like regular Solidity function calls).\\n     *\\n     * Returns the raw returned data. To convert to the expected return value,\\n     * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].\\n     *\\n     * Requirements:\\n     *\\n     * - `target` must be a contract.\\n     * - calling `target` with `data` must not revert.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCall(\\n        address target,\\n        bytes memory data\\n    ) internal returns (bytes memory) {\\n        return functionCall(target, data, \\\"Address: low-level call failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with\\n     * `errorMessage` as a fallback revert reason when `target` reverts.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCall(\\n        address target,\\n        bytes memory data,\\n        string memory errorMessage\\n    ) internal returns (bytes memory) {\\n        return functionCallWithValue(target, data, 0, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],\\n     * but also transferring `value` wei to `target`.\\n     *\\n     * Requirements:\\n     *\\n     * - the calling contract must have an ETH balance of at least `value`.\\n     * - the called Solidity function must be `payable`.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCallWithValue(\\n        address target,\\n        bytes memory data,\\n        uint256 value\\n    ) internal returns (bytes memory) {\\n        return\\n            functionCallWithValue(\\n                target,\\n                data,\\n                value,\\n                \\\"Address: low-level call with value failed\\\"\\n            );\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but\\n     * with `errorMessage` as a fallback revert reason when `target` reverts.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCallWithValue(\\n        address target,\\n        bytes memory data,\\n        uint256 value,\\n        string memory errorMessage\\n    ) internal returns (bytes memory) {\\n        require(\\n            address(this).balance >= value,\\n            \\\"Address: insufficient balance for call\\\"\\n        );\\n        require(isContract(target), \\\"Address: call to non-contract\\\");\\n\\n        (bool success, bytes memory returndata) = target.call{value: value}(\\n            data\\n        );\\n        return verifyCallResult(success, returndata, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],\\n     * but performing a static call.\\n     *\\n     * _Available since v3.3._\\n     */\\n    function functionStaticCall(\\n        address target,\\n        bytes memory data\\n    ) internal view returns (bytes memory) {\\n        return\\n            functionStaticCall(\\n                target,\\n                data,\\n                \\\"Address: low-level static call failed\\\"\\n            );\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],\\n     * but performing a static call.\\n     *\\n     * _Available since v3.3._\\n     */\\n    function functionStaticCall(\\n        address target,\\n        bytes memory data,\\n        string memory errorMessage\\n    ) internal view returns (bytes memory) {\\n        require(isContract(target), \\\"Address: static call to non-contract\\\");\\n\\n        (bool success, bytes memory returndata) = target.staticcall(data);\\n        return verifyCallResult(success, returndata, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],\\n     * but performing a delegate call.\\n     *\\n     * _Available since v3.4._\\n     */\\n    function functionDelegateCall(\\n        address target,\\n        bytes memory data\\n    ) internal returns (bytes memory) {\\n        return\\n            functionDelegateCall(\\n                target,\\n                data,\\n                \\\"Address: low-level delegate call failed\\\"\\n            );\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],\\n     * but performing a delegate call.\\n     *\\n     * _Available since v3.4._\\n     */\\n    function functionDelegateCall(\\n        address target,\\n        bytes memory data,\\n        string memory errorMessage\\n    ) internal returns (bytes memory) {\\n        require(isContract(target), \\\"Address: delegate call to non-contract\\\");\\n\\n        (bool success, bytes memory returndata) = target.delegatecall(data);\\n        return verifyCallResult(success, returndata, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Tool to verifies that a low level call was successful, and revert if it wasn't, either by bubbling the\\n     * revert reason using the provided one.\\n     *\\n     * _Available since v4.3._\\n     */\\n    function verifyCallResult(\\n        bool success,\\n        bytes memory returndata,\\n        string memory errorMessage\\n    ) internal pure returns (bytes memory) {\\n        if (success) {\\n            return returndata;\\n        } else {\\n            // Look for revert reason and bubble it up if present\\n            if (returndata.length > 0) {\\n                // The easiest way to bubble the revert reason is using memory via assembly\\n\\n                assembly {\\n                    let returndata_size := mload(returndata)\\n                    revert(add(32, returndata), returndata_size)\\n                }\\n            } else {\\n                revert(errorMessage);\\n            }\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x8ed7789a3de11ec299f0029ff9b9ba1984409852b205402f2507738137eb3545\",\"license\":\"MIT\"},\"contracts/lending/core/dependencies/openzeppelin/contracts/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n/* \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *    _____     ______   ______     __     __   __     __     ______   __  __       *\\n *   /\\\\  __-.  /\\\\__  _\\\\ /\\\\  == \\\\   /\\\\ \\\\   /\\\\ \\\"-.\\\\ \\\\   /\\\\ \\\\   /\\\\__  _\\\\ /\\\\ \\\\_\\\\ \\\\      *\\n *   \\\\ \\\\ \\\\/\\\\ \\\\ \\\\/_/\\\\ \\\\/ \\\\ \\\\  __<   \\\\ \\\\ \\\\  \\\\ \\\\ \\\\-.  \\\\  \\\\ \\\\ \\\\  \\\\/_/\\\\ \\\\/ \\\\ \\\\____ \\\\     *\\n *    \\\\ \\\\____-    \\\\ \\\\_\\\\  \\\\ \\\\_\\\\ \\\\_\\\\  \\\\ \\\\_\\\\  \\\\ \\\\_\\\\\\\\\\\"\\\\_\\\\  \\\\ \\\\_\\\\    \\\\ \\\\_\\\\  \\\\/\\\\_____\\\\    *\\n *     \\\\/____/     \\\\/_/   \\\\/_/ /_/   \\\\/_/   \\\\/_/ \\\\/_/   \\\\/_/     \\\\/_/   \\\\/_____/    *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 dtrinity.org \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *                                                                                  *\\n *                                         \\u25b2                                        *\\n *                                        \\u25b2 \\u25b2                                       *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n * dTRINITY Protocol: https://github.com/dtrinity                                   *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 */\\n\\npragma solidity ^0.8.0;\\n\\n/*\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with GSN meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address payable) {\\n        return payable(msg.sender);\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes memory) {\\n        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691\\n        return msg.data;\\n    }\\n}\\n\",\"keccak256\":\"0x561af518dd6d4dd566cd8a21e62337a53bd155bfe751e368089fda5c13bddb19\",\"license\":\"MIT\"},\"contracts/lending/core/dependencies/openzeppelin/contracts/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n/* \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *    _____     ______   ______     __     __   __     __     ______   __  __       *\\n *   /\\\\  __-.  /\\\\__  _\\\\ /\\\\  == \\\\   /\\\\ \\\\   /\\\\ \\\"-.\\\\ \\\\   /\\\\ \\\\   /\\\\__  _\\\\ /\\\\ \\\\_\\\\ \\\\      *\\n *   \\\\ \\\\ \\\\/\\\\ \\\\ \\\\/_/\\\\ \\\\/ \\\\ \\\\  __<   \\\\ \\\\ \\\\  \\\\ \\\\ \\\\-.  \\\\  \\\\ \\\\ \\\\  \\\\/_/\\\\ \\\\/ \\\\ \\\\____ \\\\     *\\n *    \\\\ \\\\____-    \\\\ \\\\_\\\\  \\\\ \\\\_\\\\ \\\\_\\\\  \\\\ \\\\_\\\\  \\\\ \\\\_\\\\\\\\\\\"\\\\_\\\\  \\\\ \\\\_\\\\    \\\\ \\\\_\\\\  \\\\/\\\\_____\\\\    *\\n *     \\\\/____/     \\\\/_/   \\\\/_/ /_/   \\\\/_/   \\\\/_/ \\\\/_/   \\\\/_/     \\\\/_/   \\\\/_____/    *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 dtrinity.org \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *                                                                                  *\\n *                                         \\u25b2                                        *\\n *                                        \\u25b2 \\u25b2                                       *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n * dTRINITY Protocol: https://github.com/dtrinity                                   *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 */\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"./Context.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * By default, the owner account will be the one that deploys the contract. This\\n * can later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\ncontract Ownable is Context {\\n    address private _owner;\\n\\n    event OwnershipTransferred(\\n        address indexed previousOwner,\\n        address indexed newOwner\\n    );\\n\\n    /**\\n     * @dev Initializes the contract setting the deployer as the initial owner.\\n     */\\n    constructor() {\\n        address msgSender = _msgSender();\\n        _owner = msgSender;\\n        emit OwnershipTransferred(address(0), msgSender);\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        require(_owner == _msgSender(), \\\"Ownable: caller is not the owner\\\");\\n        _;\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions anymore. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby removing any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        emit OwnershipTransferred(_owner, address(0));\\n        _owner = address(0);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        require(\\n            newOwner != address(0),\\n            \\\"Ownable: new owner is the zero address\\\"\\n        );\\n        emit OwnershipTransferred(_owner, newOwner);\\n        _owner = newOwner;\\n    }\\n}\\n\",\"keccak256\":\"0x0c4b05e60d3d1fd2b458815f5cd3b494ff1f6f92446155107dc15cac1283d0a3\",\"license\":\"MIT\"},\"contracts/lending/core/dependencies/openzeppelin/upgradeability/BaseUpgradeabilityProxy.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\n/* \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *    _____     ______   ______     __     __   __     __     ______   __  __       *\\n *   /\\\\  __-.  /\\\\__  _\\\\ /\\\\  == \\\\   /\\\\ \\\\   /\\\\ \\\"-.\\\\ \\\\   /\\\\ \\\\   /\\\\__  _\\\\ /\\\\ \\\\_\\\\ \\\\      *\\n *   \\\\ \\\\ \\\\/\\\\ \\\\ \\\\/_/\\\\ \\\\/ \\\\ \\\\  __<   \\\\ \\\\ \\\\  \\\\ \\\\ \\\\-.  \\\\  \\\\ \\\\ \\\\  \\\\/_/\\\\ \\\\/ \\\\ \\\\____ \\\\     *\\n *    \\\\ \\\\____-    \\\\ \\\\_\\\\  \\\\ \\\\_\\\\ \\\\_\\\\  \\\\ \\\\_\\\\  \\\\ \\\\_\\\\\\\\\\\"\\\\_\\\\  \\\\ \\\\_\\\\    \\\\ \\\\_\\\\  \\\\/\\\\_____\\\\    *\\n *     \\\\/____/     \\\\/_/   \\\\/_/ /_/   \\\\/_/   \\\\/_/ \\\\/_/   \\\\/_/     \\\\/_/   \\\\/_____/    *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 dtrinity.org \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *                                                                                  *\\n *                                         \\u25b2                                        *\\n *                                        \\u25b2 \\u25b2                                       *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n * dTRINITY Protocol: https://github.com/dtrinity                                   *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 */\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"./Proxy.sol\\\";\\nimport \\\"../contracts/Address.sol\\\";\\n\\n/**\\n * @title BaseUpgradeabilityProxy\\n * @dev This contract implements a proxy that allows to change the\\n * implementation address to which it will delegate.\\n * Such a change is called an implementation upgrade.\\n */\\ncontract BaseUpgradeabilityProxy is Proxy {\\n    /**\\n     * @dev Emitted when the implementation is upgraded.\\n     * @param implementation Address of the new implementation.\\n     */\\n    event Upgraded(address indexed implementation);\\n\\n    /**\\n     * @dev Storage slot with the address of the current implementation.\\n     * This is the keccak-256 hash of \\\"eip1967.proxy.implementation\\\" subtracted by 1, and is\\n     * validated in the constructor.\\n     */\\n    bytes32 internal constant IMPLEMENTATION_SLOT =\\n        0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;\\n\\n    /**\\n     * @dev Returns the current implementation.\\n     * @return impl Address of the current implementation\\n     */\\n    function _implementation() internal view override returns (address impl) {\\n        bytes32 slot = IMPLEMENTATION_SLOT;\\n        //solium-disable-next-line\\n        assembly {\\n            impl := sload(slot)\\n        }\\n    }\\n\\n    /**\\n     * @dev Upgrades the proxy to a new implementation.\\n     * @param newImplementation Address of the new implementation.\\n     */\\n    function _upgradeTo(address newImplementation) internal {\\n        _setImplementation(newImplementation);\\n        emit Upgraded(newImplementation);\\n    }\\n\\n    /**\\n     * @dev Sets the implementation address of the proxy.\\n     * @param newImplementation Address of the new implementation.\\n     */\\n    function _setImplementation(address newImplementation) internal {\\n        require(\\n            Address.isContract(newImplementation),\\n            \\\"Cannot set a proxy implementation to a non-contract address\\\"\\n        );\\n\\n        bytes32 slot = IMPLEMENTATION_SLOT;\\n\\n        //solium-disable-next-line\\n        assembly {\\n            sstore(slot, newImplementation)\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x2835816932a9276507e610dbee17fdcad00669731e6025b6b4556f6e35e0de51\",\"license\":\"AGPL-3.0\"},\"contracts/lending/core/dependencies/openzeppelin/upgradeability/InitializableUpgradeabilityProxy.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\n/* \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *    _____     ______   ______     __     __   __     __     ______   __  __       *\\n *   /\\\\  __-.  /\\\\__  _\\\\ /\\\\  == \\\\   /\\\\ \\\\   /\\\\ \\\"-.\\\\ \\\\   /\\\\ \\\\   /\\\\__  _\\\\ /\\\\ \\\\_\\\\ \\\\      *\\n *   \\\\ \\\\ \\\\/\\\\ \\\\ \\\\/_/\\\\ \\\\/ \\\\ \\\\  __<   \\\\ \\\\ \\\\  \\\\ \\\\ \\\\-.  \\\\  \\\\ \\\\ \\\\  \\\\/_/\\\\ \\\\/ \\\\ \\\\____ \\\\     *\\n *    \\\\ \\\\____-    \\\\ \\\\_\\\\  \\\\ \\\\_\\\\ \\\\_\\\\  \\\\ \\\\_\\\\  \\\\ \\\\_\\\\\\\\\\\"\\\\_\\\\  \\\\ \\\\_\\\\    \\\\ \\\\_\\\\  \\\\/\\\\_____\\\\    *\\n *     \\\\/____/     \\\\/_/   \\\\/_/ /_/   \\\\/_/   \\\\/_/ \\\\/_/   \\\\/_/     \\\\/_/   \\\\/_____/    *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 dtrinity.org \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *                                                                                  *\\n *                                         \\u25b2                                        *\\n *                                        \\u25b2 \\u25b2                                       *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n * dTRINITY Protocol: https://github.com/dtrinity                                   *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 */\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"./BaseUpgradeabilityProxy.sol\\\";\\n\\n/**\\n * @title InitializableUpgradeabilityProxy\\n * @dev Extends BaseUpgradeabilityProxy with an initializer for initializing\\n * implementation and init data.\\n */\\ncontract InitializableUpgradeabilityProxy is BaseUpgradeabilityProxy {\\n    /**\\n     * @dev Contract initializer.\\n     * @param _logic Address of the initial implementation.\\n     * @param _data Data to send as msg.data to the implementation to initialize the proxied contract.\\n     * It should include the signature and the parameters of the function to be called, as described in\\n     * https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector-and-argument-encoding.\\n     * This parameter is optional, if no data is given the initialization call to proxied contract will be skipped.\\n     */\\n    function initialize(address _logic, bytes memory _data) public payable {\\n        require(_implementation() == address(0));\\n        assert(\\n            IMPLEMENTATION_SLOT ==\\n                bytes32(uint256(keccak256(\\\"eip1967.proxy.implementation\\\")) - 1)\\n        );\\n        _setImplementation(_logic);\\n        if (_data.length > 0) {\\n            (bool success, ) = _logic.delegatecall(_data);\\n            require(success);\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x8f586729068e1913ea90a523b0b1322c068ad3c6fcb8bd6e8bc0d55bfa467c2d\",\"license\":\"AGPL-3.0\"},\"contracts/lending/core/dependencies/openzeppelin/upgradeability/Proxy.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\n/* \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *    _____     ______   ______     __     __   __     __     ______   __  __       *\\n *   /\\\\  __-.  /\\\\__  _\\\\ /\\\\  == \\\\   /\\\\ \\\\   /\\\\ \\\"-.\\\\ \\\\   /\\\\ \\\\   /\\\\__  _\\\\ /\\\\ \\\\_\\\\ \\\\      *\\n *   \\\\ \\\\ \\\\/\\\\ \\\\ \\\\/_/\\\\ \\\\/ \\\\ \\\\  __<   \\\\ \\\\ \\\\  \\\\ \\\\ \\\\-.  \\\\  \\\\ \\\\ \\\\  \\\\/_/\\\\ \\\\/ \\\\ \\\\____ \\\\     *\\n *    \\\\ \\\\____-    \\\\ \\\\_\\\\  \\\\ \\\\_\\\\ \\\\_\\\\  \\\\ \\\\_\\\\  \\\\ \\\\_\\\\\\\\\\\"\\\\_\\\\  \\\\ \\\\_\\\\    \\\\ \\\\_\\\\  \\\\/\\\\_____\\\\    *\\n *     \\\\/____/     \\\\/_/   \\\\/_/ /_/   \\\\/_/   \\\\/_/ \\\\/_/   \\\\/_/     \\\\/_/   \\\\/_____/    *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 dtrinity.org \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *                                                                                  *\\n *                                         \\u25b2                                        *\\n *                                        \\u25b2 \\u25b2                                       *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n * dTRINITY Protocol: https://github.com/dtrinity                                   *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 */\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @title Proxy\\n * @dev Implements delegation of calls to other contracts, with proper\\n * forwarding of return values and bubbling of failures.\\n * It defines a fallback function that delegates all calls to the address\\n * returned by the abstract _implementation() internal function.\\n */\\nabstract contract Proxy {\\n    /**\\n     * @dev Fallback function.\\n     * Will run if no other function in the contract matches the call data.\\n     * Implemented entirely in `_fallback`.\\n     */\\n    fallback() external payable {\\n        _fallback();\\n    }\\n\\n    /**\\n     * @return The Address of the implementation.\\n     */\\n    function _implementation() internal view virtual returns (address);\\n\\n    /**\\n     * @dev Delegates execution to an implementation contract.\\n     * This is a low level function that doesn't return to its internal call site.\\n     * It will return to the external caller whatever the implementation returns.\\n     * @param implementation Address to delegate.\\n     */\\n    function _delegate(address implementation) internal {\\n        //solium-disable-next-line\\n        assembly {\\n            // Copy msg.data. We take full control of memory in this inline assembly\\n            // block because it will not return to Solidity code. We overwrite the\\n            // Solidity scratch pad at memory position 0.\\n            calldatacopy(0, 0, calldatasize())\\n\\n            // Call the implementation.\\n            // out and outsize are 0 because we don't know the size yet.\\n            let result := delegatecall(\\n                gas(),\\n                implementation,\\n                0,\\n                calldatasize(),\\n                0,\\n                0\\n            )\\n\\n            // Copy the returned data.\\n            returndatacopy(0, 0, returndatasize())\\n\\n            switch result\\n            // delegatecall returns 0 on error.\\n            case 0 {\\n                revert(0, returndatasize())\\n            }\\n            default {\\n                return(0, returndatasize())\\n            }\\n        }\\n    }\\n\\n    /**\\n     * @dev Function that is run as the first thing in the fallback function.\\n     * Can be redefined in derived contracts to add functionality.\\n     * Redefinitions must call super._willFallback().\\n     */\\n    function _willFallback() internal virtual {}\\n\\n    /**\\n     * @dev fallback implementation.\\n     * Extracted to enable manual triggering.\\n     */\\n    function _fallback() internal {\\n        _willFallback();\\n        _delegate(_implementation());\\n    }\\n}\\n\",\"keccak256\":\"0x087068ec03b86ee896be29b54c6e80c7128181f9cac56dc9f03875084e471c0d\",\"license\":\"AGPL-3.0\"},\"contracts/lending/core/interfaces/IPoolAddressesProvider.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\n/* \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *    _____     ______   ______     __     __   __     __     ______   __  __       *\\n *   /\\\\  __-.  /\\\\__  _\\\\ /\\\\  == \\\\   /\\\\ \\\\   /\\\\ \\\"-.\\\\ \\\\   /\\\\ \\\\   /\\\\__  _\\\\ /\\\\ \\\\_\\\\ \\\\      *\\n *   \\\\ \\\\ \\\\/\\\\ \\\\ \\\\/_/\\\\ \\\\/ \\\\ \\\\  __<   \\\\ \\\\ \\\\  \\\\ \\\\ \\\\-.  \\\\  \\\\ \\\\ \\\\  \\\\/_/\\\\ \\\\/ \\\\ \\\\____ \\\\     *\\n *    \\\\ \\\\____-    \\\\ \\\\_\\\\  \\\\ \\\\_\\\\ \\\\_\\\\  \\\\ \\\\_\\\\  \\\\ \\\\_\\\\\\\\\\\"\\\\_\\\\  \\\\ \\\\_\\\\    \\\\ \\\\_\\\\  \\\\/\\\\_____\\\\    *\\n *     \\\\/____/     \\\\/_/   \\\\/_/ /_/   \\\\/_/   \\\\/_/ \\\\/_/   \\\\/_/     \\\\/_/   \\\\/_____/    *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 dtrinity.org \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *                                                                                  *\\n *                                         \\u25b2                                        *\\n *                                        \\u25b2 \\u25b2                                       *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n * dTRINITY Protocol: https://github.com/dtrinity                                   *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 */\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @title IPoolAddressesProvider\\n * @author Aave\\n * @notice Defines the basic interface for a Pool Addresses Provider.\\n */\\ninterface IPoolAddressesProvider {\\n    /**\\n     * @dev Emitted when the market identifier is updated.\\n     * @param oldMarketId The old id of the market\\n     * @param newMarketId The new id of the market\\n     */\\n    event MarketIdSet(string indexed oldMarketId, string indexed newMarketId);\\n\\n    /**\\n     * @dev Emitted when the pool is updated.\\n     * @param oldAddress The old address of the Pool\\n     * @param newAddress The new address of the Pool\\n     */\\n    event PoolUpdated(address indexed oldAddress, address indexed newAddress);\\n\\n    /**\\n     * @dev Emitted when the pool configurator is updated.\\n     * @param oldAddress The old address of the PoolConfigurator\\n     * @param newAddress The new address of the PoolConfigurator\\n     */\\n    event PoolConfiguratorUpdated(\\n        address indexed oldAddress,\\n        address indexed newAddress\\n    );\\n\\n    /**\\n     * @dev Emitted when the price oracle is updated.\\n     * @param oldAddress The old address of the PriceOracle\\n     * @param newAddress The new address of the PriceOracle\\n     */\\n    event PriceOracleUpdated(\\n        address indexed oldAddress,\\n        address indexed newAddress\\n    );\\n\\n    /**\\n     * @dev Emitted when the ACL manager is updated.\\n     * @param oldAddress The old address of the ACLManager\\n     * @param newAddress The new address of the ACLManager\\n     */\\n    event ACLManagerUpdated(\\n        address indexed oldAddress,\\n        address indexed newAddress\\n    );\\n\\n    /**\\n     * @dev Emitted when the ACL admin is updated.\\n     * @param oldAddress The old address of the ACLAdmin\\n     * @param newAddress The new address of the ACLAdmin\\n     */\\n    event ACLAdminUpdated(\\n        address indexed oldAddress,\\n        address indexed newAddress\\n    );\\n\\n    /**\\n     * @dev Emitted when the price oracle sentinel is updated.\\n     * @param oldAddress The old address of the PriceOracleSentinel\\n     * @param newAddress The new address of the PriceOracleSentinel\\n     */\\n    event PriceOracleSentinelUpdated(\\n        address indexed oldAddress,\\n        address indexed newAddress\\n    );\\n\\n    /**\\n     * @dev Emitted when the pool data provider is updated.\\n     * @param oldAddress The old address of the PoolDataProvider\\n     * @param newAddress The new address of the PoolDataProvider\\n     */\\n    event PoolDataProviderUpdated(\\n        address indexed oldAddress,\\n        address indexed newAddress\\n    );\\n\\n    /**\\n     * @dev Emitted when a new proxy is created.\\n     * @param id The identifier of the proxy\\n     * @param proxyAddress The address of the created proxy contract\\n     * @param implementationAddress The address of the implementation contract\\n     */\\n    event ProxyCreated(\\n        bytes32 indexed id,\\n        address indexed proxyAddress,\\n        address indexed implementationAddress\\n    );\\n\\n    /**\\n     * @dev Emitted when a new non-proxied contract address is registered.\\n     * @param id The identifier of the contract\\n     * @param oldAddress The address of the old contract\\n     * @param newAddress The address of the new contract\\n     */\\n    event AddressSet(\\n        bytes32 indexed id,\\n        address indexed oldAddress,\\n        address indexed newAddress\\n    );\\n\\n    /**\\n     * @dev Emitted when the implementation of the proxy registered with id is updated\\n     * @param id The identifier of the contract\\n     * @param proxyAddress The address of the proxy contract\\n     * @param oldImplementationAddress The address of the old implementation contract\\n     * @param newImplementationAddress The address of the new implementation contract\\n     */\\n    event AddressSetAsProxy(\\n        bytes32 indexed id,\\n        address indexed proxyAddress,\\n        address oldImplementationAddress,\\n        address indexed newImplementationAddress\\n    );\\n\\n    /**\\n     * @notice Returns the id of the Aave market to which this contract points to.\\n     * @return The market id\\n     */\\n    function getMarketId() external view returns (string memory);\\n\\n    /**\\n     * @notice Associates an id with a specific PoolAddressesProvider.\\n     * @dev This can be used to create an onchain registry of PoolAddressesProviders to\\n     * identify and validate multiple Aave markets.\\n     * @param newMarketId The market id\\n     */\\n    function setMarketId(string calldata newMarketId) external;\\n\\n    /**\\n     * @notice Returns an address by its identifier.\\n     * @dev The returned address might be an EOA or a contract, potentially proxied\\n     * @dev It returns ZERO if there is no registered address with the given id\\n     * @param id The id\\n     * @return The address of the registered for the specified id\\n     */\\n    function getAddressFromID(bytes32 id) external view returns (address);\\n\\n    /**\\n     * @notice General function to update the implementation of a proxy registered with\\n     * certain `id`. If there is no proxy registered, it will instantiate one and\\n     * set as implementation the `newImplementationAddress`.\\n     * @dev IMPORTANT Use this function carefully, only for ids that don't have an explicit\\n     * setter function, in order to avoid unexpected consequences\\n     * @param id The id\\n     * @param newImplementationAddress The address of the new implementation\\n     */\\n    function setAddressAsProxy(\\n        bytes32 id,\\n        address newImplementationAddress\\n    ) external;\\n\\n    /**\\n     * @notice Sets an address for an id replacing the address saved in the addresses map.\\n     * @dev IMPORTANT Use this function carefully, as it will do a hard replacement\\n     * @param id The id\\n     * @param newAddress The address to set\\n     */\\n    function setAddress(bytes32 id, address newAddress) external;\\n\\n    /**\\n     * @notice Returns the address of the Pool proxy.\\n     * @return The Pool proxy address\\n     */\\n    function getPool() external view returns (address);\\n\\n    /**\\n     * @notice Updates the implementation of the Pool, or creates a proxy\\n     * setting the new `pool` implementation when the function is called for the first time.\\n     * @param newPoolImpl The new Pool implementation\\n     */\\n    function setPoolImpl(address newPoolImpl) external;\\n\\n    /**\\n     * @notice Returns the address of the PoolConfigurator proxy.\\n     * @return The PoolConfigurator proxy address\\n     */\\n    function getPoolConfigurator() external view returns (address);\\n\\n    /**\\n     * @notice Updates the implementation of the PoolConfigurator, or creates a proxy\\n     * setting the new `PoolConfigurator` implementation when the function is called for the first time.\\n     * @param newPoolConfiguratorImpl The new PoolConfigurator implementation\\n     */\\n    function setPoolConfiguratorImpl(address newPoolConfiguratorImpl) external;\\n\\n    /**\\n     * @notice Returns the address of the price oracle.\\n     * @return The address of the PriceOracle\\n     */\\n    function getPriceOracle() external view returns (address);\\n\\n    /**\\n     * @notice Updates the address of the price oracle.\\n     * @param newPriceOracle The address of the new PriceOracle\\n     */\\n    function setPriceOracle(address newPriceOracle) external;\\n\\n    /**\\n     * @notice Returns the address of the ACL manager.\\n     * @return The address of the ACLManager\\n     */\\n    function getACLManager() external view returns (address);\\n\\n    /**\\n     * @notice Updates the address of the ACL manager.\\n     * @param newAclManager The address of the new ACLManager\\n     */\\n    function setACLManager(address newAclManager) external;\\n\\n    /**\\n     * @notice Returns the address of the ACL admin.\\n     * @return The address of the ACL admin\\n     */\\n    function getACLAdmin() external view returns (address);\\n\\n    /**\\n     * @notice Updates the address of the ACL admin.\\n     * @param newAclAdmin The address of the new ACL admin\\n     */\\n    function setACLAdmin(address newAclAdmin) external;\\n\\n    /**\\n     * @notice Returns the address of the price oracle sentinel.\\n     * @return The address of the PriceOracleSentinel\\n     */\\n    function getPriceOracleSentinel() external view returns (address);\\n\\n    /**\\n     * @notice Updates the address of the price oracle sentinel.\\n     * @param newPriceOracleSentinel The address of the new PriceOracleSentinel\\n     */\\n    function setPriceOracleSentinel(address newPriceOracleSentinel) external;\\n\\n    /**\\n     * @notice Returns the address of the data provider.\\n     * @return The address of the DataProvider\\n     */\\n    function getPoolDataProvider() external view returns (address);\\n\\n    /**\\n     * @notice Updates the address of the data provider.\\n     * @param newDataProvider The address of the new DataProvider\\n     */\\n    function setPoolDataProvider(address newDataProvider) external;\\n}\\n\",\"keccak256\":\"0xf10e68d63d751e48a4adfd8a527b1d7f0710dcdf23a1c28b118fcba1044866cc\",\"license\":\"AGPL-3.0\"},\"contracts/lending/core/protocol/configuration/PoolAddressesProvider.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\n/* \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *    _____     ______   ______     __     __   __     __     ______   __  __       *\\n *   /\\\\  __-.  /\\\\__  _\\\\ /\\\\  == \\\\   /\\\\ \\\\   /\\\\ \\\"-.\\\\ \\\\   /\\\\ \\\\   /\\\\__  _\\\\ /\\\\ \\\\_\\\\ \\\\      *\\n *   \\\\ \\\\ \\\\/\\\\ \\\\ \\\\/_/\\\\ \\\\/ \\\\ \\\\  __<   \\\\ \\\\ \\\\  \\\\ \\\\ \\\\-.  \\\\  \\\\ \\\\ \\\\  \\\\/_/\\\\ \\\\/ \\\\ \\\\____ \\\\     *\\n *    \\\\ \\\\____-    \\\\ \\\\_\\\\  \\\\ \\\\_\\\\ \\\\_\\\\  \\\\ \\\\_\\\\  \\\\ \\\\_\\\\\\\\\\\"\\\\_\\\\  \\\\ \\\\_\\\\    \\\\ \\\\_\\\\  \\\\/\\\\_____\\\\    *\\n *     \\\\/____/     \\\\/_/   \\\\/_/ /_/   \\\\/_/   \\\\/_/ \\\\/_/   \\\\/_/     \\\\/_/   \\\\/_____/    *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 dtrinity.org \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *                                                                                  *\\n *                                         \\u25b2                                        *\\n *                                        \\u25b2 \\u25b2                                       *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n * dTRINITY Protocol: https://github.com/dtrinity                                   *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 */\\n\\npragma solidity ^0.8.10;\\n\\nimport {Ownable} from \\\"../../dependencies/openzeppelin/contracts/Ownable.sol\\\";\\nimport {IPoolAddressesProvider} from \\\"../../interfaces/IPoolAddressesProvider.sol\\\";\\nimport {InitializableImmutableAdminUpgradeabilityProxy} from \\\"../libraries/aave-upgradeability/InitializableImmutableAdminUpgradeabilityProxy.sol\\\";\\n\\n/**\\n * @title PoolAddressesProvider\\n * @author Aave\\n * @notice Main registry of addresses part of or connected to the protocol, including permissioned roles\\n * @dev Acts as factory of proxies and admin of those, so with right to change its implementations\\n * @dev Owned by the Aave Governance\\n */\\ncontract PoolAddressesProvider is Ownable, IPoolAddressesProvider {\\n    // Identifier of the Aave Market\\n    string private _marketId;\\n\\n    // Map of registered addresses (identifier => registeredAddress)\\n    mapping(bytes32 => address) private _addresses;\\n\\n    // Main identifiers\\n    bytes32 private constant POOL = \\\"POOL\\\";\\n    bytes32 private constant POOL_CONFIGURATOR = \\\"POOL_CONFIGURATOR\\\";\\n    bytes32 private constant PRICE_ORACLE = \\\"PRICE_ORACLE\\\";\\n    bytes32 private constant ACL_MANAGER = \\\"ACL_MANAGER\\\";\\n    bytes32 private constant ACL_ADMIN = \\\"ACL_ADMIN\\\";\\n    bytes32 private constant PRICE_ORACLE_SENTINEL = \\\"PRICE_ORACLE_SENTINEL\\\";\\n    bytes32 private constant DATA_PROVIDER = \\\"DATA_PROVIDER\\\";\\n\\n    /**\\n     * @dev Constructor.\\n     * @param marketId The identifier of the market.\\n     * @param owner The owner address of this contract.\\n     */\\n    constructor(string memory marketId, address owner) {\\n        _setMarketId(marketId);\\n        transferOwnership(owner);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function getMarketId() external view override returns (string memory) {\\n        return _marketId;\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function setMarketId(\\n        string memory newMarketId\\n    ) external override onlyOwner {\\n        _setMarketId(newMarketId);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function getAddressFromID(\\n        bytes32 id\\n    ) public view override returns (address) {\\n        return _addresses[id];\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function setAddress(\\n        bytes32 id,\\n        address newAddress\\n    ) external override onlyOwner {\\n        address oldAddress = _addresses[id];\\n        _addresses[id] = newAddress;\\n        emit AddressSet(id, oldAddress, newAddress);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function setAddressAsProxy(\\n        bytes32 id,\\n        address newImplementationAddress\\n    ) external override onlyOwner {\\n        address proxyAddress = _addresses[id];\\n        address oldImplementationAddress = _getProxyImplementation(id);\\n        _updateImpl(id, newImplementationAddress);\\n        emit AddressSetAsProxy(\\n            id,\\n            proxyAddress,\\n            oldImplementationAddress,\\n            newImplementationAddress\\n        );\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function getPool() external view override returns (address) {\\n        return getAddressFromID(POOL);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function setPoolImpl(address newPoolImpl) external override onlyOwner {\\n        address oldPoolImpl = _getProxyImplementation(POOL);\\n        _updateImpl(POOL, newPoolImpl);\\n        emit PoolUpdated(oldPoolImpl, newPoolImpl);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function getPoolConfigurator() external view override returns (address) {\\n        return getAddressFromID(POOL_CONFIGURATOR);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function setPoolConfiguratorImpl(\\n        address newPoolConfiguratorImpl\\n    ) external override onlyOwner {\\n        address oldPoolConfiguratorImpl = _getProxyImplementation(\\n            POOL_CONFIGURATOR\\n        );\\n        _updateImpl(POOL_CONFIGURATOR, newPoolConfiguratorImpl);\\n        emit PoolConfiguratorUpdated(\\n            oldPoolConfiguratorImpl,\\n            newPoolConfiguratorImpl\\n        );\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function getPriceOracle() external view override returns (address) {\\n        return getAddressFromID(PRICE_ORACLE);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function setPriceOracle(\\n        address newPriceOracle\\n    ) external override onlyOwner {\\n        address oldPriceOracle = _addresses[PRICE_ORACLE];\\n        _addresses[PRICE_ORACLE] = newPriceOracle;\\n        emit PriceOracleUpdated(oldPriceOracle, newPriceOracle);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function getACLManager() external view override returns (address) {\\n        return getAddressFromID(ACL_MANAGER);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function setACLManager(address newAclManager) external override onlyOwner {\\n        address oldAclManager = _addresses[ACL_MANAGER];\\n        _addresses[ACL_MANAGER] = newAclManager;\\n        emit ACLManagerUpdated(oldAclManager, newAclManager);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function getACLAdmin() external view override returns (address) {\\n        return getAddressFromID(ACL_ADMIN);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function setACLAdmin(address newAclAdmin) external override onlyOwner {\\n        address oldAclAdmin = _addresses[ACL_ADMIN];\\n        _addresses[ACL_ADMIN] = newAclAdmin;\\n        emit ACLAdminUpdated(oldAclAdmin, newAclAdmin);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function getPriceOracleSentinel() external view override returns (address) {\\n        return getAddressFromID(PRICE_ORACLE_SENTINEL);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function setPriceOracleSentinel(\\n        address newPriceOracleSentinel\\n    ) external override onlyOwner {\\n        address oldPriceOracleSentinel = _addresses[PRICE_ORACLE_SENTINEL];\\n        _addresses[PRICE_ORACLE_SENTINEL] = newPriceOracleSentinel;\\n        emit PriceOracleSentinelUpdated(\\n            oldPriceOracleSentinel,\\n            newPriceOracleSentinel\\n        );\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function getPoolDataProvider() external view override returns (address) {\\n        return getAddressFromID(DATA_PROVIDER);\\n    }\\n\\n    /// @inheritdoc IPoolAddressesProvider\\n    function setPoolDataProvider(\\n        address newDataProvider\\n    ) external override onlyOwner {\\n        address oldDataProvider = _addresses[DATA_PROVIDER];\\n        _addresses[DATA_PROVIDER] = newDataProvider;\\n        emit PoolDataProviderUpdated(oldDataProvider, newDataProvider);\\n    }\\n\\n    /**\\n     * @notice Internal function to update the implementation of a specific proxied component of the protocol.\\n     * @dev If there is no proxy registered with the given identifier, it creates the proxy setting `newAddress`\\n     *   as implementation and calls the initialize() function on the proxy\\n     * @dev If there is already a proxy registered, it just updates the implementation to `newAddress` and\\n     *   calls the initialize() function via upgradeToAndCall() in the proxy\\n     * @param id The id of the proxy to be updated\\n     * @param newAddress The address of the new implementation\\n     */\\n    function _updateImpl(bytes32 id, address newAddress) internal {\\n        address proxyAddress = _addresses[id];\\n        InitializableImmutableAdminUpgradeabilityProxy proxy;\\n        bytes memory params = abi.encodeWithSignature(\\n            \\\"initialize(address)\\\",\\n            address(this)\\n        );\\n\\n        if (proxyAddress == address(0)) {\\n            proxy = new InitializableImmutableAdminUpgradeabilityProxy(\\n                address(this)\\n            );\\n            _addresses[id] = proxyAddress = address(proxy);\\n            proxy.initialize(newAddress, params);\\n            emit ProxyCreated(id, proxyAddress, newAddress);\\n        } else {\\n            proxy = InitializableImmutableAdminUpgradeabilityProxy(\\n                payable(proxyAddress)\\n            );\\n            proxy.upgradeToAndCall(newAddress, params);\\n        }\\n    }\\n\\n    /**\\n     * @notice Updates the identifier of the Aave market.\\n     * @param newMarketId The new id of the market\\n     */\\n    function _setMarketId(string memory newMarketId) internal {\\n        string memory oldMarketId = _marketId;\\n        _marketId = newMarketId;\\n        emit MarketIdSet(oldMarketId, newMarketId);\\n    }\\n\\n    /**\\n     * @notice Returns the the implementation contract of the proxy contract by its identifier.\\n     * @dev It returns ZERO if there is no registered address with the given id\\n     * @dev It reverts if the registered address with the given id is not `InitializableImmutableAdminUpgradeabilityProxy`\\n     * @param id The id\\n     * @return The address of the implementation contract\\n     */\\n    function _getProxyImplementation(bytes32 id) internal returns (address) {\\n        address proxyAddress = _addresses[id];\\n        if (proxyAddress == address(0)) {\\n            return address(0);\\n        } else {\\n            address payable payableProxyAddress = payable(proxyAddress);\\n            return\\n                InitializableImmutableAdminUpgradeabilityProxy(\\n                    payableProxyAddress\\n                ).implementation();\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xb799530af54d27c457bd2b4766cbe1db700a24d305e4a6da474ac965611fdd2b\",\"license\":\"BUSL-1.1\"},\"contracts/lending/core/protocol/libraries/aave-upgradeability/BaseImmutableAdminUpgradeabilityProxy.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\n/* \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *    _____     ______   ______     __     __   __     __     ______   __  __       *\\n *   /\\\\  __-.  /\\\\__  _\\\\ /\\\\  == \\\\   /\\\\ \\\\   /\\\\ \\\"-.\\\\ \\\\   /\\\\ \\\\   /\\\\__  _\\\\ /\\\\ \\\\_\\\\ \\\\      *\\n *   \\\\ \\\\ \\\\/\\\\ \\\\ \\\\/_/\\\\ \\\\/ \\\\ \\\\  __<   \\\\ \\\\ \\\\  \\\\ \\\\ \\\\-.  \\\\  \\\\ \\\\ \\\\  \\\\/_/\\\\ \\\\/ \\\\ \\\\____ \\\\     *\\n *    \\\\ \\\\____-    \\\\ \\\\_\\\\  \\\\ \\\\_\\\\ \\\\_\\\\  \\\\ \\\\_\\\\  \\\\ \\\\_\\\\\\\\\\\"\\\\_\\\\  \\\\ \\\\_\\\\    \\\\ \\\\_\\\\  \\\\/\\\\_____\\\\    *\\n *     \\\\/____/     \\\\/_/   \\\\/_/ /_/   \\\\/_/   \\\\/_/ \\\\/_/   \\\\/_/     \\\\/_/   \\\\/_____/    *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 dtrinity.org \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *                                                                                  *\\n *                                         \\u25b2                                        *\\n *                                        \\u25b2 \\u25b2                                       *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n * dTRINITY Protocol: https://github.com/dtrinity                                   *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 */\\n\\npragma solidity ^0.8.0;\\n\\nimport {BaseUpgradeabilityProxy} from \\\"../../../dependencies/openzeppelin/upgradeability/BaseUpgradeabilityProxy.sol\\\";\\n\\n/**\\n * @title BaseImmutableAdminUpgradeabilityProxy\\n * @author Aave, inspired by the OpenZeppelin upgradeability proxy pattern\\n * @notice This contract combines an upgradeability proxy with an authorization\\n * mechanism for administrative tasks.\\n * @dev The admin role is stored in an immutable, which helps saving transactions costs\\n * All external functions in this contract must be guarded by the\\n * `ifAdmin` modifier. See ethereum/solidity#3864 for a Solidity\\n * feature proposal that would enable this to be done automatically.\\n */\\ncontract BaseImmutableAdminUpgradeabilityProxy is BaseUpgradeabilityProxy {\\n    address internal immutable _admin;\\n\\n    /**\\n     * @dev Constructor.\\n     * @param admin The address of the admin\\n     */\\n    constructor(address admin) {\\n        _admin = admin;\\n    }\\n\\n    modifier ifAdmin() {\\n        if (msg.sender == _admin) {\\n            _;\\n        } else {\\n            _fallback();\\n        }\\n    }\\n\\n    /**\\n     * @notice Return the admin address\\n     * @return The address of the proxy admin.\\n     */\\n    function admin() external ifAdmin returns (address) {\\n        return _admin;\\n    }\\n\\n    /**\\n     * @notice Return the implementation address\\n     * @return The address of the implementation.\\n     */\\n    function implementation() external ifAdmin returns (address) {\\n        return _implementation();\\n    }\\n\\n    /**\\n     * @notice Upgrade the backing implementation of the proxy.\\n     * @dev Only the admin can call this function.\\n     * @param newImplementation The address of the new implementation.\\n     */\\n    function upgradeTo(address newImplementation) external ifAdmin {\\n        _upgradeTo(newImplementation);\\n    }\\n\\n    /**\\n     * @notice Upgrade the backing implementation of the proxy and call a function\\n     * on the new implementation.\\n     * @dev This is useful to initialize the proxied contract.\\n     * @param newImplementation The address of the new implementation.\\n     * @param data Data to send as msg.data in the low level call.\\n     * It should include the signature and the parameters of the function to be called, as described in\\n     * https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector-and-argument-encoding.\\n     */\\n    function upgradeToAndCall(\\n        address newImplementation,\\n        bytes calldata data\\n    ) external payable ifAdmin {\\n        _upgradeTo(newImplementation);\\n        (bool success, ) = newImplementation.delegatecall(data);\\n        require(success);\\n    }\\n\\n    /**\\n     * @notice Only fall back when the sender is not the admin.\\n     */\\n    function _willFallback() internal virtual override {\\n        require(\\n            msg.sender != _admin,\\n            \\\"Cannot call fallback function from the proxy admin\\\"\\n        );\\n        super._willFallback();\\n    }\\n}\\n\",\"keccak256\":\"0x71cf22221aa9189472f3371d2a35fac049d93fe571d219be4a522988fbbb7afc\",\"license\":\"AGPL-3.0\"},\"contracts/lending/core/protocol/libraries/aave-upgradeability/InitializableImmutableAdminUpgradeabilityProxy.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\n/* \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *    _____     ______   ______     __     __   __     __     ______   __  __       *\\n *   /\\\\  __-.  /\\\\__  _\\\\ /\\\\  == \\\\   /\\\\ \\\\   /\\\\ \\\"-.\\\\ \\\\   /\\\\ \\\\   /\\\\__  _\\\\ /\\\\ \\\\_\\\\ \\\\      *\\n *   \\\\ \\\\ \\\\/\\\\ \\\\ \\\\/_/\\\\ \\\\/ \\\\ \\\\  __<   \\\\ \\\\ \\\\  \\\\ \\\\ \\\\-.  \\\\  \\\\ \\\\ \\\\  \\\\/_/\\\\ \\\\/ \\\\ \\\\____ \\\\     *\\n *    \\\\ \\\\____-    \\\\ \\\\_\\\\  \\\\ \\\\_\\\\ \\\\_\\\\  \\\\ \\\\_\\\\  \\\\ \\\\_\\\\\\\\\\\"\\\\_\\\\  \\\\ \\\\_\\\\    \\\\ \\\\_\\\\  \\\\/\\\\_____\\\\    *\\n *     \\\\/____/     \\\\/_/   \\\\/_/ /_/   \\\\/_/   \\\\/_/ \\\\/_/   \\\\/_/     \\\\/_/   \\\\/_____/    *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 dtrinity.org \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *                                                                                  *\\n *                                         \\u25b2                                        *\\n *                                        \\u25b2 \\u25b2                                       *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n * dTRINITY Protocol: https://github.com/dtrinity                                   *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 */\\n\\npragma solidity ^0.8.0;\\n\\nimport {InitializableUpgradeabilityProxy} from \\\"../../../dependencies/openzeppelin/upgradeability/InitializableUpgradeabilityProxy.sol\\\";\\nimport {Proxy} from \\\"../../../dependencies/openzeppelin/upgradeability/Proxy.sol\\\";\\nimport {BaseImmutableAdminUpgradeabilityProxy} from \\\"./BaseImmutableAdminUpgradeabilityProxy.sol\\\";\\n\\n/**\\n * @title InitializableAdminUpgradeabilityProxy\\n * @author Aave\\n * @dev Extends BaseAdminUpgradeabilityProxy with an initializer function\\n */\\ncontract InitializableImmutableAdminUpgradeabilityProxy is\\n    BaseImmutableAdminUpgradeabilityProxy,\\n    InitializableUpgradeabilityProxy\\n{\\n    /**\\n     * @dev Constructor.\\n     * @param admin The address of the admin\\n     */\\n    constructor(address admin) BaseImmutableAdminUpgradeabilityProxy(admin) {\\n        // Intentionally left blank\\n    }\\n\\n    /// @inheritdoc BaseImmutableAdminUpgradeabilityProxy\\n    function _willFallback()\\n        internal\\n        override(BaseImmutableAdminUpgradeabilityProxy, Proxy)\\n    {\\n        BaseImmutableAdminUpgradeabilityProxy._willFallback();\\n    }\\n}\\n\",\"keccak256\":\"0xc3f24eb740b687b38d65679a952092dbec43fce14f9d6b3833f8e6b81c93d4f6\",\"license\":\"AGPL-3.0\"}},\"version\":1}",
+  "bytecode": "0x608060409080825234620003b45762001e548038038091620000228285620003cf565b83398101918082840312620003b45781516001600160401b0390818111620003b457830192601f94808686011215620003b4578451602092848211620003b957601f19968651936200007b868a8c8701160186620003cf565b838552858483010111620003b45784926200009c91848087019101620003f3565b01516001600160a01b038082169590939091869003620003b45760018060a01b03199460009733878a54161789558351917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09a338b8d8180a38a926001938c86865492876200010b8562000418565b808452938582168c81156200039057506001146200034f575b50506200013492500387620003cf565b88519384116200033b57620001499062000418565b828111620002f1575b508591831160011462000287575091816200019494926200018d948d916200027b575b50600019600383901b1c191690821b17905562000455565b9362000455565b8251937fe685c8cdecc6030c45030fd54778812cb84ed8e4467c38294403d68ba78608238980a38654938416923384036200023c57508515620001eb575090849151968680a3161790556119dc9081620004788239f35b608491519062461bcd60e51b82526004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b6064820152fd5b60649162461bcd60e51b825280600483015260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65726044820152fd5b90508801513862000175565b821690838c52858c20918c5b87828210620002dc5750509284926200018d95928262000194989610620002c2575b5050811b01905562000455565b8a015160001960f88460031b161c191690553880620002b5565b8a840151855593860193928301920162000293565b848d52868d208380860160051c82019289871062000331575b0160051c019085908e5b838210620003255750505062000152565b81550185908e62000314565b925081926200030a565b634e487b7160e01b8d52604160045260248dfd5b908b92508152888282205b858310620003765750506200013493508201018f889062000124565b80919294505483858d0101520191018990888a936200035a565b9350505050620001349260ff19851682840152151560051b8201018f889062000124565b600080fd5b634e487b7160e01b600052604160045260246000fd5b601f909101601f19168101906001600160401b03821190821017620003b957604052565b60005b838110620004075750506000910152565b8181015183820152602001620003f6565b90600182811c921680156200044a575b60208310146200043457565b634e487b7160e01b600052602260045260246000fd5b91607f169162000428565b6200046f90602060405192828480945193849201620003f3565b81010390209056fe608060408181526004918236101561001657600080fd5b600092833560e01c918263026b1d5f14610fd8575081630e67178c14610f9a578163530e784f14610f0e578163568ef47014610ed95781635dcc528c14610cb75781635eb88d3d14610c6d578163631adfca14610c27578163707cd71614610be7578163715018a614610b8857816374944cec14610af357816376d84ffc14610a6a5781638da5cb5b14610a42578163a156440614610877578163ae7f78f914610844578163ca446dd9146107c6578163e44e9ed114610739578163e4ca28b71461052e578163e860accb146104ec578163ed301ca914610461578163f2fde38b1461039a578163f67b18471461015a575063fca513a81461011757600080fd5b346101565781600319360112610156576b50524943455f4f5241434c4560a01b825260026020908152918190205490516001600160a01b039091168152f35b5080fd5b90503461037b576020806003193601126103965781359267ffffffffffffffff90818511610392573660238601121561039257848401359482861161037f578690601f199251966101b28685601f84011601896110cb565b808852366024828401011161037b57806024879301838a0137870101526101e360018060a01b0387541633146110ed565b6101eb611172565b93855192831161036857506001926102038454611138565b601f8111610304575b508091601f841160011461027e575050918161024b9492610245948891610273575b50600019600383901b1c191690821b1790556113a2565b916113a2565b907fe685c8cdecc6030c45030fd54778812cb84ed8e4467c38294403d68ba78608238380a380f35b90508601513861022e565b83929192168488527fb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf69288905b8282106102ed57505092849261024595928261024b9896106102d4575b5050811b0190556113a2565b88015160001960f88460031b161c1916905538806102c8565b808785968294968c015181550195019301906102ab565b8488527fb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6601f850160051c81019183861061035e575b601f0160051c019085905b82811061035357505061020c565b898155018590610345565b909150819061033a565b634e487b7160e01b875260419052602486fd5b8280fd5b634e487b7160e01b875260418552602487fd5b8580fd5b8380fd5b90503461037b57602036600319011261037b576103b561100c565b8354916001600160a01b03808416926103cf3385146110ed565b1693841561040f57505082907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08580a36001600160a01b03191617815580f35b906020608492519162461bcd60e51b8352820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b6064820152fd5b5050346101565760203660031901126101565761047c61100c565b825490916001600160a01b039161049690831633146110ed565b6a20a1a62fa6a0a720a3a2a960a91b84526002602052832080546001600160a01b03198116938316938417909155167fb30efa04327bb8a537d61cc1e5c48095345ad18ef7cc04e6bacf7dfb6caaf5078380a380f35b5050346101565781600319360112610156576c2220aa20afa82927ab24a222a960991b825260026020908152918190205490516001600160a01b039091168152f35b90503461037b57602036600319011261037b5761054961100c565b83546001600160a01b03919061056290831633146110ed565b61056a6112fd565b928590702827a7a62fa1a7a72324a3aaa920aa27a960791b80885260026020528487892054168888519163189acdbd60e31b6020840152306024840152602483526105b4836110af565b806106da57505087516105e48082019082821067ffffffffffffffff8311176106c757828c93926020926113c3833930815203019082f080156106bb578716938382526002602052898220856001600160601b0360a01b825416179055843b1561015657895163347d5e2560e21b81529283918291610636918a90840161137d565b038183875af180156106b1578697985061069e575b507f4a465a9bd819d9662563c1e11ae958f8109e437e7f4bf1c6ef0b9a7b3f35d4788585169380a45b1691167f8932892569eba59c8382a089d9b732d1f49272878775235761a2a6b0309cd4658380a380f35b6106a9919350611085565b86913861064b565b88513d8b823e3d90fd5b508851903d90823e3d90fd5b634e487b7160e01b8c526041865260248cfd5b919250929350803b1561037b578483610707958a519687958694859363278f794360e11b8552840161137d565b03925af1801561072f5783949550610720575b50610674565b61072990611085565b3861071a565b85513d88823e3d90fd5b5050346101565760203660031901126101565761075461100c565b825490916001600160a01b039161076e90831633146110ed565b6c2220aa20afa82927ab24a222a960991b84526002602052832080546001600160a01b03198116938316938417909155167fc853974cfbf81487a14a23565917bee63f527853bcb5fa54f2ae1cdf8a38356d8380a380f35b90503461037b578160031936011261037b57356107e1611027565b835490926001600160a01b03916107fb90831633146110ed565b8285526002602052842080546001600160a01b0319811694831694851790915516907f9ef0e8c8e52743bb38b83b17d9429141d494b8041ca6d616a6c77cebae9cd8b78480a480f35b90503461037b57602036600319011261037b5735825260026020908152918190205490516001600160a01b039091168152f35b90503461037b57602036600319011261037b5761089261100c565b83546001600160a01b0391906108ab90831633146110ed565b6108b3611238565b928590631413d3d360e21b80885260026020528487892054168888519163189acdbd60e31b6020840152306024840152602483526108f0836110af565b806109ed57505087516105e48082019082821067ffffffffffffffff8311176106c757828c93926020926113c3833930815203019082f080156106bb578716938382526002602052898220856001600160601b0360a01b825416179055843b1561015657895163347d5e2560e21b81529283918291610972918a90840161137d565b038183875af180156106b157869798506109da575b507f4a465a9bd819d9662563c1e11ae958f8109e437e7f4bf1c6ef0b9a7b3f35d4788585169380a45b1691167f90affc163f1a2dfedcd36aa02ed992eeeba8100a4014f0b4cdc20ea265a666278380a380f35b6109e5919350611085565b869138610987565b919250929350803b1561037b578483610a1a958a519687958694859363278f794360e11b8552840161137d565b03925af1801561072f5783949550610a33575b506109b0565b610a3c90611085565b38610a2d565b505034610156578160031936011261015657905490516001600160a01b039091168152602090f35b50503461015657602036600319011261015657610a8561100c565b825490916001600160a01b0391610a9f90831633146110ed565b6820a1a62fa0a226a4a760b91b84526002602052832080546001600160a01b03198116938316938417909155167fe9cf53972264dc95304fd424458745019ddfca0e37ae8f703d74772c41ad115b8380a380f35b50503461015657602036600319011261015657610b0e61100c565b825490916001600160a01b0391610b2890831633146110ed565b7414149250d157d3d49050d31157d4d1539512539153605a1b84526002602052832080546001600160a01b03198116938316938417909155167f5326514eeca90494a14bedabcff812a0e683029ee85d1e23824d44fd14cd6ae78380a380f35b8334610be45780600319360112610be4578054816001600160a01b038216610bb13382146110ed565b7f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a36001600160a01b031916815580f35b80fd5b5050346101565781600319360112610156576a20a1a62fa6a0a720a3a2a960a91b825260026020908152918190205490516001600160a01b039091168152f35b505034610156578160031936011261015657702827a7a62fa1a7a72324a3aaa920aa27a960791b825260026020908152918190205490516001600160a01b039091168152f35b5050346101565781600319360112610156577414149250d157d3d49050d31157d4d1539512539153605a1b825260026020908152918190205490516001600160a01b039091168152f35b90503461037b578160031936011261037b578035610cd3611027565b9060018060a01b03610ce98187541633146110ed565b8186526020906002825280868820541693610d0384611356565b958890858a526002855283898b2054168a8a519163189acdbd60e31b8884015230602484015260248352610d36836110af565b80610e6257505089516105e48082019082821067ffffffffffffffff831117610e4f57828e93928a926113c3833930815203019082f08015610e4357861692888252600288528b8220846001600160601b0360a01b825416179055833b15610156578b5163347d5e2560e21b81529283918291610db6918990840161137d565b038183865af18015610e3957918593917f3bbd45b5429b385e3fb37ad5cd1cd1435a3c8ec32196c7937597365a3fd3e99c98999a9b93610e26575b50887f4a465a9bd819d9662563c1e11ae958f8109e437e7f4bf1c6ef0b9a7b3f35d4788587169380a45b51971687521694a480f35b610e31919250611085565b8a9038610df1565b8a513d8d823e3d90fd5b508a51903d90823e3d90fd5b634e487b7160e01b8e526041855260248efd5b80919394503b1561037b578483610e8d958d519687958694859363278f794360e11b8552840161137d565b03925af180156106b1579783917f3bbd45b5429b385e3fb37ad5cd1cd1435a3c8ec32196c7937597365a3fd3e99c96979899610eca575b50610e1b565b610ed390611085565b38610ec4565b505034610156578160031936011261015657610f0a90610ef7611172565b9051918291602083526020830190611060565b0390f35b50503461015657602036600319011261015657610f2961100c565b825490916001600160a01b0391610f4390831633146110ed565b6b50524943455f4f5241434c4560a01b84526002602052832080546001600160a01b03198116938316938417909155167f56b5f80d8cac1479698aa7d01605fd6111e90b15fc4d2b377417f46034876cbd8380a380f35b5050346101565781600319360112610156576820a1a62fa0a226a4a760b91b825260026020908152918190205490516001600160a01b039091168152f35b8490843461037b578260031936011261037b57631413d3d360e21b8352600260209081529220546001600160a01b03168152f35b600435906001600160a01b038216820361102257565b600080fd5b602435906001600160a01b038216820361102257565b60005b8381106110505750506000910152565b8181015183820152602001611040565b906020916110798151809281855285808601910161103d565b601f01601f1916010190565b67ffffffffffffffff811161109957604052565b634e487b7160e01b600052604160045260246000fd5b6060810190811067ffffffffffffffff82111761109957604052565b90601f8019910116810190811067ffffffffffffffff82111761109957604052565b156110f457565b606460405162461bcd60e51b815260206004820152602060248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65726044820152fd5b90600182811c92168015611168575b602083101461115257565b634e487b7160e01b600052602260045260246000fd5b91607f1691611147565b6040519060008260019160015461118881611138565b808452936020916001811690811561121457506001146111b3575b50506111b1925003836110cb565b565b91509260016000527fb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6936000925b8284106111fc57506111b194505050810160200138806111a3565b855488850183015294850194879450928101926111e1565b915050602092506111b194915060ff191682840152151560051b82010138806111a3565b631413d3d360e21b600090815260026020527f4fe005067814bb4b024d9515847377d15011b64593c006223b4a722952d2c05a546001600160a01b039082908216806112845750505090565b602090600460405180968193635c60da1b60e01b83525af19283156112f05781936112b0575b50505090565b909192506020813d6020116112e8575b816112cd602093836110cb565b8101031261015657519182168203610be457503880806112aa565b3d91506112c0565b50604051903d90823e3d90fd5b702827a7a62fa1a7a72324a3aaa920aa27a960791b600090815260026020527f90c127ef1c12c03f5781afeca3079527ea5333738078bba6fea26825bf9bf2c5546001600160a01b039082908216806112845750505090565b6000908152600260205260408120546001600160a01b039082908216806112845750505090565b6001600160a01b03909116815260406020820181905261139f92910190611060565b90565b6113ba9060206040519282848094519384920161103d565b81010390209056fe60a03461008557601f6105e438819003918201601f19168301916001600160401b0383118484101761008a5780849260209460405283398101031261008557516001600160a01b03811681036100855760805260405161054390816100a18239608051818181607b01528181610125015281816101a20152818161030f01526103740152f35b600080fd5b634e487b7160e01b600052604160045260246000fdfe608060405260043610610371576000803560e01c9081633659cfe61461005f575080634f1ef2861461005a5780635c60da1b14610055578063d1f57894146100505763f851a44003610371576102fc565b610241565b610186565b6100d7565b346100b95760203660031901126100b9576100786100bc565b337f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316036100b4576100b190610430565b80f35b610371565b80fd5b600435906001600160a01b03821682036100d257565b600080fd5b60403660031901126100d2576100eb6100bc565b60243567ffffffffffffffff918282116100d257366023830112156100d25781600401359283116100d25736602484840101116100d257337f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316036100b457602460009392849361016384610430565b80604051938493018337810184815203915af461017e61034b565b50156100d257005b346100d25760003660031901126100d2576001600160a01b03337f00000000000000000000000000000000000000000000000000000000000000008216036100b4576000805160206104ee8339815191525460405191168152602090f35b634e487b7160e01b600052604160045260246000fd5b6040519190601f01601f1916820167ffffffffffffffff81118382101761022057604052565b6101e4565b67ffffffffffffffff811161022057601f01601f191660200190565b60403660031901126100d2576102556100bc565b6024359067ffffffffffffffff82116100d257366023830112156100d25781600401359061028a61028583610225565b6101fa565b828152602081019036602485870101116100d2578360246020960183376000809581958301015260018060a01b036000805160206104ee83398151915254166102f7576102d683610469565b5190816102e257505050f35b83925af46102ee61034b565b50156100b95780f35b505050fd5b346100d25760003660031901126100d2577f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0333818316036100b45760405191168152602090f35b3d1561036c573d9061035f61028583610225565b9182523d6000602084013e565b606090565b337f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316146103d0576000805160206104ee833981519152546000808092368280378136915af43d82803e156103cc573d90f35b3d90fd5b60405162461bcd60e51b815260206004820152603260248201527f43616e6e6f742063616c6c2066616c6c6261636b2066756e6374696f6e20667260448201527137b6903a343290383937bc3c9030b236b4b760711b6064820152608490fd5b61043981610469565b6001600160a01b03167fbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b600080a2565b803b15610482576000805160206104ee83398151915255565b60405162461bcd60e51b815260206004820152603b60248201527f43616e6e6f742073657420612070726f787920696d706c656d656e746174696f60448201527f6e20746f2061206e6f6e2d636f6e7472616374206164647265737300000000006064820152608490fdfe360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbca26469706673582212204e87c74a9948ae2b12cdde889662e19a9eaf0369918de31545425743c252c3d764736f6c63430008180033a2646970667358221220ea947e7de82abff2732f8cc59be64ac8161aa453c0cbd6fde7783c5e9395dd9964736f6c63430008180033",
+  "deployedBytecode": "0x608060408181526004918236101561001657600080fd5b600092833560e01c918263026b1d5f14610fd8575081630e67178c14610f9a578163530e784f14610f0e578163568ef47014610ed95781635dcc528c14610cb75781635eb88d3d14610c6d578163631adfca14610c27578163707cd71614610be7578163715018a614610b8857816374944cec14610af357816376d84ffc14610a6a5781638da5cb5b14610a42578163a156440614610877578163ae7f78f914610844578163ca446dd9146107c6578163e44e9ed114610739578163e4ca28b71461052e578163e860accb146104ec578163ed301ca914610461578163f2fde38b1461039a578163f67b18471461015a575063fca513a81461011757600080fd5b346101565781600319360112610156576b50524943455f4f5241434c4560a01b825260026020908152918190205490516001600160a01b039091168152f35b5080fd5b90503461037b576020806003193601126103965781359267ffffffffffffffff90818511610392573660238601121561039257848401359482861161037f578690601f199251966101b28685601f84011601896110cb565b808852366024828401011161037b57806024879301838a0137870101526101e360018060a01b0387541633146110ed565b6101eb611172565b93855192831161036857506001926102038454611138565b601f8111610304575b508091601f841160011461027e575050918161024b9492610245948891610273575b50600019600383901b1c191690821b1790556113a2565b916113a2565b907fe685c8cdecc6030c45030fd54778812cb84ed8e4467c38294403d68ba78608238380a380f35b90508601513861022e565b83929192168488527fb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf69288905b8282106102ed57505092849261024595928261024b9896106102d4575b5050811b0190556113a2565b88015160001960f88460031b161c1916905538806102c8565b808785968294968c015181550195019301906102ab565b8488527fb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6601f850160051c81019183861061035e575b601f0160051c019085905b82811061035357505061020c565b898155018590610345565b909150819061033a565b634e487b7160e01b875260419052602486fd5b8280fd5b634e487b7160e01b875260418552602487fd5b8580fd5b8380fd5b90503461037b57602036600319011261037b576103b561100c565b8354916001600160a01b03808416926103cf3385146110ed565b1693841561040f57505082907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08580a36001600160a01b03191617815580f35b906020608492519162461bcd60e51b8352820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b6064820152fd5b5050346101565760203660031901126101565761047c61100c565b825490916001600160a01b039161049690831633146110ed565b6a20a1a62fa6a0a720a3a2a960a91b84526002602052832080546001600160a01b03198116938316938417909155167fb30efa04327bb8a537d61cc1e5c48095345ad18ef7cc04e6bacf7dfb6caaf5078380a380f35b5050346101565781600319360112610156576c2220aa20afa82927ab24a222a960991b825260026020908152918190205490516001600160a01b039091168152f35b90503461037b57602036600319011261037b5761054961100c565b83546001600160a01b03919061056290831633146110ed565b61056a6112fd565b928590702827a7a62fa1a7a72324a3aaa920aa27a960791b80885260026020528487892054168888519163189acdbd60e31b6020840152306024840152602483526105b4836110af565b806106da57505087516105e48082019082821067ffffffffffffffff8311176106c757828c93926020926113c3833930815203019082f080156106bb578716938382526002602052898220856001600160601b0360a01b825416179055843b1561015657895163347d5e2560e21b81529283918291610636918a90840161137d565b038183875af180156106b1578697985061069e575b507f4a465a9bd819d9662563c1e11ae958f8109e437e7f4bf1c6ef0b9a7b3f35d4788585169380a45b1691167f8932892569eba59c8382a089d9b732d1f49272878775235761a2a6b0309cd4658380a380f35b6106a9919350611085565b86913861064b565b88513d8b823e3d90fd5b508851903d90823e3d90fd5b634e487b7160e01b8c526041865260248cfd5b919250929350803b1561037b578483610707958a519687958694859363278f794360e11b8552840161137d565b03925af1801561072f5783949550610720575b50610674565b61072990611085565b3861071a565b85513d88823e3d90fd5b5050346101565760203660031901126101565761075461100c565b825490916001600160a01b039161076e90831633146110ed565b6c2220aa20afa82927ab24a222a960991b84526002602052832080546001600160a01b03198116938316938417909155167fc853974cfbf81487a14a23565917bee63f527853bcb5fa54f2ae1cdf8a38356d8380a380f35b90503461037b578160031936011261037b57356107e1611027565b835490926001600160a01b03916107fb90831633146110ed565b8285526002602052842080546001600160a01b0319811694831694851790915516907f9ef0e8c8e52743bb38b83b17d9429141d494b8041ca6d616a6c77cebae9cd8b78480a480f35b90503461037b57602036600319011261037b5735825260026020908152918190205490516001600160a01b039091168152f35b90503461037b57602036600319011261037b5761089261100c565b83546001600160a01b0391906108ab90831633146110ed565b6108b3611238565b928590631413d3d360e21b80885260026020528487892054168888519163189acdbd60e31b6020840152306024840152602483526108f0836110af565b806109ed57505087516105e48082019082821067ffffffffffffffff8311176106c757828c93926020926113c3833930815203019082f080156106bb578716938382526002602052898220856001600160601b0360a01b825416179055843b1561015657895163347d5e2560e21b81529283918291610972918a90840161137d565b038183875af180156106b157869798506109da575b507f4a465a9bd819d9662563c1e11ae958f8109e437e7f4bf1c6ef0b9a7b3f35d4788585169380a45b1691167f90affc163f1a2dfedcd36aa02ed992eeeba8100a4014f0b4cdc20ea265a666278380a380f35b6109e5919350611085565b869138610987565b919250929350803b1561037b578483610a1a958a519687958694859363278f794360e11b8552840161137d565b03925af1801561072f5783949550610a33575b506109b0565b610a3c90611085565b38610a2d565b505034610156578160031936011261015657905490516001600160a01b039091168152602090f35b50503461015657602036600319011261015657610a8561100c565b825490916001600160a01b0391610a9f90831633146110ed565b6820a1a62fa0a226a4a760b91b84526002602052832080546001600160a01b03198116938316938417909155167fe9cf53972264dc95304fd424458745019ddfca0e37ae8f703d74772c41ad115b8380a380f35b50503461015657602036600319011261015657610b0e61100c565b825490916001600160a01b0391610b2890831633146110ed565b7414149250d157d3d49050d31157d4d1539512539153605a1b84526002602052832080546001600160a01b03198116938316938417909155167f5326514eeca90494a14bedabcff812a0e683029ee85d1e23824d44fd14cd6ae78380a380f35b8334610be45780600319360112610be4578054816001600160a01b038216610bb13382146110ed565b7f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a36001600160a01b031916815580f35b80fd5b5050346101565781600319360112610156576a20a1a62fa6a0a720a3a2a960a91b825260026020908152918190205490516001600160a01b039091168152f35b505034610156578160031936011261015657702827a7a62fa1a7a72324a3aaa920aa27a960791b825260026020908152918190205490516001600160a01b039091168152f35b5050346101565781600319360112610156577414149250d157d3d49050d31157d4d1539512539153605a1b825260026020908152918190205490516001600160a01b039091168152f35b90503461037b578160031936011261037b578035610cd3611027565b9060018060a01b03610ce98187541633146110ed565b8186526020906002825280868820541693610d0384611356565b958890858a526002855283898b2054168a8a519163189acdbd60e31b8884015230602484015260248352610d36836110af565b80610e6257505089516105e48082019082821067ffffffffffffffff831117610e4f57828e93928a926113c3833930815203019082f08015610e4357861692888252600288528b8220846001600160601b0360a01b825416179055833b15610156578b5163347d5e2560e21b81529283918291610db6918990840161137d565b038183865af18015610e3957918593917f3bbd45b5429b385e3fb37ad5cd1cd1435a3c8ec32196c7937597365a3fd3e99c98999a9b93610e26575b50887f4a465a9bd819d9662563c1e11ae958f8109e437e7f4bf1c6ef0b9a7b3f35d4788587169380a45b51971687521694a480f35b610e31919250611085565b8a9038610df1565b8a513d8d823e3d90fd5b508a51903d90823e3d90fd5b634e487b7160e01b8e526041855260248efd5b80919394503b1561037b578483610e8d958d519687958694859363278f794360e11b8552840161137d565b03925af180156106b1579783917f3bbd45b5429b385e3fb37ad5cd1cd1435a3c8ec32196c7937597365a3fd3e99c96979899610eca575b50610e1b565b610ed390611085565b38610ec4565b505034610156578160031936011261015657610f0a90610ef7611172565b9051918291602083526020830190611060565b0390f35b50503461015657602036600319011261015657610f2961100c565b825490916001600160a01b0391610f4390831633146110ed565b6b50524943455f4f5241434c4560a01b84526002602052832080546001600160a01b03198116938316938417909155167f56b5f80d8cac1479698aa7d01605fd6111e90b15fc4d2b377417f46034876cbd8380a380f35b5050346101565781600319360112610156576820a1a62fa0a226a4a760b91b825260026020908152918190205490516001600160a01b039091168152f35b8490843461037b578260031936011261037b57631413d3d360e21b8352600260209081529220546001600160a01b03168152f35b600435906001600160a01b038216820361102257565b600080fd5b602435906001600160a01b038216820361102257565b60005b8381106110505750506000910152565b8181015183820152602001611040565b906020916110798151809281855285808601910161103d565b601f01601f1916010190565b67ffffffffffffffff811161109957604052565b634e487b7160e01b600052604160045260246000fd5b6060810190811067ffffffffffffffff82111761109957604052565b90601f8019910116810190811067ffffffffffffffff82111761109957604052565b156110f457565b606460405162461bcd60e51b815260206004820152602060248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e65726044820152fd5b90600182811c92168015611168575b602083101461115257565b634e487b7160e01b600052602260045260246000fd5b91607f1691611147565b6040519060008260019160015461118881611138565b808452936020916001811690811561121457506001146111b3575b50506111b1925003836110cb565b565b91509260016000527fb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6936000925b8284106111fc57506111b194505050810160200138806111a3565b855488850183015294850194879450928101926111e1565b915050602092506111b194915060ff191682840152151560051b82010138806111a3565b631413d3d360e21b600090815260026020527f4fe005067814bb4b024d9515847377d15011b64593c006223b4a722952d2c05a546001600160a01b039082908216806112845750505090565b602090600460405180968193635c60da1b60e01b83525af19283156112f05781936112b0575b50505090565b909192506020813d6020116112e8575b816112cd602093836110cb565b8101031261015657519182168203610be457503880806112aa565b3d91506112c0565b50604051903d90823e3d90fd5b702827a7a62fa1a7a72324a3aaa920aa27a960791b600090815260026020527f90c127ef1c12c03f5781afeca3079527ea5333738078bba6fea26825bf9bf2c5546001600160a01b039082908216806112845750505090565b6000908152600260205260408120546001600160a01b039082908216806112845750505090565b6001600160a01b03909116815260406020820181905261139f92910190611060565b90565b6113ba9060206040519282848094519384920161103d565b81010390209056fe60a03461008557601f6105e438819003918201601f19168301916001600160401b0383118484101761008a5780849260209460405283398101031261008557516001600160a01b03811681036100855760805260405161054390816100a18239608051818181607b01528181610125015281816101a20152818161030f01526103740152f35b600080fd5b634e487b7160e01b600052604160045260246000fdfe608060405260043610610371576000803560e01c9081633659cfe61461005f575080634f1ef2861461005a5780635c60da1b14610055578063d1f57894146100505763f851a44003610371576102fc565b610241565b610186565b6100d7565b346100b95760203660031901126100b9576100786100bc565b337f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316036100b4576100b190610430565b80f35b610371565b80fd5b600435906001600160a01b03821682036100d257565b600080fd5b60403660031901126100d2576100eb6100bc565b60243567ffffffffffffffff918282116100d257366023830112156100d25781600401359283116100d25736602484840101116100d257337f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316036100b457602460009392849361016384610430565b80604051938493018337810184815203915af461017e61034b565b50156100d257005b346100d25760003660031901126100d2576001600160a01b03337f00000000000000000000000000000000000000000000000000000000000000008216036100b4576000805160206104ee8339815191525460405191168152602090f35b634e487b7160e01b600052604160045260246000fd5b6040519190601f01601f1916820167ffffffffffffffff81118382101761022057604052565b6101e4565b67ffffffffffffffff811161022057601f01601f191660200190565b60403660031901126100d2576102556100bc565b6024359067ffffffffffffffff82116100d257366023830112156100d25781600401359061028a61028583610225565b6101fa565b828152602081019036602485870101116100d2578360246020960183376000809581958301015260018060a01b036000805160206104ee83398151915254166102f7576102d683610469565b5190816102e257505050f35b83925af46102ee61034b565b50156100b95780f35b505050fd5b346100d25760003660031901126100d2577f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0333818316036100b45760405191168152602090f35b3d1561036c573d9061035f61028583610225565b9182523d6000602084013e565b606090565b337f00000000000000000000000000000000000000000000000000000000000000006001600160a01b0316146103d0576000805160206104ee833981519152546000808092368280378136915af43d82803e156103cc573d90f35b3d90fd5b60405162461bcd60e51b815260206004820152603260248201527f43616e6e6f742063616c6c2066616c6c6261636b2066756e6374696f6e20667260448201527137b6903a343290383937bc3c9030b236b4b760711b6064820152608490fd5b61043981610469565b6001600160a01b03167fbc7cd75a20ee27fd9adebab32041f755214dbc6bffa90cc0225b39da2e5c2d3b600080a2565b803b15610482576000805160206104ee83398151915255565b60405162461bcd60e51b815260206004820152603b60248201527f43616e6e6f742073657420612070726f787920696d706c656d656e746174696f60448201527f6e20746f2061206e6f6e2d636f6e7472616374206164647265737300000000006064820152608490fdfe360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbca26469706673582212204e87c74a9948ae2b12cdde889662e19a9eaf0369918de31545425743c252c3d764736f6c63430008180033a2646970667358221220ea947e7de82abff2732f8cc59be64ac8161aa453c0cbd6fde7783c5e9395dd9964736f6c63430008180033",
+  "devdoc": {
+    "author": "Aave",
+    "details": "Acts as factory of proxies and admin of those, so with right to change its implementationsOwned by the Aave Governance",
+    "events": {
+      "ACLAdminUpdated(address,address)": {
+        "details": "Emitted when the ACL admin is updated.",
+        "params": {
+          "newAddress": "The new address of the ACLAdmin",
+          "oldAddress": "The old address of the ACLAdmin"
+        }
+      },
+      "ACLManagerUpdated(address,address)": {
+        "details": "Emitted when the ACL manager is updated.",
+        "params": {
+          "newAddress": "The new address of the ACLManager",
+          "oldAddress": "The old address of the ACLManager"
+        }
+      },
+      "AddressSet(bytes32,address,address)": {
+        "details": "Emitted when a new non-proxied contract address is registered.",
+        "params": {
+          "id": "The identifier of the contract",
+          "newAddress": "The address of the new contract",
+          "oldAddress": "The address of the old contract"
+        }
+      },
+      "AddressSetAsProxy(bytes32,address,address,address)": {
+        "details": "Emitted when the implementation of the proxy registered with id is updated",
+        "params": {
+          "id": "The identifier of the contract",
+          "newImplementationAddress": "The address of the new implementation contract",
+          "oldImplementationAddress": "The address of the old implementation contract",
+          "proxyAddress": "The address of the proxy contract"
+        }
+      },
+      "MarketIdSet(string,string)": {
+        "details": "Emitted when the market identifier is updated.",
+        "params": {
+          "newMarketId": "The new id of the market",
+          "oldMarketId": "The old id of the market"
+        }
+      },
+      "PoolConfiguratorUpdated(address,address)": {
+        "details": "Emitted when the pool configurator is updated.",
+        "params": {
+          "newAddress": "The new address of the PoolConfigurator",
+          "oldAddress": "The old address of the PoolConfigurator"
+        }
+      },
+      "PoolDataProviderUpdated(address,address)": {
+        "details": "Emitted when the pool data provider is updated.",
+        "params": {
+          "newAddress": "The new address of the PoolDataProvider",
+          "oldAddress": "The old address of the PoolDataProvider"
+        }
+      },
+      "PoolUpdated(address,address)": {
+        "details": "Emitted when the pool is updated.",
+        "params": {
+          "newAddress": "The new address of the Pool",
+          "oldAddress": "The old address of the Pool"
+        }
+      },
+      "PriceOracleSentinelUpdated(address,address)": {
+        "details": "Emitted when the price oracle sentinel is updated.",
+        "params": {
+          "newAddress": "The new address of the PriceOracleSentinel",
+          "oldAddress": "The old address of the PriceOracleSentinel"
+        }
+      },
+      "PriceOracleUpdated(address,address)": {
+        "details": "Emitted when the price oracle is updated.",
+        "params": {
+          "newAddress": "The new address of the PriceOracle",
+          "oldAddress": "The old address of the PriceOracle"
+        }
+      },
+      "ProxyCreated(bytes32,address,address)": {
+        "details": "Emitted when a new proxy is created.",
+        "params": {
+          "id": "The identifier of the proxy",
+          "implementationAddress": "The address of the implementation contract",
+          "proxyAddress": "The address of the created proxy contract"
+        }
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "constructor": {
+        "details": "Constructor.",
+        "params": {
+          "marketId": "The identifier of the market.",
+          "owner": "The owner address of this contract."
+        }
+      },
+      "getACLAdmin()": {
+        "returns": {
+          "_0": "The address of the ACL admin"
+        }
+      },
+      "getACLManager()": {
+        "returns": {
+          "_0": "The address of the ACLManager"
+        }
+      },
+      "getAddressFromID(bytes32)": {
+        "details": "The returned address might be an EOA or a contract, potentially proxiedIt returns ZERO if there is no registered address with the given id",
+        "params": {
+          "id": "The id"
+        },
+        "returns": {
+          "_0": "The address of the registered for the specified id"
+        }
+      },
+      "getMarketId()": {
+        "returns": {
+          "_0": "The market id"
+        }
+      },
+      "getPool()": {
+        "returns": {
+          "_0": "The Pool proxy address"
+        }
+      },
+      "getPoolConfigurator()": {
+        "returns": {
+          "_0": "The PoolConfigurator proxy address"
+        }
+      },
+      "getPoolDataProvider()": {
+        "returns": {
+          "_0": "The address of the DataProvider"
+        }
+      },
+      "getPriceOracle()": {
+        "returns": {
+          "_0": "The address of the PriceOracle"
+        }
+      },
+      "getPriceOracleSentinel()": {
+        "returns": {
+          "_0": "The address of the PriceOracleSentinel"
+        }
+      },
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+      },
+      "setACLAdmin(address)": {
+        "params": {
+          "newAclAdmin": "The address of the new ACL admin"
+        }
+      },
+      "setACLManager(address)": {
+        "params": {
+          "newAclManager": "The address of the new ACLManager"
+        }
+      },
+      "setAddress(bytes32,address)": {
+        "details": "IMPORTANT Use this function carefully, as it will do a hard replacement",
+        "params": {
+          "id": "The id",
+          "newAddress": "The address to set"
+        }
+      },
+      "setAddressAsProxy(bytes32,address)": {
+        "details": "IMPORTANT Use this function carefully, only for ids that don't have an explicit setter function, in order to avoid unexpected consequences",
+        "params": {
+          "id": "The id",
+          "newImplementationAddress": "The address of the new implementation"
+        }
+      },
+      "setMarketId(string)": {
+        "details": "This can be used to create an onchain registry of PoolAddressesProviders to identify and validate multiple Aave markets.",
+        "params": {
+          "newMarketId": "The market id"
+        }
+      },
+      "setPoolConfiguratorImpl(address)": {
+        "params": {
+          "newPoolConfiguratorImpl": "The new PoolConfigurator implementation"
+        }
+      },
+      "setPoolDataProvider(address)": {
+        "params": {
+          "newDataProvider": "The address of the new DataProvider"
+        }
+      },
+      "setPoolImpl(address)": {
+        "params": {
+          "newPoolImpl": "The new Pool implementation"
+        }
+      },
+      "setPriceOracle(address)": {
+        "params": {
+          "newPriceOracle": "The address of the new PriceOracle"
+        }
+      },
+      "setPriceOracleSentinel(address)": {
+        "params": {
+          "newPriceOracleSentinel": "The address of the new PriceOracleSentinel"
+        }
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      }
+    },
+    "title": "PoolAddressesProvider",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "getACLAdmin()": {
+        "notice": "Returns the address of the ACL admin."
+      },
+      "getACLManager()": {
+        "notice": "Returns the address of the ACL manager."
+      },
+      "getAddressFromID(bytes32)": {
+        "notice": "Returns an address by its identifier."
+      },
+      "getMarketId()": {
+        "notice": "Returns the id of the Aave market to which this contract points to."
+      },
+      "getPool()": {
+        "notice": "Returns the address of the Pool proxy."
+      },
+      "getPoolConfigurator()": {
+        "notice": "Returns the address of the PoolConfigurator proxy."
+      },
+      "getPoolDataProvider()": {
+        "notice": "Returns the address of the data provider."
+      },
+      "getPriceOracle()": {
+        "notice": "Returns the address of the price oracle."
+      },
+      "getPriceOracleSentinel()": {
+        "notice": "Returns the address of the price oracle sentinel."
+      },
+      "setACLAdmin(address)": {
+        "notice": "Updates the address of the ACL admin."
+      },
+      "setACLManager(address)": {
+        "notice": "Updates the address of the ACL manager."
+      },
+      "setAddress(bytes32,address)": {
+        "notice": "Sets an address for an id replacing the address saved in the addresses map."
+      },
+      "setAddressAsProxy(bytes32,address)": {
+        "notice": "General function to update the implementation of a proxy registered with certain `id`. If there is no proxy registered, it will instantiate one and set as implementation the `newImplementationAddress`."
+      },
+      "setMarketId(string)": {
+        "notice": "Associates an id with a specific PoolAddressesProvider."
+      },
+      "setPoolConfiguratorImpl(address)": {
+        "notice": "Updates the implementation of the PoolConfigurator, or creates a proxy setting the new `PoolConfigurator` implementation when the function is called for the first time."
+      },
+      "setPoolDataProvider(address)": {
+        "notice": "Updates the address of the data provider."
+      },
+      "setPoolImpl(address)": {
+        "notice": "Updates the implementation of the Pool, or creates a proxy setting the new `pool` implementation when the function is called for the first time."
+      },
+      "setPriceOracle(address)": {
+        "notice": "Updates the address of the price oracle."
+      },
+      "setPriceOracleSentinel(address)": {
+        "notice": "Updates the address of the price oracle sentinel."
+      }
+    },
+    "notice": "Main registry of addresses part of or connected to the protocol, including permissioned roles",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 27408,
+        "contract": "contracts/lending/core/protocol/configuration/PoolAddressesProvider.sol:PoolAddressesProvider",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 37230,
+        "contract": "contracts/lending/core/protocol/configuration/PoolAddressesProvider.sol:PoolAddressesProvider",
+        "label": "_marketId",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_string_storage"
+      },
+      {
+        "astId": 37234,
+        "contract": "contracts/lending/core/protocol/configuration/PoolAddressesProvider.sol:PoolAddressesProvider",
+        "label": "_addresses",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_bytes32,t_address)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_bytes32,t_address)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

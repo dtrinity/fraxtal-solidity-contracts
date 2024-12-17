@@ -29,10 +29,10 @@ export const strategyDUSD: IReserveParams = {
 export const strategyWETH: IReserveParams = {
   strategy: rateStrategyHighLiquidityVolatile,
   baseLTVAsCollateral: "8000",
-  liquidationThreshold: "8250",
+  liquidationThreshold: "8500",
   liquidationBonus: "10500",
   liquidationProtocolFee: "7000", // 70%
-  borrowingEnabled: true,
+  borrowingEnabled: false,
   stableBorrowRateEnabled: false,
   flashLoanEnabled: true,
   reserveDecimals: "18",
@@ -47,10 +47,10 @@ export const strategyWETH: IReserveParams = {
 export const strategyYieldBearingStablecoin: IReserveParams = {
   strategy: rateStrategyMediumLiquidityStable,
   baseLTVAsCollateral: "8000",
-  liquidationThreshold: "9000",
+  liquidationThreshold: "8500",
   liquidationBonus: "10500",
   liquidationProtocolFee: "7000", // 70%
-  borrowingEnabled: true,
+  borrowingEnabled: false,
   stableBorrowRateEnabled: false,
   flashLoanEnabled: true,
   reserveDecimals: "18",
@@ -82,11 +82,11 @@ export const strategyFXS: IReserveParams = {
 
 export const strategyETHLST: IReserveParams = {
   strategy: rateStrategyMediumLiquidityVolatile,
-  baseLTVAsCollateral: "8500",
-  liquidationThreshold: "9000",
+  baseLTVAsCollateral: "8000",
+  liquidationThreshold: "8500",
   liquidationBonus: "10800",
   liquidationProtocolFee: "7000", // 70%
-  borrowingEnabled: true,
+  borrowingEnabled: false,
   stableBorrowRateEnabled: false,
   flashLoanEnabled: true,
   reserveDecimals: "18",

@@ -12,7 +12,7 @@ import {
   performLiquidation,
 } from "../../utils/liquidator-bot/utils";
 import { getTokenAmountFromAddress } from "../../utils/token";
-import { standardDEXLBPLiquidityFixture } from "./fixtures";
+import { standardUniswapV3DEXLBPLiquidityFixture } from "./fixtures";
 import { increaseTime } from "./utils.chain";
 import { swapExactInputSingleWithApproval } from "./utils.dex";
 import { borrowAsset, depositCollateralWithApproval } from "./utils.lbp";
@@ -32,7 +32,7 @@ describe("Liquidator bot scenarios", function () {
 
     const priceDecimals = AAVE_ORACLE_USD_DECIMALS;
 
-    await standardDEXLBPLiquidityFixture();
+    await standardUniswapV3DEXLBPLiquidityFixture();
 
     const { liquidatorBotDeployer, dexDeployer, testAccount1, testAccount2 } =
       await hre.getNamedAccounts();
@@ -98,7 +98,7 @@ describe("Liquidator bot scenarios", function () {
     // Check the price before swapping (in order to compare after swapping)
     assert.equal(
       await getStaticOraclePrice(testAccount1, collateralTokenInfo.address),
-      hre.ethers.parseUnits("1.24993492", priceDecimals),
+      hre.ethers.parseUnits("1.25005991", priceDecimals),
     );
 
     // Perform swaps to decrease the price of the collateralToken
@@ -134,7 +134,7 @@ describe("Liquidator bot scenarios", function () {
     // Make sure the last price is decreased as expected
     assert.equal(
       await getStaticOraclePrice(testAccount1, collateralTokenInfo.address),
-      hre.ethers.parseUnits("0.84832697", priceDecimals),
+      hre.ethers.parseUnits("0.84841180", priceDecimals),
     );
 
     // Make sure the collateralToken balance decreased and the borrowToken balance increased
@@ -208,7 +208,7 @@ describe("Liquidator bot scenarios", function () {
     // as the liquidation reward
     assert.equal(
       await getTokenBalance(testAccount2, collateralTokenSymbol),
-      await getTokenAmount("29.623117736197173323", collateralTokenSymbol),
+      await getTokenAmount("29.524112359948175674", collateralTokenSymbol),
     );
     assert.equal(
       await getTokenBalance(testAccount2, borrowTokenSymbol),
@@ -244,7 +244,7 @@ describe("Liquidator bot scenarios", function () {
 
     const priceDecimals = AAVE_ORACLE_USD_DECIMALS;
 
-    await standardDEXLBPLiquidityFixture();
+    await standardUniswapV3DEXLBPLiquidityFixture();
 
     const { liquidatorBotDeployer, dexDeployer, testAccount1, testAccount2 } =
       await hre.getNamedAccounts();
@@ -314,7 +314,7 @@ describe("Liquidator bot scenarios", function () {
     // Check the price before swapping (in order to compare after swapping)
     assert.equal(
       await getStaticOraclePrice(testAccount1, collateralTokenInfo.address),
-      hre.ethers.parseUnits("1.24993492", priceDecimals),
+      hre.ethers.parseUnits("1.25005991", priceDecimals),
     );
 
     // Perform swaps to decrease the price of the collateralToken
@@ -350,7 +350,7 @@ describe("Liquidator bot scenarios", function () {
     // Make sure the last price is decreased as expected
     assert.equal(
       await getStaticOraclePrice(testAccount1, collateralTokenInfo.address),
-      hre.ethers.parseUnits("0.84832697", priceDecimals),
+      hre.ethers.parseUnits("0.84841180", priceDecimals),
     );
 
     // Make sure the collateralToken balance decreased and the borrowToken balance increased
@@ -424,7 +424,7 @@ describe("Liquidator bot scenarios", function () {
     // as the liquidation reward
     assert.equal(
       await getTokenBalance(testAccount2, collateralTokenSymbol),
-      await getTokenAmount("2.110511583640054824", collateralTokenSymbol),
+      await getTokenAmount("2.011502349399058290", collateralTokenSymbol),
     );
     assert.equal(
       await getTokenBalance(testAccount2, borrowTokenSymbol),
@@ -499,7 +499,7 @@ describe("Test getLiquidationProfitInUSD()", function () {
 
   for (const testCase of testCases) {
     it(`Test case: ${JSON.stringify(testCase)}`, async function () {
-      await standardDEXLBPLiquidityFixture();
+      await standardUniswapV3DEXLBPLiquidityFixture();
 
       const { dexDeployer } = await hre.getNamedAccounts();
       const { tokenInfo } = await getTokenContractForSymbol(

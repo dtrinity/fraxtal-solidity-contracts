@@ -37,5 +37,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 func.id = NONFUNGIBLE_TOKEN_POSITION_DESCRIPTOR_ID;
-func.tags = ["dex", "periphery"];
+func.tags = ["dex", "dex-periphery"];
 export default func;

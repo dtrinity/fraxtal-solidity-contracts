@@ -28,5 +28,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 func.id = TEST_WETH9_ID;
-func.tags = ["mock", "weth9"];
+func.tags = ["mock"];
 export default func;

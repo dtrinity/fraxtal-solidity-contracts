@@ -66,5 +66,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 func.id = UNISWAP_UNIVERSAL_ROUTER_ID;
-func.tags = ["dex", "ui"];
+func.tags = ["dex", "dex-ui"];
 export default func;

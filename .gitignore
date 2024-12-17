@@ -34,13 +34,22 @@ deployments/test-tokens/localhost
 deployments/test-tokens/hardhat
 deployments/test-tokens/**/solcInputs
 
-deployments-log/localhost*.log
-deployments-log/hardhat*.log
-
 # Yarn files
 .yarn/*
 !.yarn/releases
 !.yarn/plugins
+**/.yarn/*
+!**/.yarn/releases
+!**/.yarn/plugins
+
 
 # Plandex AI CLI tool
 .plandex
+
+.tmp
+
+# Local state
+state/
+
+# This data is only for analysis purposes
+remote-state/

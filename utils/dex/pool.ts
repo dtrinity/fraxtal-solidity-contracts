@@ -678,3 +678,45 @@ export async function getDEXPoolAddressForPair(
     fee: FeeAmount.LOW,
   };
 }
+
+/**
+ * Check each pair of tokens in the path to make sure that the swap path exists
+ *
+ * @param tokensPath - The tokens path (e.g., ETH -> USDC -> DAI means [ETH, USDC, DAI])
+ * @param feesPath - The fees path (e.g., ETH -> USDC -> DAI means [3000, 500] means 0.3% fee for ETH -> USDC and 0.5% fee for USDC -> DAI)
+ */
+export async function checkIfSwapPathExists(
+  tokensPath: string[],
+  feesPath: FeeAmount[],
+): Promise<void> {
+  if (tokensPath.length < 2) {
+    throw new Error(`Invalid tokens path: ${tokensPath}`);
+  }
+
+  if (feesPath.length !== tokensPath.length - 1) {
+    throw new Error(
+      `Invalid fees path for tokens path: ${tokensPath} - ${feesPath}`,
+    );
+  }
+
+  for (let i = 0; i < tokensPath.length - 1; i++) {
+    const token0Address = tokensPath[i];
+    const token1Address = tokensPath[i + 1];
+    const fee = feesPath[i];
+
+    const poolAddress = await getDEXPoolAddress(
+      token0Address,
+      token1Address,
+      fee,
+    );
+
+    if (poolAddress === ethers.ZeroAddress) {
+      const token0Info = await fetchTokenInfo(hrer, token0Address);
+      const token1Info = await fetchTokenInfo(hrer, token1Address);
+
+      throw new Error(
+        `Swap path with fee ${fee} does not exist for pair: token1=${token0Info.symbol} (${token0Address}) - token2=${token1Info.symbol} (${token1Address})`,
+      );
+    }
+  }
+}

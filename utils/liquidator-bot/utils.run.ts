@@ -10,7 +10,7 @@ import { getReservesList } from "../lending/pool";
 import { getReserveConfigurationData } from "../lending/reserve";
 import { fetchTokenInfo, TokenInfo } from "../token";
 import { batchedPromiseAll, isLocalNetwork } from "../utils";
-import { getLiquidationProfitInUSD, getMaxLiquidationAmount } from "./utils";
+import { getMaxLiquidationAmount } from "./utils";
 
 export interface User {
   id: string;
@@ -104,6 +104,8 @@ export interface UserReserveInfo {
   priceDecimals: number;
   reserveTokenInfo: TokenInfo;
   liquidationBonus: BigNumber;
+  usageAsCollateralEnabled: boolean;
+  borrowingEnabled: boolean;
 }
 
 /**
@@ -123,7 +125,7 @@ export async function getUserReserveInfo(
     totalDebt,
     priceInUSD,
     reserveTokenInfo,
-    { liquidationBonus },
+    { liquidationBonus, usageAsCollateralEnabled, borrowingEnabled },
   ] = await Promise.all([
     getUserSupplyBalance(reserveAddress, userAddress),
     getUserDebtBalance(reserveAddress, userAddress),
@@ -144,6 +146,8 @@ export async function getUserReserveInfo(
     priceDecimals: priceDecimals,
     reserveTokenInfo: reserveTokenInfo,
     liquidationBonus: BigNumber.from(liquidationBonus),
+    usageAsCollateralEnabled: usageAsCollateralEnabled,
+    borrowingEnabled: borrowingEnabled,
   };
 }
 
@@ -169,11 +173,15 @@ export async function getUserLiquidationParams(userAddress: string): Promise<{
     config.liquidatorBot.reserveBatchSize,
   );
 
-  const [debtMarket] = reserveInfos.sort((a, b) =>
+  const availableDebtMarkets = reserveInfos.filter((r) => r.borrowingEnabled);
+  const [debtMarket] = availableDebtMarkets.sort((a, b) =>
     a.totalDebt.gt(b.totalDebt) ? -1 : 1,
   );
 
-  const [collateralMarket] = reserveInfos
+  const availableCollateralMarkets = reserveInfos.filter(
+    (r) => r.usageAsCollateralEnabled,
+  );
+  const [collateralMarket] = availableCollateralMarkets
     .filter((b) => b.liquidationBonus.gt(0))
     .sort((a, b) => (a.totalSupply.gt(b.totalSupply) ? -1 : 1));
 
@@ -191,31 +199,4 @@ export async function getUserLiquidationParams(userAddress: string): Promise<{
     debtToken: debtMarket,
     toLiquidateAmount: maxLiquidationAmount.toLiquidateAmount,
   };
-}
-
-/**
- * Check if the liquidation is profitable
- *
- * @param debtToken - The debt token information
- * @param toLiquidateAmount - The amount to liquidate
- * @returns - Whether the liquidation is profitable
- */
-export async function isProfitable(
-  debtToken: UserReserveInfo,
-  toLiquidateAmount: BigNumber,
-): Promise<boolean> {
-  const config = await getConfig(hre);
-  const liquidationProfit = await getLiquidationProfitInUSD(
-    debtToken.reserveTokenInfo,
-    {
-      rawValue: BigNumber.from(debtToken.priceInUSD),
-      decimals: debtToken.priceDecimals,
-    },
-    toLiquidateAmount.toBigInt(),
-  );
-
-  if (liquidationProfit < config.liquidatorBot.profitableThresholdInUSD) {
-    return false;
-  }
-  return true;
 }

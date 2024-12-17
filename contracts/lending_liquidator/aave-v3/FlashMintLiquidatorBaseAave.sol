@@ -1,5 +1,21 @@
 // SPDX-License-Identifier: GNU AGPLv3
-pragma solidity 0.8.13;
+/* ———————————————————————————————————————————————————————————————————————————————— *
+ *    _____     ______   ______     __     __   __     __     ______   __  __       *
+ *   /\  __-.  /\__  _\ /\  == \   /\ \   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \      *
+ *   \ \ \/\ \ \/_/\ \/ \ \  __<   \ \ \  \ \ \-.  \  \ \ \  \/_/\ \/ \ \____ \     *
+ *    \ \____-    \ \_\  \ \_\ \_\  \ \_\  \ \_\\"\_\  \ \_\    \ \_\  \/\_____\    *
+ *     \/____/     \/_/   \/_/ /_/   \/_/   \/_/ \/_/   \/_/     \/_/   \/_____/    *
+ *                                                                                  *
+ * ————————————————————————————————— dtrinity.org ————————————————————————————————— *
+ *                                                                                  *
+ *                                         ▲                                        *
+ *                                        ▲ ▲                                       *
+ *                                                                                  *
+ * ———————————————————————————————————————————————————————————————————————————————— *
+ * dTRINITY Protocol: https://github.com/dtrinity                                   *
+ * ———————————————————————————————————————————————————————————————————————————————— */
+
+pragma solidity 0.8.20;
 
 import "../interface/IERC3156FlashLender.sol";
 import "../interface/IERC3156FlashBorrower.sol";
@@ -152,11 +168,15 @@ abstract contract FlashMintLiquidatorBaseAave is
         // - The flashLoan() of the minter will call the onFlashLoan() function of the receiver (IERC3156FlashBorrower)
         flashMinter.flashLoan(this, address(dusd), dusdToFlashLoan, data);
 
-        seized_ =
-            ERC20(_flashLoanParams.collateralUnderlying).balanceOf(
-                address(this)
-            ) -
-            balanceBefore;
+        uint256 balanceAfter = ERC20(_flashLoanParams.collateralUnderlying)
+            .balanceOf(address(this));
+
+        if (balanceAfter > balanceBefore) {
+            seized_ = balanceAfter - balanceBefore;
+        } else {
+            // As there is no profit, the seized amount is 0
+            seized_ = 0;
+        }
 
         emit FlashLoan(msg.sender, dusdToFlashLoan);
     }

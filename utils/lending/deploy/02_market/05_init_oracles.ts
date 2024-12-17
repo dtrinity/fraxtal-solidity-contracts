@@ -31,7 +31,7 @@ export async function initOracles(
 
   // 1. Set price oracle
   const priceOracleAddress = (await hre.deployments.get(ORACLE_ID)).address;
-  const statePriceOracle = await addressesProviderContract.getPriceOracle();
+  const currentPriceOracle = await addressesProviderContract.getPriceOracle();
 
   console.log(`---------------`);
   console.log(`Set PriceOracle`);
@@ -40,7 +40,7 @@ export async function initOracles(
     `  - AddressProvider : ${addressesProviderDeployedResult.address}`,
   );
 
-  if (getAddress(priceOracleAddress) === getAddress(statePriceOracle)) {
+  if (getAddress(priceOracleAddress) === getAddress(currentPriceOracle)) {
     console.log("[addresses-provider] Price oracle already set. Skipping tx.");
   } else {
     const setPriceOracleResponse =

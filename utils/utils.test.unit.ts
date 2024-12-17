@@ -1,4 +1,8 @@
-import { batchedPromiseAll, ShortTermIgnoreMemory } from "./utils";
+import {
+  batchedPromiseAll,
+  ShortTermIgnoreMemory,
+  splitToBatches,
+} from "./utils";
 
 describe("Test ShortTermIgnoreMemory", () => {
   it("normal case", () => {
@@ -76,5 +80,22 @@ describe("Test batchedPromiseAll()", () => {
   it("empty case", async () => {
     const result = await batchedPromiseAll([], 2);
     expect(result).toEqual([]);
+  });
+});
+
+describe("Test splitToBatches()", () => {
+  it("normal case", () => {
+    const result = splitToBatches([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 3);
+    expect(result).toEqual([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]);
+  });
+
+  it("empty case", () => {
+    const result = splitToBatches([], 3);
+    expect(result).toEqual([]);
+  });
+
+  it("smaller than batch size", () => {
+    const result = splitToBatches([1, 2], 3);
+    expect(result).toEqual([[1, 2]]);
   });
 });

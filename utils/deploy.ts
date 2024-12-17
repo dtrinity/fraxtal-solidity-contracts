@@ -90,15 +90,22 @@ export interface DeployContractResult {
  * Get the default deploy script paths for the given environment variable postfix, based on the following environment variables:
  * - `DEPLOY_ONLY_DEX` (`true`/`false`)
  * - `DEPLOY_ONLY_LENDING` (`true`/`false`)
+ * - `DEPLOY_DUSD` (`true`/`false`)
+ * - `DEPLOY_DUSD_AMO_VAULT` (`true`/`false`)
  *
  * @returns The default deploy script paths
  */
 export function getDefaultDeployScriptPaths(): string[] {
+  // Note: By default it deploys everything, uncomment a path if we need to specifically deploy it and add the logic below
+  const basePath = `deploy`;
   const localTokenPath = `deploy/00_local`;
   const dexPath = `deploy/01_dex`;
-  const lendingPath = `deploy/02_lending`;
-  const liquidatorBotPath = `deploy/03_liquidator_bot`;
-  // TODO: need to update the path for the lending deployment
+  // const oracleAggregatorPath = `deploy/02_oracle_aggregator`;
+  const lendingPath = `deploy/03_lending`;
+  // const liquidatorBotPath = `deploy/04_liquidator_bot`;
+  const dusdPath = `deploy/05_dusd`;
+  const dusdAmoVaultPath = `deploy/06_dusd_amo_vault`;
+  // const dLoopPath = `deploy/07_dloop`;
 
   const isTrueBoolEnv = (envName: string): boolean => {
     if (!process.env[envName]) {
@@ -117,6 +124,8 @@ export function getDefaultDeployScriptPaths(): string[] {
 
   const isOnlyDex = isTrueBoolEnv("DEPLOY_ONLY_DEX");
   const isOnlyLending = isTrueBoolEnv("DEPLOY_ONLY_LENDING");
+  const isDeployDUSD = isTrueBoolEnv("DEPLOY_DUSD");
+  const isDeployDusdAmoVault = isTrueBoolEnv("DEPLOY_DUSD_AMO_VAULT");
 
   if (isOnlyDex && isOnlyLending) {
     throw new Error(
@@ -133,7 +142,16 @@ export function getDefaultDeployScriptPaths(): string[] {
     return [localTokenPath, lendingPath];
   }
 
-  // The liquidator bot required both dex and lending to be deployed
-  // Deploy both dex and lending by default
-  return [localTokenPath, dexPath, lendingPath, liquidatorBotPath];
+  // dUSD contracts can be deployed independently
+  if (isDeployDUSD) {
+    return [localTokenPath, dusdPath];
+  }
+
+  // Allow for deploying dUSD AMO vaults independently
+  if (isDeployDusdAmoVault) {
+    return [localTokenPath, dusdAmoVaultPath];
+  }
+
+  // Deploy everything by default
+  return [basePath];
 }

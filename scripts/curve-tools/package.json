@@ -1,0 +1,13 @@
+{
+  "name": "curve-swap-params-generator",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Stably",
+  "type": "module",
+  "dependencies": {
+    "@curvefi/api": "https://github.com/stablyio/curve-js/raw/refs/heads/feat/fraxtal_testnet/curvefi-api-v2.63.10.9.tgz",
+    "ts-node": ">=8.0.0",
+    "tsx": "^4.6.2",
+    "typescript": ">=4.5.0"
+  }
+}

@@ -12,6 +12,6 @@
     "legacy-tests",
     "test",
     "utils/liquidator-bot", // We use some typechain types in the liquidator bot
-    "scripts/liquidator-bot" // We use some typechain types in the liquidator bot
+    "scripts" // We use some typechain types in the scripts
   ]
 }

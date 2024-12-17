@@ -1,8 +1,14 @@
+import { assert } from "chai";
 import { ethers } from "ethers";
 import hre from "hardhat";
 
+import {
+  getUserDebtBalance,
+  getUserSupplyBalance,
+} from "../../utils/lending/balance";
 import { INTEREST_RATE_MODE_VARIABLE } from "../../utils/lending/constants";
 import { POOL_ADDRESSES_PROVIDER_ID } from "../../utils/lending/deploy-ids";
+import { getTokenAmountFromAddress } from "../../utils/token";
 import { getTokenContractForAddress } from "../../utils/utils";
 
 /**
@@ -236,4 +242,163 @@ export async function liquidateAsset(
   if (txnResponse?.status !== 1) {
     throw new Error("Liquidation failed");
   }
+}
+
+/**
+ * Assert the Lending supply balance of the user
+ *
+ * @param userAddress - The address of the user
+ * @param assetAddress - The address of the asset
+ * @param expectedAmount - The expected amount of the asset
+ * @param tolerance - The tolerance for float imprecision (default: 1e-6)
+ */
+export async function assertUserLendingSupplyBalance(
+  userAddress: string,
+  assetAddress: string,
+  expectedAmount: string,
+  tolerance: number = 1e-6,
+): Promise<void> {
+  await assertUserLendingSupplyBalanceBigInt(
+    userAddress,
+    assetAddress,
+    await getTokenAmountFromAddress(assetAddress, expectedAmount),
+    tolerance,
+  );
+}
+
+/**
+ * Assert the Lending supply balance of the user
+ *
+ * @param userAddress - The address of the user
+ * @param assetAddress - The address of the asset
+ * @param expectedTokenAmount - The expected amount of the asset
+ * @param tolerance - The tolerance for float imprecision (default: 1e-6)
+ */
+export async function assertUserLendingSupplyBalanceBigInt(
+  userAddress: string,
+  assetAddress: string,
+  expectedTokenAmount: bigint,
+  tolerance: number = 1e-6,
+): Promise<void> {
+  const userSupplyBalance = await getUserSupplyBalance(
+    assetAddress,
+    userAddress,
+  );
+  const toleranceBigInt = BigInt(
+    Math.floor(Number(expectedTokenAmount) * tolerance),
+  );
+
+  assert(
+    userSupplyBalance.toBigInt() >= expectedTokenAmount - toleranceBigInt &&
+      userSupplyBalance.toBigInt() <= expectedTokenAmount + toleranceBigInt,
+    `User supply balance is not within tolerance. Expected: ${expectedTokenAmount}, Actual: ${userSupplyBalance.toBigInt()}`,
+  );
+}
+
+/**
+ * Assert the Lending debt balance of the user
+ *
+ * @param userAddress - The address of the user
+ * @param assetAddress - The address of the asset
+ * @param expectedAmount - The expected amount of the asset
+ * @param tolerance - The tolerance for float imprecision (default: 1e-6)
+ */
+export async function assertUserLendingDebtBalance(
+  userAddress: string,
+  assetAddress: string,
+  expectedAmount: string,
+  tolerance: number = 1e-6,
+): Promise<void> {
+  await assertUserLendingDebtBalanceBigInt(
+    userAddress,
+    assetAddress,
+    await getTokenAmountFromAddress(assetAddress, expectedAmount),
+    tolerance,
+  );
+}
+
+/**
+ * Assert the Lending debt balance of the user
+ *
+ * @param userAddress - The address of the user
+ * @param assetAddress - The address of the asset
+ * @param expectedTokenAmount - The expected amount of the asset
+ * @param tolerance - The tolerance for float imprecision (default: 1e-6)
+ */
+export async function assertUserLendingDebtBalanceBigInt(
+  userAddress: string,
+  assetAddress: string,
+  expectedTokenAmount: bigint,
+  tolerance: number = 1e-6,
+): Promise<void> {
+  const userDebtBalance = await getUserDebtBalance(assetAddress, userAddress);
+  const toleranceBigInt = BigInt(
+    Math.floor(Number(expectedTokenAmount) * tolerance),
+  );
+
+  assert(
+    userDebtBalance.toBigInt() >= expectedTokenAmount - toleranceBigInt &&
+      userDebtBalance.toBigInt() <= expectedTokenAmount + toleranceBigInt,
+    `User debt balance is not within tolerance. Expected: ${expectedTokenAmount}, Actual: ${userDebtBalance.toBigInt()}`,
+  );
+}
+
+/**
+ * Assert the user's lending supply and debt balance
+ *
+ * @param userAddress - The address of the user
+ * @param supplyAssetAddress - The address of the supply asset
+ * @param expectedSupplyAmount - The expected amount of the supply asset
+ * @param debtAssetAddress - The address of the debt asset
+ * @param expectedDebtAmount - The expected amount of the debt asset
+ * @param tolerance - The tolerance for float imprecision (default: 1e-6)
+ */
+export async function assertUserLendingSupplyAndDebtBalance(
+  userAddress: string,
+  supplyAssetAddress: string,
+  expectedSupplyAmount: number,
+  debtAssetAddress: string,
+  expectedDebtAmount: number,
+  tolerance: number = 1e-6,
+): Promise<void> {
+  await assertUserLendingSupplyAndDebtBalanceBigInt(
+    userAddress,
+    supplyAssetAddress,
+    await getTokenAmountFromAddress(supplyAssetAddress, expectedSupplyAmount),
+    debtAssetAddress,
+    await getTokenAmountFromAddress(debtAssetAddress, expectedDebtAmount),
+    tolerance,
+  );
+}
+
+/**
+ * Assert the user's lending supply and debt balance
+ *
+ * @param userAddress - The address of the user
+ * @param supplyAssetAddress - The address of the supply asset
+ * @param expectedSupplyTokenAmount - The expected amount of the supply asset
+ * @param debtAssetAddress - The address of the debt asset
+ * @param expectedDebtTokenAmount - The expected amount of the debt asset
+ * @param tolerance - The tolerance for float imprecision (default: 1e-6)
+ */
+export async function assertUserLendingSupplyAndDebtBalanceBigInt(
+  userAddress: string,
+  supplyAssetAddress: string,
+  expectedSupplyTokenAmount: bigint,
+  debtAssetAddress: string,
+  expectedDebtTokenAmount: bigint,
+  tolerance: number = 1e-6,
+): Promise<void> {
+  await assertUserLendingSupplyBalanceBigInt(
+    userAddress,
+    supplyAssetAddress,
+    expectedSupplyTokenAmount,
+    tolerance,
+  );
+  await assertUserLendingDebtBalanceBigInt(
+    userAddress,
+    debtAssetAddress,
+    expectedDebtTokenAmount,
+    tolerance,
+  );
 }

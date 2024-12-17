@@ -8,14 +8,14 @@ import {
   // eslint-disable-next-line camelcase -- This is a generated typechain import
   DSwapWithdrawSwapAdapter__factory,
 } from "../../../typechain-types";
-import { standardDEXLBPLiquidityFixture } from "../../ecosystem/fixtures";
+import { standardUniswapV3DEXLBPLiquidityFixture } from "../../ecosystem/fixtures";
 import { loadTestEnv } from "../../ecosystem/test-env";
 import { depositCollateralWithApproval } from "../../ecosystem/utils.lbp";
 import { tEthereumAddress } from "./types";
 import { parseUnitsFromToken } from "./utils";
 
 const setupDSwapAdapter = async (): Promise<DSwapWithdrawSwapAdapter> => {
-  await standardDEXLBPLiquidityFixture();
+  await standardUniswapV3DEXLBPLiquidityFixture();
   const { lendingDeployer, addressesProvider, swapRouter } =
     await loadTestEnv();
   return await deployDSwapWithdrawSwapAdapter(

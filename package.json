@@ -10,8 +10,7 @@
     "test-ts": "env-cmd --silent -f .env yarn jest",
     "ts-lint": "eslint . --ext .ts --ext .js --ext .json",
     "ts-lint-fix": "yarn ts-lint --fix && yarn ts-typecheck",
-    "ts-typecheck": "tsc -p tsconfig.lint.json --noEmit",
-    "verify-fraxtal_testnet": "hardhat --network fraxtal_testnet etherscan-verify --api-key AMT6AWIRDZV3RVNSSU6T2638K59QSX4Q89 --api-url https://api-holesky.fraxscan.com"
+    "ts-typecheck": "tsc -p tsconfig.lint.json --noEmit"
   },
   "devDependencies": {
     "@ethersproject/bignumber": "^5.7.0",
@@ -43,6 +42,7 @@
     "base64-sol": "^1.1.0",
     "bignumber.js": "^9.1.2",
     "chai": "^4.2.0",
+    "csv-writer": "^1.6.0",
     "dotenv": "^16.4.5",
     "env-cmd": "^10.1.0",
     "eslint": "^8.56.0",

@@ -88,38 +88,12 @@ describe("Test convertToSwapPath()", () => {
       feePaths: [3000],
       exactInput: false,
       expected:
-        "0x0000000000000000333162353438306431316239000bb80000000000000000363336613930316132333732",
-    },
-    {
-      tokenPaths: [numberToAddress(1), numberToAddress(2), numberToAddress(3)],
-      feePaths: [3000, 434],
-      exactInput: false,
-      expected:
-        "0x0000000000000000333162353438306431316239000bb800000000000000003633366139303161323337320001b20000000000000000393531666438323733353262",
-    },
-    {
-      tokenPaths: [
-        numberToAddress(1),
-        numberToAddress(2),
-        numberToAddress(3),
-        numberToAddress(4),
-      ],
-      feePaths: [3000, 434, 87632],
-      exactInput: false,
-      expected:
-        "0x0000000000000000333162353438306431316239000bb800000000000000003633366139303161323337320001b200000000000000003935316664383237333532620156500000000000000000633664353230333434366534",
-    },
-    {
-      tokenPaths: [numberToAddress(1), numberToAddress(2)],
-      feePaths: [3000],
-      exactInput: true,
-      expected:
         "0x0000000000000000363336613930316132333732000bb80000000000000000333162353438306431316239",
     },
     {
       tokenPaths: [numberToAddress(1), numberToAddress(2), numberToAddress(3)],
       feePaths: [3000, 434],
-      exactInput: true,
+      exactInput: false,
       expected:
         "0x00000000000000003935316664383237333532620001b20000000000000000363336613930316132333732000bb80000000000000000333162353438306431316239",
     },
@@ -131,9 +105,35 @@ describe("Test convertToSwapPath()", () => {
         numberToAddress(4),
       ],
       feePaths: [3000, 434, 87632],
-      exactInput: true,
+      exactInput: false,
       expected:
         "0x000000000000000063366435323033343436653401565000000000000000003935316664383237333532620001b20000000000000000363336613930316132333732000bb80000000000000000333162353438306431316239",
+    },
+    {
+      tokenPaths: [numberToAddress(1), numberToAddress(2)],
+      feePaths: [3000],
+      exactInput: true,
+      expected:
+        "0x0000000000000000333162353438306431316239000bb80000000000000000363336613930316132333732",
+    },
+    {
+      tokenPaths: [numberToAddress(1), numberToAddress(2), numberToAddress(3)],
+      feePaths: [3000, 434],
+      exactInput: true,
+      expected:
+        "0x0000000000000000333162353438306431316239000bb800000000000000003633366139303161323337320001b20000000000000000393531666438323733353262",
+    },
+    {
+      tokenPaths: [
+        numberToAddress(1),
+        numberToAddress(2),
+        numberToAddress(3),
+        numberToAddress(4),
+      ],
+      feePaths: [3000, 434, 87632],
+      exactInput: true,
+      expected:
+        "0x0000000000000000333162353438306431316239000bb800000000000000003633366139303161323337320001b200000000000000003935316664383237333532620156500000000000000000633664353230333434366534",
     },
   ];
   validCases.forEach((testCase) => {

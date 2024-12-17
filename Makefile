@@ -1,5 +1,7 @@
 -include ./.env
 
+LIQUIDATOR_BOT_IMAGE_NAME:=liquidator-bot
+
 # Always try to create the deployments-log directory
 $(shell mkdir -p deployments-log)
 
@@ -67,7 +69,7 @@ git.unstaged-check.ci:
 
 compile:
 	@echo "Compiling..."
-	@yarn hardhat compile
+	@yarn hardhat compile --show-stack-traces
 
 compute.dex.pool-init-code: compile
 compute.dex.pool-init-code:
@@ -87,15 +89,27 @@ test.hardhat:
 	@echo "Running hardhat mocha tests..."
 	@yarn hardhat test
 
+test.hardhat.dusd:
+	@echo "Running Hardhat Mocha tests for dUSD contracts only..."
+	@yarn hardhat test test/dusd/*.ts
+
+test.curve:
+	@echo "Running curve tests..."
+	@yarn hardhat test test/curve/*.ts --network local_ethereum
+
 test.unit:
 	@echo "Running TypeScript unit tests..."
 	@yarn test-ts --detectOpenHandles --testPathPattern=test\\.unit\\.ts --silent --passWithNoTests
 #	@echo "Running TypeScript integration tests..."
 #	@yarn test-ts --testPathPattern=test\\.integ\\.ts --silent --passWithNoTests
 
-run.local-node:
-	@echo "Running local node..."
+run.node.localhost:
+	@echo "Running localhost node..."
 	@yarn hardhat node --no-deploy
+
+run.node.local_ethereum:
+	@echo "Forking ethereum mainnet..."
+	@yarn hardhat node --fork https://mainnet.infura.io/v3/9c52fc4e27554e868b243c18bf9631c7 --fork-block-number 20812145 --no-deploy
 
 sync-laika:
 	@if [ "$(contract)" = "" ]; then \
@@ -195,11 +209,11 @@ deploy-contract.reset: deploy-contract
 
 # ---------- Deploy to local network ----------
 
-deploy-contract.local: network=localhost
-deploy-contract.local: deploy-contract
+deploy-contract.localhost: network=localhost
+deploy-contract.localhost: deploy-contract
 
-deploy-contract.local.reset: network=localhost
-deploy-contract.local.reset: deploy-contract.reset
+deploy-contract.localhost.reset: network=localhost
+deploy-contract.localhost.reset: deploy-contract.reset
 
 # ---------- Deploy to Fraxtal testnet ----------
 
@@ -208,6 +222,66 @@ deploy-contract.fraxtal_testnet: deploy-contract
 
 deploy-contract.fraxtal_testnet.reset: network=fraxtal_testnet
 deploy-contract.fraxtal_testnet.reset: deploy-contract.reset
+
+# ---------- Deploy to local_ethereum ----------
+
+deploy-contract.local_ethereum: network=local_ethereum
+deploy-contract.local_ethereum: deploy-contract
+
+deploy-contract.local_ethereum.reset: network=local_ethereum
+deploy-contract.local_ethereum.reset: deploy-contract.reset
+
+# ---------- Deploy DUSD contracts ----------
+
+deploy-dusd:
+	@if [ "$(network)" = "" ]; then \
+		echo "Must provide 'network' argument"; \
+		exit 1; \
+	fi
+	@echo "Deploying DUSD contracts to $(network) network..."
+	@DEPLOY_DUSD=true yarn hardhat deploy $(flag) --network $(network) --tags "dusd" \
+		2>&1 | tee ./deployments-log/$(network)-deploy_dusd.log
+
+deploy-dusd.reset: flag="--reset"
+deploy-dusd.reset: deploy-dusd
+
+deploy-dusd.localhost: network=localhost
+deploy-dusd.localhost: deploy-dusd
+
+deploy-dusd.localhost.reset: network=localhost
+deploy-dusd.localhost.reset: deploy-dusd.reset
+
+deploy-dusd.fraxtal_testnet: network=fraxtal_testnet
+deploy-dusd.fraxtal_testnet: deploy-dusd
+
+deploy-dusd.fraxtal_testnet.reset: network=fraxtal_testnet
+deploy-dusd.fraxtal_testnet.reset: deploy-dusd.reset
+
+# ---------- Deploy DUSD AMO vaults ----------
+
+deploy-dusd-amo-vault:
+	@if [ "$(network)" = "" ]; then \
+		echo "Must provide 'network' argument"; \
+		exit 1; \
+	fi
+	@echo "Deploying DUSD AMO vault to $(network) network..."
+	@DEPLOY_DUSD_AMO_VAULT=true yarn hardhat deploy $(flag) --network $(network) --tags "amo_vault" \
+		2>&1 | tee ./deployments-log/$(network)-deploy_dusd_amo_vault.log
+
+deploy-dusd-amo-vault.reset: flag="--reset"
+deploy-dusd-amo-vault.reset: deploy-dusd-amo-vault
+
+deploy-dusd-amo-vault.local: network=localhost
+deploy-dusd-amo-vault.local: deploy-dusd-amo-vault
+
+deploy-dusd-amo-vault.local.reset: network=localhost
+deploy-dusd-amo-vault.local.reset: deploy-dusd-amo-vault.reset
+
+deploy-dusd-amo-vault.fraxtal_testnet: network=fraxtal_testnet
+deploy-dusd-amo-vault.fraxtal_testnet: deploy-dusd-amo-vault
+
+deploy-dusd-amo-vault.fraxtal_testnet.reset: network=fraxtal_testnet
+deploy-dusd-amo-vault.fraxtal_testnet.reset: deploy-dusd-amo-vault.reset
 
 # ---------- Pool initialization ----------
 init-pool.dex.%:
@@ -301,6 +375,16 @@ lending.set-reserve-config.%:
 lending.set-reserve-config.fraxtal_testnet:
 lending.set-reserve-config.localhost:
 
+# ---------- Oracle ----------
+oracle.set-asset-sources.%:
+	@echo "Setting asset sources..."
+	@dataFile=$(dataFile) yarn hardhat run \
+		--network $* \
+		scripts/oracle/set_asset_sources.ts
+
+oracle.set-asset-sources.fraxtal_testnet:
+oracle.set-asset-sources.localhost:
+
 # ---------- Liquidator Bot ----------
 run.liquidator-bot.%:
 	@echo "Running liquidator bot..."
@@ -311,3 +395,163 @@ run.liquidator-bot.%:
 run.liquidator-bot.fraxtal_testnet:
 run.liquidator-bot.localhost:
 run.liquidator-bot.fraxtal_mainnet:
+
+## ---------- Docker ----------
+docker.build.liquidator-bot: compile # Need pre-compilation as we need to copy the artifacts
+docker.build.liquidator-bot:
+	@if [ "$(platform)" = "" ]; then \
+		echo "Must provide 'platform' argument"; \
+		exit 1; \
+	fi
+	@echo "Building liquidator bot docker image..."
+	@docker build \
+		--platform $(platform) \
+		--pull \
+		--build-arg HOST_PWD=$(shell pwd) \
+		-f ./bot.Dockerfile \
+		-t ${LIQUIDATOR_BOT_IMAGE_NAME}:latest \
+		.
+
+docker.build.liquidator-bot.arm64: platform=linux/arm64
+docker.build.liquidator-bot.arm64: docker.build.liquidator-bot
+
+docker.buildandrun.liquidator-bot.arm64: platform=linux/arm64
+docker.buildandrun.liquidator-bot.arm64: docker.build.liquidator-bot
+docker.buildandrun.liquidator-bot.arm64:
+	@if [ "$(network)" = "" ]; then \
+		echo "Must provide 'network' argument"; \
+		exit 1; \
+	fi
+	@mkdir -p ./state
+	@echo "Running liquidator bot docker image..."
+	@docker run \
+		-d \
+		-v $(shell pwd)/.env:/usr/src/.env:ro \
+		-v $(shell pwd)/state:/usr/src/state \
+		--memory 768m \
+		--restart unless-stopped \
+		--name ${LIQUIDATOR_BOT_IMAGE_NAME}-$(network) \
+		${LIQUIDATOR_BOT_IMAGE_NAME}:latest $(network)
+
+docker.dump-image.liquidator-bot:
+	@echo "Exporting docker image to ./.tmp/${LIQUIDATOR_BOT_IMAGE_NAME}.tar..."
+	@mkdir -p .tmp
+	@docker save ${LIQUIDATOR_BOT_IMAGE_NAME}:latest > .tmp/${LIQUIDATOR_BOT_IMAGE_NAME}.tar
+
+docker.deploy.liquidator-bot:
+	@if [ "$(network)" = "" ]; then \
+		echo "Must provide 'network' argument"; \
+		exit 1; \
+	fi
+	@if [ "${LIQUIDATOR_BOT_SSH_KEY_PATH}" = "" ]; then \
+		echo "LIQUIDATOR_BOT_SSH_KEY_PATH is not set in .env"; \
+		exit 1; \
+	fi
+	@if [ "${LIQUIDATOR_BOT_HOST}" = "" ]; then \
+		echo "LIQUIDATOR_BOT_HOST is not set in .env"; \
+		exit 1; \
+	fi
+	@make remote.upload \
+		file_path=./.env \
+		dest_path=/home/ubuntu/.env
+	@ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
+		"mkdir -p /home/ubuntu/state"
+	@(ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
+		"docker rm -f ${LIQUIDATOR_BOT_IMAGE_NAME}-$(network) || true") && \
+	ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
+		"docker run \
+			-d \
+			-v /home/ubuntu/.env:/usr/src/.env:ro \
+			-v /home/ubuntu/state:/usr/src/state \
+			--memory 768m \
+			--restart unless-stopped \
+			--name ${LIQUIDATOR_BOT_IMAGE_NAME}-$(network) \
+			${LIQUIDATOR_BOT_IMAGE_NAME}:latest $(network)"
+	@ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
+		"docker image prune -f"
+
+docker.deploy.liquidator-bot.fraxtal_testnet: network=fraxtal_testnet
+docker.deploy.liquidator-bot.fraxtal_testnet: docker.deploy.liquidator-bot
+
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet: network=fraxtal_testnet
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet: platform=linux/amd64
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet: docker.build.liquidator-bot
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet: remote.push-image.liquidator-bot
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet: docker.deploy.liquidator-bot.fraxtal_testnet
+
+## ---------- Remote host ----------
+
+remote.ssh.liquidator-bot:
+	@if [ "${LIQUIDATOR_BOT_SSH_KEY_PATH}" = "" ]; then \
+		echo "LIQUIDATOR_BOT_SSH_KEY_PATH is not set in .env"; \
+		exit 1; \
+	fi
+	@if [ "${LIQUIDATOR_BOT_HOST}" = "" ]; then \
+		echo "LIQUIDATOR_BOT_HOST is not set in .env"; \
+		exit 1; \
+	fi
+	@echo "SSH into liquidator bot remote host..."
+	@ssh -i ${LIQUIDATOR_BOT_SSH_KEY_PATH} ubuntu@${LIQUIDATOR_BOT_HOST}
+
+remote.upload:
+	@if [ "$(file_path)" = "" ]; then \
+		echo -e "Must provide file_path argument"; \
+		exit 1; \
+	fi && \
+	if [ "$(dest_path)" = "" ]; then \
+		echo -e "Must provide dest_path argument"; \
+		exit 1; \
+	fi
+	@$(eval host_dest_path="ubuntu@${LIQUIDATOR_BOT_HOST}:$(dest_path)")
+	@echo "Uploading file $(file_path) to $(host_dest_path)"
+	@rsync -h -P -e "ssh -i ${LIQUIDATOR_BOT_SSH_KEY_PATH}" -a $(file_path) $(host_dest_path)
+
+remote.push-image.liquidator-bot: docker.dump-image.liquidator-bot
+remote.push-image.liquidator-bot: file_path=.tmp/${LIQUIDATOR_BOT_IMAGE_NAME}.tar
+remote.push-image.liquidator-bot: dest_path=/home/ubuntu/${LIQUIDATOR_BOT_IMAGE_NAME}.tar
+remote.push-image.liquidator-bot: remote.upload
+remote.push-image.liquidator-bot:
+	@$(eval image_path=/home/ubuntu/${LIQUIDATOR_BOT_IMAGE_NAME}.tar)
+	@echo "Loading docker image $(image_path) on host $(LIQUIDATOR_BOT_HOST)"
+	@ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
+		"docker load -i $(image_path) && rm -r $(image_path)"
+
+remote.download.liquidator-bot-state: remote_state_path=./remote-state
+remote.download.liquidator-bot-state:
+	@if [ "${LIQUIDATOR_BOT_SSH_KEY_PATH}" = "" ]; then \
+		echo "LIQUIDATOR_BOT_SSH_KEY_PATH is not set in .env"; \
+		exit 1; \
+	fi
+	@if [ "${LIQUIDATOR_BOT_HOST}" = "" ]; then \
+		echo "LIQUIDATOR_BOT_HOST is not set in .env"; \
+		exit 1; \
+	fi
+	@if [ "$(network)" = "" ]; then \
+		echo "Must provide 'network' argument"; \
+		exit 1; \
+	fi
+	@echo "Downloading liquidator bot state from remote host..."
+	@$(eval timestamp=$(shell date "+%Y-%m-%d_%H-%M-%S"))
+	@$(eval dest_path=$(remote_state_path)/$(network)/$(timestamp))
+	@mkdir -p $(dest_path)
+	@rsync -azh --progress -e "ssh -i ${LIQUIDATOR_BOT_SSH_KEY_PATH}" \
+		"ubuntu@${LIQUIDATOR_BOT_HOST}:/home/ubuntu/state/$(network)/" \
+		$(dest_path)
+
+
+remote.download.liquidator-bot-state.fraxtal_testnet: network=fraxtal_testnet
+remote.download.liquidator-bot-state.fraxtal_testnet: remote.download.liquidator-bot-state
+
+## ---------- Curve tools ----------
+
+curve-tools.generate-swap-params:
+	@echo "Check scripts/curve-tools/README.md for usage"
+
+## ---------- Block explorer ----------
+explorer.verify.fraxtal_testnet:
+	@echo "Verifying contracts on fraxtal testnet..."
+	@yarn hardhat --network fraxtal_testnet etherscan-verify --api-key AMT6AWIRDZV3RVNSSU6T2638K59QSX4Q89 --api-url https://api-holesky.fraxscan.com
+
+explorer.verify.fraxtal_mainnet:
+	@echo "Verifying contracts on fraxtal mainnet..."
+	@yarn hardhat --network fraxtal_mainnet etherscan-verify --api-key AMT6AWIRDZV3RVNSSU6T2638K59QSX4Q89 --api-url https://api.fraxscan.com

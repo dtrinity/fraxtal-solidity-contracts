@@ -15,12 +15,12 @@ import {
 } from "../../../utils/lending/types";
 import { chunk } from "../../../utils/lending/utils";
 
-const rateStrategyHighLiquidityStable: IInterestRateStrategyParams = {
-  name: "rateStrategyHighLiquidityStable",
-  optimalUsageRatio: ethers.parseUnits("0.9", 27).toString(),
+const rateStrategyEncourageClose: IInterestRateStrategyParams = {
+  name: "rateStrategyEncourageClose",
+  optimalUsageRatio: ethers.parseUnits("0.5", 27).toString(),
   baseVariableBorrowRate: ethers.parseUnits("0", 27).toString(),
-  variableRateSlope1: ethers.parseUnits("0.06", 27).toString(),
-  variableRateSlope2: ethers.parseUnits("0.94", 27).toString(),
+  variableRateSlope1: ethers.parseUnits("0.2", 27).toString(),
+  variableRateSlope2: ethers.parseUnits("1.5", 27).toString(),
   stableRateSlope1: ethers.parseUnits("0", 27).toString(),
   stableRateSlope2: ethers.parseUnits("0", 27).toString(),
   baseStableRateOffset: ethers.parseUnits("0", 27).toString(),
@@ -28,21 +28,20 @@ const rateStrategyHighLiquidityStable: IInterestRateStrategyParams = {
   optimalStableToTotalDebtRatio: ethers.parseUnits("0", 27).toString(),
 };
 
-const strategyDUSD: IReserveParams = {
-  strategy: rateStrategyHighLiquidityStable,
-  // CAUTION: If LTV is > 0, people may loop and dillute other borrowers
-  baseLTVAsCollateral: "0", // 0 Don't allow dUSD as collateral to prevent subsidy syphoning
-  liquidationThreshold: "9000", // 9500 bps = 95%
-  liquidationBonus: "10500", // 10500 bps = 105%, amount over 100% is the fee portion
-  liquidationProtocolFee: "7000", // 7000 bps = 70%
-  borrowingEnabled: true,
-  stableBorrowRateEnabled: false, // No stable rates due to vulnerability
+const strategyDisable: IReserveParams = {
+  strategy: rateStrategyEncourageClose,
+  baseLTVAsCollateral: "0", // Disable collateral
+  liquidationThreshold: "7500",
+  liquidationBonus: "10500",
+  liquidationProtocolFee: "7000",
+  borrowingEnabled: false,
+  stableBorrowRateEnabled: false,
   flashLoanEnabled: true,
-  reserveDecimals: "6",
+  reserveDecimals: "18", // Don't forget to change this
   aTokenImpl: eContractid.AToken,
-  reserveFactor: "1000", // 1000 bps = 10%
-  supplyCap: "1200000", // these are decimal units, not raw on-chain integer values
-  borrowCap: "1150000",
+  reserveFactor: "1000",
+  supplyCap: "0",
+  borrowCap: "0",
   debtCeiling: "0",
   borrowableIsolation: false,
 };
@@ -54,10 +53,11 @@ const main = async (): Promise<void> => {
   /* Set up rate strategies */
 
   const newRateStrategies: IInterestRateStrategyParams[] = [
-    rateStrategyHighLiquidityStable,
+    rateStrategyEncourageClose,
   ];
   const newReserveConfigs: { [symbol: string]: IReserveParams } = {
-    dUSD: strategyDUSD,
+    FXS: strategyDisable,
+    sfrxETH: strategyDisable,
   };
 
   const addressProviderDeployedResult = await hre.deployments.get(

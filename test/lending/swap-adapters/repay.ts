@@ -8,7 +8,7 @@ import {
   // eslint-disable-next-line camelcase -- This is a generated typechain import
   DSwapRepayAdapter__factory,
 } from "../../../typechain-types";
-import { standardDEXLBPLiquidityFixture } from "../../ecosystem/fixtures";
+import { standardUniswapV3DEXLBPLiquidityFixture } from "../../ecosystem/fixtures";
 import { loadTestEnv } from "../../ecosystem/test-env";
 import { depositCollateralWithApproval } from "../../ecosystem/utils.lbp";
 import { tEthereumAddress } from "./types";
@@ -17,10 +17,9 @@ import { parseUnitsFromToken } from "./utils";
 let dswapRepayAdapter: DSwapRepayAdapter;
 
 const setupDSwapAdapter = async (): Promise<DSwapRepayAdapter> => {
-  await standardDEXLBPLiquidityFixture();
+  await standardUniswapV3DEXLBPLiquidityFixture();
   const { lendingDeployer, addressesProvider, swapRouter } =
     await loadTestEnv();
-  console.log("swapRouter", swapRouter.address);
   return await deployDSwapRepayAdapter(
     await addressesProvider.getAddress(),
     swapRouter.address,
@@ -88,7 +87,6 @@ describe("DSwapRepayAdapter", () => {
       const userDusdVariableDebtAmountBefore =
         await dusdVariableDebtContract.balanceOf(userAddress);
       const liquidityToSwap = (amountFxsToSwap * 105n) / 100n;
-      console.log("liquidityToSwap", liquidityToSwap);
 
       const userAFxsBalanceBefore = await aFXS.balanceOf(userAddress);
       await aFXS

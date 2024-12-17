@@ -1,0 +1,187 @@
+{
+  "address": "0xE503BE820EE8382739fA0019ef7C0188285AA428",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_pricePeg",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_baseCurrencyUnit",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "BASE_CURRENCY",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "BASE_CURRENCY_UNIT",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "getAssetPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "getPriceInfo",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isAlive",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pricePeg",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x345e74d48f37b3f9e6fe1288703a8db7ab83a1d8a10cb8120cf297c6e8c25c22",
+  "receipt": {
+    "to": null,
+    "from": "0x53Ae1433Ab4563d7D5a84d27524784837259f105",
+    "contractAddress": "0xE503BE820EE8382739fA0019ef7C0188285AA428",
+    "transactionIndex": 1,
+    "gasUsed": "167741",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xf40d1c73d30badaf3c33aa2839558edeae3a00ee7619e40298f51becf3111814",
+    "transactionHash": "0x345e74d48f37b3f9e6fe1288703a8db7ab83a1d8a10cb8120cf297c6e8c25c22",
+    "logs": [],
+    "blockNumber": 14757447,
+    "cumulativeGasUsed": "213695",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    100000000,
+    "100000000"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "893cdf19bebf0a806ffe47d0fc799796",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_pricePeg\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_baseCurrencyUnit\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"BASE_CURRENCY\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"BASE_CURRENCY_UNIT\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"getAssetPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"getPriceInfo\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isAlive\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pricePeg\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"getAssetPrice(address)\":{\"details\":\"Get the price of an asset\"},\"getPriceInfo(address)\":{\"details\":\"Get the price info of an asset\"}},\"stateVariables\":{\"BASE_CURRENCY\":{\"details\":\"Address 0x0 is reserved for USD as base currency.\",\"return\":\"Returns the base currency address.\",\"returns\":{\"_0\":\"Returns the base currency address.\"}},\"BASE_CURRENCY_UNIT\":{\"details\":\"1 ether for ETH, 1e8 for USD.\",\"return\":\"Returns the base currency unit.\",\"returns\":{\"_0\":\"Returns the base currency unit.\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"BASE_CURRENCY()\":{\"notice\":\"Returns the base currency address\"},\"BASE_CURRENCY_UNIT()\":{\"notice\":\"Returns the base currency unit\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/oracle_aggregator/wrapper/HardPegOracleWrapper.sol\":\"HardPegOracleWrapper\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"contracts/lending/core/interfaces/IPriceOracleGetter.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\npragma solidity ^0.8.0;\\n\\n/**\\n * @title IPriceOracleGetter\\n * @author Aave\\n * @notice Interface for the Aave price oracle.\\n */\\ninterface IPriceOracleGetter {\\n    /**\\n     * @notice Returns the base currency address\\n     * @dev Address 0x0 is reserved for USD as base currency.\\n     * @return Returns the base currency address.\\n     */\\n    function BASE_CURRENCY() external view returns (address);\\n\\n    /**\\n     * @notice Returns the base currency unit\\n     * @dev 1 ether for ETH, 1e8 for USD.\\n     * @return Returns the base currency unit.\\n     */\\n    function BASE_CURRENCY_UNIT() external view returns (uint256);\\n\\n    /**\\n     * @notice Returns the asset price in the base currency\\n     * @param asset The address of the asset\\n     * @return The price of the asset\\n     */\\n    function getAssetPrice(address asset) external view returns (uint256);\\n}\\n\",\"keccak256\":\"0x8c254b3ea9802d3fe13e05f69663c64d093d617f1fe55c2b2fb9820c5cd80679\",\"license\":\"AGPL-3.0\"},\"contracts/oracle_aggregator/interface/IOracleWrapper.sol\":{\"content\":\"// // SPDX-License-Identifier: MIT\\npragma solidity 0.8.20;\\n\\nimport \\\"contracts/lending/core/interfaces/IPriceOracleGetter.sol\\\";\\n\\n/**\\n * @dev Interface for the individual oracle wrappers, to unify interface between Redstone and API3 for example\\n */\\ninterface IOracleWrapper is IPriceOracleGetter {\\n    function getPriceInfo(\\n        address asset\\n    ) external view returns (uint256 price, bool isAlive);\\n}\\n\",\"keccak256\":\"0x43761b8643a647687422479069968dfaddbf92f291d0193c6dab5021da1a0a1c\",\"license\":\"MIT\"},\"contracts/oracle_aggregator/wrapper/HardPegOracleWrapper.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.20;\\n\\nimport \\\"contracts/lending/core/interfaces/IPriceOracleGetter.sol\\\";\\nimport \\\"../interface/IOracleWrapper.sol\\\";\\n\\ncontract HardPegOracleWrapper is IOracleWrapper {\\n    uint256 public immutable pricePeg;\\n    address public constant BASE_CURRENCY = address(0); // Commonly used for USD\\n\\n    uint256 public BASE_CURRENCY_UNIT;\\n\\n    constructor(uint256 _pricePeg, uint256 _baseCurrencyUnit) {\\n        pricePeg = _pricePeg;\\n        BASE_CURRENCY_UNIT = _baseCurrencyUnit;\\n    }\\n\\n    /**\\n     * @dev Get the price info of an asset\\n     */\\n    function getPriceInfo(\\n        address // asset\\n    ) external view returns (uint256 price, bool isAlive) {\\n        return (pricePeg, true);\\n    }\\n\\n    /**\\n     * @dev Get the price of an asset\\n     */\\n    function getAssetPrice(\\n        address // asset\\n    ) external view override returns (uint256) {\\n        return pricePeg;\\n    }\\n}\\n\",\"keccak256\":\"0xa8a108423e512bd3b64632369fe889c2d4eca385a79d0ad4725f2e4ea52bb62d\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60a03461006f57601f61023138819003918201601f19168301916001600160401b0383118484101761007457808492604094855283398101031261006f5760208151910151906080526000556040516101a6908161008b823960805181818160a00152818160ed015261014d0152f35b600080fd5b634e487b7160e01b600052604160045260246000fdfe60806040818152600436101561001457600080fd5b600091823560e01c9081636af8ecae14610136575080638c89b64f1461011a5780638edbf436146100c3578063b3596f07146100765763e19f47001461005957600080fd5b3461007257816003193601126100725751908152602090f35b5080fd5b5034610072576020366003190112610072576004356001600160a01b0381160361007257602090517f00000000000000000000000000000000000000000000000000000000000000008152f35b509034610117576020366003190112610117576004356001600160a01b03811603610117575080517f0000000000000000000000000000000000000000000000000000000000000000815260016020820152f35b80fd5b5034610072578160031936011261007257602091549051908152f35b8390346100725781600319360112610072576020907f00000000000000000000000000000000000000000000000000000000000000008152f3fea26469706673582212207e97f417c6a25b22840e99fd73f99f2e808f62e30a2a7e4c83a24bd368062b5264736f6c63430008140033",
+  "deployedBytecode": "0x60806040818152600436101561001457600080fd5b600091823560e01c9081636af8ecae14610136575080638c89b64f1461011a5780638edbf436146100c3578063b3596f07146100765763e19f47001461005957600080fd5b3461007257816003193601126100725751908152602090f35b5080fd5b5034610072576020366003190112610072576004356001600160a01b0381160361007257602090517f00000000000000000000000000000000000000000000000000000000000000008152f35b509034610117576020366003190112610117576004356001600160a01b03811603610117575080517f0000000000000000000000000000000000000000000000000000000000000000815260016020820152f35b80fd5b5034610072578160031936011261007257602091549051908152f35b8390346100725781600319360112610072576020907f00000000000000000000000000000000000000000000000000000000000000008152f3fea26469706673582212207e97f417c6a25b22840e99fd73f99f2e808f62e30a2a7e4c83a24bd368062b5264736f6c63430008140033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "getAssetPrice(address)": {
+        "details": "Get the price of an asset"
+      },
+      "getPriceInfo(address)": {
+        "details": "Get the price info of an asset"
+      }
+    },
+    "stateVariables": {
+      "BASE_CURRENCY": {
+        "details": "Address 0x0 is reserved for USD as base currency.",
+        "return": "Returns the base currency address.",
+        "returns": {
+          "_0": "Returns the base currency address."
+        }
+      },
+      "BASE_CURRENCY_UNIT": {
+        "details": "1 ether for ETH, 1e8 for USD.",
+        "return": "Returns the base currency unit.",
+        "returns": {
+          "_0": "Returns the base currency unit."
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "BASE_CURRENCY()": {
+        "notice": "Returns the base currency address"
+      },
+      "BASE_CURRENCY_UNIT()": {
+        "notice": "Returns the base currency unit"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 730,
+        "contract": "contracts/oracle_aggregator/wrapper/HardPegOracleWrapper.sol:HardPegOracleWrapper",
+        "label": "BASE_CURRENCY_UNIT",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_uint256"
+      }
+    ],
+    "types": {
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

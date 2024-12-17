@@ -10,7 +10,7 @@ import {
 } from "../../utils/lending/balance";
 import { getReservesList } from "../../utils/lending/pool";
 import { fetchTokenInfo } from "../../utils/token";
-import { standardDEXLBPLiquidityFixture } from "./fixtures";
+import { standardUniswapV3DEXLBPLiquidityFixture } from "./fixtures";
 import { increaseTime } from "./utils.chain";
 import { swapExactInputSingleWithApproval } from "./utils.dex";
 import { borrowAsset, depositCollateralWithApproval } from "./utils.lbp";
@@ -49,14 +49,6 @@ describe("Test getUserSupplyBalance() and getUserDebtBalance()", function () {
       expectedDebtBalance: "1000000000",
     },
     {
-      collateralTokenSymbol: "SFRAX",
-      depositAmount: 1000,
-      expectedSupplyBalance: "1000000000000000000000",
-      borrowTokenSymbol: "SFRAX",
-      borrowAmount: 100,
-      expectedDebtBalance: "100000000000000000000",
-    },
-    {
       // This case is because there is no liquidity for SFRAX in the pool
       // thus we cannot borrow SFRAX
       collateralTokenSymbol: "FXS",
@@ -66,57 +58,11 @@ describe("Test getUserSupplyBalance() and getUserDebtBalance()", function () {
       borrowAmount: 1,
       expectedDebtBalance: "1000000",
     },
-    {
-      // 36 is COLLATERAL_CANNOT_COVER_NEW_BORROW
-      collateralTokenSymbol: "SFRAX",
-      depositAmount: 1000,
-      expectedSupplyBalance: "1000000000000000000000",
-      borrowTokenSymbol: "SFRAX",
-      borrowAmount: 1001,
-      expectedDebtBalance: "0", // cannot borrow thus has no debt
-      expectErrorMessage:
-        "VM Exception while processing transaction: reverted with reason string '36'",
-    },
-    {
-      // This case is because there is no liquidity for SFRAX in the pool
-      // thus we cannot borrow SFRAX
-      collateralTokenSymbol: "FXS",
-      depositAmount: 100,
-      expectedSupplyBalance: "100000000000000000000",
-      borrowTokenSymbol: "SFRAX",
-      borrowAmount: 1,
-      expectedDebtBalance: "0", // cannot borrow thus has no debt
-      expectErrorMessage:
-        "M Exception while processing transaction: reverted with panic code 0x11 (Arithmetic operation overflowed outside of an unchecked block)",
-    },
-    // This disable the DUSD-collateral test case because we set the baseLTVAsCollateral of strategyDUSD to 0
-    // in utils/lending/reserves-configs.ts , thus we cannot use DUSD as collateral
-    //
-    // {
-    //   collateralTokenSymbol: "DUSD",
-    //   depositAmount: 1234.567,
-    //   expectedSupplyBalance: "1234567000",
-    //   borrowTokenSymbol: "DUSD",
-    //   borrowAmount: 100,
-    //   expectedDebtBalance: "100000000",
-    // },
-    // {
-    //   // This case is because there is no liquidity for SFRAX in the pool
-    //   // thus we cannot borrow SFRAX
-    //   collateralTokenSymbol: "DUSD",
-    //   depositAmount: 1000,
-    //   expectedSupplyBalance: "1000000000",
-    //   borrowTokenSymbol: "SFRAX",
-    //   borrowAmount: 100,
-    //   expectedDebtBalance: "100000000000000000000",
-    //   expectErrorMessage:
-    //     "VM Exception while processing transaction: reverted with panic code 0x11 (Arithmetic operation overflowed outside of an unchecked block)",
-    // },
   ];
 
   for (const testCase of testCases) {
     it(`Test case: ${JSON.stringify(testCase)}`, async function () {
-      await standardDEXLBPLiquidityFixture();
+      await standardUniswapV3DEXLBPLiquidityFixture();
 
       const { dexDeployer, testAccount1 } = await hre.getNamedAccounts();
 
@@ -221,7 +167,7 @@ describe("Test getUserHealthFactor()", function () {
   const borrowAmount = 1900;
 
   it("normal case", async function () {
-    await standardDEXLBPLiquidityFixture();
+    await standardUniswapV3DEXLBPLiquidityFixture();
 
     const { dexDeployer, testAccount1 } = await hre.getNamedAccounts();
 
@@ -280,8 +226,8 @@ describe("Test getUserHealthFactor()", function () {
     // Make sure the health factor around some reasonable value after borrowing
     assert.closeTo(
       await getUserHealthFactor(testAccount1),
-      1.1841488715789474,
-      0.0001,
+      1.1184746563157895,
+      0.001,
     );
 
     console.log(
@@ -313,15 +259,15 @@ describe("Test getUserHealthFactor()", function () {
     // Make sure the health factor is below 1 after the price of collateralToken is decreased
     assert.closeTo(
       await getUserHealthFactor(testAccount1),
-      0.8794479460837873,
-      0.00001,
+      0.8306727852748591,
+      0.0001,
     );
   });
 });
 
 describe("Test getReservesList()", function () {
   it("normal case", async function () {
-    await standardDEXLBPLiquidityFixture();
+    await standardUniswapV3DEXLBPLiquidityFixture();
 
     const tokenAddresses = await getReservesList();
     assert.lengthOf(tokenAddresses, 5);

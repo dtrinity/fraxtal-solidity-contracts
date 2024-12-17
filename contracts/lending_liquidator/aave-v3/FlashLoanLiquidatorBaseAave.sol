@@ -1,5 +1,21 @@
 // SPDX-License-Identifier: GNU AGPLv3
-pragma solidity 0.8.13;
+/* ———————————————————————————————————————————————————————————————————————————————— *
+ *    _____     ______   ______     __     __   __     __     ______   __  __       *
+ *   /\  __-.  /\__  _\ /\  == \   /\ \   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \      *
+ *   \ \ \/\ \ \/_/\ \/ \ \  __<   \ \ \  \ \ \-.  \  \ \ \  \/_/\ \/ \ \____ \     *
+ *    \ \____-    \ \_\  \ \_\ \_\  \ \_\  \ \_\\"\_\  \ \_\    \ \_\  \/\_____\    *
+ *     \/____/     \/_/   \/_/ /_/   \/_/   \/_/ \/_/   \/_/     \/_/   \/_____/    *
+ *                                                                                  *
+ * ————————————————————————————————— dtrinity.org ————————————————————————————————— *
+ *                                                                                  *
+ *                                         ▲                                        *
+ *                                        ▲ ▲                                       *
+ *                                                                                  *
+ * ———————————————————————————————————————————————————————————————————————————————— *
+ * dTRINITY Protocol: https://github.com/dtrinity                                   *
+ * ———————————————————————————————————————————————————————————————————————————————— */
+
+pragma solidity 0.8.20;
 
 import "../interface/IWETH.sol";
 import "../interface/aave-v3/aave/ILendingPoolAddressesProvider.sol";
@@ -145,11 +161,15 @@ abstract contract FlashLoanLiquidatorBaseAave is
             0
         );
 
-        seized_ =
-            ERC20(_flashLoanParams.collateralUnderlying).balanceOf(
-                address(this)
-            ) -
-            balanceBefore;
+        uint256 balanceAfter = ERC20(_flashLoanParams.collateralUnderlying)
+            .balanceOf(address(this));
+
+        if (balanceAfter > balanceBefore) {
+            seized_ = balanceAfter - balanceBefore;
+        } else {
+            // As there is no profit, the seized amount is 0
+            seized_ = 0;
+        }
 
         emit FlashLoan(msg.sender, borrowedTokenToFlashLoan);
     }

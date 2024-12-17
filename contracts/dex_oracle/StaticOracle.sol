@@ -1,4 +1,20 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
+/* ———————————————————————————————————————————————————————————————————————————————— *
+ *    _____     ______   ______     __     __   __     __     ______   __  __       *
+ *   /\  __-.  /\__  _\ /\  == \   /\ \   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \      *
+ *   \ \ \/\ \ \/_/\ \/ \ \  __<   \ \ \  \ \ \-.  \  \ \ \  \/_/\ \/ \ \____ \     *
+ *    \ \____-    \ \_\  \ \_\ \_\  \ \_\  \ \_\\"\_\  \ \_\    \ \_\  \/\_____\    *
+ *     \/____/     \/_/   \/_/ /_/   \/_/   \/_/ \/_/   \/_/     \/_/   \/_____/    *
+ *                                                                                  *
+ * ————————————————————————————————— dtrinity.org ————————————————————————————————— *
+ *                                                                                  *
+ *                                         ▲                                        *
+ *                                        ▲ ▲                                       *
+ *                                                                                  *
+ * ———————————————————————————————————————————————————————————————————————————————— *
+ * dTRINITY Protocol: https://github.com/dtrinity                                   *
+ * ———————————————————————————————————————————————————————————————————————————————— */
+
 pragma solidity =0.7.6;
 pragma abicoder v2;
 
@@ -357,6 +373,8 @@ contract StaticOracle is IStaticOracle {
         uint32 _period
     ) internal view virtual returns (address[] memory _queryablePools) {
         address[] memory _existingPools = getAllPoolsForPair(_tokenA, _tokenB);
+        require(_existingPools.length > 0, "No existing pool for the pair");
+
         // If period is 0, then just return all existing pools
         if (_period == 0) return _existingPools;
 

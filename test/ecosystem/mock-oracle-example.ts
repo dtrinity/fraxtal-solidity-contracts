@@ -4,7 +4,7 @@ import hre from "hardhat";
 
 import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
 import { getOraclePrice } from "../../utils/dex/oracle";
-import { standardDEXLBPLiquidityWithMockOracleFixture } from "./fixtures";
+import { standardUniswapV3DEXLBPLiquidityWithMockOracleFixture } from "./fixtures";
 import { getMockStaticOracleWrapperContract } from "./utils.dex";
 import { getTokenContractForSymbol } from "./utils.token";
 
@@ -15,7 +15,7 @@ describe("MockStaticOracleWrapper usage examples", function () {
     const priceDecimals = AAVE_ORACLE_USD_DECIMALS;
     const { dexDeployer, testAccount1 } = await hre.getNamedAccounts();
 
-    await standardDEXLBPLiquidityWithMockOracleFixture();
+    await standardUniswapV3DEXLBPLiquidityWithMockOracleFixture();
 
     const { tokenInfo: collateralTokenInfo } = await getTokenContractForSymbol(
       dexDeployer,

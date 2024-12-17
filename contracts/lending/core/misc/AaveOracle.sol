@@ -1,4 +1,20 @@
 // SPDX-License-Identifier: BUSL-1.1
+/* ———————————————————————————————————————————————————————————————————————————————— *
+ *    _____     ______   ______     __     __   __     __     ______   __  __       *
+ *   /\  __-.  /\__  _\ /\  == \   /\ \   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \      *
+ *   \ \ \/\ \ \/_/\ \/ \ \  __<   \ \ \  \ \ \-.  \  \ \ \  \/_/\ \/ \ \____ \     *
+ *    \ \____-    \ \_\  \ \_\ \_\  \ \_\  \ \_\\"\_\  \ \_\    \ \_\  \/\_____\    *
+ *     \/____/     \/_/   \/_/ /_/   \/_/   \/_/ \/_/   \/_/     \/_/   \/_____/    *
+ *                                                                                  *
+ * ————————————————————————————————— dtrinity.org ————————————————————————————————— *
+ *                                                                                  *
+ *                                         ▲                                        *
+ *                                        ▲ ▲                                       *
+ *                                                                                  *
+ * ———————————————————————————————————————————————————————————————————————————————— *
+ * dTRINITY Protocol: https://github.com/dtrinity                                   *
+ * ———————————————————————————————————————————————————————————————————————————————— */
+
 pragma solidity ^0.8.10;
 
 import {AggregatorInterface} from "../dependencies/chainlink/AggregatorInterface.sol";
@@ -150,7 +166,11 @@ contract AaveOracle is IAaveOracle {
     function getSourceOfAsset(
         address asset
     ) external view override returns (address) {
-        return address(assetsSources[asset]);
+        AggregatorInterface source = assetsSources[asset];
+        if (address(source) == address(0)) {
+            return address(_fallbackOracle);
+        }
+        return address(source);
     }
 
     /// @inheritdoc IAaveOracle

@@ -1,3 +1,4 @@
+import { BigNumber } from "@ethersproject/bignumber";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { Libraries } from "hardhat-deploy/types";
 
@@ -74,3 +75,28 @@ export const getBlockTimestamp = async (
   }
   return block.timestamp;
 };
+
+/**
+ * Get the close factor hard fork threshold
+ *
+ * @param hre - Hardhat Runtime Environment
+ * @returns - The close factor hard fork threshold (ie. 0.951234 means 95.1234%)
+ */
+export async function getCloseFactorHFThreshold(
+  hre: HardhatRuntimeEnvironment,
+): Promise<number> {
+  const liquidationLibraryDeployedResult =
+    await hre.deployments.get("LiquidationLogic");
+  const liquidationLogicContract = await hre.ethers.getContractAt(
+    "LiquidationLogic",
+    liquidationLibraryDeployedResult.address,
+  );
+  const closeFactorHFThresholdRaw =
+    await liquidationLogicContract.CLOSE_FACTOR_HF_THRESHOLD();
+  // The CLOSE_FACTOR_HF_THRESHOLD is a fixed-point number with 18 decimals
+  // The division is to make the closeFactorHFThreshold a number with 4 decimals
+  const closeFactorHFThreshold = BigNumber.from(closeFactorHFThresholdRaw)
+    .div(1e14)
+    .toNumber();
+  return closeFactorHFThreshold / 1e4;
+}

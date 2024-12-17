@@ -1,0 +1,13 @@
+MNEMONIC_FRAXTAL_MAINNET_DEX_POOL_ADDER is not set in the .env file
+MNEMONIC_FRAXTAL_MAINNET_LENDING_REWARDS_VAULT is not set in the .env file
+Nothing to compile
+No need to generate any newer typings.
+-----------------
+Deploying 'CurveStableSwapNGAmoVault' contract
+  - Address : 0x46d8743D3fF667a11B95BC24BD974A6a8E163599
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0x12355aff885d9358de302c13e02214c1cb83817f67c04fc3decdbaf1be87ec5f
+  - GasUsed : 2894710
+-----------------
+Enabling Curve AMO vault
+Skipping UniswapV3 AMO vault deployment since missing Uniswap V3 contracts config

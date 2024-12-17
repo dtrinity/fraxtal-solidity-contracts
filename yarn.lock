@@ -5146,6 +5146,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"csv-writer@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "csv-writer@npm:1.6.0"
+  checksum: 2e62cb46f00b674f0710eb90586000601f3a467aabe529464dcb402d453a1322a716d7522ef3282dd6551f1059305c7dd3db49def1201caaf340597dcf7b4c7e
+  languageName: node
+  linkType: hard
+
 "d@npm:1, d@npm:^1.0.1, d@npm:^1.0.2":
   version: 1.0.2
   resolution: "d@npm:1.0.2"
@@ -13011,6 +13018,7 @@ __metadata:
     base64-sol: ^1.1.0
     bignumber.js: ^9.1.2
     chai: ^4.2.0
+    csv-writer: ^1.6.0
     dotenv: ^16.4.5
     env-cmd: ^10.1.0
     eslint: ^8.56.0

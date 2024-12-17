@@ -34,5 +34,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 func.id = PROXY_ADMIN_ID;
-func.tags = ["dex", "periphery"];
+func.tags = ["dex", "dex-periphery"];
 export default func;

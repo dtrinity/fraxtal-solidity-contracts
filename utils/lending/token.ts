@@ -44,7 +44,6 @@ export async function getReserveTokenAddresses(
     tokenAddresses["WFRXETH"] = (
       await hre.deployments.get(TEST_WETH9_ID)
     ).address;
-    console.log("Constructed token addresses: ", tokenAddresses);
     return tokenAddresses;
   }
 

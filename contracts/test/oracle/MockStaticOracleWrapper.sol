@@ -1,23 +1,38 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
+/* ———————————————————————————————————————————————————————————————————————————————— *
+ *    _____     ______   ______     __     __   __     __     ______   __  __       *
+ *   /\  __-.  /\__  _\ /\  == \   /\ \   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \      *
+ *   \ \ \/\ \ \/_/\ \/ \ \  __<   \ \ \  \ \ \-.  \  \ \ \  \/_/\ \/ \ \____ \     *
+ *    \ \____-    \ \_\  \ \_\ \_\  \ \_\  \ \_\\"\_\  \ \_\    \ \_\  \/\_____\    *
+ *     \/____/     \/_/   \/_/ /_/   \/_/   \/_/ \/_/   \/_/     \/_/   \/_____/    *
+ *                                                                                  *
+ * ————————————————————————————————— dtrinity.org ————————————————————————————————— *
+ *                                                                                  *
+ *                                         ▲                                        *
+ *                                        ▲ ▲                                       *
+ *                                                                                  *
+ * ———————————————————————————————————————————————————————————————————————————————— *
+ * dTRINITY Protocol: https://github.com/dtrinity                                   *
+ * ———————————————————————————————————————————————————————————————————————————————— */
+
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
 import {IPriceOracleGetter} from "../../lending/core/interfaces/IPriceOracleGetter.sol";
 
 contract MockStaticOracleWrapper is IPriceOracleGetter {
-    address public immutable QUOTE_TOKEN;
-    uint256 public immutable PRICE_UNIT;
+    address public immutable BASE_CURRENCY;
+    uint256 public immutable BASE_CURRENCY_UNIT;
 
     mapping(address => uint256) public prices;
 
-    constructor(address _quoteToken, uint8 _priceDecimals) {
-        QUOTE_TOKEN = _quoteToken;
-        uint8 priceDecimals = _priceDecimals;
-        PRICE_UNIT = 10 ** priceDecimals;
+    constructor(address _baseCurrency, uint256 _baseCurrencyUnit) {
+        BASE_CURRENCY = _baseCurrency;
+        BASE_CURRENCY_UNIT = _baseCurrencyUnit;
     }
 
     function setAssetPrice(address _asset, uint256 _price) external {
-        if (_asset == QUOTE_TOKEN) {
+        if (_asset == BASE_CURRENCY) {
             revert("Cannot set price for quote token");
         }
 
@@ -25,29 +40,15 @@ contract MockStaticOracleWrapper is IPriceOracleGetter {
     }
 
     /// @inheritdoc IPriceOracleGetter
-    function getAssetPrice(address _baseToken) external view returns (uint256) {
-        if (_baseToken == QUOTE_TOKEN) {
-            return PRICE_UNIT;
+    function getAssetPrice(address _asset) external view returns (uint256) {
+        if (_asset == BASE_CURRENCY) {
+            return BASE_CURRENCY_UNIT;
         }
 
         // If price is not set, revert
-        uint256 _price = prices[_baseToken];
+        uint256 _price = prices[_asset];
         require(_price > 0, "No price available");
 
         return _price;
-    }
-
-    /// @inheritdoc IPriceOracleGetter
-    function BASE_CURRENCY() external view returns (address) {
-        // Just to follow the interface, we return the quote token here
-        return QUOTE_TOKEN;
-    }
-
-    /// @inheritdoc IPriceOracleGetter
-    function BASE_CURRENCY_UNIT() external view returns (uint256) {
-        // The BASE_CURRENCY_UNIT is not the same as QUOTE_TOKEN_UNIT, instead, it is the
-        // price unit of the quote token. We return PRICE_UNIT here to avoid breaking
-        // assumptions in the AaveOracle contract.
-        return PRICE_UNIT;
     }
 }

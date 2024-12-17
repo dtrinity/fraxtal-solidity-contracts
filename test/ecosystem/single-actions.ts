@@ -3,7 +3,10 @@ import { assert } from "chai";
 import { ethers, getNamedAccounts } from "hardhat";
 
 import { TEST_WETH9_ID } from "../../utils/dex/deploy-ids";
-import { freshFixture, standardDEXLBPLiquidityFixture } from "./fixtures";
+import {
+  freshFixture,
+  standardUniswapV3DEXLBPLiquidityFixture,
+} from "./fixtures";
 import { swapExactInputSingleWithApproval } from "./utils.dex";
 import {
   borrowAsset,
@@ -52,7 +55,7 @@ describe("dTrinity basic functions", () => {
     });
 
     it("can perform a swap against a newly created pool", async function () {
-      await standardDEXLBPLiquidityFixture();
+      await standardUniswapV3DEXLBPLiquidityFixture();
 
       const { dexDeployer } = await getNamedAccounts();
 
@@ -112,7 +115,7 @@ describe("dTrinity basic functions", () => {
     });
 
     it("can borrow and repay DUSD against sFRAX collateral", async function () {
-      await standardDEXLBPLiquidityFixture();
+      await standardUniswapV3DEXLBPLiquidityFixture();
 
       const { dexDeployer, testAccount1 } = await getNamedAccounts();
 

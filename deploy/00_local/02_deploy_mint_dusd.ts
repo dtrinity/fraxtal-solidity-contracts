@@ -25,6 +25,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
           toAddress: testTokenOwner1,
         },
       ],
+      // Test depends on no-unbacked dUSD mints
+      dUSD: [],
     },
     await hre.ethers.getSigner(testTokenDeployer),
   );

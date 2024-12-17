@@ -24,5 +24,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 func.id = UNISWAP_V3_FACTORY_ID;
-func.tags = ["dex", "core"];
+func.tags = ["dex", "dex-core"];
 export default func;

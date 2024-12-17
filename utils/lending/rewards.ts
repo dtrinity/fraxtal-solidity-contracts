@@ -45,6 +45,7 @@ export const configureAssets = async (
   hre: HardhatRuntimeEnvironment,
   assets: AssetUpdateData[],
 ): Promise<void> => {
+  // TODO: Remove this once we integrate incentive management with admin tool
   const {
     lendingIncentivesEmissionManager,
     lendingPoolAdmin,

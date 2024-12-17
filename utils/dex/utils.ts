@@ -47,6 +47,7 @@ export function convertSqrtPriceX96ToDecimal(priceSqrtX96: BigNumber): string {
 
 /**
  * Convert the encoded price to decimal for executable format.
+ * - The tokenPaths order shoulld be: [inputToken, intermediateToken1, intermediateToken2, ..., outputToken]
  *
  * @param tokenPaths - The token paths for the swap (e.g., [token0, token1, token2])
  * @param feePaths - The fee paths for the swap (e.g., [3000, 3000]). It must have one less element than tokenPaths
@@ -80,7 +81,8 @@ export function convertToSwapPath(
     valuesArray.push(tokenPaths[i]);
   }
 
-  if (isExactInput) {
+  if (!isExactInput) {
+    // Reference: https://docs.uniswap.org/contracts/v3/guides/swaps/multihop-swaps#exact-output-multihop-swap
     // Reverse the order of the token paths
     valuesArray.reverse();
     typeArray.reverse();

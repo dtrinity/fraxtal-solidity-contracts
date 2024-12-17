@@ -1,23 +1,39 @@
+import { BigNumber } from "@ethersproject/bignumber";
 import { FeeAmount } from "@uniswap/v3-sdk";
 import { assert } from "chai";
 import { ethers } from "ethers";
-import { getNamedAccounts } from "hardhat";
+import hre, { getNamedAccounts } from "hardhat";
 
-import { getStaticOraclePrice } from "../../utils/dex/oracle";
+import { MintableERC20 } from "../../typechain-types";
+import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
+import { getOraclePrice, getStaticOraclePrice } from "../../utils/dex/oracle";
+import { getUserHealthFactor } from "../../utils/lending/account";
+import { getCloseFactorHFThreshold } from "../../utils/lending/utils";
 import { getMaxLiquidationAmount } from "../../utils/liquidator-bot/utils";
-import { standardDEXLBPLiquidityFixture } from "./fixtures";
+import { TokenInfo } from "../../utils/token";
+import {
+  standardUniswapV3DEXLBPLiquidityFixture,
+  standardUniswapV3DEXLBPLiquidityWithMockOracleFixture,
+} from "./fixtures";
 import { increaseTime } from "./utils.chain";
-import { swapExactInputSingleWithApproval } from "./utils.dex";
+import {
+  setMockStaticOracleWrapperPrice,
+  swapExactInputSingleWithApproval,
+} from "./utils.dex";
 import {
   borrowAsset,
   depositCollateralWithApproval,
   liquidateAsset,
 } from "./utils.lbp";
+import {
+  assertBigIntEqualApproximately,
+  assertNumberEqualApproximately,
+} from "./utils.math";
 import { getTokenContractForSymbol } from "./utils.token";
 
 describe("Liquidation scenarios", function () {
   it("can liquidate sFRAX collateral", async function () {
-    await standardDEXLBPLiquidityFixture();
+    await standardUniswapV3DEXLBPLiquidityFixture();
 
     const { dexDeployer, testAccount1, testAccount2 } =
       await getNamedAccounts();
@@ -68,13 +84,12 @@ describe("Liquidation scenarios", function () {
       BigInt(sfraxBalanceBefore) - BigInt(sfraxBalanceAfter) == sfrax1000,
       "sFRAX balance should decrease",
     );
-    assert.equal(
+
+    assertBigIntEqualApproximately(
       await dusdContract.balanceOf(testAccount1),
       ethers.parseUnits("800", dusdInfo.decimals),
-      "DUSD balance should increase",
     );
-
-    assert.equal(
+    assertBigIntEqualApproximately(
       await dusdContract.balanceOf(testAccount2),
       ethers.parseUnits("1000", dusdInfo.decimals),
     );
@@ -95,12 +110,11 @@ describe("Liquidation scenarios", function () {
       console.log("- sFRAX price at iteration", i, ":", price.toString());
     }
 
-    assert.equal(
+    assertBigIntEqualApproximately(
       await dusdContract.balanceOf(testAccount2),
       ethers.parseUnits("21390.055864", dusdInfo.decimals),
     );
-
-    assert.equal(
+    assertBigIntEqualApproximately(
       await sfraxContract.balanceOf(testAccount2),
       ethers.parseUnits("80000", sfraxInfo.decimals),
     );
@@ -114,14 +128,13 @@ describe("Liquidation scenarios", function () {
       testAccount2,
     );
 
-    assert.equal(
+    assertBigIntEqualApproximately(
       await dusdContract.balanceOf(testAccount2),
       ethers.parseUnits("20990.055864", dusdInfo.decimals),
     );
-
-    assert.equal(
+    assertBigIntEqualApproximately(
       await sfraxContract.balanceOf(testAccount2),
-      ethers.parseUnits("80495.092122321656235920", sfraxInfo.decimals),
+      ethers.parseUnits("80495.042619633531735414", sfraxInfo.decimals),
     );
 
     console.log("Performing swaps to decrease sFRAX price again");
@@ -140,14 +153,13 @@ describe("Liquidation scenarios", function () {
       console.log("- sFRAX price at iteration", i, ":", price.toString());
     }
 
-    assert.equal(
+    assertBigIntEqualApproximately(
       await dusdContract.balanceOf(testAccount2),
       ethers.parseUnits("35271.851875", dusdInfo.decimals),
     );
-
-    assert.equal(
+    assertBigIntEqualApproximately(
       await sfraxContract.balanceOf(testAccount2),
-      ethers.parseUnits("60495.092122321656235920", sfraxInfo.decimals),
+      ethers.parseUnits("60495.042619633531735414", sfraxInfo.decimals),
     );
 
     // Liquidate the sFRAX collateral again
@@ -159,21 +171,27 @@ describe("Liquidation scenarios", function () {
       testAccount2,
     );
 
-    assert.equal(
+    assertBigIntEqualApproximately(
       await dusdContract.balanceOf(testAccount2),
       ethers.parseUnits("35071.851875", dusdInfo.decimals),
     );
-
-    assert.equal(
+    assertBigIntEqualApproximately(
       await sfraxContract.balanceOf(testAccount2),
-      ethers.parseUnits("60837.526636694236141138", sfraxInfo.decimals),
+      ethers.parseUnits("60837.442897101672775501", sfraxInfo.decimals),
+      1e-4,
     );
   });
 });
 
 describe("Test getMaxLiquidationAmount()", function () {
-  it("normal case", async function () {
-    await standardDEXLBPLiquidityFixture();
+  let dusdInfo: TokenInfo;
+  let sfraxInfo: TokenInfo;
+  let dusdContract: MintableERC20;
+  let sfraxContract: MintableERC20;
+  let sfraxBalanceBefore: bigint;
+
+  beforeEach(async function () {
+    await standardUniswapV3DEXLBPLiquidityWithMockOracleFixture();
 
     const { dexDeployer, testAccount1 } = await getNamedAccounts();
 
@@ -182,34 +200,91 @@ describe("Test getMaxLiquidationAmount()", function () {
       "SFRAX",
     );
 
-    const { contract: sfraxContract, tokenInfo: sfraxInfo } =
-      await getTokenContractForSymbol(testAccount1, "SFRAX");
+    ({ contract: sfraxContract, tokenInfo: sfraxInfo } =
+      await getTokenContractForSymbol(testAccount1, "SFRAX"));
 
-    const { contract: dusdContract, tokenInfo: dusdInfo } =
-      await getTokenContractForSymbol(testAccount1, "DUSD");
+    ({ contract: dusdContract, tokenInfo: dusdInfo } =
+      await getTokenContractForSymbol(testAccount1, "DUSD"));
 
     // First we need some sFRAX to borrow against
-    const sfrax1000 = ethers.parseUnits("1000", sfraxInfo.decimals);
-    await sfraxViaDeployer.transfer(testAccount1, sfrax1000);
+    await sfraxViaDeployer.transfer(
+      testAccount1,
+      ethers.parseUnits("1000", sfraxInfo.decimals),
+    );
 
-    const sfraxBalanceBefore = await sfraxContract.balanceOf(testAccount1);
+    sfraxBalanceBefore = await sfraxContract.balanceOf(testAccount1);
 
     // We have some sFRAX now, let's deposit it as collateral
     await depositCollateralWithApproval(testAccount1, sfraxInfo.address, 1000);
+
+    // Set the price of sFRAX
+    await setMockStaticOracleWrapperPrice(sfraxInfo.address, 1.24993492);
+  });
+
+  it("health factor >= 1, which leads to zero liquidation amount", async function () {
+    const { dexDeployer, testAccount1 } = await getNamedAccounts();
 
     // Let's borrow some DUSD against our sFRAX
     await borrowAsset(testAccount1, dusdInfo.address, 800);
 
     const sfraxBalanceAfter = await sfraxContract.balanceOf(testAccount1);
-    assert.equal(
+    assertBigIntEqualApproximately(
       BigInt(sfraxBalanceBefore) - BigInt(sfraxBalanceAfter),
-      sfrax1000,
-      "sFRAX balance should decrease",
+      ethers.parseUnits("1000", sfraxInfo.decimals),
     );
-    assert.equal(
+    assertBigIntEqualApproximately(
       await dusdContract.balanceOf(testAccount1),
       ethers.parseUnits("800", dusdInfo.decimals),
-      "DUSD balance should increase",
+    );
+
+    // Check the price of sFRAX
+    const sFraxPrice = await getOraclePrice(dexDeployer, sfraxInfo.address);
+    assertBigIntEqualApproximately(
+      BigNumber.from(sFraxPrice.toString()).toBigInt(),
+      ethers.parseUnits("1.24993492", AAVE_ORACLE_USD_DECIMALS),
+    );
+
+    const healthFactor = await getUserHealthFactor(testAccount1);
+    assertNumberEqualApproximately(healthFactor, 1.3280558525);
+
+    const { toLiquidateAmount } = await getMaxLiquidationAmount(
+      sfraxInfo,
+      dusdInfo,
+      testAccount1,
+      dexDeployer,
+    );
+    assert.equal(toLiquidateAmount.toString(), "0");
+  });
+
+  it("health factor < 1 which leads to non-zero liquidation amount", async function () {
+    const { dexDeployer, testAccount1 } = await getNamedAccounts();
+
+    // Let's borrow some DUSD against our sFRAX
+    await borrowAsset(testAccount1, dusdInfo.address, 800);
+
+    const sfraxBalanceAfter = await sfraxContract.balanceOf(testAccount1);
+    assertBigIntEqualApproximately(
+      BigInt(sfraxBalanceBefore) - BigInt(sfraxBalanceAfter),
+      ethers.parseUnits("1000", sfraxInfo.decimals),
+    );
+    assertBigIntEqualApproximately(
+      await dusdContract.balanceOf(testAccount1),
+      ethers.parseUnits("800", dusdInfo.decimals),
+    );
+
+    // Check the health factor before changing the price
+    assertNumberEqualApproximately(
+      await getUserHealthFactor(testAccount1),
+      1.3280558525,
+    );
+
+    // Change the price to make the health factor < 1
+    await setMockStaticOracleWrapperPrice(sfraxInfo.address, 0.85);
+
+    // Check the health factor after changing the price
+    assertNumberEqualApproximately(
+      await getUserHealthFactor(testAccount1),
+      0.903125,
     );
 
     const { toLiquidateAmount } = await getMaxLiquidationAmount(
@@ -218,6 +293,14 @@ describe("Test getMaxLiquidationAmount()", function () {
       testAccount1,
       dexDeployer,
     );
-    assert.equal(toLiquidateAmount.toString(), "400000000");
+    assert.equal(toLiquidateAmount.toString(), "800000000");
+  });
+});
+
+describe("Test getCloseFactorHFThreshold()", () => {
+  it("normal case", async () => {
+    await standardUniswapV3DEXLBPLiquidityFixture();
+    const closeFactorHFThreshold = await getCloseFactorHFThreshold(hre);
+    assert.equal(closeFactorHFThreshold, 0.95);
   });
 });

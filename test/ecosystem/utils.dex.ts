@@ -19,6 +19,7 @@ import {
 } from "../../utils/dex/pool";
 import { convertToSwapPath } from "../../utils/dex/utils";
 import { ORACLE_ID } from "../../utils/lending/deploy-ids";
+import { getDecimals } from "../../utils/maths/utils";
 import { getTokenContractForAddress } from "../../utils/utils";
 
 /**
@@ -144,6 +145,80 @@ export async function swapExactInputSingleWithApproval(
     amountOutMinimum: 0,
     sqrtPriceLimitX96: 0,
   });
+  const swapReceipt = await swapTxn.wait();
+
+  if (swapReceipt?.status !== 1) {
+    throw new Error("Swap failed");
+  }
+}
+
+/**
+ * Swap an exact amount of output token for an input token
+ *
+ * @param callerAddress - The address of the caller
+ * @param feeTier - The fee tier for the swap
+ * @param inputTokenAddress - The address of the input token
+ * @param outputTokenAddress - The address of the output token
+ * @param outputTokenAmount - The amount of output token to swap
+ * @param deadlineInSeconds - The deadline for the swap in seconds
+ */
+export async function swapExactOutputSingleWithApproval(
+  callerAddress: string,
+  feeTier: number,
+  inputTokenAddress: string,
+  outputTokenAddress: string,
+  outputTokenAmount: number,
+  deadlineInSeconds: number,
+): Promise<void> {
+  const { address: routerAddress } = await hre.deployments.get(SWAP_ROUTER_ID);
+  const signer = await hre.ethers.getSigner(callerAddress);
+
+  const { contract: inputTokenContract } = await getTokenContractForAddress(
+    callerAddress,
+    inputTokenAddress,
+  );
+  const { tokenInfo: outputTokenInfo } = await getTokenContractForAddress(
+    callerAddress,
+    outputTokenAddress,
+  );
+
+  // Approve the router to spend the token
+  await inputTokenContract.approve(routerAddress, ethers.MaxUint256);
+
+  const routerContract = await hre.ethers.getContractAt(
+    SWAP_ROUTER_ID,
+    routerAddress,
+    signer,
+  );
+
+  const outputTokenAmountOnChainInt = ethers.parseUnits(
+    outputTokenAmount.toString(),
+    outputTokenInfo.decimals,
+  );
+
+  const dexPoolAddress = await getDEXPoolAddress(
+    inputTokenAddress,
+    outputTokenAddress,
+    feeTier,
+  );
+
+  if (dexPoolAddress == hre.ethers.ZeroAddress) {
+    throw new Error(
+      `Pool does not exist for ${inputTokenAddress} and ${outputTokenAddress} with fee tier ${feeTier}`,
+    );
+  }
+
+  const swapTxn = await routerContract.exactOutputSingle({
+    tokenIn: inputTokenAddress,
+    tokenOut: outputTokenAddress,
+    fee: feeTier,
+    recipient: callerAddress,
+    deadline: Math.floor(Date.now() / 1000) + deadlineInSeconds,
+    amountOut: outputTokenAmountOnChainInt,
+    amountInMaximum: ethers.MaxUint256,
+    sqrtPriceLimitX96: 0,
+  });
+
   const swapReceipt = await swapTxn.wait();
 
   if (swapReceipt?.status !== 1) {
@@ -282,7 +357,7 @@ export async function useMockStaticOracleWrapper(
   const { address: mockStaticOracleWrapperAddress } = await deployContract(
     hre,
     "MockStaticOracleWrapper",
-    [quoteTokenAddress, priceDecimals],
+    [quoteTokenAddress, BigInt(10) ** BigInt(priceDecimals)],
     undefined, // auto-filling gas limit
     await hre.ethers.getSigner(dexDeployer),
     undefined, // no libraries
@@ -323,3 +398,40 @@ export async function getMockStaticOracleWrapperContract(): Promise<MockStaticOr
 
   return oracleContract;
 }
+
+/**
+ * Set the price of the token in the MockStaticOracleWrapper contract
+ *
+ * @param tokenAddress - The address of the token
+ * @param price - The price of the token
+ */
+export async function setMockStaticOracleWrapperPrice(
+  tokenAddress: string,
+  price: number,
+): Promise<void> {
+  const oracleContract = await getMockStaticOracleWrapperContract();
+  const priceUnit = await oracleContract.BASE_CURRENCY_UNIT();
+  const priceDecimals = getDecimals(priceUnit);
+  await oracleContract.setAssetPrice(
+    tokenAddress,
+    ethers.parseUnits(price.toString(), priceDecimals),
+  );
+}
+
+/**
+ * Calculates the minimum tick value for a given tick spacing.
+ *
+ * @param tickSpacing The spacing between ticks.
+ * @returns The minimum tick value that is a multiple of the given tick spacing.
+ */
+export const getMinTick = (tickSpacing: number): number =>
+  Math.ceil(-887272 / tickSpacing) * tickSpacing;
+
+/**
+ * Calculates the maximum tick value for a given tick spacing.
+ *
+ * @param tickSpacing The spacing between ticks.
+ * @returns The maximum tick value that is a multiple of the given tick spacing.
+ */
+export const getMaxTick = (tickSpacing: number): number =>
+  Math.floor(887272 / tickSpacing) * tickSpacing;

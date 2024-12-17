@@ -1,5 +1,21 @@
 // SPDX-License-Identifier: GNU AGPLv3
-pragma solidity 0.8.13;
+/* ———————————————————————————————————————————————————————————————————————————————— *
+ *    _____     ______   ______     __     __   __     __     ______   __  __       *
+ *   /\  __-.  /\__  _\ /\  == \   /\ \   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \      *
+ *   \ \ \/\ \ \/_/\ \/ \ \  __<   \ \ \  \ \ \-.  \  \ \ \  \/_/\ \/ \ \____ \     *
+ *    \ \____-    \ \_\  \ \_\ \_\  \ \_\  \ \_\\"\_\  \ \_\    \ \_\  \/\_____\    *
+ *     \/____/     \/_/   \/_/ /_/   \/_/   \/_/ \/_/   \/_/     \/_/   \/_____/    *
+ *                                                                                  *
+ * ————————————————————————————————— dtrinity.org ————————————————————————————————— *
+ *                                                                                  *
+ *                                         ▲                                        *
+ *                                        ▲ ▲                                       *
+ *                                                                                  *
+ * ———————————————————————————————————————————————————————————————————————————————— *
+ * dTRINITY Protocol: https://github.com/dtrinity                                   *
+ * ———————————————————————————————————————————————————————————————————————————————— */
+
+pragma solidity 0.8.20;
 
 import "../../dex/periphery/interfaces/ISwapRouter.sol";
 import "./FlashLoanLiquidatorBaseAave.sol";
@@ -160,10 +176,6 @@ contract FlashLoanLiquidatorBorrowRepayAave is FlashLoanLiquidatorBaseAave {
                 _flashLoanParams.toLiquidate + _premium,
                 maxIn
             );
-            ERC20(_flashLoanParams.borrowedUnderlying).safeApprove(
-                address(flashLoanLender),
-                _flashLoanParams.toLiquidate + _premium
-            );
 
             uint256 borrowedUnderlyingBalanceAfter = ERC20(
                 _flashLoanParams.borrowedUnderlying
@@ -180,6 +192,11 @@ contract FlashLoanLiquidatorBorrowRepayAave is FlashLoanLiquidatorBaseAave {
                 );
             }
         }
+        ERC20(_flashLoanParams.borrowedUnderlying).safeApprove(
+            address(flashLoanLender),
+            _flashLoanParams.toLiquidate + _premium
+        );
+
         emit Liquidated(
             _flashLoanParams.liquidator,
             _flashLoanParams.borrower,

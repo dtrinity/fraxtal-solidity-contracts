@@ -46,10 +46,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   return true;
 };
 
-func.id = UNISWAP_STATIC_ORACLE_WRAPPER_ID;
-func.tags = ["dex", "oracle"];
-export default func;
-
 /**
  * Get the base token address for the oracle wrapper
  *
@@ -60,6 +56,7 @@ async function getBaseTokenAddress(
   hre: HardhatRuntimeEnvironment,
 ): Promise<string> {
   if (isLocalNetwork(hre.network.name)) {
+    // TODO: change to dUSD instead of DUSD
     const { address: baseTokenAddress } = await hre.deployments.get("DUSD");
     return baseTokenAddress;
   }
@@ -75,3 +72,7 @@ async function getBaseTokenAddress(
 
   return baseTokenAddress;
 }
+
+func.id = UNISWAP_STATIC_ORACLE_WRAPPER_ID;
+func.tags = ["dex", "dex-oracle"];
+export default func;

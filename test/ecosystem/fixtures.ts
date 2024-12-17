@@ -1,9 +1,11 @@
 import { FeeAmount } from "@uniswap/v3-sdk";
-import { deployments, getNamedAccounts } from "hardhat";
+import hre, { deployments, getNamedAccounts } from "hardhat";
 import { DeploymentsExtension } from "hardhat-deploy/types";
 
+import { getConfig } from "../../config/config";
 import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
 import { getStaticOraclePrice } from "../../utils/dex/oracle";
+import { getTokenContractForAddress } from "../../utils/utils";
 import { increaseTime } from "./utils.chain";
 import {
   createPoolAddLiquidityWithApproval,
@@ -19,40 +21,57 @@ export const freshFixture = deployments.createFixture(
   },
 );
 
-export const standardDEXLBPLiquidityFixture = deployments.createFixture(
-  async ({ deployments }) => {
-    await standardDEXLBPLiquidityFixtureImplementation(deployments);
-  },
-);
-
-export const standardDEXLBPLiquidityWithMockOracleFixture =
+export const standardUniswapV3DEXLBPLiquidityFixture =
   deployments.createFixture(async ({ deployments }) => {
-    await standardDEXLBPLiquidityFixtureImplementation(deployments);
+    await standardUniswapV3DEXLBPLiquidityFixtureImplementation(deployments);
+  });
 
-    const { dexDeployer } = await getNamedAccounts();
-    const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
-      dexDeployer,
-      "DUSD",
-    );
-
-    // Use MockStaticOracleWrapper to mock the price
-    await useMockStaticOracleWrapper(
-      dusdInfo.address,
-      AAVE_ORACLE_USD_DECIMALS,
+export const standardUniswapV3DEXLBPLiquidityWithMockOracleFixture =
+  deployments.createFixture(async ({ deployments }) => {
+    await standardUniswapV3DEXLBPLiquidityWithMockOracleFixtureImplementation(
+      deployments,
     );
   });
 
 /**
- * Standard DEX/LBP liquidity fixture implementation
+ * Standard DEX/LBP liquidity fixture implementation with mock oracle (use Uniswap V3 DEX)
+ *
+ * @param deployments - Hardhat deployments
+ * @param addtionalFixtureNames - Additional fixture names to be used
+ */
+export async function standardUniswapV3DEXLBPLiquidityWithMockOracleFixtureImplementation(
+  deployments: DeploymentsExtension,
+  addtionalFixtureNames: string[] = [],
+): Promise<void> {
+  await standardUniswapV3DEXLBPLiquidityFixtureImplementation(
+    deployments,
+    addtionalFixtureNames,
+  );
+
+  const { dexDeployer } = await getNamedAccounts();
+  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
+    dexDeployer,
+    "DUSD",
+  );
+
+  // Use MockStaticOracleWrapper to mock the price
+  await useMockStaticOracleWrapper(dusdInfo.address, AAVE_ORACLE_USD_DECIMALS);
+}
+
+/**
+ * Standard DEX/LBP liquidity fixture implementation (use Uniswap V3 DEX)
  * - It can be used as part of a fixture
  *
  * @param deployments - Hardhat deployments
+ * @param addtionalFixtureNames - Additional fixture names to be used
  */
-async function standardDEXLBPLiquidityFixtureImplementation(
+export async function standardUniswapV3DEXLBPLiquidityFixtureImplementation(
   deployments: DeploymentsExtension,
+  addtionalFixtureNames: string[] = [],
 ): Promise<void> {
+  const defaultFixtureNames = ["mock", "dex", "lbp", "liquidator-bot"];
   await deployments.fixture(); // Start from a fresh deployment to avoid side-effects from other fixtures
-  await deployments.fixture(["mock", "dex", "lbp", "liquidator-bot"]); // Mimic a testnet deployment
+  await deployments.fixture([...defaultFixtureNames, ...addtionalFixtureNames]); // Mimic a testnet deployment
   const { dexDeployer } = await getNamedAccounts();
 
   /*
@@ -156,6 +175,92 @@ async function standardDEXLBPLiquidityFixtureImplementation(
   console.log("Warmed up sFRXETH price: ", sfrxethPrice.toString());
   const fxsPrice = await getStaticOraclePrice(dexDeployer, fxsInfo.address);
   console.log("Warmed up FXS price: ", fxsPrice.toString());
+
+  /*
+   * Set up LBP infra
+   */
+
+  // Deposit 100k DUSD for borrowing
+  await depositCollateralWithApproval(dexDeployer, dusdInfo.address, 100_000);
+
+  // Deposit 10k FXS for borrowing
+  await depositCollateralWithApproval(dexDeployer, fxsInfo.address, 10_000);
+
+  // We don't deposit other assets since we don't expect users to deposit them without borrowing other assets
+}
+
+export const standardCurveDEXLBPLiquidityFixture = deployments.createFixture(
+  async ({ deployments }) => {
+    await standardCurveDEXLBPLiquidityFixtureImplementation(deployments);
+  },
+);
+
+export const standardCurveDEXLBPLiquidityWithMockOracleFixture =
+  deployments.createFixture(async ({ deployments }) => {
+    await standardCurveDEXLBPLiquidityWithMockOracleFixtureImplementation(
+      deployments,
+    );
+  });
+
+/**
+ * Standard DEX/LBP liquidity fixture implementation (use Curve DEX)
+ *
+ * @param deployments - Hardhat deployments
+ * @param addtionalFixtureNames - Additional fixture names to be used
+ */
+export async function standardCurveDEXLBPLiquidityWithMockOracleFixtureImplementation(
+  deployments: DeploymentsExtension,
+  addtionalFixtureNames: string[] = [],
+): Promise<void> {
+  await standardCurveDEXLBPLiquidityFixtureImplementation(
+    deployments,
+    addtionalFixtureNames,
+  );
+
+  const { dexDeployer } = await getNamedAccounts();
+
+  const config = await getConfig(hre);
+
+  if (!config.dLoopCurve) {
+    throw new Error("The dLoopCurve configuration is not available");
+  }
+
+  const { tokenInfo: dusdInfo } = await getTokenContractForAddress(
+    dexDeployer,
+    config.dLoopCurve.dUSDAddress,
+  );
+
+  // Use MockStaticOracleWrapper to mock the price
+  await useMockStaticOracleWrapper(dusdInfo.address, AAVE_ORACLE_USD_DECIMALS);
+}
+
+/**
+ * Standard DEX/LBP liquidity fixture implementation (use Curve DEX)
+ *
+ * @param deployments - Hardhat deployments
+ * @param addtionalFixtureNames - Additional fixture names to be used
+ */
+export async function standardCurveDEXLBPLiquidityFixtureImplementation(
+  deployments: DeploymentsExtension,
+  addtionalFixtureNames: string[] = [],
+): Promise<void> {
+  const defaultFixtureNames = ["mock", "dex", "lbp", "liquidator-bot"];
+  await deployments.fixture(); // Start from a fresh deployment to avoid side-effects from other fixtures
+  await deployments.fixture([...defaultFixtureNames, ...addtionalFixtureNames]); // Mimic a testnet deployment
+  const { dexDeployer } = await getNamedAccounts();
+
+  /*
+   * Get shared token info
+   */
+  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
+    dexDeployer,
+    "DUSD",
+  );
+
+  const { tokenInfo: fxsInfo } = await getTokenContractForSymbol(
+    dexDeployer,
+    "FXS",
+  );
 
   /*
    * Set up LBP infra

@@ -44,5 +44,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 func.id = TRANSPARENT_UPGRADEABLE_PROXY_ID;
-func.tags = ["dex", "periphery"];
+func.tags = ["dex", "dex-periphery"];
 export default func;

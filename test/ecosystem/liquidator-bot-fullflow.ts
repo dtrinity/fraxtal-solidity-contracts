@@ -5,7 +5,7 @@ import hre from "hardhat";
 import { getStaticOraclePrice } from "../../utils/dex/oracle";
 import { runBot } from "../../utils/liquidator-bot/run";
 import { getFlashMintLiquidatorBot } from "../../utils/liquidator-bot/utils";
-import { standardDEXLBPLiquidityFixture } from "./fixtures";
+import { standardUniswapV3DEXLBPLiquidityFixture } from "./fixtures";
 import { increaseTime } from "./utils.chain";
 import { swapExactInputSingleWithApproval } from "./utils.dex";
 import { borrowAsset, depositCollateralWithApproval } from "./utils.lbp";
@@ -22,7 +22,7 @@ describe("Test runBot()", function () {
     const borrowTokenSymbol = "DUSD";
     const priceDecimals = 8;
 
-    await standardDEXLBPLiquidityFixture();
+    await standardUniswapV3DEXLBPLiquidityFixture();
 
     const { liquidatorBotDeployer, dexDeployer, testAccount1, testAccount2 } =
       await hre.getNamedAccounts();
@@ -85,7 +85,7 @@ describe("Test runBot()", function () {
     // Check the price before swapping (in order to compare after swapping)
     assert.equal(
       await getStaticOraclePrice(testAccount1, collateralTokenInfo.address),
-      hre.ethers.parseUnits("1.24993492", priceDecimals),
+      hre.ethers.parseUnits("1.25005991", priceDecimals),
     );
 
     // Perform swaps to decrease the price of the collateralToken
@@ -120,7 +120,7 @@ describe("Test runBot()", function () {
     // Make sure the last price is decreased as expected
     assert.equal(
       await getStaticOraclePrice(testAccount1, collateralTokenInfo.address),
-      hre.ethers.parseUnits("0.84832697", priceDecimals),
+      hre.ethers.parseUnits("0.84841180", priceDecimals),
     );
 
     // Make sure the collateralToken balance decreased and the borrowToken balance increased

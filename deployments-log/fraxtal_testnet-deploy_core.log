@@ -7,25 +7,90 @@ This script is only for localhost and hardhat network
 This script is only for localhost and hardhat network
 This script is only for localhost and hardhat network
 -----------------
-Deploying 'EmissionManager' contract
-  - Address : 0x0b246Aa2E64eecDB8ac6B6e4E86BB151adAD287E
+Deploying 'DexOracleWrapper' contract
+  - Address : 0x61F19504d6A64ef1D50a32DC2BF27E6D775936Be
   - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
-  - TxHash  : 0x1ae7fa8c77b38fb146ed6dbd86f75c9b0a10fcfff81ae6538f0e9cd5acfc1c9a
-  - GasUsed : 738631
+  - TxHash  : 0xb5c605940591ce80778e807a3e8794740964bb5f31d6d321989b0541aff05852
+  - GasUsed : 265585
 -----------------
 -----------------
-Deploying 'IncentivesV2-Implementation' contract
-  - Address : 0xc3b22eBC688050c8beeAd766Cd855D0Eea678821
+Deploying 'HardPegOracleWrapper' contract
+  - Address : 0xE503BE820EE8382739fA0019ef7C0188285AA428
   - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
-  - TxHash  : 0x10954e9013cdb0e1b4668aa5c3e78cca5ec98b74ae661a9644f324f2686eb1ff
-  - GasUsed : 2959933
+  - TxHash  : 0x345e74d48f37b3f9e6fe1288703a8db7ab83a1d8a10cb8120cf297c6e8c25c22
+  - GasUsed : 167741
 -----------------
-[Deployment] Attached Rewards implementation and deployed proxy contract: 
-- Tx hash: 0x84b5e5edbcff719c740c2152822b915365a213fb340a7c23fdb7781ee0922da0
 -----------------
-Deploying 'PullRewardsTransferStrategy' contract
-  - Address : 0x18001a4C3D747D4f8a39206d860ac57dCC0A172e
+Deploying 'API3Wrapper' contract
+  - Address : 0x211DcCc8eEf247e7d4EB9D6530F338D595761edF
   - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
-  - TxHash  : 0xfc297ea0c39850c3abf3ce76fb2a376838ac70b2428e65ee7c93e2626eb0e125
-  - GasUsed : 313485
+  - TxHash  : 0x08753e13f1a1f8d0f5305f1c7aa92252caeec0d9a22cb54a5d8d0b7c7c73af1a
+  - GasUsed : 590436
 -----------------
+Set API3 proxy for asset 0x0Dbf64462FEC588df32FC5C9941421F7d93e0Fb3 to 0x5cfc6F00f5fCe37C182ED36b855D8e5efb3c31c4
+Set API3 proxy for asset 0x05A09C8BF515D0035e1Af22b24487928913475Bd to 0x5cfc6F00f5fCe37C182ED36b855D8e5efb3c31c4
+Set API3 proxy for asset 0x2CAb811d351B4eF492D8C197E09939F1C9f54330 to 0xC44696537B8ce33Bcd2335bCC08988e921FdFE19
+Set API3 proxy for asset 0x78C4fa90703C8D905b83416Cda5b2F77A8C386C5 to 0x3856E4bE1a58a7E7E11145C1317c71A165928e50
+Set API3 proxy for asset 0x828a7248daD914435F452D73363491Ab7ec4D8f4 to 0x4D251fa428CAa1b045536Ad1119Cab8A6414ab3d
+Set API3 proxy for asset 0x99Df29568C899D0854017de5D265aAF42Cb123fA to 0x992130Bf2A962A78f38e5dFE691eD0e5c14ca7ad
+Set API3 proxy for asset 0x4CB47b0FD8f8EfF846889D3BEaD1c33bc93C7FD6 to 0x8144A712796EfbF8EC6Bed864C611539AcCd4c20
+-----------------
+Deploying 'OracleAggregator' contract
+  - Address : 0xa741BA2830cbF7A3432D96A6e188af0132792Cb9
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0xcbdc6395f392ee0e288598ae624bb16624adc26e06731bbe6726be1b355e24c7
+  - GasUsed : 573208
+-----------------
+Setting oracle wrapper for dUSD to 0xE503BE820EE8382739fA0019ef7C0188285AA428
+Setting API3 oracle wrapper for 0x0Dbf64462FEC588df32FC5C9941421F7d93e0Fb3 to 0x211DcCc8eEf247e7d4EB9D6530F338D595761edF
+Setting API3 oracle wrapper for 0x05A09C8BF515D0035e1Af22b24487928913475Bd to 0x211DcCc8eEf247e7d4EB9D6530F338D595761edF
+Setting API3 oracle wrapper for 0x2CAb811d351B4eF492D8C197E09939F1C9f54330 to 0x211DcCc8eEf247e7d4EB9D6530F338D595761edF
+Setting API3 oracle wrapper for 0x78C4fa90703C8D905b83416Cda5b2F77A8C386C5 to 0x211DcCc8eEf247e7d4EB9D6530F338D595761edF
+Setting API3 oracle wrapper for 0x828a7248daD914435F452D73363491Ab7ec4D8f4 to 0x211DcCc8eEf247e7d4EB9D6530F338D595761edF
+Setting API3 oracle wrapper for 0x99Df29568C899D0854017de5D265aAF42Cb123fA to 0x211DcCc8eEf247e7d4EB9D6530F338D595761edF
+Setting API3 oracle wrapper for 0x4CB47b0FD8f8EfF846889D3BEaD1c33bc93C7FD6 to 0x211DcCc8eEf247e7d4EB9D6530F338D595761edF
+-----------------
+Deploying 'CollateralHolderVault' contract
+  - Address : 0x79701FD098bE151d5FD77f5b46f8938dc05B6b21
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0xa141fb087ce930ee336dd73ed99c49ee8cdadc2e93786d665f0cf623c81f543f
+  - GasUsed : 1520916
+-----------------
+-----------------
+Deploying 'AmoManager' contract
+  - Address : 0xa9eFa04b9390D0830be3bC2858Bb7FE499dFA132
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0xbfcc54dc4fc0fbb8201fe101bb08ed4cc0c429c0321b3c3d86d6cea01442fea7
+  - GasUsed : 1675279
+-----------------
+-----------------
+Deploying 'Issuer' contract
+  - Address : 0x21f9c5F3566C6B87f6c21E5d65BD8E37023edA6A
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0x0700e57e6780c12c98b6fe428b2fd441b10f97e714a04a768f78d0f0a50cdc61
+  - GasUsed : 1185145
+-----------------
+-----------------
+Deploying 'Redeemer' contract
+  - Address : 0x1e04f0B1eb25ec3806c5D8B86cC41BE945a94E81
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0x319da6af893464771c22bf2053bdc8ed7de7dcb177a5539d95c15da938a185e2
+  - GasUsed : 826184
+-----------------
+Allowing Redeemer to withdraw collateral
+-----------------
+Deploying 'AaveOracle-dTrinity-Lend' contract
+  - Address : 0xcDC44b2ed2cA272fDBe287833732f0dcC4732061
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - TxHash  : 0x51064167903b9efd9fe102e22dc3138701be97d53d4a3cf4b3a917e3ddc6d2a3
+  - GasUsed : 830825
+-----------------
+---------------
+Set PriceOracle
+  - PriceOracle     : 0xcDC44b2ed2cA272fDBe287833732f0dcC4732061
+  - AddressProvider : 0xC691F14942B37668C9904b701E3118A133611b3c
+  - TxHash  : 0xe69a2e08c420a07987fb456acad81c1e63a737ab86b5776ca39e9d894b9a34de
+  - From    : 0x53Ae1433Ab4563d7D5a84d27524784837259f105
+  - GasUsed : 30515
+[Deployment] Added PriceOracle 0xcDC44b2ed2cA272fDBe287833732f0dcC4732061 to PoolAddressesProvider
+---------------

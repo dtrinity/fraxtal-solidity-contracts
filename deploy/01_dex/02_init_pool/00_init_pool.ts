@@ -38,5 +38,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 func.id = "DEXInitializePools";
-func.tags = ["dex", "init"];
+func.tags = ["dex", "dex-init"];
 export default func;

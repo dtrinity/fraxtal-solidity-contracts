@@ -2,6 +2,7 @@ import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { ZeroAddress } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
+import { getConfig } from "../../../../config/config";
 import { deployContract } from "../../../deploy";
 import {
   EMISSION_MANAGER_ID,
@@ -28,8 +29,7 @@ export async function deployIncentives(
   hre: HardhatRuntimeEnvironment,
   deployer: HardhatEthersSigner,
 ): Promise<boolean> {
-  const { lendingIncentivesRewardsVault, lendingIncentivesEmissionManager } =
-    await hre.getNamedAccounts();
+  const config = await getConfig(hre);
 
   const proxyArtifact = await hre.deployments.getExtendedArtifact(
     "InitializableImmutableAdminUpgradeabilityProxy",
@@ -133,8 +133,8 @@ export async function deployIncentives(
     INCENTIVES_PULL_REWARDS_STRATEGY_ID,
     [
       rewardsProxyAddress,
-      lendingIncentivesEmissionManager,
-      lendingIncentivesRewardsVault,
+      config.lending.incentivesEmissionManager,
+      config.lending.incentivesVault,
     ],
     undefined, // auto-filled gas limit,
     deployer,
@@ -151,7 +151,7 @@ export async function deployIncentives(
       INCENTIVES_STAKED_TOKEN_STRATEGY_ID,
       [
         rewardsProxyAddress,
-        lendingIncentivesEmissionManager,
+        config.lending.incentivesEmissionManager,
         stakedAaveAddress,
       ],
       undefined, // auto-filled gas limit,
@@ -166,7 +166,9 @@ export async function deployIncentives(
   }
 
   // Transfer emission manager ownership
-  await emissionManager.transferOwnership(lendingIncentivesEmissionManager);
+  await emissionManager.transferOwnership(
+    config.lending.incentivesEmissionManager,
+  );
 
   return true;
 }
