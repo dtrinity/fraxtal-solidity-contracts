@@ -92,36 +92,6 @@ describe("CollateralHolderVault", () => {
         hre.ethers.parseUnits("610", AAVE_ORACLE_USD_DECIMALS),
       );
     });
-
-    it("can pull collateral using depositFrom", async function () {
-      await fraxContract.transfer(
-        testAccount1,
-        hre.ethers.parseUnits("1000", fraxInfo.decimals),
-      );
-
-      // Connect as testAccount1 to approve FRAX spending
-      await fraxContract
-        .connect(await hre.ethers.getSigner(testAccount1))
-        .approve(
-          await collateralVaultContract.getAddress(),
-          hre.ethers.parseUnits("420", fraxInfo.decimals),
-        );
-
-      await collateralVaultContract.depositFrom(
-        testAccount1,
-        hre.ethers.parseUnits("420", fraxInfo.decimals),
-        fraxInfo.address,
-      );
-
-      assert.equal(
-        await collateralVaultContract.totalValue(),
-        hre.ethers.parseUnits("420", AAVE_ORACLE_USD_DECIMALS),
-      );
-      assert.equal(
-        await fraxContract.balanceOf(testAccount1),
-        hre.ethers.parseUnits("580", fraxInfo.decimals),
-      );
-    });
   });
 
   describe("Withdrawing collateral", () => {

@@ -5,11 +5,11 @@ import { POOL_DATA_PROVIDER_ID } from "./deploy-ids";
 /**
  * Get the reserve configuration data
  *
- * @param borrowTokenAddress - The address of the token to be borrowed
+ * @param tokenAddress - The token address
  * @returns - The reserve configuration data
  */
 export async function getReserveConfigurationData(
-  borrowTokenAddress: string,
+  tokenAddress: string,
 ): Promise<{
   decimals: bigint;
   ltv: bigint;
@@ -41,8 +41,7 @@ export async function getReserveConfigurationData(
     stableBorrowRateEnabled,
     isActive,
     isFrozen,
-  } =
-    await dataProviderContract.getReserveConfigurationData(borrowTokenAddress);
+  } = await dataProviderContract.getReserveConfigurationData(tokenAddress);
 
   return {
     decimals,

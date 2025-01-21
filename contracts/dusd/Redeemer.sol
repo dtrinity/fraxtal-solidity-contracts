@@ -33,10 +33,6 @@ contract Redeemer is AccessControl, OracleAware {
 
     uint256 public immutable USD_UNIT;
 
-    /* Events */
-
-    event CollateralVaultSet(address indexed collateralVault);
-
     /* Roles */
 
     bytes32 public constant REDEMPTION_MANAGER_ROLE =
@@ -80,56 +76,8 @@ contract Redeemer is AccessControl, OracleAware {
         address collateralAsset,
         uint256 minCollateral
     ) external onlyRole(REDEMPTION_MANAGER_ROLE) {
-        _redeem(
-            msg.sender,
-            msg.sender,
-            dusdAmount,
-            collateralAsset,
-            minCollateral
-        );
-    }
-
-    /**
-     * @notice Redeems dUSD tokens for collateral from another address
-     * @param withdrawer The address providing the dUSD
-     * @param receiver The address receiving the collateral
-     * @param dusdAmount The amount of dUSD to redeem
-     * @param collateralAsset The address of the collateral asset
-     * @param minCollateral The minimum amount of collateral to receive, used for slippage protection
-     */
-    function redeemFrom(
-        address withdrawer,
-        address receiver,
-        uint256 dusdAmount,
-        address collateralAsset,
-        uint256 minCollateral
-    ) external onlyRole(REDEMPTION_MANAGER_ROLE) {
-        _redeem(
-            withdrawer,
-            receiver,
-            dusdAmount,
-            collateralAsset,
-            minCollateral
-        );
-    }
-
-    /**
-     * @notice Internal function to redeem dUSD tokens for collateral
-     * @param withdrawer The address providing the dUSD
-     * @param receiver The address receiving the collateral
-     * @param dusdAmount The amount of dUSD to redeem
-     * @param collateralAsset The address of the collateral asset
-     * @param minCollateral The minimum amount of collateral to receive, used for slippage protection
-     */
-    function _redeem(
-        address withdrawer,
-        address receiver,
-        uint256 dusdAmount,
-        address collateralAsset,
-        uint256 minCollateral
-    ) internal {
         // Transfer dUSD from withdrawer to this contract
-        if (!dusd.transferFrom(withdrawer, address(this), dusdAmount)) {
+        if (!dusd.transferFrom(msg.sender, address(this), dusdAmount)) {
             revert DUSDTransferFailed();
         }
 
@@ -147,10 +95,11 @@ contract Redeemer is AccessControl, OracleAware {
         }
 
         // Withdraw collateral from the vault
-        collateralVault.withdrawTo(receiver, collateralAmount, collateralAsset);
-
-        // No invariant checks here, since only redemption manager can redeem,
-        // and may need to redeem during adverse market conditions
+        collateralVault.withdrawTo(
+            msg.sender,
+            collateralAmount,
+            collateralAsset
+        );
     }
 
     /**
@@ -174,6 +123,5 @@ contract Redeemer is AccessControl, OracleAware {
         address _collateralVault
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         collateralVault = CollateralVault(_collateralVault);
-        emit CollateralVaultSet(_collateralVault);
     }
 }

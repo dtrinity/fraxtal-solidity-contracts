@@ -106,43 +106,6 @@ describe("Redeemer", () => {
       );
     });
 
-    it("redeemFrom on behalf of another address", async function () {
-      const redeemAmount = hre.ethers.parseUnits("100", dusdInfo.decimals);
-      const minimumFraxReceived = hre.ethers.parseUnits(
-        "99",
-        fraxInfo.decimals,
-      ); // Assuming 1% slippage
-
-      const dusdBalanceBefore = await dusdContract.balanceOf(dusdDeployer);
-      const fraxBalanceBefore = await fraxContract.balanceOf(testAccount1);
-
-      await dusdContract.approve(
-        await redeemerContract.getAddress(),
-        redeemAmount,
-      );
-
-      await redeemerContract.redeemFrom(
-        dusdDeployer,
-        testAccount1,
-        redeemAmount,
-        fraxInfo.address,
-        minimumFraxReceived,
-      );
-
-      const dusdBalanceAfter = await dusdContract.balanceOf(dusdDeployer);
-      const fraxBalanceAfter = await fraxContract.balanceOf(testAccount1);
-
-      assert.equal(
-        dusdBalanceAfter,
-        dusdBalanceBefore - redeemAmount,
-        "dUSD balance did not decrease by the expected amount",
-      );
-      assert.isTrue(
-        fraxBalanceAfter - fraxBalanceBefore >= minimumFraxReceived,
-        "FRAX received is less than the minimum expected",
-      );
-    });
-
     it("fails when slippage is too high", async function () {
       const redeemAmount = hre.ethers.parseUnits("100", dusdInfo.decimals);
       const impossibleMinimumFraxReceived = hre.ethers.parseUnits(

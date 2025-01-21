@@ -16,5 +16,3 @@ COPY tsconfig.json /usr/src/tsconfig.json
 
 # Copy src files
 COPY src/ /usr/src/src/
-
-ENTRYPOINT [ "yarn", "ts-node src/main.ts" ]

@@ -3,9 +3,10 @@ import hre, { deployments } from "hardhat";
 
 import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
 import { deployContract } from "../../utils/deploy";
+import { API3_PRICE_DECIMALS } from "../../utils/oracle_aggregator/constants";
 import { deployTestTokens } from "../../utils/token";
 import { getTokenContractForSymbol } from "../ecosystem/utils.token";
-import { API3_PRICE_DECIMALS, FAKE_API3_SERVER_V1_ADDRESS } from "./constants";
+import { FAKE_API3_SERVER_V1_ADDRESS } from "./constants";
 
 export const dexOracleFixture = deployments.createFixture(
   async ({ deployments }) => {
@@ -259,6 +260,169 @@ export const api3OracleFixture = deployments.createFixture(
       api3WrapperAddress,
       api3WrapperWithThresholdingAddress,
       api3CompositeWrapperWithThresholdingAddress,
+    };
+  },
+);
+
+export const curveOracleFixture = deployments.createFixture(
+  async ({ deployments }) => {
+    await deployments.fixture(); // Start from a fresh deployment
+    await deployments.fixture(["oracle-aggregator"]);
+
+    const { dusdDeployer } = await hre.getNamedAccounts();
+    const deployer = await hre.ethers.getSigner(dusdDeployer);
+
+    // Deploy test tokens: USDC and cUSDC
+    await deployTestTokens(
+      hre,
+      {
+        USDC: [
+          {
+            amount: 1e8,
+            toAddress: dusdDeployer,
+          },
+        ],
+        cUSDC: [
+          {
+            amount: 1e8,
+            toAddress: dusdDeployer,
+          },
+        ],
+      },
+      deployer,
+    );
+
+    const { tokenInfo: usdcInfo } = await getTokenContractForSymbol(
+      dusdDeployer,
+      "USDC",
+    );
+    const { tokenInfo: cusdcInfo } = await getTokenContractForSymbol(
+      dusdDeployer,
+      "cUSDC",
+    );
+
+    // Deploy mock API3 oracle for USDC
+    const { address: mockAPI3OracleUSDCAddress } = await deployContract(
+      hre,
+      "MockAPI3OracleUSDC",
+      [FAKE_API3_SERVER_V1_ADDRESS],
+      undefined,
+      deployer,
+      undefined,
+      "MockAPI3Oracle",
+    );
+
+    // Deploy mock pool
+    const { address: mockPoolAddress } = await deployContract(
+      hre,
+      "MockCurveStableNGPool",
+      [],
+      undefined,
+      deployer,
+      undefined,
+      "MockCurveStableNGPool",
+    );
+
+    // Deploy Curve wrapper
+    const { address: curveWrapperAddress } = await deployContract(
+      hre,
+      "CurveOracleWrapper",
+      [10n ** BigInt(AAVE_ORACLE_USD_DECIMALS)],
+      undefined,
+      deployer,
+      undefined,
+      "CurveOracleWrapper",
+    );
+
+    // Set up mock pool with USDC and cUSDC
+    const mockPool = await hre.ethers.getContractAt(
+      "MockCurveStableNGPool",
+      mockPoolAddress,
+      deployer,
+    );
+    await mockPool.setCoin(0, usdcInfo.address);
+    await mockPool.setCoin(1, cusdcInfo.address);
+
+    // Add this line to set the decimal precision for the mock pool
+    await mockPool.setDecimals(18); // Set to match AAVE_ORACLE_USD_DECIMALS
+
+    // Update the API3 oracle mock setup to use correct decimals
+    const currentBlock = await hre.ethers.provider.getBlock("latest");
+
+    if (!currentBlock) {
+      throw new Error("Failed to get current block");
+    }
+    const currentTimestamp = currentBlock.timestamp;
+
+    const mockAPI3OracleUSDCContract = await hre.ethers.getContractAt(
+      "MockAPI3Oracle",
+      mockAPI3OracleUSDCAddress,
+      deployer,
+    );
+    await mockAPI3OracleUSDCContract.setMock(
+      hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS), // Changed from API3_PRICE_DECIMALS
+      currentTimestamp,
+    );
+
+    const { address: api3WrapperAddress } = await deployContract(
+      hre,
+      "API3Wrapper",
+      [10n ** BigInt(AAVE_ORACLE_USD_DECIMALS)],
+      undefined,
+      deployer,
+      undefined,
+    );
+    const api3WrapperContract = await hre.ethers.getContractAt(
+      "API3Wrapper",
+      api3WrapperAddress,
+      deployer,
+    );
+    await api3WrapperContract.setProxy(
+      usdcInfo.address,
+      mockAPI3OracleUSDCAddress,
+    );
+
+    const { address: curveAPI3CompositeWrapperWithThresholdingAddress } =
+      await deployContract(
+        hre,
+        "CurveAPI3CompositeWrapperWithThresholding",
+        [10n ** BigInt(AAVE_ORACLE_USD_DECIMALS)],
+        undefined,
+        deployer,
+        undefined,
+        "CurveAPI3CompositeWrapperWithThresholding",
+      );
+
+    const curveAPI3CompositeWrapperWithThresholdingContract =
+      await hre.ethers.getContractAt(
+        "CurveAPI3CompositeWrapperWithThresholding",
+        curveAPI3CompositeWrapperWithThresholdingAddress,
+        deployer,
+      );
+
+    await curveAPI3CompositeWrapperWithThresholdingContract.setAssetConfig(
+      cusdcInfo.address,
+      mockPoolAddress,
+    );
+
+    await curveAPI3CompositeWrapperWithThresholdingContract.setCompositeFeed(
+      cusdcInfo.address,
+      usdcInfo.address,
+      api3WrapperAddress,
+      hre.ethers.parseUnits("0", AAVE_ORACLE_USD_DECIMALS), // curve threshold
+      hre.ethers.parseUnits("0", AAVE_ORACLE_USD_DECIMALS), // curve fixed price
+      hre.ethers.parseUnits("0", AAVE_ORACLE_USD_DECIMALS), // api3 threshold
+      hre.ethers.parseUnits("0", AAVE_ORACLE_USD_DECIMALS), // api3 fixed price
+    );
+
+    return {
+      curveWrapperAddress,
+      mockPoolAddress,
+      mockAPI3OracleUSDCAddress,
+      curveAPI3CompositeWrapperWithThresholdingAddress,
+      usdcToken: usdcInfo,
+      cusdcToken: cusdcInfo,
+      api3WrapperAddress,
     };
   },
 );

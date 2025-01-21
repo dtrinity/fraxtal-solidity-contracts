@@ -15,12 +15,13 @@ export interface Config {
     | undefined;
   readonly dex: DEXConfig;
   readonly lending: LendingConfig;
-  readonly liquidatorBot: LiquidatorBotConfig;
   readonly dusd: DUSDConfig;
   readonly dLoopUniswapV3: DLoopUniswapV3Config | undefined;
   readonly dLoopCurve: DLoopCurveConfig | undefined;
   readonly oracleAggregator: OracleAggregatorConfig;
   readonly curve: CurveConfig;
+  readonly liquidatorBotUniswapV3?: LiquidatorBotUniswapV3Config;
+  readonly liquidatorBotCurve?: LiquidatorBotCurveConfig;
 }
 
 export interface MintConfig {
@@ -96,6 +97,33 @@ export interface LiquidatorBotConfig {
   readonly graphConfig: {
     url: string;
     batchSize: number;
+  };
+}
+
+export interface LiquidatorBotUniswapV3Config extends LiquidatorBotConfig {
+  // Mapping from token address to the proxy contract address
+  readonly proxyContractMap: {
+    [tokenAddress: string]: string;
+  };
+}
+
+export interface LiquidatorBotCurveConfig extends LiquidatorBotConfig {
+  readonly swapRouter: string;
+  readonly maxSlippageSurplusSwapBps: number;
+  readonly defaultSwapSlippageBufferBps: number;
+  // Mapping from token address to whether it requires unstaking
+  readonly isUnstakeTokens: {
+    [tokenAddress: string]: boolean;
+  };
+  readonly defaultSwapParamsList: {
+    readonly inputToken: string;
+    readonly outputToken: string;
+    readonly swapExtraParams: CurveSwapExtraParams;
+    readonly reverseSwapExtraParams: CurveSwapExtraParams;
+  }[];
+  // Mapping from token address to the proxy contract address
+  readonly proxyContractMap: {
+    [tokenAddress: string]: string;
   };
 }
 
@@ -180,10 +208,26 @@ export interface OracleAggregatorConfig {
       };
     };
   };
+  readonly curveOracleAssets: {
+    [key: string]: {
+      pool: string;
+      compositeAPI3Feed?: {
+        api3Asset: string;
+        api3Wrapper: string;
+        curveLowerThresholdInBase: bigint;
+        curveFixedPriceInBase: bigint;
+        api3LowerThresholdInBase: bigint;
+        api3FixedPriceInBase: bigint;
+      };
+    };
+  };
   readonly priceDecimals: number;
   readonly hardDusdPeg: number;
 }
 
 export interface CurveConfig {
   readonly router: string;
+  readonly tools?: {
+    readonly httpServiceHost: string; // e.g. "http://localhost:3000"
+  };
 }

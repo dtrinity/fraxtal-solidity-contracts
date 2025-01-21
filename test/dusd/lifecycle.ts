@@ -245,10 +245,7 @@ describe("dUSD Ecosystem Lifecycle", () => {
     );
     await fraxContract
       .connect(await hre.ethers.getSigner(testAccount1))
-      .approve(
-        await collateralHolderVaultContract.getAddress(),
-        initialFraxAmount,
-      );
+      .approve(await issuerContract.getAddress(), initialFraxAmount);
     await issuerContract
       .connect(await hre.ethers.getSigner(testAccount1))
       .issue(initialFraxAmount, fraxInfo.address, minInitialDusdForFrax);
@@ -459,7 +456,7 @@ describe("dUSD Ecosystem Lifecycle", () => {
     );
     await fraxContract
       .connect(await hre.ethers.getSigner(testAccount1))
-      .approve(await collateralHolderVaultContract.getAddress(), depositAmount);
+      .approve(await issuerContract.getAddress(), depositAmount);
     await issuerContract
       .connect(await hre.ethers.getSigner(testAccount1))
       .issue(depositAmount, fraxInfo.address, minDusdForFrax);
@@ -474,7 +471,7 @@ describe("dUSD Ecosystem Lifecycle", () => {
     );
     await usdcContract
       .connect(await hre.ethers.getSigner(testAccount2))
-      .approve(await collateralHolderVaultContract.getAddress(), depositAmount);
+      .approve(await issuerContract.getAddress(), depositAmount);
     await issuerContract
       .connect(await hre.ethers.getSigner(testAccount2))
       .issue(depositAmount, usdcInfo.address, minDusdForUsdc);
@@ -508,7 +505,7 @@ describe("dUSD Ecosystem Lifecycle", () => {
     );
     await usdcContract
       .connect(await hre.ethers.getSigner(testAccount2))
-      .approve(await collateralHolderVaultContract.getAddress(), depositAmount);
+      .approve(await issuerContract.getAddress(), depositAmount);
     await issuerContract
       .connect(await hre.ethers.getSigner(testAccount2))
       .issue(depositAmount, usdcInfo.address, depeggedMinDusdForUsdc);

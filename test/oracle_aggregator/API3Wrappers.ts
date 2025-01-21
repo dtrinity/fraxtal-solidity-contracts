@@ -9,8 +9,11 @@ import {
   MockAPI3Oracle,
 } from "../../typechain-types";
 import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
+import {
+  API3_HEARTBEAT_SECONDS,
+  API3_PRICE_DECIMALS,
+} from "../../utils/oracle_aggregator/constants";
 import { TokenInfo } from "../../utils/token";
-import { API3_HEARTBEAT_SECONDS, API3_PRICE_DECIMALS } from "./constants";
 import { api3OracleFixture } from "./fixtures";
 
 describe("API3Wrappers", () => {
@@ -439,14 +442,16 @@ describe("API3Wrappers", () => {
           );
         expect(updatedFeed.proxy1).to.equal(proxy1);
         expect(updatedFeed.proxy2).to.equal(proxy2);
-        expect(updatedFeed.lowerThresholdInBase1).to.equal(
+        expect(updatedFeed.thresholds.primary.lowerThresholdInBase).to.equal(
           hre.ethers.parseUnits("0.99", AAVE_ORACLE_USD_DECIMALS),
         );
-        expect(updatedFeed.fixedPriceInBase1).to.equal(
+        expect(updatedFeed.thresholds.primary.fixedPriceInBase).to.equal(
           hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS),
         );
-        expect(updatedFeed.lowerThresholdInBase2).to.equal(0);
-        expect(updatedFeed.fixedPriceInBase2).to.equal(0);
+        expect(updatedFeed.thresholds.secondary.lowerThresholdInBase).to.equal(
+          0,
+        );
+        expect(updatedFeed.thresholds.secondary.fixedPriceInBase).to.equal(0);
 
         await expect(
           api3CompositeWrapperWithThresholdingContract.removeCompositeFeed(

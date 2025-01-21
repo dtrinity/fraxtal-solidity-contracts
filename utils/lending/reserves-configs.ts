@@ -97,3 +97,21 @@ export const strategyETHLST: IReserveParams = {
   debtCeiling: "0",
   borrowableIsolation: false,
 };
+
+export const strategyFXB20291231: IReserveParams = {
+  strategy: rateStrategyMediumLiquidityVolatile,
+  baseLTVAsCollateral: "6000",
+  liquidationThreshold: "6500",
+  liquidationBonus: "10500",
+  liquidationProtocolFee: "7000", // 70%
+  borrowingEnabled: false,
+  stableBorrowRateEnabled: false,
+  flashLoanEnabled: true,
+  reserveDecimals: "18",
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: "1000",
+  supplyCap: "1340000",
+  borrowCap: "0",
+  debtCeiling: "0",
+  borrowableIsolation: false,
+};

@@ -59,7 +59,7 @@ async function main(): Promise<void> {
     ethers.parseUnits("0.1", 18),
     signer.address,
     signer.address,
-    await dLOOPUniswapV3Contract.SWAP_SLIPPAGE_TOLERANCE(),
+    await dLOOPUniswapV3Contract.getDefaultSwapSlippageTolerance(),
     0,
     await dLOOPUniswapV3Contract.DEFAULT_UNDERLYING_TO_DUSD_SWAP_PATH(),
   );

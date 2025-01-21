@@ -337,7 +337,7 @@ const mintDUSDWithSFRAXCollateral = async (
 
   await sfrax
     .connect(await hre.ethers.getSigner(dexLiquidityAdder))
-    .approve(await collateralVault.getAddress(), sFraxAmount);
+    .approve(await issuer.getAddress(), sFraxAmount);
 
   await issuer
     .connect(await hre.ethers.getSigner(dexLiquidityAdder))

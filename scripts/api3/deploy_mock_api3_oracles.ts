@@ -1,7 +1,7 @@
 import { ethers, getNamedAccounts } from "hardhat";
 
-import { API3_PRICE_DECIMALS } from "../../test/oracle_aggregator/constants";
 import { MockAPI3OracleAlwaysAlive } from "../../typechain-types";
+import { API3_PRICE_DECIMALS } from "../../utils/oracle_aggregator/constants";
 
 // Helper function to deploy a MockAPI3OracleAlwaysAlive contract
 /**

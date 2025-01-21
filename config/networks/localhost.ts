@@ -80,6 +80,12 @@ export async function getConfig(
           toAddress: testTokenOwner1,
         },
       ],
+      vSFRAX: [
+        {
+          amount: 1e8,
+          toAddress: dexDeployer,
+        },
+      ],
       SFRXETH: [
         {
           amount: 1e8,
@@ -136,6 +142,7 @@ export async function getConfig(
         DUSD: strategyDUSD,
         FXS: strategyFXS,
         SFRAX: strategyYieldBearingStablecoin,
+        vSFRAX: strategyYieldBearingStablecoin, // the mock ERC4626 vault token for SFRAX
         SFRXETH: strategyETHLST,
       },
       rateStrategies: [
@@ -148,10 +155,10 @@ export async function getConfig(
       incentivesVault: dexDeployer, // Default to the main deployer
       incentivesEmissionManager: dexDeployer, // Default to the main deployer
     },
-    liquidatorBot: {
+    liquidatorBotUniswapV3: {
       flashMinter: emptyIfUndefined(DUSDDeployment?.address, ""),
       dUSDAddress: emptyIfUndefined(DUSDDeployment?.address, ""),
-      slippageTolerance: 500, // 5% in bps
+      slippageTolerance: 50 * 100 * ONE_BPS_UNIT, // 50% slippage tolerance
       healthFactorThreshold: 1,
       healthFactorBatchSize: 10,
       reserveBatchSize: 10,
@@ -161,7 +168,9 @@ export async function getConfig(
         url: "", // Not used for localhost
         batchSize: 0,
       },
+      proxyContractMap: {}, // No proxy contracts
     },
+    liquidatorBotCurve: undefined, // No Curve liquidator on localhost
     dusd: {
       address: emptyIfUndefined(dUSDDeployment?.address, ""),
       amoVaults: {
@@ -289,6 +298,7 @@ export async function getConfig(
         plainApi3OracleWrappers: {},
         compositeApi3OracleWrappersWithThresholding: {},
       },
+      curveOracleAssets: {},
     },
     curve: {
       // Source: https://docs.curve.fi/references/deployed-contracts/#curve-router

@@ -59,6 +59,24 @@ const config: HardhatUserConfig = {
     deploy: "./deploy",
   },
   namedAccounts: getDefaultNamedAccounts(),
+  etherscan: {
+    apiKey: {
+      fraxtal_mainnet: "AMT6AWIRDZV3RVNSSU6T2638K59QSX4Q89",
+    },
+    customChains: [
+      {
+        network: "fraxtal_mainnet",
+        chainId: 252,
+        urls: {
+          apiURL: "https://api.fraxscan.com/api",
+          browserURL: "https://fraxscan.com",
+        },
+      },
+    ],
+  },
+  sourcify: {
+    enabled: true,
+  },
 };
 /* eslint-enable camelcase -- Use camelcase for network config */
 

@@ -41,7 +41,7 @@ contract DLoopVaultCurve is DLoopVaultBase {
 
     CurveSwapExtraParams public DEFAULT_DUSD_TO_UNDERLYING_SWAP_EXTRA_PARAMS;
     CurveSwapExtraParams public DEFAULT_UNDERLYING_TO_DUSD_SWAP_EXTRA_PARAMS;
-    uint256 private immutable maxSlippageSurplusSwapBps;
+    uint256 private _defaultMaxSlippageSurplusSwapBps;
 
     error InvalidInputOutputTokens(address inputToken, address outputToken);
 
@@ -88,7 +88,7 @@ contract DLoopVaultCurve is DLoopVaultBase {
         )
     {
         curveRouter = ICurveRouterNgPoolsOnlyV1(_curveRouter);
-        maxSlippageSurplusSwapBps = _maxSlippageSurplusSwapBps;
+        _defaultMaxSlippageSurplusSwapBps = _maxSlippageSurplusSwapBps;
         DEFAULT_DUSD_TO_UNDERLYING_SWAP_EXTRA_PARAMS = _defaultDUSDToUnderlyingSwapExtraParams;
         DEFAULT_UNDERLYING_TO_DUSD_SWAP_EXTRA_PARAMS = _defaultUnderlyingToDUSDSwapExtraParams;
     }
@@ -240,7 +240,7 @@ contract DLoopVaultCurve is DLoopVaultBase {
             );
             uint256 minSwapBackAmountOut = (estimatedSwapBackAmountOut *
                 (Constants.ONE_HUNDRED_PERCENT_BPS -
-                    maxSlippageSurplusSwapBps)) /
+                    _defaultMaxSlippageSurplusSwapBps)) /
                 Constants.ONE_HUNDRED_PERCENT_BPS;
 
             ERC20(outputToken).approve(address(curveRouter), redundantAmount);
@@ -258,9 +258,31 @@ contract DLoopVaultCurve is DLoopVaultBase {
             address(this)
         );
 
-        uint256 usedInputAmount = inputTokenBalanceBefore -
-            inputTokenBalanceAfter;
+        if (inputTokenBalanceAfter < inputTokenBalanceBefore) {
+            uint256 usedInputAmount = inputTokenBalanceBefore -
+                inputTokenBalanceAfter;
 
-        return usedInputAmount;
+            return usedInputAmount;
+        } else {
+            return 0;
+        }
+    }
+
+    /* View functions */
+
+    function getDefaultMaxSlippageSurplusSwapBps()
+        public
+        view
+        returns (uint256)
+    {
+        return _defaultMaxSlippageSurplusSwapBps;
+    }
+
+    /* Admin functions */
+
+    function setDefaultMaxSlippageSurplusSwapBps(
+        uint256 _maxSlippageSurplusSwapBps
+    ) public onlyOwner {
+        _defaultMaxSlippageSurplusSwapBps = _maxSlippageSurplusSwapBps;
     }
 }

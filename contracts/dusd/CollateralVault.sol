@@ -83,40 +83,12 @@ abstract contract CollateralVault is AccessControl, OracleAware {
      * @param collateralAsset The address of the collateral asset
      */
     function deposit(uint256 collateralAmount, address collateralAsset) public {
-        return _deposit(msg.sender, collateralAmount, collateralAsset);
-    }
-
-    /**
-     * @notice Deposit collateral into the vault from a specific address
-     * @param depositer The address providing the collateral
-     * @param collateralAmount The amount of collateral to deposit
-     * @param collateralAsset The address of the collateral asset
-     */
-    function depositFrom(
-        address depositer,
-        uint256 collateralAmount,
-        address collateralAsset
-    ) public {
-        return _deposit(depositer, collateralAmount, collateralAsset);
-    }
-
-    /**
-     * @notice Internal function to deposit collateral into the vault
-     * @param depositer The address providing the collateral
-     * @param collateralAmount The amount of collateral to deposit
-     * @param collateralAsset The address of the collateral asset
-     */
-    function _deposit(
-        address depositer,
-        uint256 collateralAmount,
-        address collateralAsset
-    ) internal {
         if (!_supportedCollaterals.contains(collateralAsset)) {
             revert UnsupportedCollateral(collateralAsset);
         }
 
         IERC20Metadata(collateralAsset).safeTransferFrom(
-            depositer,
+            msg.sender,
             address(this),
             collateralAmount
         );

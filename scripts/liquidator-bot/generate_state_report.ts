@@ -1,7 +1,7 @@
 import { createObjectCsvWriter as createCsvWriter } from "csv-writer";
 
 import { USER_STATE_DIR_NAME } from "../../utils/constants";
-import { UserStateLog } from "../../utils/liquidator-bot/types";
+import { UserStateLog } from "../../utils/liquidator-bot/shared/types";
 
 interface UserStateCSVRecord {
   userAddress: string;

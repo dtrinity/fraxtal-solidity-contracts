@@ -36,8 +36,8 @@ contract API3Wrapper is IAPI3Wrapper {
         }
 
         (int224 value, uint32 timestamp) = api3Proxy.read();
-
         price = value > 0 ? uint256(uint224(value)) : 0;
+
         isAlive =
             price > 0 &&
             block.timestamp - timestamp <=

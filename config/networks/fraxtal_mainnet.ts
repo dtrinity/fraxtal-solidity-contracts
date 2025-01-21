@@ -1,8 +1,7 @@
 import { ethers } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-import { API3_PRICE_DECIMALS } from "../../test/oracle_aggregator/constants";
-import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
+import { AAVE_ORACLE_USD_DECIMALS, ONE_BPS_UNIT } from "../../utils/constants";
 import {
   rateStrategyHighLiquidityStable,
   rateStrategyHighLiquidityVolatile,
@@ -12,10 +11,15 @@ import {
 import {
   strategyDUSD,
   strategyETHLST,
+  strategyFXB20291231,
   strategyWETH,
   strategyYieldBearingStablecoin,
 } from "../../utils/lending/reserves-configs";
+import { API3_PRICE_DECIMALS } from "../../utils/oracle_aggregator/constants";
 import { Config } from "../types";
+
+export const CURVE_SWAP_ROUTER_ADDRESS =
+  "0x9f2Fa7709B30c75047980a0d70A106728f0Ef2db";
 
 export const TOKEN_INFO = {
   wfrxETH: {
@@ -56,6 +60,11 @@ export const TOKEN_INFO = {
   },
   USDC: {
     address: "0xDcc0F2D8F90FDe85b10aC1c8Ab57dc0AE946A543",
+    priceAggregator: "", // Fall back to OracleAggregator
+  },
+  // Frax Bond 20291231
+  FXB20291231: {
+    address: "0xf1e2b576af4c6a7ee966b14c810b772391e92153",
     priceAggregator: "", // Fall back to OracleAggregator
   },
 };
@@ -123,6 +132,7 @@ export async function getConfig(
         sfrxETH: strategyETHLST,
         sFRAX: strategyYieldBearingStablecoin,
         sUSDe: strategyYieldBearingStablecoin,
+        FXB20291231: strategyFXB20291231,
       },
       // No stable rate borrowing, feature is disabled
       rateStrategies: [
@@ -137,18 +147,331 @@ export async function getConfig(
       incentivesVault: "0x674679896A8Efd4b0BCF59F5503A3d6807172791", // Safe on Fraxtal
       incentivesEmissionManager: "0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9", // Gov Admin
     },
-    liquidatorBot: {
+    liquidatorBotUniswapV3: undefined, // No UniswapV3 liquidator on mainnet
+    liquidatorBotCurve: {
       flashMinter: TOKEN_INFO.dUSD.address,
       dUSDAddress: TOKEN_INFO.dUSD.address,
-      slippageTolerance: 500, // 5% in bps
+      slippageTolerance: 50 * 100 * ONE_BPS_UNIT, // 50% slippage tolerance
       healthFactorThreshold: 1,
-      healthFactorBatchSize: 10,
-      reserveBatchSize: 10,
+      healthFactorBatchSize: 5,
+      reserveBatchSize: 5,
       profitableThresholdInUSD: 0,
       liquidatingBatchSize: 200,
       graphConfig: {
-        url: "", // TODO: Add the graph URL for the mainnet
+        url: "https://graph-node.dtrinity.org/subgraphs/name/stablyio-aave-v3-messari-mainnet", // TODO: Add the graph URL for the mainnet
         batchSize: 100,
+      },
+      swapRouter: CURVE_SWAP_ROUTER_ADDRESS,
+      maxSlippageSurplusSwapBps: 20 * 100 * ONE_BPS_UNIT, // 20% slippage surplus swap
+      defaultSwapSlippageBufferBps: 50 * 100 * ONE_BPS_UNIT, // 50% slippage buffer
+      defaultSwapParamsList: [
+        {
+          inputToken: TOKEN_INFO.dUSD.address,
+          outputToken: TOKEN_INFO.wfrxETH.address,
+          swapExtraParams: {
+            route: [
+              TOKEN_INFO.dUSD.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
+              TOKEN_INFO.FRAX.address,
+              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // FRAX/wfrxETH pool
+              TOKEN_INFO.wfrxETH.address,
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+            ],
+            swapParams: [
+              [1, 0, 1, 10],
+              [0, 1, 1, 30],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+          reverseSwapExtraParams: {
+            route: [
+              TOKEN_INFO.wfrxETH.address,
+              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // FRAX/wfrxETH pool
+              TOKEN_INFO.FRAX.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
+              TOKEN_INFO.dUSD.address,
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+            ],
+            swapParams: [
+              [1, 0, 1, 30],
+              [0, 1, 1, 10],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+        },
+        {
+          inputToken: TOKEN_INFO.dUSD.address,
+          outputToken: TOKEN_INFO.sfrxETH.address,
+          swapExtraParams: {
+            route: [
+              TOKEN_INFO.dUSD.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
+              TOKEN_INFO.FRAX.address,
+              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // FRAX/wfrxETH pool
+              TOKEN_INFO.wfrxETH.address,
+              "0xf2f426fe123de7b769b2d4f8c911512f065225d3", // sfrxETH/wfrxETH pool
+              TOKEN_INFO.sfrxETH.address,
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+            ],
+            swapParams: [
+              [1, 0, 1, 10],
+              [0, 1, 1, 30],
+              [0, 1, 1, 10],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+          reverseSwapExtraParams: {
+            route: [
+              TOKEN_INFO.sfrxETH.address,
+              "0xf2f426fe123de7b769b2d4f8c911512f065225d3",
+              TOKEN_INFO.wfrxETH.address,
+              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569",
+              TOKEN_INFO.FRAX.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357",
+              TOKEN_INFO.dUSD.address,
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+            ],
+            swapParams: [
+              [1, 0, 1, 10],
+              [1, 0, 1, 30],
+              [0, 1, 1, 10],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+        },
+        {
+          inputToken: TOKEN_INFO.dUSD.address,
+          outputToken: TOKEN_INFO.sUSDe.address,
+          swapExtraParams: {
+            route: [
+              TOKEN_INFO.dUSD.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
+              TOKEN_INFO.FRAX.address,
+              "0x8b4e5263e8d6cc0bbf31edf14491fc6077b88229", // FRAX/USDe pool
+              TOKEN_INFO.sUSDe.address,
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+            ],
+            swapParams: [
+              [1, 0, 1, 10],
+              [0, 1, 1, 10],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+          reverseSwapExtraParams: {
+            route: [
+              TOKEN_INFO.sUSDe.address,
+              "0x8b4e5263e8d6cc0bbf31edf14491fc6077b88229", // FRAX/USDe pool
+              TOKEN_INFO.FRAX.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
+              TOKEN_INFO.dUSD.address,
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+            ],
+            swapParams: [
+              [1, 0, 1, 10],
+              [0, 1, 1, 10],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+        },
+        {
+          inputToken: TOKEN_INFO.dUSD.address,
+          outputToken: TOKEN_INFO.sFRAX.address,
+          swapExtraParams: {
+            route: [
+              TOKEN_INFO.dUSD.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
+              TOKEN_INFO.FRAX.address,
+              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // FRAX/wfrxETH pool
+              TOKEN_INFO.wfrxETH.address,
+              "0xf2f426fe123de7b769b2d4f8c911512f065225d3", // sfrxETH/wfrxETH pool
+              TOKEN_INFO.sfrxETH.address,
+              "0xacdc85afcd8b83eb171affcbe29fad204f6ae45c", // sFRAX/sfrxETH pool
+              TOKEN_INFO.sFRAX.address,
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+            ],
+            swapParams: [
+              [1, 0, 1, 10],
+              [0, 1, 1, 30],
+              [0, 1, 1, 10],
+              [0, 1, 1, 20],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+          reverseSwapExtraParams: {
+            route: [
+              TOKEN_INFO.sFRAX.address,
+              "0xacdc85afcd8b83eb171affcbe29fad204f6ae45c", // sFRAX/sfrxETH pool
+              TOKEN_INFO.sfrxETH.address,
+              "0xf2f426fe123de7b769b2d4f8c911512f065225d3", // sfrxETH/wfrxETH pool
+              TOKEN_INFO.wfrxETH.address,
+              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // FRAX/wfrxETH pool
+              TOKEN_INFO.FRAX.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
+              TOKEN_INFO.dUSD.address,
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+            ],
+            swapParams: [
+              [1, 0, 1, 20],
+              [1, 0, 1, 10],
+              [1, 0, 1, 30],
+              [0, 1, 1, 10],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+        },
+        {
+          inputToken: TOKEN_INFO.dUSD.address,
+          outputToken: TOKEN_INFO.FRAX.address,
+          swapExtraParams: {
+            route: [
+              TOKEN_INFO.dUSD.address,
+              "0xf16f226baa419d9dc9d92c040ccbc8c0e25f36d7",
+              TOKEN_INFO.sUSDe.address,
+              "0x8b4e5263e8d6cc0bbf31edf14491fc6077b88229",
+              TOKEN_INFO.FRAX.address,
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+            ],
+            swapParams: [
+              [0, 1, 1, 10],
+              [1, 0, 1, 10],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+          reverseSwapExtraParams: {
+            route: [
+              TOKEN_INFO.FRAX.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357",
+              TOKEN_INFO.dUSD.address,
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+            ],
+            swapParams: [
+              [0, 1, 1, 10],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+        },
+        {
+          inputToken: TOKEN_INFO.dUSD.address,
+          outputToken: TOKEN_INFO.FXB20291231.address,
+          swapExtraParams: {
+            route: [
+              TOKEN_INFO.dUSD.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357",
+              TOKEN_INFO.FRAX.address,
+              "0xee454138083b9b9714cac3c7cf12560248d76d6b",
+              TOKEN_INFO.FXB20291231.address,
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+            ],
+            swapParams: [
+              [1, 0, 1, 10],
+              [0, 1, 1, 10],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+          reverseSwapExtraParams: {
+            route: [
+              TOKEN_INFO.FXB20291231.address,
+              "0xee454138083b9b9714cac3c7cf12560248d76d6b",
+              TOKEN_INFO.FRAX.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357",
+              TOKEN_INFO.dUSD.address,
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+              "0x0000000000000000000000000000000000000000",
+            ],
+            swapParams: [
+              [1, 0, 1, 10],
+              [0, 1, 1, 10],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+        },
+      ],
+      isUnstakeTokens: {
+        [TOKEN_INFO.sFRAX.address]: true,
+      },
+      proxyContractMap: {
+        [TOKEN_INFO.sFRAX.address]:
+          "0xBFc4D34Db83553725eC6c768da71D2D9c1456B55", // sFRAX proxy contract on Fraxtal mainnet
       },
     },
     dusd: {
@@ -194,12 +517,12 @@ export async function getConfig(
         //   defaultDusdToUnderlyingSwapExtraParams: {
         //     route: [TOKEN_INFO.dUSD.address, TOKEN_INFO.sUSDe.address],
         //     swapParams: [],
-        //     swapSlippageBufferBps: 5000, // 50% slippage buffer
+        //     swapSlippageBufferBps: 50 * 100 * ONE_BPS_UNIT, // 50% slippage buffer
         //   },
         //   defaultUnderlyingToDusdSwapExtraParams: {
         //     route: [TOKEN_INFO.sUSDe.address, TOKEN_INFO.dUSD.address],
         //     swapParams: [],
-        //     swapSlippageBufferBps: 5000, // 50% slippage buffer
+        //     swapSlippageBufferBps: 50 * 100 * ONE_BPS_UNIT, // 50% slippage buffer
         //   },
         //   targetLeverageBps: 300 * 100 * ONE_BPS_UNIT, // 300% leverage, meaning 3x leverage
         //   swapSlippageTolerance: 5 * 100 * ONE_BPS_UNIT, // 5% slippage tolerance
@@ -269,10 +592,29 @@ export async function getConfig(
           },
         },
       },
+      curveOracleAssets: {
+        [TOKEN_INFO.FXB20291231.address]: {
+          pool: "0xee454138083b9b9714cac3c7cf12560248d76d6b", // FRAX/FXB20291231 pool
+          compositeAPI3Feed: {
+            api3Asset: TOKEN_INFO.FRAX.address,
+            api3Wrapper: "0xF6eA02D055d832cc491B47238186768B7F6d2F42", // FRAX/USD
+            // Don't allow FXB20291231 to go above maturity value
+            curveLowerThresholdInBase:
+              1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            curveFixedPriceInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            // Don't allow FRAX to go above $1
+            api3LowerThresholdInBase:
+              1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            api3FixedPriceInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+          },
+        },
+      },
     },
     curve: {
-      // Source: https://docs.curve.fi/references/deployed-contracts/#curve-router
       router: "0x9f2Fa7709B30c75047980a0d70A106728f0Ef2db",
+      tools: {
+        httpServiceHost: "http://localhost:3000",
+      },
     },
   };
 }

@@ -21,10 +21,17 @@
   "UiPoolDataProvider": 1732519928,
   "Incentives:dTrinity-Lend:lending-periphery@0.0.0": 1732519972,
   "CurveAdapters:dTrinity-Lend:lending-periphery@0.0.0": 1732519997,
-  "dUSD:CollateralHolderVault": 1732520091,
-  "dUSD:AmoManager": 1732520097,
-  "dUSD:Issuer": 1732520103,
-  "dUSD:Redeemer": 1732520115,
   "dUSD:UniV3AmoVault": 1732520115,
-  "dUSD:CurveStableSwapNGAmoVault": 1732867117
+  "dUSD:CurveStableSwapNGAmoVault": 1732867117,
+  "dUSD:CollateralHolderVault": 1734571370,
+  "dUSD:AmoManager": 1734571375,
+  "dUSD:Issuer": 1734571381,
+  "dUSD:Redeemer": 1734571392,
+  "UniswapV3Factory": 1734885302,
+  "CurveAPI3CompositeWrapperWithThresholding": 1737403297,
+  "POINT_CURVE_ORACLE_WRAPPER": 1737405952,
+  "AddFXB20291231Reserve:dTrinity-Lend:lending-core@0.0.0": 1737406028,
+  "CurveHelper": 1737395410,
+  "FlashMintLiquidatorAaveBorrowRepayCurve": 1737395423,
+  "FlashLoanLiquidatorAaveBorrowRepayCurve": 1737395436
 }

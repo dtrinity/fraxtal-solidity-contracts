@@ -53,3 +53,6 @@ state/
 
 # This data is only for analysis purposes
 remote-state/
+
+# Docker image
+liquidator-bot-image

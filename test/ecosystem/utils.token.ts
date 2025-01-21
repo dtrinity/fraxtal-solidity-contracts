@@ -1,6 +1,7 @@
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { assert } from "chai";
 import hre, { deployments, ethers } from "hardhat";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { AToken, MintableERC20 } from "../../typechain-types";
 import { POOL_DATA_PROVIDER_ID } from "../../utils/lending/deploy-ids";
@@ -423,4 +424,47 @@ export async function fillUpAccountBalanceFromAddressWithWhale(
     receiverAddress,
     await getTokenAmountFromAddress(amount.toString(), tokenAddress),
   );
+}
+
+/**
+ * Mint ERC4626 tokens to receivers
+ *
+ * @param hre - Hardhat runtime environment
+ * @param vaultTokenAddress - The address of the vault token
+ * @param mintAmount - Object mapping receiver addresses to mint amounts
+ * @param owner - The address of the contract owner
+ */
+export async function mintERC4626Token(
+  hre: HardhatRuntimeEnvironment,
+  vaultTokenAddress: string,
+  mintAmount: {
+    [receiverAddress: string]: number;
+  },
+  owner: string,
+): Promise<void> {
+  const vaultTokenContract = await hre.ethers.getContractAt(
+    "contracts/token/MockERC4626Token.sol:MockERC4626Token",
+    vaultTokenAddress,
+    await hre.ethers.getSigner(owner),
+  );
+
+  const underlyingAssetAddress = await vaultTokenContract.asset();
+
+  const underlyingTokenContract = await hre.ethers.getContractAt(
+    "@openzeppelin/contracts-5/token/ERC20/ERC20.sol:ERC20",
+    underlyingAssetAddress,
+    await hre.ethers.getSigner(owner),
+  );
+
+  // Mint some tokens to the deployer
+  for (const [receiverAddress, amount] of Object.entries(mintAmount)) {
+    // Approve maximum amount to the vault token contract
+    await underlyingTokenContract.approve(vaultTokenAddress, ethers.MaxUint256);
+
+    // Mint will be done by getting some underlying asset from the caller and send the shares to the receiver
+    await vaultTokenContract.mint(
+      await getTokenAmountFromAddress(amount.toString(), vaultTokenAddress),
+      receiverAddress,
+    );
+  }
 }

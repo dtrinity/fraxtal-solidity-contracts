@@ -50,13 +50,13 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
     uint32 public immutable TARGET_LEVERAGE_BPS; // ie. 30000 = 300% over 100% in basis points, means 3x leverage
     uint32 public immutable LOWER_BOUND_TARGET_LEVERAGE_BPS;
     uint32 public immutable UPPER_BOUND_TARGET_LEVERAGE_BPS;
-    uint256 public immutable SWAP_SLIPPAGE_TOLERANCE; // ie. 1000 = 10%
+    uint256 private _defaultSwapSlippageTolerance; // ie. 1000 = 10%
 
     IERC3156FlashLender public immutable flashLender;
     IPoolAddressesProvider public immutable lendingPoolAddressesProvider;
     ERC20 public immutable underlyingAsset;
     ERC20 public immutable dusd;
-    uint256 public maxSubsidyBps;
+    uint256 private _defaultMaxSubsidyBps;
 
     /* Errors */
 
@@ -170,9 +170,8 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
         TARGET_LEVERAGE_BPS = _targetLeverageBps;
         LOWER_BOUND_TARGET_LEVERAGE_BPS = TARGET_LEVERAGE_BPS / 2;
         UPPER_BOUND_TARGET_LEVERAGE_BPS = TARGET_LEVERAGE_BPS * 2;
-        SWAP_SLIPPAGE_TOLERANCE = _swapSlippageTolerance;
-
-        maxSubsidyBps = _maxSubsidyBps;
+        _defaultSwapSlippageTolerance = _swapSlippageTolerance;
+        _defaultMaxSubsidyBps = _maxSubsidyBps;
     }
 
     /* Swap functions - Need to override in the child contract */
@@ -282,7 +281,7 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
         address receiver
     ) public override returns (uint256 shares) {
         // 0x means to use default swap data
-        return depositWith(assets, receiver, SWAP_SLIPPAGE_TOLERANCE, "");
+        return depositWith(assets, receiver, _defaultSwapSlippageTolerance, "");
     }
 
     /**
@@ -398,7 +397,7 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
             assets,
             shares,
             receiver,
-            SWAP_SLIPPAGE_TOLERANCE,
+            _defaultSwapSlippageTolerance,
             "" // use default swap data
         );
         return assets;
@@ -522,7 +521,7 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
                 shares,
                 receiver,
                 owner,
-                SWAP_SLIPPAGE_TOLERANCE,
+                _defaultSwapSlippageTolerance,
                 0, // receive as much as possible
                 "" // use default swap data
             );
@@ -691,7 +690,7 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
                 assets,
                 receiver,
                 owner,
-                SWAP_SLIPPAGE_TOLERANCE,
+                _defaultSwapSlippageTolerance,
                 0, // receive as much as possible
                 "" // use default swap data
             );
@@ -1214,8 +1213,8 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
                     Constants.ONE_HUNDRED_PERCENT_BPS) /
                 TARGET_LEVERAGE_BPS;
         }
-        if (subsidyBps > maxSubsidyBps) {
-            return maxSubsidyBps;
+        if (subsidyBps > _defaultMaxSubsidyBps) {
+            return _defaultMaxSubsidyBps;
         }
         return subsidyBps;
     }
@@ -1352,6 +1351,14 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
         return address(dusd);
     }
 
+    function getDefaultSwapSlippageTolerance() public view returns (uint256) {
+        return _defaultSwapSlippageTolerance;
+    }
+
+    function getDefaultMaxSubsidyBps() public view returns (uint256) {
+        return _defaultMaxSubsidyBps;
+    }
+
     /* Admin */
 
     /**
@@ -1359,6 +1366,16 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
      * @param _maxSubsidyBps New maximum subsidy in basis points
      */
     function setMaxSubsidyBps(uint256 _maxSubsidyBps) public onlyOwner {
-        maxSubsidyBps = _maxSubsidyBps;
+        _defaultMaxSubsidyBps = _maxSubsidyBps;
+    }
+
+    /**
+     * @dev Sets the default swap slippage tolerance
+     * @param _swapSlippageTolerance New default swap slippage tolerance
+     */
+    function setDefaultSwapSlippageTolerance(
+        uint256 _swapSlippageTolerance
+    ) public onlyOwner {
+        _defaultSwapSlippageTolerance = _swapSlippageTolerance;
     }
 }

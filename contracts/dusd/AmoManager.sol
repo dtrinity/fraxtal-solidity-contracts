@@ -445,6 +445,18 @@ contract AmoManager is AccessControl, OracleAware {
             (dusdAmount * oracle.getAssetPrice(address(dusd))) /
             (10 ** dusdDecimals);
     }
+
+    /* Admin */
+
+    /**
+     * @notice Sets the collateral vault address
+     * @param _collateralVault The address of the new collateral vault
+     */
+    function setCollateralVault(
+        address _collateralVault
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        collateralHolderVault = CollateralVault(_collateralVault);
+    }
 }
 
 /**

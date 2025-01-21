@@ -202,6 +202,13 @@ export const standardCurveDEXLBPLiquidityWithMockOracleFixture =
     );
   });
 
+export const standardMockCurveDEXLBPLiquidityWithMockOracleFixture =
+  deployments.createFixture(async ({ deployments }) => {
+    await standardMockCurveDEXLBPLiquidityWithMockOracleFixtureImplementation(
+      deployments,
+    );
+  });
+
 /**
  * Standard DEX/LBP liquidity fixture implementation (use Curve DEX)
  *
@@ -235,12 +242,79 @@ export async function standardCurveDEXLBPLiquidityWithMockOracleFixtureImplement
 }
 
 /**
+ * Standard Mock DEX/LBP liquidity fixture implementation (use Mock Curve DEX)
+ *
+ * @param deployments - Hardhat deployments
+ * @param addtionalFixtureNames - Additional fixture names to be used
+ */
+export async function standardMockCurveDEXLBPLiquidityWithMockOracleFixtureImplementation(
+  deployments: DeploymentsExtension,
+  addtionalFixtureNames: string[] = [],
+): Promise<void> {
+  await standardMockCurveDEXLBPLiquidityFixtureImplementation(
+    deployments,
+    addtionalFixtureNames,
+  );
+
+  const { dexDeployer } = await getNamedAccounts();
+
+  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
+    dexDeployer,
+    "DUSD",
+  );
+
+  // Use MockStaticOracleWrapper to mock the price
+  await useMockStaticOracleWrapper(dusdInfo.address, AAVE_ORACLE_USD_DECIMALS);
+}
+
+/**
  * Standard DEX/LBP liquidity fixture implementation (use Curve DEX)
  *
  * @param deployments - Hardhat deployments
  * @param addtionalFixtureNames - Additional fixture names to be used
  */
 export async function standardCurveDEXLBPLiquidityFixtureImplementation(
+  deployments: DeploymentsExtension,
+  addtionalFixtureNames: string[] = [],
+): Promise<void> {
+  const defaultFixtureNames = ["dex-mock", "lbp", "liquidator-bot"];
+  await deployments.fixture(); // Start from a fresh deployment to avoid side-effects from other fixtures
+  await deployments.fixture([...defaultFixtureNames, ...addtionalFixtureNames]); // Mimic a testnet deployment
+  const { dexDeployer } = await getNamedAccounts();
+
+  /*
+   * Get shared token info
+   */
+  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
+    dexDeployer,
+    "DUSD",
+  );
+
+  const { tokenInfo: fxsInfo } = await getTokenContractForSymbol(
+    dexDeployer,
+    "FXS",
+  );
+
+  /*
+   * Set up LBP infra
+   */
+
+  // Deposit 100k DUSD for borrowing
+  await depositCollateralWithApproval(dexDeployer, dusdInfo.address, 100_000);
+
+  // Deposit 10k FXS for borrowing
+  await depositCollateralWithApproval(dexDeployer, fxsInfo.address, 10_000);
+
+  // We don't deposit other assets since we don't expect users to deposit them without borrowing other assets
+}
+
+/**
+ * Standard DEX/LBP liquidity fixture implementation (use Mock Curve DEX)
+ *
+ * @param deployments - Hardhat deployments
+ * @param addtionalFixtureNames - Additional fixture names to be used
+ */
+export async function standardMockCurveDEXLBPLiquidityFixtureImplementation(
   deployments: DeploymentsExtension,
   addtionalFixtureNames: string[] = [],
 ): Promise<void> {

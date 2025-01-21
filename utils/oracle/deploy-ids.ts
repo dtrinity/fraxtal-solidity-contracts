@@ -17,3 +17,9 @@ export const HARD_PEG_ORACLE_WRAPPER_ID = "HardPegOracleWrapper";
  * The actual contract name is `API3Wrapper`
  */
 export const API3_ORACLE_WRAPPER_ID = "API3Wrapper";
+
+/**
+ * The actual contract name is `CurveAPI3CompositeWrapperWithThresholding`
+ */
+export const CURVE_API3_COMPOSITE_WRAPPER_WITH_THRESHOLDING_ID =
+  "CurveAPI3CompositeWrapperWithThresholding";

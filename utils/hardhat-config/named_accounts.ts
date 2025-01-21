@@ -3,17 +3,33 @@ import { ethers } from "ethers";
 /**
  * Get the default private keys list for a specific network from the mnemonics in the `.env` file
  *
- * @param envNamePostfix - The postfix of the environment variable name (`MNEMONIC_<POSTFIX>`) in the `.env` file
+ * @param network - The network name (e.g. `fraxtal_testnet`, `fraxtal_mainnet`,...)
  * @returns  The default private key
  */
-export function getDefaultPrivateKeys(envNamePostfix: string): string[] {
-  let pks = [
-    getPrivateKeyFromMnemonic(`${envNamePostfix.toLowerCase()}_deployer`),
-    getPrivateKeyFromMnemonic(`${envNamePostfix.toLowerCase()}_dex_pool_adder`),
-    getPrivateKeyFromMnemonic(
-      `${envNamePostfix.toLowerCase()}_lending_rewards_vault`,
-    ),
-  ];
+export function getDefaultPrivateKeys(network: string): string[] {
+  let pks: string[] = [];
+
+  switch (network) {
+    case "fraxtal_testnet":
+      // 3 private keys
+      pks = [
+        getPrivateKeyFromMnemonic(`fraxtal_testnet_deployer`),
+        getPrivateKeyFromMnemonic(`fraxtal_testnet_dex_pool_adder`),
+        getPrivateKeyFromMnemonic(`fraxtal_testnet_lending_rewards_vault`),
+      ];
+      break;
+    case "fraxtal_mainnet":
+      // 4 private keys
+      pks = [
+        getPrivateKeyFromMnemonic(`fraxtal_mainnet_deployer`),
+        getPrivateKeyFromMnemonic(`fraxtal_mainnet_dex_pool_adder`),
+        getPrivateKeyFromMnemonic(`fraxtal_mainnet_lending_rewards_vault`),
+        getPrivateKeyFromEnv(`fraxtal_mainnet_liquidator_bot`),
+      ];
+      break;
+    default:
+      throw new Error(`Unsupported network: ${network}`);
+  }
 
   // Filter out Zero private keys
   pks = pks.filter(
@@ -23,7 +39,7 @@ export function getDefaultPrivateKeys(envNamePostfix: string): string[] {
   );
 
   if (pks.length === 0) {
-    console.log(`No private keys found for ${envNamePostfix} in the .env file`);
+    console.log(`No private keys found for ${network} in the .env file`);
     return [];
   }
 
@@ -31,9 +47,7 @@ export function getDefaultPrivateKeys(envNamePostfix: string): string[] {
   const uniquePks = Array.from(new Set(pks));
 
   if (uniquePks.length !== pks.length) {
-    throw new Error(
-      `Duplicated ${envNamePostfix} mnemonic detected in the .env file`,
-    );
+    throw new Error(`Duplicated ${network} mnemonic detected in the .env file`);
   }
 
   return pks;
@@ -59,6 +73,23 @@ export function getPrivateKeyFromMnemonic(envNamePostfix: string): string {
 
   const wallet = ethers.Wallet.fromPhrase(mnemonic);
   return wallet.privateKey;
+}
+
+/**
+ * Get the private key from the environment variable
+ *
+ * @param envNamePostfix - The postfix of the environment variable name (`PK_<POSTFIX>`) in the `.env` file
+ * @returns The private key
+ */
+export function getPrivateKeyFromEnv(envNamePostfix: string): string {
+  const envName = "PK_" + envNamePostfix.toUpperCase();
+  const privateKey = process.env[envName];
+
+  if (!privateKey || privateKey === "") {
+    console.log(`${envName} is not set in the .env file`);
+    return "0x0000000000000000000000000000000000000000000000000000000000000000";
+  }
+  return privateKey;
 }
 
 /**
@@ -150,11 +181,18 @@ export function getDefaultNamedAccounts(): {
       fraxtal_mainnet: 0,
       local_ethereum: 0,
     },
+    curveHelperDeployer: {
+      hardhat: 0,
+      localhost: 0,
+      fraxtal_testnet: 0,
+      fraxtal_mainnet: 3,
+      local_ethereum: 0,
+    },
     liquidatorBotDeployer: {
       hardhat: 0,
       localhost: 0,
       fraxtal_testnet: 0,
-      fraxtal_mainnet: 0,
+      fraxtal_mainnet: 3,
       local_ethereum: 0,
     },
     // dUSD v2

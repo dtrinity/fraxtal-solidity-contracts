@@ -165,11 +165,15 @@ export class ShortTermIgnoreMemory {
  *
  * @param promises - Array of promises
  * @param batchSize - Batch size
+ * @param sleepSecondsBetweenBatches - The number of seconds to sleep between batches
+ * @param printProgress - Whether to print progress
  * @returns - Array of results
  */
 export async function batchedPromiseAll<T>(
   promises: Promise<T>[],
   batchSize: number,
+  sleepSecondsBetweenBatches: number = 0,
+  printProgress: boolean = false,
 ): Promise<T[]> {
   let result: T[] = [];
 
@@ -177,6 +181,50 @@ export async function batchedPromiseAll<T>(
     const batch = promises.slice(i, i + batchSize);
     const batchResult = await Promise.all(batch);
     result = [...result, ...batchResult];
+
+    if (printProgress) {
+      console.log(`Processed ${i + batchSize} of ${promises.length} promises`);
+    }
+
+    if (sleepSecondsBetweenBatches > 0) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, sleepSecondsBetweenBatches * 1000),
+      );
+    }
+  }
+  return result;
+}
+
+/**
+ * Process the inputs in batches
+ *
+ * @param inputs - Array of inputs
+ * @param batchSize - Batch size
+ * @param processor - The processor function
+ * @param printProgress - Whether to print progress
+ * @returns Array of results
+ */
+export async function batchProcessing<T, R>(
+  inputs: T[],
+  batchSize: number,
+  processor: (input: T) => Promise<R>,
+  printProgress: boolean = false,
+): Promise<R[]> {
+  const result: R[] = [];
+
+  for (let i = 0; i < inputs.length; i += batchSize) {
+    if (printProgress) {
+      console.log(
+        `Processing batch ${i / batchSize + 1} of ${Math.ceil(inputs.length / batchSize)}`,
+      );
+    }
+    const batch = inputs.slice(i, i + batchSize);
+    const batchResult = await Promise.all(batch.map(processor));
+    result.push(...batchResult);
+  }
+
+  if (printProgress) {
+    console.log(`Processed ${inputs.length} inputs`);
   }
   return result;
 }

@@ -3,7 +3,11 @@ import chai, { assert } from "chai";
 import hre from "hardhat";
 
 import { getStaticOraclePrice } from "../../utils/dex/oracle";
-import { getUserHealthFactor } from "../../utils/lending/account";
+import {
+  getUserHealthFactor,
+  getUserReserveData,
+  getUsersReserveBalances,
+} from "../../utils/lending/account";
 import {
   getUserDebtBalance,
   getUserSupplyBalance,
@@ -13,7 +17,11 @@ import { fetchTokenInfo } from "../../utils/token";
 import { standardUniswapV3DEXLBPLiquidityFixture } from "./fixtures";
 import { increaseTime } from "./utils.chain";
 import { swapExactInputSingleWithApproval } from "./utils.dex";
-import { borrowAsset, depositCollateralWithApproval } from "./utils.lbp";
+import {
+  borrowAsset,
+  depositCollateralWithApproval,
+  repayAsset,
+} from "./utils.lbp";
 import {
   getTokenAmount,
   getTokenBalance,
@@ -270,7 +278,7 @@ describe("Test getReservesList()", function () {
     await standardUniswapV3DEXLBPLiquidityFixture();
 
     const tokenAddresses = await getReservesList();
-    assert.lengthOf(tokenAddresses, 5);
+    assert.lengthOf(tokenAddresses, 6);
 
     let tokenSymbols: string[] = [];
 
@@ -281,6 +289,341 @@ describe("Test getReservesList()", function () {
 
     // Sort to make sure a deterministic order
     tokenSymbols = tokenSymbols.sort((a, b) => a.localeCompare(b));
-    assert.deepEqual(tokenSymbols, ["DUSD", "FXS", "SFRAX", "SFRXETH", "WETH"]);
+    assert.deepEqual(tokenSymbols, [
+      "DUSD",
+      "FXS",
+      "SFRAX",
+      "SFRXETH",
+      "vSFRAX",
+      "WETH",
+    ]);
+  });
+});
+
+describe("Test getUserReserveData()", function () {
+  it("normal case", async function () {
+    const { testAccount1 } = await hre.getNamedAccounts();
+    await standardUniswapV3DEXLBPLiquidityFixture();
+
+    const { tokenInfo: collateralTokenInfo } = await getTokenContractForSymbol(
+      testAccount1,
+      "SFRAX",
+    );
+
+    const reserveData = await getUserReserveData(
+      collateralTokenInfo.address,
+      testAccount1,
+    );
+
+    // Initially user should have no balances or debt
+    assert.equal(reserveData.currentATokenBalance, 0n);
+    assert.equal(reserveData.currentStableDebt, 0n);
+    assert.equal(reserveData.currentVariableDebt, 0n);
+    assert.equal(reserveData.principalStableDebt, 0n);
+    assert.equal(reserveData.scaledVariableDebt, 0n);
+    assert.equal(reserveData.stableBorrowRate, 0n);
+    assert.equal(reserveData.liquidityRate, 0n);
+    assert.equal(reserveData.stableRateLastUpdated, 0n);
+    assert.equal(reserveData.usageAsCollateralEnabled, false);
+  });
+
+  it("borrow and repay", async function () {
+    const { dexDeployer, testAccount1 } = await hre.getNamedAccounts();
+    await standardUniswapV3DEXLBPLiquidityFixture();
+
+    const { tokenInfo: collateralTokenInfo } = await getTokenContractForSymbol(
+      testAccount1,
+      "SFRAX",
+    );
+
+    const { tokenInfo: borrowTokenInfo } = await getTokenContractForSymbol(
+      testAccount1,
+      "DUSD",
+    );
+
+    const { tokenInfo: borrowTokenInfo2 } = await getTokenContractForSymbol(
+      testAccount1,
+      "FXS",
+    );
+
+    // Get some collateral token
+    await transferTokenToAccount(
+      dexDeployer,
+      testAccount1,
+      collateralTokenInfo.symbol,
+      1000,
+    );
+
+    await depositCollateralWithApproval(
+      testAccount1,
+      collateralTokenInfo.address,
+      1000,
+    );
+
+    await borrowAsset(testAccount1, borrowTokenInfo.address, 100);
+
+    // Stats for collateral token
+    const reserveData = await getUserReserveData(
+      collateralTokenInfo.address,
+      testAccount1,
+    );
+    assert.equal(
+      reserveData.currentATokenBalance,
+      await getTokenAmount("1000", collateralTokenInfo.symbol),
+    );
+    assert.equal(
+      reserveData.currentStableDebt,
+      await getTokenAmount("0", borrowTokenInfo.symbol),
+    );
+    assert.equal(reserveData.currentVariableDebt, 0n);
+    assert.equal(
+      reserveData.principalStableDebt,
+      await getTokenAmount("0", borrowTokenInfo.symbol),
+    );
+    assert.equal(reserveData.scaledVariableDebt, 0n);
+    assert.equal(reserveData.stableBorrowRate, 0n);
+    assert.equal(reserveData.liquidityRate, 0n);
+    assert.equal(reserveData.stableRateLastUpdated, 0n);
+    assert.equal(reserveData.usageAsCollateralEnabled, true);
+
+    // Stats for borrow token
+    const borrowReserveData = await getUserReserveData(
+      borrowTokenInfo.address,
+      testAccount1,
+    );
+    assert.equal(borrowReserveData.currentATokenBalance, 0n);
+    assert.equal(
+      borrowReserveData.currentStableDebt,
+      await getTokenAmount("0", borrowTokenInfo.symbol),
+    );
+    assert.equal(
+      borrowReserveData.currentVariableDebt,
+      await getTokenAmount("100", borrowTokenInfo.symbol),
+    );
+    assert.equal(
+      borrowReserveData.principalStableDebt,
+      await getTokenAmount("0", borrowTokenInfo.symbol),
+    );
+    assert.equal(
+      borrowReserveData.scaledVariableDebt,
+      await getTokenAmount("100", borrowTokenInfo.symbol),
+    );
+    assert.equal(borrowReserveData.stableBorrowRate, 0n);
+    assert.equal(borrowReserveData.liquidityRate, 60000000000003000000n);
+    assert.equal(borrowReserveData.stableRateLastUpdated, 0n);
+    assert.equal(borrowReserveData.usageAsCollateralEnabled, false);
+
+    // Borrow more DUSD
+    await borrowAsset(testAccount1, borrowTokenInfo.address, 250);
+
+    // Stats after borrowing more DUSD
+    const borrowReserveDataAdditional = await getUserReserveData(
+      borrowTokenInfo.address,
+      testAccount1,
+    );
+    assert.equal(borrowReserveDataAdditional.currentATokenBalance, 0n);
+    assert.equal(
+      borrowReserveDataAdditional.currentStableDebt,
+      await getTokenAmount("0", borrowTokenInfo.symbol),
+    );
+    assert.equal(
+      borrowReserveDataAdditional.currentVariableDebt,
+      await getTokenAmount("350", borrowTokenInfo.symbol),
+    );
+    assert.equal(
+      borrowReserveDataAdditional.principalStableDebt,
+      await getTokenAmount("0", borrowTokenInfo.symbol),
+    );
+    assert.equal(
+      borrowReserveDataAdditional.scaledVariableDebt,
+      await getTokenAmount("350", borrowTokenInfo.symbol),
+    );
+    assert.equal(borrowReserveDataAdditional.stableBorrowRate, 0n);
+    assert.equal(
+      borrowReserveDataAdditional.liquidityRate,
+      735000000000003000000n,
+    );
+    assert.equal(borrowReserveDataAdditional.stableRateLastUpdated, 0n);
+    assert.equal(borrowReserveDataAdditional.usageAsCollateralEnabled, false);
+
+    // Borrow another asset
+    await borrowAsset(testAccount1, borrowTokenInfo2.address, 100);
+
+    // Stats for borrow token 2
+    const borrowReserveData2 = await getUserReserveData(
+      borrowTokenInfo2.address,
+      testAccount1,
+    );
+    assert.equal(borrowReserveData2.currentATokenBalance, 0n);
+    assert.equal(
+      borrowReserveData2.currentStableDebt,
+      await getTokenAmount("0", borrowTokenInfo2.symbol),
+    );
+    assert.equal(
+      borrowReserveData2.currentVariableDebt,
+      await getTokenAmount("100", borrowTokenInfo2.symbol),
+    );
+    assert.equal(
+      borrowReserveData2.principalStableDebt,
+      await getTokenAmount("0", borrowTokenInfo2.symbol),
+    );
+    assert.equal(
+      borrowReserveData2.scaledVariableDebt,
+      await getTokenAmount("100", borrowTokenInfo2.symbol),
+    );
+    assert.equal(borrowReserveData2.stableBorrowRate, 0n);
+    assert.equal(borrowReserveData2.liquidityRate, 6750000000000000000000n);
+    assert.equal(borrowReserveData2.stableRateLastUpdated, 0n);
+    assert.equal(borrowReserveData2.usageAsCollateralEnabled, false);
+
+    // Repay borrowed DUSD
+    await repayAsset(testAccount1, borrowTokenInfo.address, 200);
+
+    // Stats after repaying DUSD
+    const borrowReserveDataRepay = await getUserReserveData(
+      borrowTokenInfo.address,
+      testAccount1,
+    );
+    assert.equal(borrowReserveDataRepay.currentATokenBalance, 0n);
+    assert.equal(
+      borrowReserveDataRepay.currentStableDebt,
+      await getTokenAmount("0", borrowTokenInfo.symbol),
+    );
+    assert.equal(
+      borrowReserveDataRepay.currentVariableDebt,
+      await getTokenAmount("150", borrowTokenInfo.symbol),
+    );
+    assert.equal(
+      borrowReserveDataRepay.principalStableDebt,
+      await getTokenAmount("0", borrowTokenInfo.symbol),
+    );
+    assert.equal(
+      borrowReserveDataRepay.scaledVariableDebt,
+      await getTokenAmount("150", borrowTokenInfo.symbol),
+    );
+    assert.equal(borrowReserveDataRepay.stableBorrowRate, 0n);
+    assert.equal(borrowReserveDataRepay.liquidityRate, 135000000000000000000n);
+    assert.equal(borrowReserveDataRepay.stableRateLastUpdated, 0n);
+    assert.equal(borrowReserveDataRepay.usageAsCollateralEnabled, false);
+  });
+});
+
+describe("getUsersReserveBalances", () => {
+  it("should get reserve balances for single user", async () => {
+    const { dexDeployer, testAccount1 } = await hre.getNamedAccounts();
+    await standardUniswapV3DEXLBPLiquidityFixture();
+
+    const { tokenInfo: collateralTokenInfo } = await getTokenContractForSymbol(
+      testAccount1,
+      "SFRAX",
+    );
+
+    const { tokenInfo: borrowTokenInfo } = await getTokenContractForSymbol(
+      testAccount1,
+      "DUSD",
+    );
+
+    // Get some collateral token
+    await transferTokenToAccount(
+      dexDeployer,
+      testAccount1,
+      collateralTokenInfo.symbol,
+      1000,
+    );
+
+    await depositCollateralWithApproval(
+      testAccount1,
+      collateralTokenInfo.address,
+      1000,
+    );
+
+    await borrowAsset(testAccount1, borrowTokenInfo.address, 100);
+
+    const balances = await getUsersReserveBalances([testAccount1], 1);
+
+    assert.equal(Object.keys(balances).length, 1);
+    assert.equal(Object.keys(balances[testAccount1]).length, 6);
+    assert.equal(
+      balances[testAccount1][collateralTokenInfo.address].collateral,
+      await getTokenAmount("1000", collateralTokenInfo.symbol),
+    );
+    assert.equal(
+      balances[testAccount1][borrowTokenInfo.address].debt,
+      await getTokenAmount("100", borrowTokenInfo.symbol),
+    );
+  });
+
+  it("should get reserve balances for multiple users", async () => {
+    const { dexDeployer, testAccount1, testAccount2 } =
+      await hre.getNamedAccounts();
+    await standardUniswapV3DEXLBPLiquidityFixture();
+
+    const { tokenInfo: collateralTokenInfo } = await getTokenContractForSymbol(
+      testAccount1,
+      "SFRAX",
+    );
+
+    const { tokenInfo: borrowTokenInfo } = await getTokenContractForSymbol(
+      testAccount1,
+      "DUSD",
+    );
+
+    // First user deposits and borrows
+    await transferTokenToAccount(
+      dexDeployer,
+      testAccount1,
+      collateralTokenInfo.symbol,
+      1000,
+    );
+    await depositCollateralWithApproval(
+      testAccount1,
+      collateralTokenInfo.address,
+      1000,
+    );
+    await borrowAsset(testAccount1, borrowTokenInfo.address, 100);
+
+    // Second user deposits and borrows
+    await transferTokenToAccount(
+      dexDeployer,
+      testAccount2,
+      collateralTokenInfo.symbol,
+      2000,
+    );
+    await depositCollateralWithApproval(
+      testAccount2,
+      collateralTokenInfo.address,
+      2000,
+    );
+    await borrowAsset(testAccount2, borrowTokenInfo.address, 1000);
+
+    const balances = await getUsersReserveBalances(
+      [testAccount1, testAccount2],
+      2,
+    );
+
+    // Assert that the balances are correct
+    assert.equal(Object.keys(balances).length, 2);
+    assert.equal(Object.keys(balances[testAccount1]).length, 6);
+    assert.equal(Object.keys(balances[testAccount2]).length, 6);
+
+    // Check first user balances
+    assert.equal(
+      balances[testAccount1][collateralTokenInfo.address].collateral,
+      await getTokenAmount("1000", collateralTokenInfo.symbol),
+    );
+    assert.equal(
+      balances[testAccount1][borrowTokenInfo.address].debt,
+      await getTokenAmount("100", borrowTokenInfo.symbol),
+    );
+
+    // Check second user balances
+    assert.equal(
+      balances[testAccount2][collateralTokenInfo.address].collateral,
+      await getTokenAmount("2000", collateralTokenInfo.symbol),
+    );
+    assert.equal(
+      balances[testAccount2][borrowTokenInfo.address].debt,
+      await getTokenAmount("1000", borrowTokenInfo.symbol),
+    );
   });
 });

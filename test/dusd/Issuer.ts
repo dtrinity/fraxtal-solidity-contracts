@@ -76,7 +76,7 @@ describe("Issuer", () => {
 
       await fraxContract
         .connect(await hre.ethers.getSigner(testAccount1))
-        .approve(await collateralVaultContract.getAddress(), collateralAmount);
+        .approve(await issuerContract.getAddress(), collateralAmount);
 
       await issuerContract
         .connect(await hre.ethers.getSigner(testAccount1))
@@ -106,76 +106,12 @@ describe("Issuer", () => {
 
       await fraxContract
         .connect(await hre.ethers.getSigner(testAccount1))
-        .approve(await collateralVaultContract.getAddress(), collateralAmount);
+        .approve(await issuerContract.getAddress(), collateralAmount);
 
       await expect(
         issuerContract
           .connect(await hre.ethers.getSigner(testAccount1))
           .issue(collateralAmount, fraxInfo.address, minDUSD),
-      ).to.be.reverted;
-    });
-
-    it("issueFrom on behalf of another address", async function () {
-      const collateralAmount = hre.ethers.parseUnits("1000", fraxInfo.decimals);
-      const minDUSD = hre.ethers.parseUnits("1000", dusdInfo.decimals);
-
-      const vaultBalanceBefore = await fraxContract.balanceOf(
-        await collateralVaultContract.getAddress(),
-      );
-      const receiverDusdBalanceBefore =
-        await dusdContract.balanceOf(testAccount2);
-
-      await fraxContract
-        .connect(await hre.ethers.getSigner(testAccount1))
-        .approve(await collateralVaultContract.getAddress(), collateralAmount);
-
-      await issuerContract
-        .connect(await hre.ethers.getSigner(testAccount1))
-        .issueFrom(
-          testAccount1,
-          testAccount2,
-          collateralAmount,
-          fraxInfo.address,
-          minDUSD,
-        );
-
-      const vaultBalanceAfter = await fraxContract.balanceOf(
-        await collateralVaultContract.getAddress(),
-      );
-      const receiverDusdBalanceAfter =
-        await dusdContract.balanceOf(testAccount2);
-
-      assert.equal(
-        vaultBalanceAfter - vaultBalanceBefore,
-        collateralAmount,
-        "Collateral vault balance did not increase by the expected amount",
-      );
-
-      const dusdReceived = receiverDusdBalanceAfter - receiverDusdBalanceBefore;
-      assert.isTrue(
-        dusdReceived >= minDUSD,
-        "Receiver did not receive the expected amount of dUSD",
-      );
-    });
-
-    it("cannot issueFrom another address for more than user's collateral balance", async function () {
-      const collateralAmount = hre.ethers.parseUnits("1001", fraxInfo.decimals);
-      const minDUSD = hre.ethers.parseUnits("1001", dusdInfo.decimals);
-
-      await fraxContract
-        .connect(await hre.ethers.getSigner(testAccount1))
-        .approve(await collateralVaultContract.getAddress(), collateralAmount);
-
-      await expect(
-        issuerContract
-          .connect(await hre.ethers.getSigner(testAccount1))
-          .issueFrom(
-            testAccount1,
-            testAccount2,
-            collateralAmount,
-            fraxInfo.address,
-            minDUSD,
-          ),
       ).to.be.reverted;
     });
 
@@ -189,7 +125,7 @@ describe("Issuer", () => {
 
       await fraxContract.mint(dusdDeployer, collateralAmount);
       await fraxContract.approve(
-        await collateralVaultContract.getAddress(),
+        await issuerContract.getAddress(),
         collateralAmount,
       );
       await issuerContract.issue(collateralAmount, fraxInfo.address, minDUSD);

@@ -195,6 +195,12 @@ deploy-liquidator-bot:
 deploy-liquidator-bot.reset: flag="--reset"
 deploy-liquidator-bot.reset: deploy-liquidator-bot
 
+deploy-liquidator-bot.fraxtal_testnet: network=fraxtal_testnet
+deploy-liquidator-bot.fraxtal_testnet: deploy-liquidator-bot
+
+deploy-liquidator-bot.fraxtal_mainnet: network=fraxtal_mainnet
+deploy-liquidator-bot.fraxtal_mainnet: deploy-liquidator-bot
+
 deploy-contract:
 	@if [ "$(network)" = "" ]; then \
 		echo "Must provide 'network' argument"; \
@@ -217,11 +223,49 @@ deploy-contract.localhost.reset: deploy-contract.reset
 
 # ---------- Deploy to Fraxtal testnet ----------
 
+clean-deployments:
+	@if [ "$(deployment_prefix)" = "" ]; then \
+		echo "Must provide 'deployment_prefix' argument"; \
+		exit 1; \
+	fi
+	@if [ "$(network)" = "" ]; then \
+		echo "Must provide 'network' argument"; \
+		exit 1; \
+	fi
+	@echo "Removing deployments with prefix '$(deployment_prefix)' from deployments/$(network)/.migrations.json..."
+	@jq 'with_entries(select(.key | startswith("$(deployment_prefix)") | not))' deployments/$(network)/.migrations.json > temp.json && mv temp.json deployments/$(network)/.migrations.json
+
 deploy-contract.fraxtal_testnet: network=fraxtal_testnet
 deploy-contract.fraxtal_testnet: deploy-contract
 
 deploy-contract.fraxtal_testnet.reset: network=fraxtal_testnet
 deploy-contract.fraxtal_testnet.reset: deploy-contract.reset
+
+deploy-contract.fraxtal_testnet.dloop: network=fraxtal_testnet
+deploy-contract.fraxtal_testnet.dloop: deployment_prefix=DLoopVault
+deploy-contract.fraxtal_testnet.dloop: clean-deployments
+deploy-contract.fraxtal_testnet.dloop: deploy-contract
+
+# ---------- Deploy to Fraxtal mainnet ----------
+
+deploy-contract.liquidator-bot:
+	@echo "Deploying liquidator bot contracts to $(network) network..."
+	@yarn hardhat deploy $(flag) --network $(network) --tags "liquidator-bot,curve-helper"
+
+deploy-contract.liquidator-bot.reset: flag="--reset"
+deploy-contract.liquidator-bot.reset: deploy-contract.liquidator-bot
+
+deploy-contract.liquidator-bot.fraxtal_mainnet: network=fraxtal_mainnet
+deploy-contract.liquidator-bot.fraxtal_mainnet: deploy-contract.liquidator-bot
+
+deploy-contract.liquidator-bot.fraxtal_mainnet.reset: network=fraxtal_mainnet
+deploy-contract.liquidator-bot.fraxtal_mainnet.reset: deploy-contract.liquidator-bot.reset
+
+deploy-contract.liquidator-bot.fraxtal_testnet: network=fraxtal_testnet
+deploy-contract.liquidator-bot.fraxtal_testnet: deploy-contract.liquidator-bot
+
+deploy-contract.liquidator-bot.fraxtal_testnet.reset: network=fraxtal_testnet
+deploy-contract.liquidator-bot.fraxtal_testnet.reset: deploy-contract.liquidator-bot.reset
 
 # ---------- Deploy to local_ethereum ----------
 
@@ -387,10 +431,14 @@ oracle.set-asset-sources.localhost:
 
 # ---------- Liquidator Bot ----------
 run.liquidator-bot.%:
-	@echo "Running liquidator bot..."
+	@if [ "$(dex)" = "" ]; then \
+		echo "Must provide 'dex' argument"; \
+		exit 1; \
+	fi
+	@echo "Running liquidator bot for $(dex)..."
 	@yarn hardhat run \
 		--network $* \
-		scripts/liquidator-bot/run.ts
+		scripts/liquidator-bot/$(dex)/run.ts
 
 run.liquidator-bot.fraxtal_testnet:
 run.liquidator-bot.localhost:
@@ -410,16 +458,24 @@ docker.build.liquidator-bot:
 		--build-arg HOST_PWD=$(shell pwd) \
 		-f ./bot.Dockerfile \
 		-t ${LIQUIDATOR_BOT_IMAGE_NAME}:latest \
+		-t ${LIQUIDATOR_BOT_IMAGE_NAME}-$(platform):latest \
 		.
 
 docker.build.liquidator-bot.arm64: platform=linux/arm64
 docker.build.liquidator-bot.arm64: docker.build.liquidator-bot
+
+docker.build.liquidator-bot.amd64: platform=linux/amd64
+docker.build.liquidator-bot.amd64: docker.build.liquidator-bot
 
 docker.buildandrun.liquidator-bot.arm64: platform=linux/arm64
 docker.buildandrun.liquidator-bot.arm64: docker.build.liquidator-bot
 docker.buildandrun.liquidator-bot.arm64:
 	@if [ "$(network)" = "" ]; then \
 		echo "Must provide 'network' argument"; \
+		exit 1; \
+	fi	
+	@if [ "$(dex)" = "" ]; then \
+		echo "Must provide 'dex' argument"; \
 		exit 1; \
 	fi
 	@mkdir -p ./state
@@ -431,7 +487,33 @@ docker.buildandrun.liquidator-bot.arm64:
 		--memory 768m \
 		--restart unless-stopped \
 		--name ${LIQUIDATOR_BOT_IMAGE_NAME}-$(network) \
+		${LIQUIDATOR_BOT_IMAGE_NAME}:latest $(network) $(dex)
+
+docker.buildandrun.liquidator-bot.slack-bot: docker.build.liquidator-bot
+docker.buildandrun.liquidator-bot.slack-bot:
+	@if [ "$(network)" = "" ]; then \
+		echo "Must provide 'network' argument"; \
+		exit 1; \
+	fi
+	@if [ "$(platform)" = "" ]; then \
+		echo "Must provide 'platform' argument"; \
+		exit 1; \
+	fi
+	@echo "Running slack bot..."
+	@docker run \
+		-d \
+		-v $(shell pwd)/.env:/usr/src/.env:ro \
+		--memory 768m \
+		--restart unless-stopped \
+		--entrypoint /usr/src/scripts/docker-entrypoint-slack-bot.sh \
+		--name ${LIQUIDATOR_BOT_IMAGE_NAME}-slack-bot \
 		${LIQUIDATOR_BOT_IMAGE_NAME}:latest $(network)
+
+docker.buildandrun.liquidator-bot.slack-bot.amd64: platform=linux/amd64
+docker.buildandrun.liquidator-bot.slack-bot.amd64: docker.buildandrun.liquidator-bot.slack-bot
+
+docker.buildandrun.liquidator-bot.slack-bot.arm64: platform=linux/arm64
+docker.buildandrun.liquidator-bot.slack-bot.arm64: docker.buildandrun.liquidator-bot.slack-bot
 
 docker.dump-image.liquidator-bot:
 	@echo "Exporting docker image to ./.tmp/${LIQUIDATOR_BOT_IMAGE_NAME}.tar..."
@@ -441,6 +523,10 @@ docker.dump-image.liquidator-bot:
 docker.deploy.liquidator-bot:
 	@if [ "$(network)" = "" ]; then \
 		echo "Must provide 'network' argument"; \
+		exit 1; \
+	fi
+	@if [ "$(dex)" = "" ]; then \
+		echo "Must provide 'dex' argument"; \
 		exit 1; \
 	fi
 	@if [ "${LIQUIDATOR_BOT_SSH_KEY_PATH}" = "" ]; then \
@@ -463,21 +549,81 @@ docker.deploy.liquidator-bot:
 			-d \
 			-v /home/ubuntu/.env:/usr/src/.env:ro \
 			-v /home/ubuntu/state:/usr/src/state \
-			--memory 768m \
+			--memory 512m \
 			--restart unless-stopped \
 			--name ${LIQUIDATOR_BOT_IMAGE_NAME}-$(network) \
-			${LIQUIDATOR_BOT_IMAGE_NAME}:latest $(network)"
+			${LIQUIDATOR_BOT_IMAGE_NAME}:latest $(network) $(dex)"
 	@ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
 		"docker image prune -f"
 
 docker.deploy.liquidator-bot.fraxtal_testnet: network=fraxtal_testnet
 docker.deploy.liquidator-bot.fraxtal_testnet: docker.deploy.liquidator-bot
 
-docker.buildanddeploy.liquidator-bot.fraxtal_testnet: network=fraxtal_testnet
-docker.buildanddeploy.liquidator-bot.fraxtal_testnet: platform=linux/amd64
-docker.buildanddeploy.liquidator-bot.fraxtal_testnet: docker.build.liquidator-bot
-docker.buildanddeploy.liquidator-bot.fraxtal_testnet: remote.push-image.liquidator-bot
-docker.buildanddeploy.liquidator-bot.fraxtal_testnet: docker.deploy.liquidator-bot.fraxtal_testnet
+docker.deploy.liquidator-bot.fraxtal_mainnet: network=fraxtal_mainnet
+docker.deploy.liquidator-bot.fraxtal_mainnet: docker.deploy.liquidator-bot
+
+docker.deploy.liquidator-bot.slack-bot: healthFactorBatchSize=1
+docker.deploy.liquidator-bot.slack-bot:
+	@if [ "$(network)" = "" ]; then \
+		echo "Must provide 'network' argument"; \
+		exit 1; \
+	fi
+	@if [ "$(healthFactorBatchSize)" = "" ]; then \
+		echo "Must provide 'healthFactorBatchSize' argument"; \
+		exit 1; \
+	fi
+	@if [ "${LIQUIDATOR_BOT_SSH_KEY_PATH}" = "" ]; then \
+		echo "LIQUIDATOR_BOT_SSH_KEY_PATH is not set in .env"; \
+		exit 1; \
+	fi
+	@if [ "${LIQUIDATOR_BOT_HOST}" = "" ]; then \
+		echo "LIQUIDATOR_BOT_HOST is not set in .env"; \
+		exit 1; \
+	fi
+	@make remote.upload \
+		file_path=./.env \
+		dest_path=/home/ubuntu/.env
+	@ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
+		"docker rm -f ${LIQUIDATOR_BOT_IMAGE_NAME}-slack-bot || true"
+	@ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
+		"docker run \
+			-d \
+			-v /home/ubuntu/.env:/usr/src/.env:ro \
+			--entrypoint /usr/src/scripts/docker-entrypoint-slack-bot.sh \
+			--cpus 0.5 \
+			--memory 512m \
+			--restart unless-stopped \
+			--name ${LIQUIDATOR_BOT_IMAGE_NAME}-slack-bot \
+			${LIQUIDATOR_BOT_IMAGE_NAME}:latest $(network) $(healthFactorBatchSize)"
+	@ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
+		"docker image prune -f"
+
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: network=fraxtal_testnet
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: platform=linux/amd64
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: docker.build.liquidator-bot
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: remote.push-image.liquidator-bot
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: dex=curve
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: docker.deploy.liquidator-bot
+
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: dex=curve
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: docker.buildanddeploy.liquidator-bot.fraxtal_testnet
+
+docker.buildanddeploy.liquidator-bot.fraxtal_mainnet: network=fraxtal_mainnet
+docker.buildanddeploy.liquidator-bot.fraxtal_mainnet: platform=linux/amd64
+docker.buildanddeploy.liquidator-bot.fraxtal_mainnet: docker.build.liquidator-bot
+docker.buildanddeploy.liquidator-bot.fraxtal_mainnet: remote.push-image.liquidator-bot
+docker.buildanddeploy.liquidator-bot.fraxtal_mainnet: docker.deploy.liquidator-bot.fraxtal_mainnet
+
+docker.buildanddeploy.liquidator-bot.fraxtal_mainnet.curve: dex=curve
+docker.buildanddeploy.liquidator-bot.fraxtal_mainnet.curve: docker.buildanddeploy.liquidator-bot.fraxtal_mainnet
+
+docker.buildanddeploy.liquidator-bot.slack-bot: platform=linux/amd64
+docker.buildanddeploy.liquidator-bot.slack-bot: docker.build.liquidator-bot
+docker.buildanddeploy.liquidator-bot.slack-bot: remote.push-image.liquidator-bot
+docker.buildanddeploy.liquidator-bot.slack-bot: docker.deploy.liquidator-bot.slack-bot
+
+docker.buildanddeploy.liquidator-bot.slack-bot.fraxtal_mainnet: network=fraxtal_mainnet
+docker.buildanddeploy.liquidator-bot.slack-bot.fraxtal_mainnet: docker.buildanddeploy.liquidator-bot.slack-bot
 
 ## ---------- Remote host ----------
 
@@ -555,3 +701,40 @@ explorer.verify.fraxtal_testnet:
 explorer.verify.fraxtal_mainnet:
 	@echo "Verifying contracts on fraxtal mainnet..."
 	@yarn hardhat --network fraxtal_mainnet etherscan-verify --api-key AMT6AWIRDZV3RVNSSU6T2638K59QSX4Q89 --api-url https://api.fraxscan.com
+
+check-all-users-health-factor:
+	@if [ "$(network)" = "" ]; then \
+		echo "Must provide 'network' argument"; \
+		exit 1; \
+	fi
+	@echo "Checking health factor on $(network)..."
+	@yarn hardhat run \
+		--network $(network) \
+		scripts/liquidator-bot/curve/check-all-user-health-factors.ts
+
+check-all-users-health-factor.fraxtal_testnet: network=fraxtal_testnet
+check-all-users-health-factor.fraxtal_testnet: check-all-users-health-factor
+
+check-all-users-health-factor.fraxtal_mainnet: network=fraxtal_mainnet
+check-all-users-health-factor.fraxtal_mainnet: check-all-users-health-factor
+
+## ---------- Public code publishing----------
+
+copy-to-public:
+	@echo "Copying git-tracked files to ../public-solidity-contracts..."
+	@if [ ! -d "../public-solidity-contracts" ]; then \
+		echo "Error: ../public-solidity-contracts directory does not exist"; \
+		exit 1; \
+	fi
+	@# Create a temporary directory for git tracked files
+	@mkdir -p .tmp/public-copy
+	@# Copy only git tracked files to temp directory
+	@git ls-files | tar -T - -cf - | (cd .tmp/public-copy && tar -xf -)
+	@# Copy files from temp to destination, preserving destination's .git directory
+	@rsync -av \
+		--exclude '.git/' \
+		.tmp/public-copy/ \
+		../public-solidity-contracts/
+	@# Clean up temp directory
+	@rm -rf .tmp/public-copy
+	@echo "Files copied successfully. Note: You'll need to commit changes in ../public-solidity-contracts manually"

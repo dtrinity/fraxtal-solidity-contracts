@@ -32,6 +32,8 @@ import "contracts/dusd/OracleAware.sol";
  * @notice Contract responsible for issuing dUSD tokens
  */
 contract Issuer is AccessControl, OracleAware {
+    using SafeERC20 for IERC20Metadata;
+
     /* Core state */
 
     IERC20Stablecoin public dusd;
@@ -102,31 +104,22 @@ contract Issuer is AccessControl, OracleAware {
         address collateralAsset,
         uint256 minDUSD
     ) external {
-        _issue(
-            msg.sender,
-            msg.sender,
-            collateralAmount,
-            collateralAsset,
-            minDUSD
-        );
-    }
+        uint8 collateralDecimals = IERC20Metadata(collateralAsset).decimals();
+        uint256 usdValue = (oracle.getAssetPrice(collateralAsset) *
+            collateralAmount) / (10 ** collateralDecimals);
+        uint256 dusdAmount = usdValueToDusdAmount(usdValue);
+        if (dusdAmount < minDUSD) {
+            revert SlippageTooHigh(minDUSD, dusdAmount);
+        }
 
-    /**
-     * @notice Issues dUSD tokens in exchange for collateral on behalf of another address
-     * @param depositor The address providing the collateral
-     * @param receiver The address to receive the minted dUSD tokens
-     * @param collateralAmount The amount of collateral to deposit
-     * @param collateralAsset The address of the collateral asset
-     * @param minDUSD The minimum amount of dUSD to receive, used for slippage protection
-     */
-    function issueFrom(
-        address depositor,
-        address receiver,
-        uint256 collateralAmount,
-        address collateralAsset,
-        uint256 minDUSD
-    ) external {
-        _issue(depositor, receiver, collateralAmount, collateralAsset, minDUSD);
+        // Transfer collateral directly to vault
+        IERC20Metadata(collateralAsset).safeTransferFrom(
+            msg.sender,
+            address(collateralVault),
+            collateralAmount
+        );
+
+        dusd.mint(msg.sender, dusdAmount);
     }
 
     /**
@@ -171,39 +164,6 @@ contract Issuer is AccessControl, OracleAware {
                 _circulatingDusdAfter
             );
         }
-    }
-
-    /**
-     * @notice Internal function to handle dUSD issuance logic
-     * @dev Calculates USD value of collateral, converts to dUSD amount, and handles minting
-     * @param depositor The address providing the collateral
-     * @param receiver The address receiving the minted dUSD tokens
-     * @param collateralAmount The amount of collateral to deposit
-     * @param collateralAsset The address of the collateral asset
-     * @param minDUSD The minimum amount of dUSD to receive, used for slippage protection
-     */
-    function _issue(
-        address depositor,
-        address receiver,
-        uint256 collateralAmount,
-        address collateralAsset,
-        uint256 minDUSD
-    ) internal {
-        uint8 collateralDecimals = IERC20Metadata(collateralAsset).decimals();
-        uint256 usdValue = (oracle.getAssetPrice(collateralAsset) *
-            collateralAmount) / (10 ** collateralDecimals);
-        uint256 dusdAmount = usdValueToDusdAmount(usdValue);
-        if (dusdAmount < minDUSD) {
-            revert SlippageTooHigh(minDUSD, dusdAmount);
-        }
-
-        // Depositor must give approval to CollateralVault first
-        collateralVault.depositFrom(
-            depositor,
-            collateralAmount,
-            collateralAsset
-        );
-        dusd.mint(receiver, dusdAmount);
     }
 
     /**

@@ -2,7 +2,6 @@ import { FeeAmount } from "@uniswap/v3-sdk";
 import { ethers } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-import { API3_PRICE_DECIMALS } from "../../test/oracle_aggregator/constants";
 import { AAVE_ORACLE_USD_DECIMALS, ONE_BPS_UNIT } from "../../utils/constants";
 import {
   rateStrategyHighLiquidityStable,
@@ -18,11 +17,14 @@ import {
   strategyYieldBearingStablecoin,
 } from "../../utils/lending/reserves-configs";
 import { DEX_ORACLE_WRAPPER_ID } from "../../utils/oracle/deploy-ids";
+import { API3_PRICE_DECIMALS } from "../../utils/oracle_aggregator/constants";
 import { Config } from "../types";
 
 // Must be an oracle that conforms to the Chainlink aggregator interface, e.g. Redstone classic
 const ETH_CHAINLINK_ORACLE_ADDRESS =
   "0x2fB93C42D7727C6A69B66943008C26Ec7701eAd1";
+
+const CURVE_SWAP_ROUTER_ADDRESS = "0xF66c3Ef85BceafaEcE9171E25Eee2972b10e1958";
 
 export const TOKEN_INFO = {
   wfrxETH: {
@@ -168,10 +170,11 @@ export async function getConfig(
       incentivesVault: (await hre.getNamedAccounts()).lendingDeployer,
       incentivesEmissionManager: (await hre.getNamedAccounts()).lendingDeployer,
     },
-    liquidatorBot: {
+    liquidatorBotUniswapV3: undefined, // No UniswapV3 liquidator on testnet.
+    liquidatorBotCurve: {
       flashMinter: TOKEN_INFO.dUSD.address,
       dUSDAddress: TOKEN_INFO.dUSD.address,
-      slippageTolerance: 5000, // 50% in bps
+      slippageTolerance: 50 * 100 * ONE_BPS_UNIT, // 50% slippage tolerance
       healthFactorThreshold: 1,
       healthFactorBatchSize: 5,
       reserveBatchSize: 5,
@@ -181,6 +184,66 @@ export async function getConfig(
         url: "https://fraxtal-testnet-subgraph.testnet.dtrinity.org/subgraphs/name/stablyio-aave-v3-messari-testnet/",
         batchSize: 100,
       },
+      swapRouter: CURVE_SWAP_ROUTER_ADDRESS,
+      maxSlippageSurplusSwapBps: 20 * 100 * ONE_BPS_UNIT, // 20% slippage surplus swap
+      defaultSwapSlippageBufferBps: 50 * 100 * ONE_BPS_UNIT, // 50% slippage buffer
+      defaultSwapParamsList: [
+        // dUSD -> sFRAX (and sFRAX -> dUSD)
+        {
+          inputToken: TOKEN_INFO.dUSD.address,
+          outputToken: TOKEN_INFO.sFRAX.address,
+          swapExtraParams: {
+            route: [
+              TOKEN_INFO.dUSD.address,
+              CURVE_POOLS.stableswapng.dUSD_FRAX.address,
+              TOKEN_INFO.FRAX.address,
+              CURVE_POOLS.stableswapng.FRAX_sFRAX.address,
+              TOKEN_INFO.sFRAX.address,
+              ethers.ZeroAddress,
+              ethers.ZeroAddress,
+              ethers.ZeroAddress,
+              ethers.ZeroAddress,
+              ethers.ZeroAddress,
+              ethers.ZeroAddress,
+            ],
+            swapParams: [
+              [0, 1, 1, 2],
+              [0, 1, 1, 2],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+          reverseSwapExtraParams: {
+            route: [
+              TOKEN_INFO.sFRAX.address,
+              CURVE_POOLS.stableswapng.FRAX_sFRAX.address,
+              TOKEN_INFO.FRAX.address,
+              CURVE_POOLS.stableswapng.dUSD_FRAX.address,
+              TOKEN_INFO.dUSD.address,
+              ethers.ZeroAddress,
+              ethers.ZeroAddress,
+              ethers.ZeroAddress,
+              ethers.ZeroAddress,
+              ethers.ZeroAddress,
+              ethers.ZeroAddress,
+            ],
+            swapParams: [
+              [1, 0, 1, 2],
+              [1, 0, 1, 2],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+            swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
+          },
+        },
+      ],
+      isUnstakeTokens: {
+        [TOKEN_INFO.sFRAX.address]: true,
+      },
+      proxyContractMap: {}, // No proxy contracts
     },
     dusd: {
       address: TOKEN_INFO.dUSD.address,
@@ -226,7 +289,7 @@ export async function getConfig(
       vaults: [
         {
           underlyingAssetAddress: TOKEN_INFO.sFRAX.address,
-          swapRouter: "0xF66c3Ef85BceafaEcE9171E25Eee2972b10e1958",
+          swapRouter: CURVE_SWAP_ROUTER_ADDRESS,
           defaultDusdToUnderlyingSwapExtraParams: {
             route: [
               TOKEN_INFO.dUSD.address,
@@ -248,7 +311,7 @@ export async function getConfig(
               [0, 0, 0, 0],
               [0, 0, 0, 0],
             ],
-            swapSlippageBufferBps: 5000, // 50% slippage buffer
+            swapSlippageBufferBps: 50 * 100 * ONE_BPS_UNIT, // 50% slippage buffer
           },
           defaultUnderlyingToDusdSwapExtraParams: {
             route: [
@@ -340,9 +403,13 @@ export async function getConfig(
           },
         },
       },
+      curveOracleAssets: {},
     },
     curve: {
       router: "0xF66c3Ef85BceafaEcE9171E25Eee2972b10e1958",
+      tools: {
+        httpServiceHost: "http://localhost:3000",
+      },
     },
   };
 }
