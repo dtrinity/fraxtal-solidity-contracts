@@ -29,7 +29,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // Configure Curve pools and thresholds
-  const curveFeeds = config.oracleAggregator.curveOracleAssets || {};
+  const curveFeeds =
+    config.oracleAggregator.curveOracleAssets.curveApi3CompositeOracles || {};
 
   for (const [assetAddress, feedConfig] of Object.entries(curveFeeds)) {
     // Set pool configuration
@@ -40,26 +41,24 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
 
     // Set API3 feed if configured
-    if (feedConfig.compositeAPI3Feed) {
-      await wrapper.setCompositeFeed(
-        assetAddress,
-        feedConfig.compositeAPI3Feed.api3Asset,
-        feedConfig.compositeAPI3Feed.api3Wrapper,
-        feedConfig.compositeAPI3Feed.curveLowerThresholdInBase,
-        feedConfig.compositeAPI3Feed.curveFixedPriceInBase,
-        feedConfig.compositeAPI3Feed.api3LowerThresholdInBase,
-        feedConfig.compositeAPI3Feed.api3FixedPriceInBase,
-      );
-      console.log(
-        `Set composite API3 feed for asset ${assetAddress}:`,
-        `\n  - API3 asset: ${feedConfig.compositeAPI3Feed.api3Asset}`,
-        `\n  - API3 wrapper: ${feedConfig.compositeAPI3Feed.api3Wrapper}`,
-        `\n  - Curve lower threshold: ${feedConfig.compositeAPI3Feed.curveLowerThresholdInBase}`,
-        `\n  - Curve fixed price: ${feedConfig.compositeAPI3Feed.curveFixedPriceInBase}`,
-        `\n  - API3 lower threshold: ${feedConfig.compositeAPI3Feed.api3LowerThresholdInBase}`,
-        `\n  - API3 fixed price: ${feedConfig.compositeAPI3Feed.api3FixedPriceInBase}`,
-      );
-    }
+    await wrapper.setCompositeFeed(
+      assetAddress,
+      feedConfig.compositeAPI3Feed.api3Asset,
+      feedConfig.compositeAPI3Feed.api3Proxy,
+      feedConfig.compositeAPI3Feed.curveLowerThresholdInBase,
+      feedConfig.compositeAPI3Feed.curveFixedPriceInBase,
+      feedConfig.compositeAPI3Feed.api3LowerThresholdInBase,
+      feedConfig.compositeAPI3Feed.api3FixedPriceInBase,
+    );
+    console.log(
+      `Set composite API3 feed for asset ${assetAddress}:`,
+      `\n  - API3 asset: ${feedConfig.compositeAPI3Feed.api3Asset}`,
+      `\n  - API3 wrapper: ${feedConfig.compositeAPI3Feed.api3Proxy}`,
+      `\n  - Curve lower threshold: ${feedConfig.compositeAPI3Feed.curveLowerThresholdInBase}`,
+      `\n  - Curve fixed price: ${feedConfig.compositeAPI3Feed.curveFixedPriceInBase}`,
+      `\n  - API3 lower threshold: ${feedConfig.compositeAPI3Feed.api3LowerThresholdInBase}`,
+      `\n  - API3 fixed price: ${feedConfig.compositeAPI3Feed.api3FixedPriceInBase}`,
+    );
   }
 
   return true;

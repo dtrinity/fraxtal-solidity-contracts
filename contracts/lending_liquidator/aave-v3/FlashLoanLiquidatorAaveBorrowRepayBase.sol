@@ -83,7 +83,7 @@ abstract contract FlashLoanLiquidatorAaveBorrowRepayBase is
         bool _stakeTokens,
         bool _isUnstakeCollateralToken,
         bytes memory _swapData
-    ) external nonReentrant onlyLiquidator {
+    ) external nonReentrant {
         LiquidateParams memory liquidateParams = LiquidateParams(
             _getUnderlying(_poolTokenCollateralAddress),
             _getUnderlying(_poolTokenBorrowedAddress),

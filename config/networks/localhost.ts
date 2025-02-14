@@ -168,6 +168,7 @@ export async function getConfig(
         url: "", // Not used for localhost
         batchSize: 0,
       },
+      isUnstakeTokens: {}, // No unstake tokens on localhost
       proxyContractMap: {}, // No proxy contracts
     },
     liquidatorBotCurve: undefined, // No Curve liquidator on localhost
@@ -207,6 +208,8 @@ export async function getConfig(
           targetLeverageBps: 300 * 100 * ONE_BPS_UNIT, // 300% leverage, meaning 3x leverage
           swapSlippageTolerance: 5 * 100 * ONE_BPS_UNIT, // 5% slippage tolerance
           maxSubsidyBps: 2 * 100 * ONE_BPS_UNIT, // 2% subsidy, meaning 1x leverage
+          minimumUnderlyingAssetAmount: 0.0001,
+          minimumSharesAmount: 0.0001,
         },
       ],
     },
@@ -296,9 +299,12 @@ export async function getConfig(
       },
       api3OracleAssets: {
         plainApi3OracleWrappers: {},
+        api3OracleWrappersWithThresholding: {},
         compositeApi3OracleWrappersWithThresholding: {},
       },
-      curveOracleAssets: {},
+      curveOracleAssets: {
+        curveApi3CompositeOracles: {},
+      },
     },
     curve: {
       // Source: https://docs.curve.fi/references/deployed-contracts/#curve-router

@@ -46,6 +46,16 @@ export function isTestnetNetwork(network: string): boolean {
   return network.endsWith("_testnet");
 }
 
+/**
+ * Check if the network is mainnet
+ *
+ * @param network - The network name
+ * @returns True if the network is mainnet, false otherwise
+ */
+export function isMainnetNetwork(network: string): boolean {
+  return network.endsWith("_mainnet");
+}
+
 export class ShortTermIgnoreMemory {
   private memory: Map<string, number>;
   private ignoreDuration: number;

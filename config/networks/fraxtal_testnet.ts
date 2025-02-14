@@ -281,6 +281,8 @@ export async function getConfig(
           targetLeverageBps: 300 * 100 * ONE_BPS_UNIT, // 300% leverage, meaning 3x leverage
           swapSlippageTolerance: 5 * 100 * ONE_BPS_UNIT, // 5% slippage tolerance
           maxSubsidyBps: 2 * 100 * ONE_BPS_UNIT, // 2% subsidy, meaning 1x leverage
+          minimumUnderlyingAssetAmount: 0.0001,
+          minimumSharesAmount: 0.0001,
         },
       ],
     },
@@ -340,6 +342,8 @@ export async function getConfig(
           swapSlippageTolerance: 20 * 100 * ONE_BPS_UNIT, // 20% slippage tolerance
           maxSubsidyBps: 2 * 100 * ONE_BPS_UNIT, // 2% subsidy, meaning 1x leverage
           maxSlippageSurplusSwapBps: 20 * 100 * ONE_BPS_UNIT, // 20% slippage surplus swap
+          minimumUnderlyingAssetAmount: 0.0001,
+          minimumSharesAmount: 0.0001,
         },
       ],
     },
@@ -363,12 +367,17 @@ export async function getConfig(
       },
       api3OracleAssets: {
         plainApi3OracleWrappers: {
-          [TOKEN_INFO.FRAX.address]:
-            "0x6Aae0Db059357cD59a451b8486EFB1b2Af141785",
           [TOKEN_INFO.DAI.address]:
             "0x881c60d9C000a954E87B6e24700998EF89501a8a",
           [TOKEN_INFO.USDe.address]:
             "0x45C3e10E3a9A4DDB35Edba2c03610CFd4A83fcE0",
+        },
+        api3OracleWrappersWithThresholding: {
+          [TOKEN_INFO.FRAX.address]: {
+            proxy: "0x6Aae0Db059357cD59a451b8486EFB1b2Af141785", // FRAX/USD
+            lowerThreshold: 1n * 10n ** BigInt(API3_PRICE_DECIMALS),
+            fixedPrice: 1n * 10n ** BigInt(API3_PRICE_DECIMALS),
+          },
         },
         compositeApi3OracleWrappersWithThresholding: {
           [TOKEN_INFO.sFRAX.address]: {
@@ -403,7 +412,9 @@ export async function getConfig(
           },
         },
       },
-      curveOracleAssets: {},
+      curveOracleAssets: {
+        curveApi3CompositeOracles: {},
+      },
     },
     curve: {
       router: "0xF66c3Ef85BceafaEcE9171E25Eee2972b10e1958",

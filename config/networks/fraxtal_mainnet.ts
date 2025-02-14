@@ -15,7 +15,6 @@ import {
   strategyWETH,
   strategyYieldBearingStablecoin,
 } from "../../utils/lending/reserves-configs";
-import { API3_PRICE_DECIMALS } from "../../utils/oracle_aggregator/constants";
 import { Config } from "../types";
 
 export const CURVE_SWAP_ROUTER_ADDRESS =
@@ -60,6 +59,10 @@ export const TOKEN_INFO = {
   },
   USDC: {
     address: "0xDcc0F2D8F90FDe85b10aC1c8Ab57dc0AE946A543",
+    priceAggregator: "", // Fall back to OracleAggregator
+  },
+  USDT: {
+    address: "0x4d15EA9C2573ADDAeD814e48C148b5262694646A",
     priceAggregator: "", // Fall back to OracleAggregator
   },
   // Frax Bond 20291231
@@ -474,6 +477,29 @@ export async function getConfig(
           "0xBFc4D34Db83553725eC6c768da71D2D9c1456B55", // sFRAX proxy contract on Fraxtal mainnet
       },
     },
+    liquidatorBotOdos: {
+      flashMinter: TOKEN_INFO.dUSD.address,
+      dUSDAddress: TOKEN_INFO.dUSD.address,
+      slippageTolerance: 50 * 100 * ONE_BPS_UNIT, // 50% slippage tolerance
+      healthFactorThreshold: 1,
+      healthFactorBatchSize: 5,
+      reserveBatchSize: 5,
+      profitableThresholdInUSD: 0,
+      liquidatingBatchSize: 200,
+      graphConfig: {
+        url: "https://graph-node.dtrinity.org/subgraphs/name/stablyio-aave-v3-messari-mainnet",
+        batchSize: 100,
+      },
+      isUnstakeTokens: {
+        [TOKEN_INFO.sFRAX.address]: true,
+      },
+      proxyContractMap: {
+        [TOKEN_INFO.sFRAX.address]:
+          "0xBFc4D34Db83553725eC6c768da71D2D9c1456B55", // sFRAX proxy contract on Fraxtal mainnet
+      },
+      odosRouter: "0x56c85a254DD12eE8D9C04049a4ab62769Ce98210",
+      odosApiUrl: "https://api.odos.xyz",
+    },
     dusd: {
       address: TOKEN_INFO.dUSD.address,
       amoVaults: {
@@ -539,21 +565,40 @@ export async function getConfig(
       api3OracleAssets: {
         plainApi3OracleWrappers: {
           [TOKEN_INFO.wfrxETH.address]:
-            "0x5b0cf2b36a65a6BB085D501B971e4c102B9Cd473", // ETH/USD
-          [TOKEN_INFO.FRAX.address]:
-            "0xB963A9B6A19D3ed0E4038af0ebBa603CA3683BFE", // FRAX/USD
-          [TOKEN_INFO.DAI.address]:
-            "0x85b6dD270538325A9E0140bd6052Da4ecc18A85c", // DAI/USD
-          [TOKEN_INFO.USDe.address]:
-            "0x22a35f4BDD167EAF7Cbf0C0Dc0C2001071714cc6", // USDe/USD
-          [TOKEN_INFO.USDC.address]:
-            "0xD3C586Eec1C6C3eC41D276a23944dea080eDCf7f", // USDC/USD
+            "0xC93Da088b0c78dE892f523db0eECb051Cb628991", // ETH/USD dtrinity OEV
+        },
+        api3OracleWrappersWithThresholding: {
+          [TOKEN_INFO.FRAX.address]: {
+            proxy: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dtrinity OEV
+            lowerThreshold: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            fixedPrice: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+          },
+          [TOKEN_INFO.DAI.address]: {
+            proxy: "0x99Cace7CbBAe9c619354579B893dB5695ee22A2c", // DAI/USD dtrinity OEV
+            lowerThreshold: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            fixedPrice: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+          },
+          [TOKEN_INFO.USDe.address]: {
+            proxy: "0xF3F5e6358251Fd2115424Ed1ADa9c9BED417EdaB", // USDe/USD dtrinity OEV
+            lowerThreshold: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            fixedPrice: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+          },
+          [TOKEN_INFO.USDC.address]: {
+            proxy: "0x5A27949E9C4BE327d45eE443d6672d1431597BEd", // USDC/USD dtrinity OEV
+            lowerThreshold: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            fixedPrice: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+          },
+          [TOKEN_INFO.USDT.address]: {
+            proxy: "0x4eadC6ee74b7Ceb09A4ad90a33eA2915fbefcf76", // USDT/USD (generic, not dtrinity OEV)
+            lowerThreshold: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            fixedPrice: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+          },
         },
         compositeApi3OracleWrappersWithThresholding: {
           [TOKEN_INFO.sfrxETH.address]: {
             feedAsset: TOKEN_INFO.sfrxETH.address,
-            proxy1: "0x9C4EE9A08AA53cF1aBd2dAb41e3C3D9A738F949D", // sfrxETH/frxETH
-            proxy2: "0x5b0cf2b36a65a6BB085D501B971e4c102B9Cd473", // ETH/USD
+            proxy1: "0xF14741dD62af0fE80A54F1784AD6ab707cd18707", // sfrxETH/frxETH dtrinity OEV
+            proxy2: "0xC93Da088b0c78dE892f523db0eECb051Cb628991", // ETH/USD dtrinity OEV
             // No thresholdling
             lowerThresholdInBase1: 0n,
             fixedPriceInBase1: 0n,
@@ -562,50 +607,52 @@ export async function getConfig(
           },
           [TOKEN_INFO.sFRAX.address]: {
             feedAsset: TOKEN_INFO.sFRAX.address,
-            proxy1: "0xC0c16E9a1DCD8097A94902e858Dc6801df774EcF", // sFRAX/FRAX
-            proxy2: "0xB963A9B6A19D3ed0E4038af0ebBa603CA3683BFE", // FRAX/USD
+            proxy1: "0x90004e18f3bae0CCa3b259722F2BeD538C161B22", // sFRAX/FRAX dtrinity OEV
+            proxy2: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dtrinity OEV
             // Don't allow FRAX to go above $1
             lowerThresholdInBase1: 0n,
             fixedPriceInBase1: 0n,
-            lowerThresholdInBase2: 1n * 10n ** BigInt(API3_PRICE_DECIMALS),
-            fixedPriceInBase2: 1n * 10n ** BigInt(API3_PRICE_DECIMALS),
+            lowerThresholdInBase2: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            fixedPriceInBase2: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
           },
           [TOKEN_INFO.sDAI.address]: {
             feedAsset: TOKEN_INFO.sDAI.address,
-            proxy1: "0x35e3Dc128030646d5A83D53c3350345F7A796A0a", // sDAI/DAI
-            proxy2: "0x85b6dD270538325A9E0140bd6052Da4ecc18A85c", // DAI/USD
+            proxy1: "0xaCaD32f030Af764ab1B0Bcc227FFbCb217dDf469", // sDAI/DAI dtrinity OEV
+            proxy2: "0x99Cace7CbBAe9c619354579B893dB5695ee22A2c", // DAI/USD dtrinity OEV
             // Don't allow DAI to go above $1
             lowerThresholdInBase1: 0n,
             fixedPriceInBase1: 0n,
-            lowerThresholdInBase2: 1n * 10n ** BigInt(API3_PRICE_DECIMALS),
-            fixedPriceInBase2: 1n * 10n ** BigInt(API3_PRICE_DECIMALS),
+            lowerThresholdInBase2: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            fixedPriceInBase2: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
           },
           [TOKEN_INFO.sUSDe.address]: {
             feedAsset: TOKEN_INFO.sUSDe.address,
-            proxy1: "0x1d28d1Eb2B9E7486420FE3E7E42F6a7fb6ec9fcf", // sUSDe/USDe
-            proxy2: "0x22a35f4BDD167EAF7Cbf0C0Dc0C2001071714cc6", // USDe/USD
+            proxy1: "0xa925A7c304b96ea0ae763C73badBD5eeE74dd7ac", // sUSDe/USDe dtrinity OEV
+            proxy2: "0xF3F5e6358251Fd2115424Ed1ADa9c9BED417EdaB", // USDe/USD dtrinity OEV
             // Don't allow USDe to go above $1
             lowerThresholdInBase1: 0n,
             fixedPriceInBase1: 0n,
-            lowerThresholdInBase2: 1n * 10n ** BigInt(API3_PRICE_DECIMALS),
-            fixedPriceInBase2: 1n * 10n ** BigInt(API3_PRICE_DECIMALS),
+            lowerThresholdInBase2: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            fixedPriceInBase2: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
           },
         },
       },
       curveOracleAssets: {
-        [TOKEN_INFO.FXB20291231.address]: {
-          pool: "0xee454138083b9b9714cac3c7cf12560248d76d6b", // FRAX/FXB20291231 pool
-          compositeAPI3Feed: {
-            api3Asset: TOKEN_INFO.FRAX.address,
-            api3Wrapper: "0xF6eA02D055d832cc491B47238186768B7F6d2F42", // FRAX/USD
-            // Don't allow FXB20291231 to go above maturity value
-            curveLowerThresholdInBase:
-              1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-            curveFixedPriceInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-            // Don't allow FRAX to go above $1
-            api3LowerThresholdInBase:
-              1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-            api3FixedPriceInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+        curveApi3CompositeOracles: {
+          [TOKEN_INFO.FXB20291231.address]: {
+            pool: "0xee454138083b9b9714cac3c7cf12560248d76d6b", // FRAX/FXB20291231 pool
+            compositeAPI3Feed: {
+              api3Asset: TOKEN_INFO.FRAX.address,
+              api3Proxy: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dtrinity OEV
+              api3LowerThresholdInBase:
+                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              api3FixedPriceInBase:
+                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveLowerThresholdInBase:
+                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveFixedPriceInBase:
+                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            },
           },
         },
       },

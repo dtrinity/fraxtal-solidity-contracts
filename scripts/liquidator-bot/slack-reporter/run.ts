@@ -165,20 +165,20 @@ async function generateDetailedStatsCSVContent(
   const collateralReservesList = Object.keys(reservesInfoMap).filter(
     (reserve) => reservesInfoMap[reserve].canBeCollateral,
   );
-  const debtReservesList = Object.keys(reservesInfoMap).filter(
-    (reserve) => reservesInfoMap[reserve].canBeBorrowed,
-  );
 
   // Add all collateral columns first
   collateralReservesList.forEach((reserve) => {
     headers.push(`collateral_${reservesInfoMap[reserve].symbol}_usd`);
   });
 
-  // Then add total debt and all debt columns
+  // Then add total debt
   headers.push("total_debt_usd");
-  debtReservesList.forEach((reserve) => {
-    headers.push(`debt_${reservesInfoMap[reserve].symbol}_usd`);
-  });
+
+  // Add net_worth_usd = total collateral + total dusd deposit - total debt
+  headers.push("net_worth_usd");
+
+  // Add delta_to_liquidation = (1 / health factor) - 1
+  headers.push("delta_to_liquidation");
 
   const config = await getConfig(hre);
 
@@ -220,22 +220,16 @@ async function generateDetailedStatsCSVContent(
       row.push(collateralValueUSD.toFixed(2));
     });
 
-    // Add total debt and debt balances
+    // Add total debt
     row.push(user.totalDebt.toFixed(2));
 
-    // Add debt balances for each reserve
-    debtReservesList.forEach((reserve) => {
-      const reserveBalance = userBalances[reserve] || {
-        collateral: 0,
-        debt: 0,
-      };
-      const debtValue = ethers.formatUnits(
-        reserveBalance.debt,
-        reservesInfoMap[reserve].decimals,
-      );
-      const debtValueUSD = Number(debtValue) * reservesInfoMap[reserve].price;
-      row.push(debtValueUSD.toFixed(2));
-    });
+    // Add net_worth_usd = total collateral + total dusd deposit - total debt
+    const netWorthUSD = user.totalCollateral + dUSDBalanceUSD - user.totalDebt;
+    row.push(netWorthUSD.toFixed(2));
+
+    // Add delta_to_liquidation = (1 / health factor) - 1
+    const deltaToLiquidation = 1 / user.healthFactor - 1;
+    row.push(deltaToLiquidation.toFixed(4));
 
     return row.join(",");
   });

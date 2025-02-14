@@ -234,6 +234,28 @@ export async function approveTokenByAddress(
   tokenAddress: string,
   amount: number,
 ): Promise<void> {
+  await approveTokenByAddressRaw(
+    ownerAddress,
+    spenderAddress,
+    tokenAddress,
+    await getTokenAmountFromAddress(amount.toString(), tokenAddress),
+  );
+}
+
+/**
+ * Approve the token by address with the raw amount
+ *
+ * @param ownerAddress - The address of the owner
+ * @param spenderAddress - The address of the spender
+ * @param tokenAddress - The address of the token
+ * @param amountRaw - The amount of the token to approve
+ */
+export async function approveTokenByAddressRaw(
+  ownerAddress: string,
+  spenderAddress: string,
+  tokenAddress: string,
+  amountRaw: bigint,
+): Promise<void> {
   const contract = await hre.ethers.getContractAt(
     [
       "function approve(address spender, uint256 amount) external",
@@ -242,10 +264,7 @@ export async function approveTokenByAddress(
     tokenAddress,
     await hre.ethers.getSigner(ownerAddress),
   );
-  const tx = await contract.approve(
-    spenderAddress,
-    await getTokenAmountFromAddress(amount.toString(), tokenAddress),
-  );
+  const tx = await contract.approve(spenderAddress, amountRaw);
   await tx.wait();
 }
 

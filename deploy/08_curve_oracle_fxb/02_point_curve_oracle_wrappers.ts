@@ -24,18 +24,19 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { address: curveWrapperAddress } = await hre.deployments.get(
     CURVE_API3_COMPOSITE_WRAPPER_WITH_THRESHOLDING_ID,
   );
-  const curveWrapper = await hre.ethers.getContractAt(
+  const curveCompositeWrapper = await hre.ethers.getContractAt(
     "CurveAPI3CompositeWrapperWithThresholding",
     curveWrapperAddress,
     await hre.ethers.getSigner(dusdDeployer),
   );
 
   // Set Curve oracle wrappers
-  const curveFeeds = config.oracleAggregator.curveOracleAssets || {};
+  const curveFeeds =
+    config.oracleAggregator.curveOracleAssets.curveApi3CompositeOracles || {};
 
   for (const [assetAddress, _feedConfig] of Object.entries(curveFeeds)) {
     // Verify the wrapper is properly configured
-    const testPrice = await curveWrapper.getAssetPrice(assetAddress);
+    const testPrice = await curveCompositeWrapper.getAssetPrice(assetAddress);
 
     if (testPrice == 0n) {
       throw new Error(
@@ -55,6 +56,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 func.tags = ["point-curve-oracle-wrapper", "oracle-aggregator"];
 func.dependencies = [ORACLE_AGGREGATOR_ID];
-func.id = "POINT_CURVE_ORACLE_WRAPPER";
+func.id = "PointCurveOracleWrapper";
 
 export default func;

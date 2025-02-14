@@ -56,6 +56,8 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
     IPoolAddressesProvider public immutable lendingPoolAddressesProvider;
     ERC20 public immutable underlyingAsset;
     ERC20 public immutable dusd;
+    uint256 public immutable underlyingAssetMinimumAmount;
+    uint256 public immutable sharesMinimumAmount;
     uint256 private _defaultMaxSubsidyBps;
 
     /* Errors */
@@ -114,6 +116,11 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
         uint256 targetLeverageBps, // upper bound
         uint256 currentLeverageBps // lower bound
     );
+    error UnderlyingAssetLessThanMinimumAmount(
+        uint256 assets,
+        uint256 minimumAmount
+    );
+    error SharesLessThanMinimumAmount(uint256 shares, uint256 minimumAmount);
 
     /* Structs */
 
@@ -146,6 +153,8 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
      * @param _targetLeverageBps Target leverage in basis points
      * @param _swapSlippageTolerance Swap slippage tolerance in basis points
      * @param _maxSubsidyBps Maximum subsidy in basis points
+     * @param _minimumUnderlyingAssetAmount Minimum amount of underlying asset (avoid inflation attack)
+     * @param _minimumSharesAmount Minimum amount of shares (avoid inflation attack)
      */
     constructor(
         string memory _name,
@@ -156,7 +165,9 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
         IPoolAddressesProvider _lendingPoolAddressesProvider,
         uint32 _targetLeverageBps,
         uint256 _swapSlippageTolerance,
-        uint256 _maxSubsidyBps
+        uint256 _maxSubsidyBps,
+        uint256 _minimumUnderlyingAssetAmount,
+        uint256 _minimumSharesAmount
     ) ERC20(_name, _symbol) ERC4626(_underlyingAsset) Ownable(msg.sender) {
         dusd = _dusd;
         flashLender = _flashLender;
@@ -172,6 +183,8 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
         UPPER_BOUND_TARGET_LEVERAGE_BPS = TARGET_LEVERAGE_BPS * 2;
         _defaultSwapSlippageTolerance = _swapSlippageTolerance;
         _defaultMaxSubsidyBps = _maxSubsidyBps;
+        underlyingAssetMinimumAmount = _minimumUnderlyingAssetAmount;
+        sharesMinimumAmount = _minimumSharesAmount;
     }
 
     /* Swap functions - Need to override in the child contract */
@@ -198,18 +211,25 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
     ) internal virtual returns (uint256);
 
     /* Safety */
-
     /**
-     * @dev Checks if the current leverage is too imbalanced
+     * @dev Returns whether the current leverage is too imbalanced
+     * @return bool True if leverage is too imbalanced, false otherwise
      */
-    function checkIsTooImbalanced() public view {
+    function isTooImbalanced() public view returns (bool) {
         uint256 currentLeverageBps = getCurrentLeverageBps();
         // If there is no deposit yet, we don't need to rebalance, thus it is not too imbalanced
-        if (
+        return
             currentLeverageBps != 0 &&
             (currentLeverageBps < LOWER_BOUND_TARGET_LEVERAGE_BPS ||
-                currentLeverageBps > UPPER_BOUND_TARGET_LEVERAGE_BPS)
-        ) {
+                currentLeverageBps > UPPER_BOUND_TARGET_LEVERAGE_BPS);
+    }
+
+    /**
+     * @dev Checks if the current leverage is too imbalanced and reverts if it is
+     */
+    function checkIsTooImbalanced() public view {
+        if (isTooImbalanced()) {
+            uint256 currentLeverageBps = getCurrentLeverageBps();
             revert TooImbalanced(
                 currentLeverageBps,
                 LOWER_BOUND_TARGET_LEVERAGE_BPS,
@@ -324,6 +344,17 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
         uint256 slippageTolerance,
         bytes memory dusdToUnderlyingSwapData
     ) private {
+        // Avoid inflation attack
+        if (assets < underlyingAssetMinimumAmount) {
+            revert UnderlyingAssetLessThanMinimumAmount(
+                assets,
+                underlyingAssetMinimumAmount
+            );
+        }
+        if (shares < sharesMinimumAmount) {
+            revert SharesLessThanMinimumAmount(shares, sharesMinimumAmount);
+        }
+
         // Make sure the current leverage is within the target range
         checkIsTooImbalanced();
 
@@ -577,8 +608,9 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
         uint256 minReceiveAmount,
         bytes memory underlyingToDUSDSwapData
     ) private returns (uint256 outputAssets) {
-        // Make sure the current leverage is within the target range
-        checkIsTooImbalanced();
+        if (shares < sharesMinimumAmount) {
+            revert SharesLessThanMinimumAmount(shares, sharesMinimumAmount);
+        }
 
         // Note that we need the allowance before calling this function
         // - Allowance for the message sender to spend the shares on behalf of the owner
@@ -589,6 +621,19 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
         if (owner != msg.sender) {
             _spendAllowance(owner, msg.sender, shares);
         }
+
+        // Burn the shares
+        _burn(owner, shares);
+
+        if (finalAssetsRequired < underlyingAssetMinimumAmount) {
+            revert UnderlyingAssetLessThanMinimumAmount(
+                finalAssetsRequired,
+                underlyingAssetMinimumAmount
+            );
+        }
+
+        // Make sure the current leverage is within the target range
+        checkIsTooImbalanced();
 
         uint256 assetsToRemoveFromLending = (finalAssetsRequired *
             TARGET_LEVERAGE_BPS) / Constants.ONE_HUNDRED_PERCENT_BPS;
@@ -630,9 +675,6 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
         if (userShares < shares) {
             revert InsufficientShareBalanceToRedeem(owner, shares, userShares);
         }
-
-        // Burn the shares
-        _burn(owner, shares);
 
         uint256 underlyingAssetBalanceAfter = underlyingAsset.balanceOf(
             address(this)
@@ -851,31 +893,6 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
         );
 
         // Then, the repaidDUSDAmount here will be used to repay the flash loan (not for the lending pool repay above)
-    }
-
-    /**
-     * @dev Gets the maximum withdrawable amount of an asset
-     * @param user Address of the user
-     * @param asset Address of the asset
-     * @return uint256 Maximum withdrawable amount of the asset
-     */
-    function _getMaxWithdrawAmount(
-        address user,
-        address asset
-    ) internal view returns (uint256) {
-        (
-            uint256 totalCollateralBase,
-            uint256 totalDebtBase,
-            ,
-            ,
-            ,
-
-        ) = _getLendingPool().getUserAccountData(user);
-        uint256 assetPriceInBase = _getLendingOracle().getAssetPrice(asset);
-        uint256 maxWithdrawInBase = totalCollateralBase - totalDebtBase;
-
-        uint256 assetTokenUnit = 10 ** ERC20(asset).decimals();
-        return (maxWithdrawInBase * assetTokenUnit) / assetPriceInBase;
     }
 
     /**
@@ -1315,7 +1332,16 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
             );
     }
 
-    function totalAssets() public view virtual override returns (uint256) {
+    /**
+     * @dev Gets the maximum withdrawable amount of an asset
+     * @param user Address of the user
+     * @param asset Address of the asset
+     * @return uint256 Maximum withdrawable amount of the asset
+     */
+    function _getMaxWithdrawAmount(
+        address user,
+        address asset
+    ) internal view returns (uint256) {
         (
             uint256 totalCollateralBase,
             uint256 totalDebtBase,
@@ -1323,24 +1349,19 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
             ,
             ,
 
-        ) = _getLendingPool().getUserAccountData(address(this));
+        ) = _getLendingPool().getUserAccountData(user);
+        uint256 assetPriceInBase = _getLendingOracle().getAssetPrice(asset);
+        uint256 maxWithdrawInBase = totalCollateralBase - totalDebtBase;
+
+        uint256 assetTokenUnit = 10 ** ERC20(asset).decimals();
+        return (maxWithdrawInBase * assetTokenUnit) / assetPriceInBase;
+    }
+
+    function totalAssets() public view virtual override returns (uint256) {
         // We override this function to return the total assets in the vault
         // with respect to the position in the lending pool
         // The dLend interest will be distributed to the dToken
-        if (totalCollateralBase < totalDebtBase) {
-            revert CollateralLessThanDebt(totalCollateralBase, totalDebtBase);
-        }
-
-        IPriceOracleGetter lendingOracle = _getLendingOracle();
-
-        uint256 actualValueBase = totalCollateralBase - totalDebtBase;
-        uint256 underlyingAssetPriceInBase = lendingOracle.getAssetPrice(
-            address(underlyingAsset)
-        );
-        // Convert the actual value to the base unit of the underlying asset
-        return
-            (actualValueBase * (10 ** underlyingAsset.decimals())) /
-            underlyingAssetPriceInBase;
+        return _getMaxWithdrawAmount(address(this), address(underlyingAsset));
     }
 
     function getUnderlyingAssetAddress() public view returns (address) {
@@ -1377,5 +1398,37 @@ abstract contract DLoopVaultBase is ERC4626, IERC3156FlashBorrower, Ownable {
         uint256 _swapSlippageTolerance
     ) public onlyOwner {
         _defaultSwapSlippageTolerance = _swapSlippageTolerance;
+    }
+
+    function maxDeposit(address _user) public view override returns (uint256) {
+        // Don't allow deposit if the leverage is too imbalanced
+        if (isTooImbalanced()) {
+            return 0;
+        }
+        return super.maxDeposit(_user);
+    }
+
+    function maxMint(address _user) public view override returns (uint256) {
+        // Don't allow mint if the leverage is too imbalanced
+        if (isTooImbalanced()) {
+            return 0;
+        }
+        return super.maxMint(_user);
+    }
+
+    function maxWithdraw(address _user) public view override returns (uint256) {
+        // Don't allow withdraw if the leverage is too imbalanced
+        if (isTooImbalanced()) {
+            return 0;
+        }
+        return super.maxWithdraw(_user);
+    }
+
+    function maxRedeem(address _user) public view override returns (uint256) {
+        // Don't allow redeem if the leverage is too imbalanced
+        if (isTooImbalanced()) {
+            return 0;
+        }
+        return super.maxRedeem(_user);
     }
 }

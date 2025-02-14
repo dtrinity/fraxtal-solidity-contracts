@@ -27,7 +27,7 @@ import "@openzeppelin/contracts-5/access/AccessControl.sol";
 abstract contract ICurveOracleWrapper is IOracleWrapper, AccessControl {
     /* Core state */
 
-    /// @notice Base currency unit (e.g. 1e18 for USD)
+    /// @notice Base currency unit (e.g. 1e8 if using Aave's oracle decimals)
     uint256 public immutable BASE_CURRENCY_UNIT;
 
     uint256 public constant CURVE_BASE_CURRENCY_UNIT = 10 ** 18;

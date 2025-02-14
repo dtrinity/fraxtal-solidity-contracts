@@ -301,17 +301,6 @@ export async function performCurveLiquidationImplementation(
       throw new Error("Flash mint liquidator bot contract is not found");
     }
 
-    // Add the liquidatorAccountAddress as a liquidator
-    const isLiquidator = await flashMintLiquidatorBotContract.isLiquidator(
-      liquidatorAccountAddress,
-    );
-
-    if (!isLiquidator) {
-      await flashMintLiquidatorBotContract.addLiquidator(
-        liquidatorAccountAddress,
-      );
-    }
-
     console.log("Liquidating with flash minting");
 
     const txn = await flashMintLiquidatorBotContract
@@ -332,17 +321,6 @@ export async function performCurveLiquidationImplementation(
   } else {
     if (!flashLoanLiquidatorBotContract) {
       throw new Error("Flash loan liquidator bot contract is not found");
-    }
-
-    // Add the liquidatorAccountAddress as a liquidator
-    const isLiquidator = await flashLoanLiquidatorBotContract.isLiquidator(
-      liquidatorAccountAddress,
-    );
-
-    if (!isLiquidator) {
-      await flashLoanLiquidatorBotContract.addLiquidator(
-        liquidatorAccountAddress,
-      );
     }
 
     console.log("Liquidating with flash loan");

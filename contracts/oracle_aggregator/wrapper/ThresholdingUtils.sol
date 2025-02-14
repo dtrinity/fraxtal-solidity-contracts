@@ -28,11 +28,6 @@ abstract contract ThresholdingUtils {
         uint256 fixedPriceInBase;
     }
 
-    struct CompositeThresholdFeed {
-        ThresholdConfig primary; // Primary price source threshold config
-        ThresholdConfig secondary; // Secondary price source threshold config
-    }
-
     /**
      * @notice Apply threshold to a price value
      * @param priceInBase The price to check against threshold

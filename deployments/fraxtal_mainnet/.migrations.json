@@ -29,9 +29,15 @@
   "dUSD:Redeemer": 1734571392,
   "UniswapV3Factory": 1734885302,
   "CurveAPI3CompositeWrapperWithThresholding": 1737403297,
-  "POINT_CURVE_ORACLE_WRAPPER": 1737405952,
+  "PointCurveOracleWrapper": 1737405952,
   "AddFXB20291231Reserve:dTrinity-Lend:lending-core@0.0.0": 1737406028,
-  "CurveHelper": 1737395410,
-  "FlashMintLiquidatorAaveBorrowRepayCurve": 1737395423,
-  "FlashLoanLiquidatorAaveBorrowRepayCurve": 1737395436
+  "PointApi3UsdtOracleWrapper": 1737438148,
+  "Api3MigrationSetupNewWrappers": 1738667569,
+  "dLendBalanceChecker:dTrinity-Lend:0.0.0": 1738733348,
+  "Api3MigrationPointNewWrappers": 1738671826,
+  "CurveHelper": 1739501954,
+  "FlashMintLiquidatorAaveBorrowRepayCurve": 1739501961,
+  "FlashLoanLiquidatorAaveBorrowRepayCurve": 1739501973,
+  "FlashMintLiquidatorAaveBorrowRepayOdos": 1739501985,
+  "FlashLoanLiquidatorAaveBorrowRepayOdos": 1739501997
 }

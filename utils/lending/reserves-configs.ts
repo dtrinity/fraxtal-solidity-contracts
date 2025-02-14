@@ -21,7 +21,7 @@ export const strategyDUSD: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: "1000", // 1000 bps = 10%
   supplyCap: "400000", // these are decimal units, not raw on-chain integer values
-  borrowCap: "380000",
+  borrowCap: "0",
   debtCeiling: "0",
   borrowableIsolation: false,
 };
@@ -39,7 +39,7 @@ export const strategyWETH: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: "1000",
   supplyCap: "300",
-  borrowCap: "50",
+  borrowCap: "0",
   debtCeiling: "0",
   borrowableIsolation: false,
 };
@@ -57,7 +57,7 @@ export const strategyYieldBearingStablecoin: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: "1000",
   supplyCap: "1000000",
-  borrowCap: "200000",
+  borrowCap: "0",
   debtCeiling: "0",
   borrowableIsolation: false,
 };
@@ -66,7 +66,7 @@ export const strategyFXS: IReserveParams = {
   strategy: rateStrategyMediumLiquidityVolatile,
   baseLTVAsCollateral: "6000",
   liquidationThreshold: "7000",
-  liquidationBonus: "11000",
+  liquidationBonus: "10500",
   liquidationProtocolFee: "7000", // 70%
   borrowingEnabled: true,
   stableBorrowRateEnabled: false,
@@ -75,7 +75,7 @@ export const strategyFXS: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: "1000",
   supplyCap: "250000",
-  borrowCap: "50000",
+  borrowCap: "0",
   debtCeiling: "0",
   borrowableIsolation: false,
 };
@@ -84,7 +84,7 @@ export const strategyETHLST: IReserveParams = {
   strategy: rateStrategyMediumLiquidityVolatile,
   baseLTVAsCollateral: "8000",
   liquidationThreshold: "8500",
-  liquidationBonus: "10800",
+  liquidationBonus: "10500",
   liquidationProtocolFee: "7000", // 70%
   borrowingEnabled: false,
   stableBorrowRateEnabled: false,
@@ -93,7 +93,7 @@ export const strategyETHLST: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: "1000",
   supplyCap: "300",
-  borrowCap: "50",
+  borrowCap: "0",
   debtCeiling: "0",
   borrowableIsolation: false,
 };

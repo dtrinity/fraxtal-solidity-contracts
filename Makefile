@@ -241,31 +241,34 @@ deploy-contract.fraxtal_testnet: deploy-contract
 deploy-contract.fraxtal_testnet.reset: network=fraxtal_testnet
 deploy-contract.fraxtal_testnet.reset: deploy-contract.reset
 
-deploy-contract.fraxtal_testnet.dloop: network=fraxtal_testnet
-deploy-contract.fraxtal_testnet.dloop: deployment_prefix=DLoopVault
-deploy-contract.fraxtal_testnet.dloop: clean-deployments
-deploy-contract.fraxtal_testnet.dloop: deploy-contract
+deploy-contract.dloop.fraxtal_testnet: network=fraxtal_testnet
+deploy-contract.dloop.fraxtal_testnet: deployment_prefix=DLoopVault
+deploy-contract.dloop.fraxtal_testnet: clean-deployments
+deploy-contract.dloop.fraxtal_testnet: deploy-contract
+
+deploy-contract.dloop.fraxtal_mainnet: network=fraxtal_mainnet
+deploy-contract.dloop.fraxtal_mainnet: deployment_prefix=DLoopVault
+deploy-contract.dloop.fraxtal_mainnet: clean-deployments
+deploy-contract.dloop.fraxtal_mainnet: deploy-contract
 
 # ---------- Deploy to Fraxtal mainnet ----------
 
 deploy-contract.liquidator-bot:
+	@if [ "$(network)" = "" ]; then \
+		echo "Must provide 'network' argument"; \
+		exit 1; \
+	fi
+	@make clean-deployments network=$(network) deployment_prefix=FlashLoanLiquidator
+	@make clean-deployments network=$(network) deployment_prefix=FlashMintLiquidator
+	@make clean-deployments network=$(network) deployment_prefix=CurveHelper
 	@echo "Deploying liquidator bot contracts to $(network) network..."
 	@yarn hardhat deploy $(flag) --network $(network) --tags "liquidator-bot,curve-helper"
-
-deploy-contract.liquidator-bot.reset: flag="--reset"
-deploy-contract.liquidator-bot.reset: deploy-contract.liquidator-bot
 
 deploy-contract.liquidator-bot.fraxtal_mainnet: network=fraxtal_mainnet
 deploy-contract.liquidator-bot.fraxtal_mainnet: deploy-contract.liquidator-bot
 
-deploy-contract.liquidator-bot.fraxtal_mainnet.reset: network=fraxtal_mainnet
-deploy-contract.liquidator-bot.fraxtal_mainnet.reset: deploy-contract.liquidator-bot.reset
-
 deploy-contract.liquidator-bot.fraxtal_testnet: network=fraxtal_testnet
 deploy-contract.liquidator-bot.fraxtal_testnet: deploy-contract.liquidator-bot
-
-deploy-contract.liquidator-bot.fraxtal_testnet.reset: network=fraxtal_testnet
-deploy-contract.liquidator-bot.fraxtal_testnet.reset: deploy-contract.liquidator-bot.reset
 
 # ---------- Deploy to local_ethereum ----------
 
@@ -520,6 +523,8 @@ docker.dump-image.liquidator-bot:
 	@mkdir -p .tmp
 	@docker save ${LIQUIDATOR_BOT_IMAGE_NAME}:latest > .tmp/${LIQUIDATOR_BOT_IMAGE_NAME}.tar
 
+docker.deploy.liquidator-bot: container_name=${LIQUIDATOR_BOT_IMAGE_NAME}-$(network)-$(dex)
+docker.deploy.liquidator-bot: state_dir_name=$(network)-$(dex)
 docker.deploy.liquidator-bot:
 	@if [ "$(network)" = "" ]; then \
 		echo "Must provide 'network' argument"; \
@@ -541,17 +546,17 @@ docker.deploy.liquidator-bot:
 		file_path=./.env \
 		dest_path=/home/ubuntu/.env
 	@ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
-		"mkdir -p /home/ubuntu/state"
+		"mkdir -p /home/ubuntu/state/$(state_dir_name)"
 	@(ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
-		"docker rm -f ${LIQUIDATOR_BOT_IMAGE_NAME}-$(network) || true") && \
+		"docker rm -f ${container_name} || true") && \
 	ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
 		"docker run \
 			-d \
 			-v /home/ubuntu/.env:/usr/src/.env:ro \
-			-v /home/ubuntu/state:/usr/src/state \
+			-v /home/ubuntu/state/$(state_dir_name):/usr/src/state \
 			--memory 512m \
 			--restart unless-stopped \
-			--name ${LIQUIDATOR_BOT_IMAGE_NAME}-$(network) \
+			--name ${container_name} \
 			${LIQUIDATOR_BOT_IMAGE_NAME}:latest $(network) $(dex)"
 	@ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
 		"docker image prune -f"
@@ -616,6 +621,12 @@ docker.buildanddeploy.liquidator-bot.fraxtal_mainnet: docker.deploy.liquidator-b
 
 docker.buildanddeploy.liquidator-bot.fraxtal_mainnet.curve: dex=curve
 docker.buildanddeploy.liquidator-bot.fraxtal_mainnet.curve: docker.buildanddeploy.liquidator-bot.fraxtal_mainnet
+
+docker.buildanddeploy.liquidator-bot.fraxtal_mainnet.odos: dex=odos
+docker.buildanddeploy.liquidator-bot.fraxtal_mainnet.odos: docker.buildanddeploy.liquidator-bot.fraxtal_mainnet
+
+docker.buildanddeploy.liquidator-bot.fraxtal_mainnet.combo: dex=combo
+docker.buildanddeploy.liquidator-bot.fraxtal_mainnet.combo: docker.buildanddeploy.liquidator-bot.fraxtal_mainnet
 
 docker.buildanddeploy.liquidator-bot.slack-bot: platform=linux/amd64
 docker.buildanddeploy.liquidator-bot.slack-bot: docker.build.liquidator-bot

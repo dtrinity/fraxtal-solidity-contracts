@@ -5,14 +5,14 @@ repos:
     hooks:
       - id: lint-check-typescript
         name: Lint and type-check TypeScript
-        stages: [commit]
+        stages: [pre-commit]
         language: system
         entry: make lint.typescript.ci
         types: [file]  # override `types: [json]`
         files: \.(json|js|ts)$
       - id: lint-check-contract
         name: Lint and type-check Solidity contract
-        stages: [commit]
+        stages: [pre-commit]
         language: system
         entry: make lint.contract.ci
         types: [file]  # override `types: [json]`

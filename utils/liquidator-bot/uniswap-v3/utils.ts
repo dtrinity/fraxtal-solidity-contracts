@@ -201,17 +201,6 @@ export async function performUniswapV3Liquidation(
   }
 
   if (borrowTokenInfo.address === config.liquidatorBotUniswapV3.dUSDAddress) {
-    // Add the liquidatorAccountAddress as a liquidator
-    const isLiquidator = await flashMintLiquidatorBotContract.isLiquidator(
-      liquidatorAccountAddress,
-    );
-
-    if (!isLiquidator) {
-      await flashMintLiquidatorBotContract.addLiquidator(
-        liquidatorAccountAddress,
-      );
-    }
-
     console.log("Liquidating with flash minting");
 
     const txn = await flashMintLiquidatorBotContract
@@ -229,17 +218,6 @@ export async function performUniswapV3Liquidation(
     console.log("Liquidation gas used:", receipt?.gasUsed);
     console.log("Liquidation transaction hash:", receipt?.hash);
   } else {
-    // Add the liquidatorAccountAddress as a liquidator
-    const isLiquidator = await flashLoanLiquidatorBotContract.isLiquidator(
-      liquidatorAccountAddress,
-    );
-
-    if (!isLiquidator) {
-      await flashLoanLiquidatorBotContract.addLiquidator(
-        liquidatorAccountAddress,
-      );
-    }
-
     console.log("Liquidating with flash loan");
 
     const txn = await flashLoanLiquidatorBotContract
@@ -249,6 +227,7 @@ export async function performUniswapV3Liquidation(
         collateralReverseAddresses.aTokenAddress,
         borrowerAccountAddress,
         repayAmount,
+        false,
         false,
         path,
       );

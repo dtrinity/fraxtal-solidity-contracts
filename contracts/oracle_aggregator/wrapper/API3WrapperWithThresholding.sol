@@ -18,40 +18,51 @@
 pragma solidity 0.8.20;
 
 import "./API3Wrapper.sol";
+import "./ThresholdingUtils.sol";
 import "@openzeppelin/contracts-5/access/Ownable.sol";
 
-contract API3WrapperWithThresholding is API3Wrapper {
-    uint256 public lowerThresholdInBase;
-    uint256 public fixedPriceInBase;
+contract API3WrapperWithThresholding is API3Wrapper, ThresholdingUtils {
+    /* State */
+    mapping(address => ThresholdConfig) public assetThresholds;
 
-    constructor(
-        uint256 _baseCurrencyUnit,
-        uint256 _initialLowerThreshold,
-        uint256 _initialFixedPrice
-    ) API3Wrapper(_baseCurrencyUnit) {
-        lowerThresholdInBase = _initialLowerThreshold;
-        fixedPriceInBase = _initialFixedPrice;
-    }
+    /* Events */
+    event ThresholdConfigSet(
+        address indexed asset,
+        uint256 lowerThresholdInBase,
+        uint256 fixedPriceInBase
+    );
+    event ThresholdConfigRemoved(address indexed asset);
+
+    constructor(uint256 _baseCurrencyUnit) API3Wrapper(_baseCurrencyUnit) {}
 
     function getPriceInfo(
         address asset
     ) public view override returns (uint256 price, bool isAlive) {
         (price, isAlive) = super.getPriceInfo(asset);
-
-        if (price > lowerThresholdInBase) {
-            price = fixedPriceInBase;
+        if (isAlive) {
+            ThresholdConfig memory config = assetThresholds[asset];
+            if (config.lowerThresholdInBase > 0) {
+                price = _applyThreshold(price, config);
+            }
         }
     }
 
-    function setLowerThreshold(
-        uint256 _newLowerThreshold
+    function setThresholdConfig(
+        address asset,
+        uint256 lowerThresholdInBase,
+        uint256 fixedPriceInBase
     ) external onlyRole(ORACLE_MANAGER_ROLE) {
-        lowerThresholdInBase = _newLowerThreshold;
+        assetThresholds[asset] = ThresholdConfig({
+            lowerThresholdInBase: lowerThresholdInBase,
+            fixedPriceInBase: fixedPriceInBase
+        });
+        emit ThresholdConfigSet(asset, lowerThresholdInBase, fixedPriceInBase);
     }
 
-    function setFixedPrice(
-        uint256 _newFixedPrice
+    function removeThresholdConfig(
+        address asset
     ) external onlyRole(ORACLE_MANAGER_ROLE) {
-        fixedPriceInBase = _newFixedPrice;
+        delete assetThresholds[asset];
+        emit ThresholdConfigRemoved(asset);
     }
 }

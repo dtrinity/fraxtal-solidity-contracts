@@ -31,7 +31,8 @@ contract API3CompositeWrapperWithThresholding is
     struct CompositeFeed {
         address proxy1;
         address proxy2;
-        CompositeThresholdFeed thresholds;
+        ThresholdConfig primaryThreshold; // Primary price source threshold config
+        ThresholdConfig secondaryThreshold; // Secondary price source threshold config
     }
 
     mapping(address => CompositeFeed) public compositeFeeds;
@@ -74,20 +75,18 @@ contract API3CompositeWrapperWithThresholding is
         uint256 lowerThresholdInBase2,
         uint256 fixedPriceInBase2
     ) external onlyRole(ORACLE_MANAGER_ROLE) {
-        compositeFeeds[asset] = CompositeFeed(
-            proxy1,
-            proxy2,
-            CompositeThresholdFeed({
-                primary: ThresholdConfig({
-                    lowerThresholdInBase: lowerThresholdInBase1,
-                    fixedPriceInBase: fixedPriceInBase1
-                }),
-                secondary: ThresholdConfig({
-                    lowerThresholdInBase: lowerThresholdInBase2,
-                    fixedPriceInBase: fixedPriceInBase2
-                })
+        compositeFeeds[asset] = CompositeFeed({
+            proxy1: proxy1,
+            proxy2: proxy2,
+            primaryThreshold: ThresholdConfig({
+                lowerThresholdInBase: lowerThresholdInBase1,
+                fixedPriceInBase: fixedPriceInBase1
+            }),
+            secondaryThreshold: ThresholdConfig({
+                lowerThresholdInBase: lowerThresholdInBase2,
+                fixedPriceInBase: fixedPriceInBase2
             })
-        );
+        });
         emit CompositeFeedAdded(
             asset,
             proxy1,
@@ -117,10 +116,10 @@ contract API3CompositeWrapperWithThresholding is
         if (feed.proxy1 == address(0) || feed.proxy2 == address(0)) {
             revert FeedNotSet(asset);
         }
-        feed.thresholds.primary.lowerThresholdInBase = lowerThresholdInBase1;
-        feed.thresholds.primary.fixedPriceInBase = fixedPriceInBase1;
-        feed.thresholds.secondary.lowerThresholdInBase = lowerThresholdInBase2;
-        feed.thresholds.secondary.fixedPriceInBase = fixedPriceInBase2;
+        feed.primaryThreshold.lowerThresholdInBase = lowerThresholdInBase1;
+        feed.primaryThreshold.fixedPriceInBase = fixedPriceInBase1;
+        feed.secondaryThreshold.lowerThresholdInBase = lowerThresholdInBase2;
+        feed.secondaryThreshold.fixedPriceInBase = fixedPriceInBase2;
         emit CompositeFeedUpdated(
             asset,
             lowerThresholdInBase1,
@@ -144,27 +143,28 @@ contract API3CompositeWrapperWithThresholding is
         uint256 api3Price1 = value1 > 0 ? uint256(uint224(value1)) : 0;
         uint256 api3Price2 = value2 > 0 ? uint256(uint224(value2)) : 0;
 
+        // Convert both prices to BASE_CURRENCY_UNIT first
         uint256 priceInBase1 = _convertToBaseCurrencyUnit(api3Price1);
         uint256 priceInBase2 = _convertToBaseCurrencyUnit(api3Price2);
 
-        // Apply thresholding to individual prices if specified
-        if (feed.thresholds.primary.lowerThresholdInBase > 0) {
-            api3Price1 = _applyThreshold(api3Price1, feed.thresholds.primary);
+        // Apply thresholding to prices in BASE_CURRENCY_UNIT if specified
+        if (feed.primaryThreshold.lowerThresholdInBase > 0) {
+            priceInBase1 = _applyThreshold(priceInBase1, feed.primaryThreshold);
         }
-        if (feed.thresholds.secondary.lowerThresholdInBase > 0) {
+        if (feed.secondaryThreshold.lowerThresholdInBase > 0) {
             priceInBase2 = _applyThreshold(
                 priceInBase2,
-                feed.thresholds.secondary
+                feed.secondaryThreshold
             );
         }
 
         price = (priceInBase1 * priceInBase2) / BASE_CURRENCY_UNIT;
         isAlive =
             price > 0 &&
-            block.timestamp - timestamp1 <=
-            API3_HEARTBEAT + heartbeatStaleTimeLimit &&
-            block.timestamp - timestamp2 <=
-            API3_HEARTBEAT + heartbeatStaleTimeLimit;
+            timestamp1 + API3_HEARTBEAT + heartbeatStaleTimeLimit >
+            block.timestamp &&
+            timestamp2 + API3_HEARTBEAT + heartbeatStaleTimeLimit >
+            block.timestamp;
     }
 
     function getAssetPrice(

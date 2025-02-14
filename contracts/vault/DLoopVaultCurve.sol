@@ -59,6 +59,8 @@ contract DLoopVaultCurve is DLoopVaultBase {
      * @param _targetLeverageBps Target leverage in basis points
      * @param _swapSlippageTolerance Swap slippage tolerance in basis points
      * @param _maxSubsidyBps Maximum subsidy in basis points
+     * @param _minimumUnderlyingAssetAmount Minimum amount of underlying asset (avoid inflation attack)
+     * @param _minimumSharesAmount Minimum amount of shares (avoid inflation attack)
      */
     constructor(
         string memory _name,
@@ -73,7 +75,9 @@ contract DLoopVaultCurve is DLoopVaultBase {
         uint32 _targetLeverageBps,
         uint256 _swapSlippageTolerance,
         uint256 _maxSubsidyBps,
-        uint256 _maxSlippageSurplusSwapBps
+        uint256 _maxSlippageSurplusSwapBps,
+        uint256 _minimumUnderlyingAssetAmount,
+        uint256 _minimumSharesAmount
     )
         DLoopVaultBase(
             _name,
@@ -84,7 +88,9 @@ contract DLoopVaultCurve is DLoopVaultBase {
             _lendingPoolAddressesProvider,
             _targetLeverageBps,
             _swapSlippageTolerance,
-            _maxSubsidyBps
+            _maxSubsidyBps,
+            _minimumUnderlyingAssetAmount,
+            _minimumSharesAmount
         )
     {
         curveRouter = ICurveRouterNgPoolsOnlyV1(_curveRouter);

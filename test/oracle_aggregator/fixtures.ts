@@ -183,11 +183,7 @@ export const api3OracleFixture = deployments.createFixture(
       await deployContract(
         hre,
         "API3WrapperWithThresholding",
-        [
-          10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-          hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS), // Initial lower threshold
-          hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS), // Initial fixed price
-        ],
+        [10n ** BigInt(AAVE_ORACLE_USD_DECIMALS)],
         undefined,
         deployer,
         undefined,
@@ -360,26 +356,8 @@ export const curveOracleFixture = deployments.createFixture(
       deployer,
     );
     await mockAPI3OracleUSDCContract.setMock(
-      hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS), // Changed from API3_PRICE_DECIMALS
+      hre.ethers.parseUnits("1", API3_PRICE_DECIMALS),
       currentTimestamp,
-    );
-
-    const { address: api3WrapperAddress } = await deployContract(
-      hre,
-      "API3Wrapper",
-      [10n ** BigInt(AAVE_ORACLE_USD_DECIMALS)],
-      undefined,
-      deployer,
-      undefined,
-    );
-    const api3WrapperContract = await hre.ethers.getContractAt(
-      "API3Wrapper",
-      api3WrapperAddress,
-      deployer,
-    );
-    await api3WrapperContract.setProxy(
-      usdcInfo.address,
-      mockAPI3OracleUSDCAddress,
     );
 
     const { address: curveAPI3CompositeWrapperWithThresholdingAddress } =
@@ -408,7 +386,7 @@ export const curveOracleFixture = deployments.createFixture(
     await curveAPI3CompositeWrapperWithThresholdingContract.setCompositeFeed(
       cusdcInfo.address,
       usdcInfo.address,
-      api3WrapperAddress,
+      mockAPI3OracleUSDCAddress, // Use the mock API3 oracle directly as proxy
       hre.ethers.parseUnits("0", AAVE_ORACLE_USD_DECIMALS), // curve threshold
       hre.ethers.parseUnits("0", AAVE_ORACLE_USD_DECIMALS), // curve fixed price
       hre.ethers.parseUnits("0", AAVE_ORACLE_USD_DECIMALS), // api3 threshold
@@ -422,7 +400,7 @@ export const curveOracleFixture = deployments.createFixture(
       curveAPI3CompositeWrapperWithThresholdingAddress,
       usdcToken: usdcInfo,
       cusdcToken: cusdcInfo,
-      api3WrapperAddress,
+      api3WrapperAddress: mockAPI3OracleUSDCAddress, // Return the mock oracle address directly
     };
   },
 );

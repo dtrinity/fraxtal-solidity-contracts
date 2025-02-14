@@ -40,8 +40,8 @@ contract API3Wrapper is IAPI3Wrapper {
 
         isAlive =
             price > 0 &&
-            block.timestamp - timestamp <=
-            API3_HEARTBEAT + heartbeatStaleTimeLimit;
+            timestamp + API3_HEARTBEAT + heartbeatStaleTimeLimit >
+            block.timestamp;
 
         price = _convertToBaseCurrencyUnit(price);
     }

@@ -419,6 +419,20 @@ export async function setMockStaticOracleWrapperPrice(
 }
 
 /**
+ * Get the price of the token in the MockStaticOracleWrapper contract
+ *
+ * @param tokenAddress - The address of the token
+ * @returns - The price of the token
+ */
+export async function getMockStaticOracleWrapperPrice(
+  tokenAddress: string,
+): Promise<bigint> {
+  const oracleContract = await getMockStaticOracleWrapperContract();
+  const price = await oracleContract.getAssetPrice(tokenAddress);
+  return price;
+}
+
+/**
  * Calculates the minimum tick value for a given tick spacing.
  *
  * @param tickSpacing The spacing between ticks.

@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
@@ -8,6 +9,7 @@ import { SWAP_ROUTER_ID } from "../../utils/dex/deploy-ids";
 import { checkIfSwapPathExists } from "../../utils/dex/pool";
 import { convertToSwapPath } from "../../utils/dex/utils";
 import { POOL_ADDRESSES_PROVIDER_ID } from "../../utils/lending/deploy-ids";
+import { getTokenAmountFromAddress } from "../../utils/token";
 import { isLocalNetwork } from "../../utils/utils";
 import { DLOOP_VAULT_UNISWAP_V3_ID_PREFIX } from "../../utils/vault/deploy-ids";
 import {
@@ -111,6 +113,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const tokenName = `dLOOP ${leverageLevel} ${underlyingTokenSymbol}`; // e.g., dLOOP 3X sFRAX
     const tokenSymbol = `${leverageLevel}${underlyingTokenSymbol}`; // e.g., 3XsFRAX
 
+    const minimumUnderlyingAssetAmount = await getTokenAmountFromAddress(
+      vaultConfig.underlyingAssetAddress,
+      vaultConfig.minimumUnderlyingAssetAmount,
+    );
+    const minimumSharesAmount = ethers.parseUnits(
+      vaultConfig.minimumSharesAmount.toString(),
+      18, // vault shares are 18 decimals
+    );
+
     await deployContract(
       hre,
       vaultDeploymentName,
@@ -127,6 +138,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         vaultConfig.targetLeverageBps,
         vaultConfig.swapSlippageTolerance,
         vaultConfig.maxSubsidyBps,
+        minimumUnderlyingAssetAmount,
+        minimumSharesAmount,
       ],
       undefined, // auto-filled gas limit
       await hre.ethers.getSigner(dloopDeployer),

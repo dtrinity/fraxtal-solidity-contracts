@@ -12,8 +12,10 @@ import {
   getDLoopVaultCurveDeploymentName,
   getDLoopVaultUniswapV3DeploymentName,
 } from "../../utils/vault/dloop.utils";
+import { getMockStaticOracleWrapperPrice } from "./utils.dex";
 import {
   approveTokenByAddress,
+  approveTokenByAddressRaw,
   getTokenAmountFromAddress,
   getTokenContractForSymbol,
 } from "./utils.token";
@@ -331,6 +333,26 @@ export async function assertTotalAssetAndSupplyBigInt(
 }
 
 /**
+ * Assert the price of the token in the MockStaticOracleWrapper contract
+ *
+ * @param tokenAddress - The address of the token
+ * @param expectedPrice - The expected price
+ * @param tolerance - The tolerance for float imprecision (default: 1e-6)
+ */
+export async function assertOraclePrice(
+  tokenAddress: string,
+  expectedPrice: number,
+  tolerance: number = 1e-6,
+): Promise<void> {
+  const price = await getMockStaticOracleWrapperPrice(tokenAddress);
+  assert.approximately(
+    Number(ethers.formatUnits(price, AAVE_ORACLE_USD_DECIMALS)),
+    expectedPrice,
+    tolerance * expectedPrice,
+  );
+}
+
+/**
  * Deposit the given amount of assets to the DLoopVault and assert the Deposit event
  * - It also approves the DLoopVault to spend the underlying token
  *
@@ -372,22 +394,42 @@ export async function depositWithApprovalToDLoopFromTokenAddress(
   callerAddress: string,
   assetAmount: number,
 ): Promise<void> {
+  const assetAmountRaw = await getTokenAmountFromAddress(
+    assetAmount.toString(),
+    underlyingTokenAddress,
+  );
+  await depositWithApprovalToDLoopFromTokenAddressRaw(
+    dLOOPsFRAX300Contract,
+    underlyingTokenAddress,
+    callerAddress,
+    assetAmountRaw,
+  );
+}
+
+/**
+ * Deposit the given amount of assets to the DLoopVault and assert the Deposit event
+ *
+ * @param dLOOPsFRAX300Contract - The DLoopVault contract
+ * @param underlyingTokenAddress - The address of the underlying token
+ * @param callerAddress - The address of the caller
+ * @param assetAmountRaw - The amount of assets to deposit in raw format
+ */
+export async function depositWithApprovalToDLoopFromTokenAddressRaw(
+  dLOOPsFRAX300Contract: DLoopVaultBase,
+  underlyingTokenAddress: string,
+  callerAddress: string,
+  assetAmountRaw: bigint,
+): Promise<void> {
   // Approve the vault to spend the underlying token on behalf of testAccount1
-  await approveTokenByAddress(
+  await approveTokenByAddressRaw(
     callerAddress,
     await dLOOPsFRAX300Contract.getAddress(),
     underlyingTokenAddress,
-    100,
+    assetAmountRaw,
   );
 
   // Perform the deposit
-  const tx = await dLOOPsFRAX300Contract.deposit(
-    await getTokenAmountFromAddress(
-      assetAmount.toString(),
-      underlyingTokenAddress,
-    ),
-    callerAddress,
-  );
+  const tx = await dLOOPsFRAX300Contract.deposit(assetAmountRaw, callerAddress);
 
   // Wait for the transaction to be mined
   const receipt = await tx.wait();
@@ -699,28 +741,45 @@ export async function withdrawWithApprovalFromDLoop(
 ): Promise<void> {
   const underlyingTokenAddress =
     await dLOOPsFRAX300Contract.getUnderlyingAssetAddress();
-  const tokenInfo = await fetchTokenInfo(hre, underlyingTokenAddress);
 
-  // Convert assetAmount to the correct decimal representation
-  const assetAmountBigInt = ethers.parseUnits(
+  const assetAmountRaw = await getTokenAmountFromAddress(
     assetAmount.toString(),
-    tokenInfo.decimals,
+    underlyingTokenAddress,
   );
 
+  await withdrawWithApprovalFromDLoopRaw(
+    dLOOPsFRAX300Contract,
+    callerAddress,
+    assetAmountRaw,
+  );
+}
+
+/**
+ * Withdraw assets from the DLoopVault and assert the Withdraw event
+ *
+ * @param dLOOPsFRAX300Contract - The DLoopVault contract
+ * @param callerAddress - The address of the caller
+ * @param assetAmountRaw - The amount of assets to withdraw in raw format
+ */
+export async function withdrawWithApprovalFromDLoopRaw(
+  dLOOPsFRAX300Contract: DLoopVaultBase,
+  callerAddress: string,
+  assetAmountRaw: bigint,
+): Promise<void> {
   // Calculate the number of shares to burn based on the assets to withdraw
-  const shares = await dLOOPsFRAX300Contract.convertToShares(assetAmountBigInt);
+  const shares = await dLOOPsFRAX300Contract.convertToShares(assetAmountRaw);
 
   // Approve the vault to spend the shares on behalf of callerAddress
-  await approveTokenByAddress(
+  await approveTokenByAddressRaw(
     callerAddress,
     await dLOOPsFRAX300Contract.getAddress(),
     await dLOOPsFRAX300Contract.getAddress(), // The vault contract is also the shares token contract
-    Number(ethers.formatUnits(shares, await dLOOPsFRAX300Contract.decimals())),
+    shares,
   );
 
   // Perform the withdraw
   const tx = await dLOOPsFRAX300Contract.withdraw(
-    assetAmountBigInt,
+    assetAmountRaw,
     callerAddress,
     callerAddress,
   );

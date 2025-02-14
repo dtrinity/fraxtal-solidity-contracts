@@ -5,6 +5,7 @@ import { checkIfSwapPathExists } from "../../utils/dex/pool";
 import {
   standardCurveDEXLBPLiquidityFixtureImplementation,
   standardCurveDEXLBPLiquidityWithMockOracleFixtureImplementation,
+  standardMockCurveDEXLBPLiquidityWithMockOracleFixtureImplementation,
   standardUniswapV3DEXLBPLiquidityFixtureImplementation,
   standardUniswapV3DEXLBPLiquidityWithMockOracleFixtureImplementation,
 } from "./fixtures";
@@ -106,3 +107,11 @@ export const standardDLoopCurveFixture = deployments.createFixture(
     }
   },
 );
+
+export const standardDLoopMockCurveWithMockOracleFixture =
+  deployments.createFixture(async ({ deployments }) => {
+    await standardMockCurveDEXLBPLiquidityWithMockOracleFixtureImplementation(
+      deployments,
+      ["dloop"],
+    );
+  });

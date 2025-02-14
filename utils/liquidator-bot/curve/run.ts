@@ -328,7 +328,7 @@ export async function runBotBatch(
 
           // Send successful liquidation notification to Slack
           const successMessage =
-            `<!channel> 🎯 *Successful Liquidation* 🎯\n\n` +
+            `<!channel> 🎯 *Successful Curve DEX Liquidation* 🎯\n\n` +
             `User \`${userInfo.userAddress}\`:\n` +
             `• Health Factor: ${userInfo.healthFactor}\n` +
             `• Profit: $${Number(userState.profitInUSD).toFixed(2)}\n` +
@@ -398,7 +398,7 @@ export async function runBotBatch(
 
         // Send error notification to Slack for significant errors
         const errorMessage =
-          `<!channel> ⚠️ *Liquidation Error* ⚠️\n\n` +
+          `<!channel> ⚠️ *Curve DEX Liquidation Error* ⚠️\n\n` +
           `Failed to liquidate user \`${userInfo.userAddress}\`:\n` +
           `• Health Factor: ${userInfo.healthFactor}\n` +
           `• Error: ${error.message}\n` +

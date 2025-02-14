@@ -22,6 +22,7 @@ export interface Config {
   readonly curve: CurveConfig;
   readonly liquidatorBotUniswapV3?: LiquidatorBotUniswapV3Config;
   readonly liquidatorBotCurve?: LiquidatorBotCurveConfig;
+  readonly liquidatorBotOdos?: LiquidatorBotOdosConfig;
 }
 
 export interface MintConfig {
@@ -98,33 +99,33 @@ export interface LiquidatorBotConfig {
     url: string;
     batchSize: number;
   };
-}
-
-export interface LiquidatorBotUniswapV3Config extends LiquidatorBotConfig {
   // Mapping from token address to the proxy contract address
   readonly proxyContractMap: {
     [tokenAddress: string]: string;
   };
+  // Mapping from token address to whether it requires unstaking
+  readonly isUnstakeTokens: {
+    [tokenAddress: string]: boolean;
+  };
 }
+
+export interface LiquidatorBotUniswapV3Config extends LiquidatorBotConfig {}
 
 export interface LiquidatorBotCurveConfig extends LiquidatorBotConfig {
   readonly swapRouter: string;
   readonly maxSlippageSurplusSwapBps: number;
   readonly defaultSwapSlippageBufferBps: number;
-  // Mapping from token address to whether it requires unstaking
-  readonly isUnstakeTokens: {
-    [tokenAddress: string]: boolean;
-  };
   readonly defaultSwapParamsList: {
     readonly inputToken: string;
     readonly outputToken: string;
     readonly swapExtraParams: CurveSwapExtraParams;
     readonly reverseSwapExtraParams: CurveSwapExtraParams;
   }[];
-  // Mapping from token address to the proxy contract address
-  readonly proxyContractMap: {
-    [tokenAddress: string]: string;
-  };
+}
+
+export interface LiquidatorBotOdosConfig extends LiquidatorBotConfig {
+  readonly odosRouter: string;
+  readonly odosApiUrl: string;
 }
 
 export interface DUSDConfig {
@@ -159,6 +160,8 @@ export interface DLoopUniswapV3Config {
     readonly targetLeverageBps: number;
     readonly swapSlippageTolerance: number;
     readonly maxSubsidyBps: number;
+    readonly minimumUnderlyingAssetAmount: number;
+    readonly minimumSharesAmount: number;
   }[];
 }
 
@@ -179,6 +182,8 @@ export interface DLoopCurveConfig {
     readonly swapSlippageTolerance: number;
     readonly maxSubsidyBps: number;
     readonly maxSlippageSurplusSwapBps: number;
+    readonly minimumUnderlyingAssetAmount: number;
+    readonly minimumSharesAmount: number;
   }[];
 }
 
@@ -189,12 +194,21 @@ export interface OracleWrapperAsset {
 
 export interface OracleAggregatorConfig {
   readonly dUSDAddress: string;
+  readonly priceDecimals: number;
+  readonly hardDusdPeg: number;
   readonly dexOracleAssets: {
     [key: string]: string;
   };
   readonly api3OracleAssets: {
     plainApi3OracleWrappers: {
       [key: string]: string;
+    };
+    api3OracleWrappersWithThresholding: {
+      [key: string]: {
+        proxy: string;
+        lowerThreshold: bigint;
+        fixedPrice: bigint;
+      };
     };
     compositeApi3OracleWrappersWithThresholding: {
       [key: string]: {
@@ -209,20 +223,20 @@ export interface OracleAggregatorConfig {
     };
   };
   readonly curveOracleAssets: {
-    [key: string]: {
-      pool: string;
-      compositeAPI3Feed?: {
-        api3Asset: string;
-        api3Wrapper: string;
-        curveLowerThresholdInBase: bigint;
-        curveFixedPriceInBase: bigint;
-        api3LowerThresholdInBase: bigint;
-        api3FixedPriceInBase: bigint;
+    curveApi3CompositeOracles: {
+      [key: string]: {
+        pool: string;
+        compositeAPI3Feed: {
+          api3Asset: string;
+          api3Proxy: string;
+          curveLowerThresholdInBase: bigint;
+          curveFixedPriceInBase: bigint;
+          api3LowerThresholdInBase: bigint;
+          api3FixedPriceInBase: bigint;
+        };
       };
     };
   };
-  readonly priceDecimals: number;
-  readonly hardDusdPeg: number;
 }
 
 export interface CurveConfig {

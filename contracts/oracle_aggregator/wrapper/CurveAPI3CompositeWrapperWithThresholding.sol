@@ -18,7 +18,7 @@
 pragma solidity 0.8.20;
 
 import "./CurveOracleWrapper.sol";
-import "./API3Wrapper.sol";
+import {IProxy} from "../interface/api3/IProxy.sol";
 import "./ThresholdingUtils.sol";
 
 /**
@@ -30,14 +30,19 @@ contract CurveAPI3CompositeWrapperWithThresholding is
     CurveOracleWrapper,
     ThresholdingUtils
 {
+    /* Constants */
+    uint32 public constant API3_HEARTBEAT = 1 days;
+    uint32 public heartbeatStaleTimeLimit = 1 hours;
+
     /* Errors */
     error API3InvalidPrice(address asset);
 
     /* Types */
     struct CompositeFeed {
         address api3Asset; // Asset to get price from API3
-        address api3Wrapper; // API3 wrapper contract address
-        CompositeThresholdFeed thresholds;
+        address api3Proxy; // API3 proxy contract address
+        ThresholdConfig curveThreshold; // Threshold config for Curve price
+        ThresholdConfig api3Threshold; // Threshold config for API3 price
     }
 
     /* State */
@@ -50,7 +55,7 @@ contract CurveAPI3CompositeWrapperWithThresholding is
     event CompositeFeedSet(
         address indexed asset,
         address indexed api3Asset,
-        address indexed api3Wrapper,
+        address indexed api3Proxy,
         uint256 curveLowerThresholdInBase,
         uint256 curveFixedPriceInBase,
         uint256 api3LowerThresholdInBase,
@@ -69,7 +74,7 @@ contract CurveAPI3CompositeWrapperWithThresholding is
     function setCompositeFeed(
         address asset,
         address api3Asset,
-        address api3Wrapper,
+        address api3Proxy,
         uint256 curveLowerThresholdInBase,
         uint256 curveFixedPriceInBase,
         uint256 api3LowerThresholdInBase,
@@ -80,29 +85,33 @@ contract CurveAPI3CompositeWrapperWithThresholding is
         if (address(poolConfig.pool) == address(0))
             revert AssetNotConfigured(asset);
 
-        // Verify API3 wrapper can provide a price
-        (, bool isAlive) = API3Wrapper(api3Wrapper).getPriceInfo(api3Asset);
-        if (!isAlive) revert API3InvalidPrice(api3Asset);
+        // Verify API3 proxy can provide a price
+        (int224 value, uint32 timestamp) = IProxy(api3Proxy).read();
+        if (
+            value <= 0 ||
+            timestamp + API3_HEARTBEAT + heartbeatStaleTimeLimit <=
+            block.timestamp
+        ) {
+            revert API3InvalidPrice(api3Asset);
+        }
 
         compositeFeeds[asset] = CompositeFeed({
             api3Asset: api3Asset,
-            api3Wrapper: api3Wrapper,
-            thresholds: CompositeThresholdFeed({
-                primary: ThresholdConfig({
-                    lowerThresholdInBase: curveLowerThresholdInBase,
-                    fixedPriceInBase: curveFixedPriceInBase
-                }),
-                secondary: ThresholdConfig({
-                    lowerThresholdInBase: api3LowerThresholdInBase,
-                    fixedPriceInBase: api3FixedPriceInBase
-                })
+            api3Proxy: api3Proxy,
+            curveThreshold: ThresholdConfig({
+                lowerThresholdInBase: curveLowerThresholdInBase,
+                fixedPriceInBase: curveFixedPriceInBase
+            }),
+            api3Threshold: ThresholdConfig({
+                lowerThresholdInBase: api3LowerThresholdInBase,
+                fixedPriceInBase: api3FixedPriceInBase
             })
         });
 
         emit CompositeFeedSet(
             asset,
             api3Asset,
-            api3Wrapper,
+            api3Proxy,
             curveLowerThresholdInBase,
             curveFixedPriceInBase,
             api3LowerThresholdInBase,
@@ -126,34 +135,49 @@ contract CurveAPI3CompositeWrapperWithThresholding is
      */
     function getPriceInfo(
         address asset
-    ) public view override returns (uint256 price, bool isAlive) {
+    ) public view override returns (uint256 priceInBase, bool isAlive) {
         // Get Curve pool price
-        (uint256 curvePrice, bool curveAlive) = super.getPriceInfo(asset);
+        (uint256 curvePriceInBase, bool curveAlive) = super.getPriceInfo(asset);
         if (!curveAlive) return (0, false);
 
         CompositeFeed memory feed = compositeFeeds[asset];
 
         // Apply threshold to Curve price if threshold is configured
-        if (feed.thresholds.primary.lowerThresholdInBase > 0) {
-            curvePrice = _applyThreshold(curvePrice, feed.thresholds.primary);
+        if (feed.curveThreshold.lowerThresholdInBase > 0) {
+            curvePriceInBase = _applyThreshold(
+                curvePriceInBase,
+                feed.curveThreshold
+            );
         }
 
         // If no composite feed for API3, return Curve price
         if (feed.api3Asset == address(0)) {
-            return (curvePrice, true);
+            return (curvePriceInBase, true);
         }
 
         // Get API3 price
-        (uint256 api3Price, bool api3Alive) = API3Wrapper(feed.api3Wrapper)
-            .getPriceInfo(feed.api3Asset);
+        (int224 value, uint32 timestamp) = IProxy(feed.api3Proxy).read();
+        bool api3Alive = value > 0 &&
+            timestamp + API3_HEARTBEAT + heartbeatStaleTimeLimit >
+            block.timestamp;
         if (!api3Alive) return (0, false);
 
+        uint256 api3PriceInBase = _convertToBaseCurrencyUnit(
+            uint256(uint224(value))
+        );
+
         // Apply threshold to API3 price if threshold is configured
-        if (feed.thresholds.secondary.lowerThresholdInBase > 0) {
-            api3Price = _applyThreshold(api3Price, feed.thresholds.secondary);
+        if (feed.api3Threshold.lowerThresholdInBase > 0) {
+            api3PriceInBase = _applyThreshold(
+                api3PriceInBase,
+                feed.api3Threshold
+            );
         }
 
         // Calculate composite price
-        return ((curvePrice * api3Price) / BASE_CURRENCY_UNIT, true);
+        return (
+            (curvePriceInBase * api3PriceInBase) / BASE_CURRENCY_UNIT,
+            true
+        );
     }
 }
