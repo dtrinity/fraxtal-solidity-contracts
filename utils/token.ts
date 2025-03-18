@@ -400,3 +400,21 @@ export async function getTokenAmountFromAddress(
   const tokenInfo = await fetchTokenInfo(hre, tokenAddress);
   return ethers.parseUnits(amount.toString(), tokenInfo.decimals);
 }
+
+/**
+ * Convert a list of token symbols to a list of token addresses
+ *
+ * @param symbols - The list of token symbols
+ * @param TOKEN_INFO - The mapping of token symbols to token info containing addresses
+ * @returns The list of token addresses
+ */
+export function symbolsToAddresses(
+  symbols: string[],
+  TOKEN_INFO: {
+    [symbol: string]: { address: string };
+  },
+): string[] {
+  return symbols.map(
+    (symbol) => TOKEN_INFO[symbol as keyof typeof TOKEN_INFO].address,
+  );
+}

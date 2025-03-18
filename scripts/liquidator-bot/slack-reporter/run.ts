@@ -106,6 +106,7 @@ async function generateDetailedStatsCSVContent(
 }> {
   const { liquidatorBotDeployer } = await hre.getNamedAccounts();
 
+  console.log("Getting reserves list");
   const reservesList = await getReservesList();
 
   const reservesInfoMap: {
@@ -122,6 +123,8 @@ async function generateDetailedStatsCSVContent(
       liquidationThreshold: number;
     };
   } = {};
+
+  console.log("Getting reserves info");
 
   for (const reserve of reservesList) {
     const tokenContract = await hre.ethers.getContractAt(
@@ -149,6 +152,7 @@ async function generateDetailedStatsCSVContent(
     };
   }
 
+  console.log("Getting users reserve balances");
   const usersReserveBalances = await getUsersReserveBalances(
     userDetails.map((user) => user.address),
     healthFactorBatchSize,
@@ -183,6 +187,7 @@ async function generateDetailedStatsCSVContent(
   const config = await getConfig(hre);
 
   // Now generate data rows
+  console.log("Generating data rows");
   const rows = userDetails.map((user) => {
     const ltv = user.totalDebt / user.totalCollateral;
     const row = [
@@ -356,17 +361,24 @@ async function checkHealthFactors(
 
   const liquidatableUsers = userDetails.filter((user) => user.healthFactor < 1);
 
-  if (liquidatableUsers.length > 0) {
+  const mintDebtThreshold = 1e-3;
+  const filteredLiquidatableUsers = liquidatableUsers.filter(
+    (user) => user.totalDebt > mintDebtThreshold,
+  );
+
+  if (filteredLiquidatableUsers.length > 0) {
     // Filter users whose health factor has changed
-    const usersWithChangedHealthFactor = liquidatableUsers.filter((user) => {
-      const lastHealthFactor = lastHealthFactors[user.address];
-      const healthFactorChanged =
-        lastHealthFactor === undefined ||
-        lastHealthFactor !== user.healthFactor;
-      // Update last health factor
-      lastHealthFactors[user.address] = user.healthFactor;
-      return healthFactorChanged;
-    });
+    const usersWithChangedHealthFactor = filteredLiquidatableUsers.filter(
+      (user) => {
+        const lastHealthFactor = lastHealthFactors[user.address];
+        const healthFactorChanged =
+          lastHealthFactor === undefined ||
+          lastHealthFactor !== user.healthFactor;
+        // Update last health factor
+        lastHealthFactors[user.address] = user.healthFactor;
+        return healthFactorChanged;
+      },
+    );
 
     console.log(
       `Found ${usersWithChangedHealthFactor.length} liquidatable users with updated health factors`,
@@ -380,8 +392,8 @@ async function checkHealthFactors(
             `User \`${user.address}\`:\n` +
             `• Health Factor: ${user.healthFactor.toFixed(8)}\n` +
             `• LTV: ${ltv.toFixed(4)}\n` +
-            `• Total Collateral: ${user.totalCollateral.toFixed(2)}\n` +
-            `• Total Debt: ${user.totalDebt.toFixed(2)}\n`
+            `• Total Collateral: ${user.totalCollateral.toFixed(4)}\n` +
+            `• Total Debt: ${user.totalDebt.toFixed(4)}\n`
           );
         })
         .join("\n")}`;
@@ -399,65 +411,72 @@ async function checkHealthFactors(
     Object.keys(lastHealthFactors).forEach(
       (key) => delete lastHealthFactors[key],
     );
+  }
 
-    // Send stats every hour if no liquidatable users
-    const now = Date.now();
+  // Send stats every hour
+  const now = Date.now();
 
-    if (now - lastStatsTime >= STATS_INTERVAL) {
-      console.log("Sending stats message");
-      const activeUsers = userDetails.filter(
-        (user) => user.totalCollateral > 0 || user.totalDebt > 0,
-      );
+  if (now - lastStatsTime >= STATS_INTERVAL) {
+    console.log("Sending stats message");
+    const activeUsers = userDetails.filter(
+      (user) => user.totalCollateral > 0 || user.totalDebt > 0,
+    );
 
-      // We also consider dUSD deposit as well (as it's not counted in the total collateral), thus
-      // as use all users, not just active users
-      const totalCollateral = userDetails.reduce(
-        (sum, user) => sum + user.totalCollateral,
-        0,
-      );
-      const totalDebt = userDetails.reduce(
-        (sum, user) => sum + user.totalDebt,
-        0,
-      );
+    // We also consider dUSD deposit as well (as it's not counted in the total collateral), thus
+    // as use all users, not just active users
+    const totalCollateral = userDetails.reduce(
+      (sum, user) => sum + user.totalCollateral,
+      0,
+    );
+    const totalDebt = userDetails.reduce(
+      (sum, user) => sum + user.totalDebt,
+      0,
+    );
 
-      const nextStatsTime = new Date(now + STATS_INTERVAL);
-      const statsMessage =
-        `📊 *System Status Update* 📊\n\n` +
-        `Bot IP: ${publicIp}\n\n` +
-        `• Total Users: ${allUserAddresses.length}\n` +
-        `• Total Active Users: ${activeUsers.length}\n` +
-        `• Total Collateral: ${totalCollateral.toFixed(2)}\n` +
-        `• Total Debt: ${totalDebt.toFixed(2)}\n` +
-        `• Lowest Health Factor: ${userDetails[0].healthFactor.toFixed(4)} (User: \`${userDetails[0].address}\`)\n` +
-        `\nAll users are in good standing 👍\n` +
-        `Next stats update at: ${nextStatsTime.toISOString()}`;
+    const lowestHealthFactorUser = userDetails[0];
+    const lowestHealthFactorUserFiltered = userDetails.find(
+      (user) => user.totalDebt > mintDebtThreshold,
+    );
 
-      console.log("Generating detailed stats CSV content");
-      const { detailedReportCSVContent, assetInfoContent } =
-        await generateDetailedStatsCSVContent(
-          userDetails,
-          healthFactorBatchSize,
-        );
-      const timestamp = new Date()
-        .toISOString()
-        .replace(/[T:]/g, "_")
-        .slice(0, 19);
+    const nextStatsTime = new Date(now + STATS_INTERVAL);
+    const statsMessage =
+      `📊 *System Status Update* 📊\n\n` +
+      `Bot IP: ${publicIp}\n\n` +
+      `• Total Users: ${allUserAddresses.length}\n` +
+      `• Total Liquidatable Users: ${liquidatableUsers.length}\n` +
+      `• Total Liquidatable Users (debt > ${mintDebtThreshold}): ${filteredLiquidatableUsers.length}\n` +
+      `• Total Active Users: ${activeUsers.length}\n` +
+      `• Total Collateral: ${totalCollateral.toFixed(4)}\n` +
+      `• Total Debt: ${totalDebt.toFixed(4)}\n` +
+      `• Lowest Health Factor: ${lowestHealthFactorUser?.healthFactor.toFixed(4)} (User: \`${lowestHealthFactorUser?.address}\`)\n` +
+      `• Lowest Health Factor (debt > ${mintDebtThreshold}): ${lowestHealthFactorUserFiltered?.healthFactor.toFixed(4)} (User: \`${lowestHealthFactorUserFiltered?.address}\`)\n` +
+      `\nAll users are in good standing 👍\n` +
+      `Next stats update at: ${nextStatsTime.toISOString()}`;
 
-      await sendSlackMessage(statsMessage, [
-        {
-          content: detailedReportCSVContent,
-          filename: `lending_detailed_stats_${timestamp}.csv`,
-          comment:
-            "Detailed CSV report (only for user with non-zero collateral or debt)",
-        },
-        {
-          content: assetInfoContent,
-          filename: `lending_asset_info_${timestamp}.csv`,
-          comment: "Asset info and prices",
-        },
-      ]);
-      lastStatsTime = now;
-    }
+    console.log("Generating detailed stats CSV content");
+    const { detailedReportCSVContent, assetInfoContent } =
+      await generateDetailedStatsCSVContent(userDetails, healthFactorBatchSize);
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[T:]/g, "_")
+      .slice(0, 19);
+
+    console.log("Sending stats message");
+    await sendSlackMessage(statsMessage, [
+      {
+        content: detailedReportCSVContent,
+        filename: `lending_detailed_stats_${timestamp}.csv`,
+        comment:
+          "Detailed CSV report (only for user with non-zero collateral or debt)",
+      },
+      {
+        content: assetInfoContent,
+        filename: `lending_asset_info_${timestamp}.csv`,
+        comment: "Asset info and prices",
+      },
+    ]);
+    console.log("Stats message sent");
+    lastStatsTime = now;
   }
 
   console.log("--------------------------------");

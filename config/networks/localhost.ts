@@ -14,7 +14,7 @@ import {
 import {
   strategyDUSD,
   strategyETHLST,
-  strategyFXS,
+  strategyFXSTestnet,
   strategyWETH,
   strategyYieldBearingStablecoin,
 } from "../../utils/lending/reserves-configs";
@@ -140,7 +140,7 @@ export async function getConfig(
       reservesConfig: {
         WFRXETH: strategyWETH,
         DUSD: strategyDUSD,
-        FXS: strategyFXS,
+        FXS: strategyFXSTestnet,
         SFRAX: strategyYieldBearingStablecoin,
         vSFRAX: strategyYieldBearingStablecoin, // the mock ERC4626 vault token for SFRAX
         SFRXETH: strategyETHLST,

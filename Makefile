@@ -432,6 +432,15 @@ oracle.set-asset-sources.%:
 oracle.set-asset-sources.fraxtal_testnet:
 oracle.set-asset-sources.localhost:
 
+oracle.set-mock-price.%:
+	@echo "Setting mock price..."
+	@price=$(price) yarn hardhat run \
+		--network $* \
+		scripts/oracle/set_mock_price.ts
+
+oracle.set-mock-price.fraxtal_testnet:
+oracle.set-mock-price.localhost:
+
 # ---------- Liquidator Bot ----------
 run.liquidator-bot.%:
 	@if [ "$(dex)" = "" ]; then \
@@ -489,7 +498,8 @@ docker.buildandrun.liquidator-bot.arm64:
 		-v $(shell pwd)/state:/usr/src/state \
 		--memory 768m \
 		--restart unless-stopped \
-		--name ${LIQUIDATOR_BOT_IMAGE_NAME}-$(network) \
+		--platform $(platform) \
+		--name ${LIQUIDATOR_BOT_IMAGE_NAME}-$(network)-$(dex) \
 		${LIQUIDATOR_BOT_IMAGE_NAME}:latest $(network) $(dex)
 
 docker.buildandrun.liquidator-bot.slack-bot: docker.build.liquidator-bot
@@ -509,8 +519,9 @@ docker.buildandrun.liquidator-bot.slack-bot:
 		--memory 768m \
 		--restart unless-stopped \
 		--entrypoint /usr/src/scripts/docker-entrypoint-slack-bot.sh \
+		--platform $(platform) \
 		--name ${LIQUIDATOR_BOT_IMAGE_NAME}-slack-bot \
-		${LIQUIDATOR_BOT_IMAGE_NAME}:latest $(network)
+		${LIQUIDATOR_BOT_IMAGE_NAME}:latest $(network) 10
 
 docker.buildandrun.liquidator-bot.slack-bot.amd64: platform=linux/amd64
 docker.buildandrun.liquidator-bot.slack-bot.amd64: docker.buildandrun.liquidator-bot.slack-bot
@@ -519,13 +530,35 @@ docker.buildandrun.liquidator-bot.slack-bot.arm64: platform=linux/arm64
 docker.buildandrun.liquidator-bot.slack-bot.arm64: docker.buildandrun.liquidator-bot.slack-bot
 
 docker.dump-image.liquidator-bot:
-	@echo "Exporting docker image to ./.tmp/${LIQUIDATOR_BOT_IMAGE_NAME}.tar..."
+	@if [ "$(output_file_name)" = "" ]; then \
+		echo "Must provide 'output_file_name' argument"; \
+		exit 1; \
+	fi
+	@echo "Exporting docker image to ./.tmp/$(output_file_name).tar..."
 	@mkdir -p .tmp
-	@docker save ${LIQUIDATOR_BOT_IMAGE_NAME}:latest > .tmp/${LIQUIDATOR_BOT_IMAGE_NAME}.tar
+	@docker save ${LIQUIDATOR_BOT_IMAGE_NAME}:latest > .tmp/$(output_file_name).tar
+
+docker.buildanddump-image.liquidator-bot: docker.build.liquidator-bot
+docker.buildanddump-image.liquidator-bot: output_file_name=${LIQUIDATOR_BOT_IMAGE_NAME}
+docker.buildanddump-image.liquidator-bot: docker.dump-image.liquidator-bot
+
+docker.buildanddump-image.liquidator-bot.arm64: platform=linux/arm64
+docker.buildanddump-image.liquidator-bot.arm64: docker.build.liquidator-bot
+docker.buildanddump-image.liquidator-bot.arm64: output_file_name=${LIQUIDATOR_BOT_IMAGE_NAME}-arm64
+docker.buildanddump-image.liquidator-bot.arm64: docker.dump-image.liquidator-bot
+
+docker.buildanddump-image.liquidator-bot.amd64: platform=linux/amd64
+docker.buildanddump-image.liquidator-bot.amd64: docker.build.liquidator-bot
+docker.buildanddump-image.liquidator-bot.amd64: output_file_name=${LIQUIDATOR_BOT_IMAGE_NAME}-amd64
+docker.buildanddump-image.liquidator-bot.amd64: docker.dump-image.liquidator-bot
 
 docker.deploy.liquidator-bot: container_name=${LIQUIDATOR_BOT_IMAGE_NAME}-$(network)-$(dex)
 docker.deploy.liquidator-bot: state_dir_name=$(network)-$(dex)
 docker.deploy.liquidator-bot:
+	@if [ "$(platform)" = "" ]; then \
+		echo "Must provide 'platform' argument"; \
+		exit 1; \
+	fi
 	@if [ "$(network)" = "" ]; then \
 		echo "Must provide 'network' argument"; \
 		exit 1; \
@@ -556,6 +589,7 @@ docker.deploy.liquidator-bot:
 			-v /home/ubuntu/state/$(state_dir_name):/usr/src/state \
 			--memory 512m \
 			--restart unless-stopped \
+			--platform $(platform) \
 			--name ${container_name} \
 			${LIQUIDATOR_BOT_IMAGE_NAME}:latest $(network) $(dex)"
 	@ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
@@ -569,6 +603,10 @@ docker.deploy.liquidator-bot.fraxtal_mainnet: docker.deploy.liquidator-bot
 
 docker.deploy.liquidator-bot.slack-bot: healthFactorBatchSize=1
 docker.deploy.liquidator-bot.slack-bot:
+	@if [ "$(platform)" = "" ]; then \
+		echo "Must provide 'platform' argument"; \
+		exit 1; \
+	fi
 	@if [ "$(network)" = "" ]; then \
 		echo "Must provide 'network' argument"; \
 		exit 1; \
@@ -598,6 +636,7 @@ docker.deploy.liquidator-bot.slack-bot:
 			--cpus 0.5 \
 			--memory 512m \
 			--restart unless-stopped \
+			--platform $(platform) \
 			--name ${LIQUIDATOR_BOT_IMAGE_NAME}-slack-bot \
 			${LIQUIDATOR_BOT_IMAGE_NAME}:latest $(network) $(healthFactorBatchSize)"
 	@ssh -i $(LIQUIDATOR_BOT_SSH_KEY_PATH) ubuntu@$(LIQUIDATOR_BOT_HOST) \
@@ -606,6 +645,7 @@ docker.deploy.liquidator-bot.slack-bot:
 docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: network=fraxtal_testnet
 docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: platform=linux/amd64
 docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: docker.build.liquidator-bot
+docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: output_file_name=${LIQUIDATOR_BOT_IMAGE_NAME}
 docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: remote.push-image.liquidator-bot
 docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: dex=curve
 docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: docker.deploy.liquidator-bot
@@ -616,6 +656,7 @@ docker.buildanddeploy.liquidator-bot.fraxtal_testnet.curve: docker.buildanddeplo
 docker.buildanddeploy.liquidator-bot.fraxtal_mainnet: network=fraxtal_mainnet
 docker.buildanddeploy.liquidator-bot.fraxtal_mainnet: platform=linux/amd64
 docker.buildanddeploy.liquidator-bot.fraxtal_mainnet: docker.build.liquidator-bot
+docker.buildanddeploy.liquidator-bot.fraxtal_mainnet: output_file_name=${LIQUIDATOR_BOT_IMAGE_NAME}
 docker.buildanddeploy.liquidator-bot.fraxtal_mainnet: remote.push-image.liquidator-bot
 docker.buildanddeploy.liquidator-bot.fraxtal_mainnet: docker.deploy.liquidator-bot.fraxtal_mainnet
 
@@ -630,6 +671,7 @@ docker.buildanddeploy.liquidator-bot.fraxtal_mainnet.combo: docker.buildanddeplo
 
 docker.buildanddeploy.liquidator-bot.slack-bot: platform=linux/amd64
 docker.buildanddeploy.liquidator-bot.slack-bot: docker.build.liquidator-bot
+docker.buildanddeploy.liquidator-bot.slack-bot: output_file_name=${LIQUIDATOR_BOT_IMAGE_NAME}
 docker.buildanddeploy.liquidator-bot.slack-bot: remote.push-image.liquidator-bot
 docker.buildanddeploy.liquidator-bot.slack-bot: docker.deploy.liquidator-bot.slack-bot
 
@@ -729,6 +771,15 @@ check-all-users-health-factor.fraxtal_testnet: check-all-users-health-factor
 check-all-users-health-factor.fraxtal_mainnet: network=fraxtal_mainnet
 check-all-users-health-factor.fraxtal_mainnet: check-all-users-health-factor
 
+## ---------- Utility ----------
+zip-directory:
+	@if [ "$(directory)" = "" ]; then \
+		echo "Must provide 'directory' argument"; \
+		exit 1; \
+	fi
+	@echo "Zipping directory $(directory)..."
+	@cd $(directory)/.. && zip -r $(shell basename $(directory)).zip $(shell basename $(directory))
+
 ## ---------- Public code publishing----------
 
 copy-to-public:
@@ -749,3 +800,34 @@ copy-to-public:
 	@# Clean up temp directory
 	@rm -rf .tmp/public-copy
 	@echo "Files copied successfully. Note: You'll need to commit changes in ../public-solidity-contracts manually"
+
+create-public-docker-image.liquidator-bot.arm64: docker.buildanddump-image.liquidator-bot.arm64
+create-public-docker-image.liquidator-bot.arm64:
+	@if [ "$(output_dir)" = "" ]; then \
+		echo "Must provide 'output_dir' argument"; \
+		exit 1; \
+	fi
+	@echo "Creating public docker image for arm64 in $(output_dir)"
+	@mkdir -p "$(output_dir)"; \
+	cp -r liquidator-bot-image/materials/arm64 "$(output_dir)/"; \
+	cp .tmp/${LIQUIDATOR_BOT_IMAGE_NAME}-arm64.tar "$(output_dir)/arm64"; \
+	make zip-directory directory="$(output_dir)/arm64"; \
+	echo "Docker images saved to $(output_dir)"
+
+create-public-docker-image.liquidator-bot.amd64: docker.buildanddump-image.liquidator-bot.amd64
+create-public-docker-image.liquidator-bot.amd64:
+	@if [ "$(output_dir)" = "" ]; then \
+		echo "Must provide 'output_dir' argument"; \
+		exit 1; \
+	fi
+	@echo "Creating public docker image for amd64 in $(output_dir)"
+	@mkdir -p "$(output_dir)"; \
+	cp -r liquidator-bot-image/materials/amd64-x86_64 "$(output_dir)/"; \
+	cp .tmp/${LIQUIDATOR_BOT_IMAGE_NAME}-amd64.tar "$(output_dir)/amd64-x86_64"; \
+	make zip-directory directory="$(output_dir)/amd64-x86_64"; \
+	echo "Docker images saved to $(output_dir)"
+
+create-public-docker-image.liquidator-bot.all: output_dir=./liquidator-bot-image/$(shell date "+%Y-%m-%d_%H-%M-%S")
+create-public-docker-image.liquidator-bot.all:
+	@make create-public-docker-image.liquidator-bot.arm64 output_dir=$(output_dir)
+	@make create-public-docker-image.liquidator-bot.amd64 output_dir=$(output_dir)

@@ -62,7 +62,8 @@ export const strategyYieldBearingStablecoin: IReserveParams = {
   borrowableIsolation: false,
 };
 
-export const strategyFXS: IReserveParams = {
+// This strategy is used for testing on Fraxtal testnet and local dev
+export const strategyFXSTestnet: IReserveParams = {
   strategy: rateStrategyMediumLiquidityVolatile,
   baseLTVAsCollateral: "6000",
   liquidationThreshold: "7000",
@@ -75,6 +76,24 @@ export const strategyFXS: IReserveParams = {
   aTokenImpl: eContractid.AToken,
   reserveFactor: "1000",
   supplyCap: "250000",
+  borrowCap: "0",
+  debtCeiling: "0",
+  borrowableIsolation: false,
+};
+
+export const strategyFRAX: IReserveParams = {
+  strategy: rateStrategyMediumLiquidityVolatile,
+  baseLTVAsCollateral: "6000",
+  liquidationThreshold: "6500",
+  liquidationBonus: "10500",
+  liquidationProtocolFee: "7000", // 70%
+  borrowingEnabled: false,
+  stableBorrowRateEnabled: false,
+  flashLoanEnabled: true,
+  reserveDecimals: "18",
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: "1000",
+  supplyCap: "62500",
   borrowCap: "0",
   debtCeiling: "0",
   borrowableIsolation: false,
@@ -114,4 +133,42 @@ export const strategyFXB20291231: IReserveParams = {
   borrowCap: "0",
   debtCeiling: "0",
   borrowableIsolation: false,
+};
+
+export const strategyscrvUSD: IReserveParams = {
+  strategy: rateStrategyMediumLiquidityVolatile,
+  baseLTVAsCollateral: "8000",
+  liquidationThreshold: "8500",
+  liquidationBonus: "10500",
+  liquidationProtocolFee: "7000", // 70%
+  borrowingEnabled: false,
+  stableBorrowRateEnabled: false,
+  flashLoanEnabled: true,
+  reserveDecimals: "18",
+  aTokenImpl: eContractid.AToken,
+  reserveFactor: "1000",
+  supplyCap: "200000",
+  borrowCap: "0",
+  debtCeiling: "0",
+  borrowableIsolation: false,
+};
+
+export const strategyFXB20551231: IReserveParams = {
+  ...strategyFXB20291231,
+  supplyCap: "2000000",
+};
+
+export const strategyFXB20251231: IReserveParams = {
+  ...strategyFXB20291231,
+  supplyCap: "500000",
+};
+
+export const strategysDAI: IReserveParams = {
+  ...strategyYieldBearingStablecoin,
+  supplyCap: "175000",
+};
+
+export const strategyUSDe: IReserveParams = {
+  ...strategyYieldBearingStablecoin,
+  supplyCap: "350000",
 };

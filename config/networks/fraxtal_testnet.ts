@@ -12,7 +12,7 @@ import {
 import {
   strategyDUSD,
   strategyETHLST,
-  strategyFXS,
+  strategyFXSTestnet,
   strategyWETH,
   strategyYieldBearingStablecoin,
 } from "../../utils/lending/reserves-configs";
@@ -153,7 +153,7 @@ export async function getConfig(
         wfrxETH: strategyWETH,
         dUSD: strategyDUSD,
         sFRAX: strategyYieldBearingStablecoin,
-        FXS: strategyFXS,
+        FXS: strategyFXSTestnet,
         sfrxETH: strategyETHLST,
         sUSDe: strategyYieldBearingStablecoin,
         sDAI: strategyYieldBearingStablecoin,

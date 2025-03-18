@@ -55,4 +55,6 @@ state/
 remote-state/
 
 # Docker image
-liquidator-bot-image
+liquidator-bot-image/*
+# Exclude materials directory
+!liquidator-bot-image/materials

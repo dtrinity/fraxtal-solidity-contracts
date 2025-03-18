@@ -3,42 +3,102 @@ import { runOdosBot } from "../../../utils/liquidator-bot/odos/run";
 import { printLog } from "../../../utils/liquidator-bot/shared/log";
 
 /**
+ * Runs the Odos bot up to maxOdosFailureCount times, waiting waitSecondsBetweenTrials seconds between each trial
+ *
+ * @param index - The index of the trial
+ * @param maxOdosFailureCount - The maximum number of failures for Odos bot
+ * @param waitSecondsBetweenTrials - The number of seconds to wait between each trial
+ * @returns true if the Odos bot succeeds, false otherwise
+ */
+async function runOdosTrials(
+  index: number,
+  maxOdosFailureCount: number,
+  waitSecondsBetweenTrials: number,
+): Promise<boolean> {
+  for (let i = 0; i < maxOdosFailureCount; i++) {
+    printLog(index, `Running Odos trial ${i + 1}`);
+
+    try {
+      await runOdosBot(index);
+      return true;
+    } catch (error: any) {
+      printLog(index, `Odos trial ${i + 1} failed`);
+      console.error(error);
+      printLog(
+        index,
+        `Waiting for ${waitSecondsBetweenTrials} seconds before retrying the Odos bot`,
+      );
+      await new Promise((resolve) =>
+        setTimeout(resolve, waitSecondsBetweenTrials * 1000),
+      );
+    }
+  }
+  return false;
+}
+
+/**
+ * Runs the Curve bot up to maxCurveFailureCount times, waiting waitSecondsBetweenTrials seconds between each trial
+ *
+ * @param index - The index of the trial
+ * @param maxCurveFailureCount - The maximum number of failures for Curve bot
+ * @param waitSecondsBetweenTrials - The number of seconds to wait between each trial
+ * @returns true if the Curve bot succeeds, false otherwise
+ */
+async function runCurveTrial(
+  index: number,
+  maxCurveFailureCount: number,
+  waitSecondsBetweenTrials: number,
+): Promise<boolean> {
+  for (let i = 0; i < maxCurveFailureCount; i++) {
+    printLog(index, `Running Curve trial ${i + 1}`);
+
+    try {
+      await runCurveBot(index);
+      return true;
+    } catch (error: any) {
+      printLog(index, `Curve trial ${i + 1} failed`);
+      console.error(error);
+      printLog(
+        index,
+        `Waiting for ${waitSecondsBetweenTrials} seconds before retrying the Curve bot`,
+      );
+      await new Promise((resolve) =>
+        setTimeout(resolve, waitSecondsBetweenTrials * 1000),
+      );
+    }
+  }
+  return false;
+}
+
+/**
  * The entry point for the combo liquidator bot that tries Odos first, then falls back to Curve
  */
 async function main(): Promise<void> {
   let index = 1;
-  let odosFailureCount = 0;
-  const maxOdosFailureCount = 3;
+  const maxOdosFailureCount = 5;
+  const maxCurveFailureCount = 3;
 
   while (true) {
     printLog(index, `Running combo liquidator bot`);
 
     try {
-      if (odosFailureCount < maxOdosFailureCount) {
-        await runOdosBot(index);
-        // Reset failure count on success
-        odosFailureCount = 0;
-      } else {
-        await runCurveBot(index);
+      // First, it tries Odos bot for multiple times
+      const odosSuccess = await runOdosTrials(index, maxOdosFailureCount, 2);
+
+      // If Odos bot tries failed, it falls back to Curve bot (with multiple tries)
+      if (!odosSuccess) {
+        printLog(index, `Odos bot failed, falling back to Curve bot`);
+        await runCurveTrial(index, maxCurveFailureCount, 2);
       }
     } catch (error: any) {
-      // If error includes `No defined pools`, we can safely ignore it
-      if (error.message.includes("No defined pools")) {
-        printLog(index, `No defined pools, skipping`);
-      } else {
-        console.error(error);
-
-        if (odosFailureCount < maxOdosFailureCount) {
-          odosFailureCount++;
-          printLog(
-            index,
-            `Odos failure count: ${odosFailureCount} of ${maxOdosFailureCount}`,
-          );
-        }
-      }
+      printLog(index, `Error running combo liquidator bot`);
+      console.error(error);
     }
 
-    console.log(``);
+    printLog(
+      index,
+      `Waiting for 5 seconds before running the combo liquidator bot again`,
+    );
     // Wait for 5 seconds before running the bot again
     await new Promise((resolve) => setTimeout(resolve, 5000));
     index++;

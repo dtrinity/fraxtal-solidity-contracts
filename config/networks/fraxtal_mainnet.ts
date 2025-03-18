@@ -11,7 +11,13 @@ import {
 import {
   strategyDUSD,
   strategyETHLST,
+  strategyFRAX,
+  strategyFXB20251231,
   strategyFXB20291231,
+  strategyFXB20551231,
+  strategyscrvUSD,
+  strategysDAI,
+  strategyUSDe,
   strategyWETH,
   strategyYieldBearingStablecoin,
 } from "../../utils/lending/reserves-configs";
@@ -33,11 +39,11 @@ export const TOKEN_INFO = {
     address: "0x788D96f655735f52c676A133f4dFC53cEC614d4A",
     priceAggregator: "", // Fall back to OracleAggregator
   },
-  FRAX: {
+  frxUSD: {
     address: "0xfc00000000000000000000000000000000000001",
     priceAggregator: "", // Fall back to OracleAggregator
   },
-  sFRAX: {
+  sfrxUSD: {
     address: "0xfc00000000000000000000000000000000000008",
     priceAggregator: "", // Fall back to OracleAggregator
   },
@@ -70,6 +76,29 @@ export const TOKEN_INFO = {
     address: "0xf1e2b576af4c6a7ee966b14c810b772391e92153",
     priceAggregator: "", // Fall back to OracleAggregator
   },
+  FRAX: {
+    // fka FXS
+    address: "0xfc00000000000000000000000000000000000002",
+    priceAggregator: "", // Fall back to OracleAggregator
+  },
+  scrvUSD: {
+    address: "0xab94c721040b33aa8b0b4d159da9878e2a836ed0",
+    priceAggregator: "", // Fall back to OracleAggregator
+  },
+  crvUSD: {
+    address: "0xb102f7efa0d5de071a8d37b3548e1c7cb148caf3",
+    priceAggregator: "", // Fall back to OracleAggregator
+  },
+  FXB20551231: {
+    // Frax Bond 20551231
+    address: "0xc38173d34afaea88bc482813b3cd267bc8a1ea83",
+    priceAggregator: "", // Fall back to OracleAggregator
+  },
+  FXB20251231: {
+    // Frax Bond 20251231
+    address: "0xaca9a33698cf96413a40a4eb9e87906ff40fc6ca",
+    priceAggregator: "", // Fall back to OracleAggregator
+  },
 };
 
 /**
@@ -82,7 +111,7 @@ export async function getConfig(
   _hre: HardhatRuntimeEnvironment,
 ): Promise<Config> {
   return {
-    mintInfos: undefined, // No minting on testnet
+    mintInfos: undefined, // No minting on mainnet
     dex: {
       weth9Address: TOKEN_INFO.wfrxETH.address,
       permit2Address: "0x000000000022D473030F116dDEE9F6B43aC78BA3",
@@ -133,9 +162,15 @@ export async function getConfig(
         dUSD: strategyDUSD,
         wfrxETH: strategyWETH,
         sfrxETH: strategyETHLST,
-        sFRAX: strategyYieldBearingStablecoin,
+        sfrxUSD: strategyYieldBearingStablecoin,
         sUSDe: strategyYieldBearingStablecoin,
         FXB20291231: strategyFXB20291231,
+        FRAX: strategyFRAX,
+        scrvUSD: strategyscrvUSD,
+        FXB20551231: strategyFXB20551231,
+        FXB20251231: strategyFXB20251231,
+        sDAI: strategysDAI,
+        USDe: strategyUSDe,
       },
       // No stable rate borrowing, feature is disabled
       rateStrategies: [
@@ -174,9 +209,9 @@ export async function getConfig(
           swapExtraParams: {
             route: [
               TOKEN_INFO.dUSD.address,
-              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
-              TOKEN_INFO.FRAX.address,
-              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // FRAX/wfrxETH pool
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // frxUSD/dUSD pool
+              TOKEN_INFO.frxUSD.address,
+              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // frxUSD/wfrxETH pool
               TOKEN_INFO.wfrxETH.address,
               "0x0000000000000000000000000000000000000000",
               "0x0000000000000000000000000000000000000000",
@@ -197,9 +232,9 @@ export async function getConfig(
           reverseSwapExtraParams: {
             route: [
               TOKEN_INFO.wfrxETH.address,
-              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // FRAX/wfrxETH pool
-              TOKEN_INFO.FRAX.address,
-              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
+              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // frxUSD/wfrxETH pool
+              TOKEN_INFO.frxUSD.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // frxUSD/dUSD pool
               TOKEN_INFO.dUSD.address,
               "0x0000000000000000000000000000000000000000",
               "0x0000000000000000000000000000000000000000",
@@ -224,9 +259,9 @@ export async function getConfig(
           swapExtraParams: {
             route: [
               TOKEN_INFO.dUSD.address,
-              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
-              TOKEN_INFO.FRAX.address,
-              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // FRAX/wfrxETH pool
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // frxUSD/dUSD pool
+              TOKEN_INFO.frxUSD.address,
+              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // frxUSD/wfrxETH pool
               TOKEN_INFO.wfrxETH.address,
               "0xf2f426fe123de7b769b2d4f8c911512f065225d3", // sfrxETH/wfrxETH pool
               TOKEN_INFO.sfrxETH.address,
@@ -250,7 +285,7 @@ export async function getConfig(
               "0xf2f426fe123de7b769b2d4f8c911512f065225d3",
               TOKEN_INFO.wfrxETH.address,
               "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569",
-              TOKEN_INFO.FRAX.address,
+              TOKEN_INFO.frxUSD.address,
               "0x9ca648d2f51098941688db9a0beb1dadc2d1b357",
               TOKEN_INFO.dUSD.address,
               "0x0000000000000000000000000000000000000000",
@@ -274,9 +309,9 @@ export async function getConfig(
           swapExtraParams: {
             route: [
               TOKEN_INFO.dUSD.address,
-              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
-              TOKEN_INFO.FRAX.address,
-              "0x8b4e5263e8d6cc0bbf31edf14491fc6077b88229", // FRAX/USDe pool
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // frxUSD/dUSD pool
+              TOKEN_INFO.frxUSD.address,
+              "0x8b4e5263e8d6cc0bbf31edf14491fc6077b88229", // frxUSD/USDe pool
               TOKEN_INFO.sUSDe.address,
               "0x0000000000000000000000000000000000000000",
               "0x0000000000000000000000000000000000000000",
@@ -297,9 +332,9 @@ export async function getConfig(
           reverseSwapExtraParams: {
             route: [
               TOKEN_INFO.sUSDe.address,
-              "0x8b4e5263e8d6cc0bbf31edf14491fc6077b88229", // FRAX/USDe pool
-              TOKEN_INFO.FRAX.address,
-              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
+              "0x8b4e5263e8d6cc0bbf31edf14491fc6077b88229", // frxUSD/USDe pool
+              TOKEN_INFO.frxUSD.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // frxUSD/dUSD pool
               TOKEN_INFO.dUSD.address,
               "0x0000000000000000000000000000000000000000",
               "0x0000000000000000000000000000000000000000",
@@ -320,18 +355,18 @@ export async function getConfig(
         },
         {
           inputToken: TOKEN_INFO.dUSD.address,
-          outputToken: TOKEN_INFO.sFRAX.address,
+          outputToken: TOKEN_INFO.sfrxUSD.address,
           swapExtraParams: {
             route: [
               TOKEN_INFO.dUSD.address,
-              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
-              TOKEN_INFO.FRAX.address,
-              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // FRAX/wfrxETH pool
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // frxUSD/dUSD pool
+              TOKEN_INFO.frxUSD.address,
+              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // frxUSD/wfrxETH pool
               TOKEN_INFO.wfrxETH.address,
               "0xf2f426fe123de7b769b2d4f8c911512f065225d3", // sfrxETH/wfrxETH pool
               TOKEN_INFO.sfrxETH.address,
-              "0xacdc85afcd8b83eb171affcbe29fad204f6ae45c", // sFRAX/sfrxETH pool
-              TOKEN_INFO.sFRAX.address,
+              "0xacdc85afcd8b83eb171affcbe29fad204f6ae45c", // sfrxUSD/sfrxETH pool
+              TOKEN_INFO.sfrxUSD.address,
               "0x0000000000000000000000000000000000000000",
               "0x0000000000000000000000000000000000000000",
             ],
@@ -346,14 +381,14 @@ export async function getConfig(
           },
           reverseSwapExtraParams: {
             route: [
-              TOKEN_INFO.sFRAX.address,
-              "0xacdc85afcd8b83eb171affcbe29fad204f6ae45c", // sFRAX/sfrxETH pool
+              TOKEN_INFO.sfrxUSD.address,
+              "0xacdc85afcd8b83eb171affcbe29fad204f6ae45c", // sfrxUSD/sfrxETH pool
               TOKEN_INFO.sfrxETH.address,
               "0xf2f426fe123de7b769b2d4f8c911512f065225d3", // sfrxETH/wfrxETH pool
               TOKEN_INFO.wfrxETH.address,
-              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // FRAX/wfrxETH pool
-              TOKEN_INFO.FRAX.address,
-              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // FRAX/dUSD pool
+              "0xa0d3911349e701a1f49c1ba2dda34b4ce9636569", // frxUSD/wfrxETH pool
+              TOKEN_INFO.frxUSD.address,
+              "0x9ca648d2f51098941688db9a0beb1dadc2d1b357", // frxUSD/dUSD pool
               TOKEN_INFO.dUSD.address,
               "0x0000000000000000000000000000000000000000",
               "0x0000000000000000000000000000000000000000",
@@ -370,14 +405,14 @@ export async function getConfig(
         },
         {
           inputToken: TOKEN_INFO.dUSD.address,
-          outputToken: TOKEN_INFO.FRAX.address,
+          outputToken: TOKEN_INFO.frxUSD.address,
           swapExtraParams: {
             route: [
               TOKEN_INFO.dUSD.address,
               "0xf16f226baa419d9dc9d92c040ccbc8c0e25f36d7",
               TOKEN_INFO.sUSDe.address,
               "0x8b4e5263e8d6cc0bbf31edf14491fc6077b88229",
-              TOKEN_INFO.FRAX.address,
+              TOKEN_INFO.frxUSD.address,
               "0x0000000000000000000000000000000000000000",
               "0x0000000000000000000000000000000000000000",
               "0x0000000000000000000000000000000000000000",
@@ -396,7 +431,7 @@ export async function getConfig(
           },
           reverseSwapExtraParams: {
             route: [
-              TOKEN_INFO.FRAX.address,
+              TOKEN_INFO.frxUSD.address,
               "0x9ca648d2f51098941688db9a0beb1dadc2d1b357",
               TOKEN_INFO.dUSD.address,
               "0x0000000000000000000000000000000000000000",
@@ -425,7 +460,7 @@ export async function getConfig(
             route: [
               TOKEN_INFO.dUSD.address,
               "0x9ca648d2f51098941688db9a0beb1dadc2d1b357",
-              TOKEN_INFO.FRAX.address,
+              TOKEN_INFO.frxUSD.address,
               "0xee454138083b9b9714cac3c7cf12560248d76d6b",
               TOKEN_INFO.FXB20291231.address,
               "0x0000000000000000000000000000000000000000",
@@ -448,7 +483,7 @@ export async function getConfig(
             route: [
               TOKEN_INFO.FXB20291231.address,
               "0xee454138083b9b9714cac3c7cf12560248d76d6b",
-              TOKEN_INFO.FRAX.address,
+              TOKEN_INFO.frxUSD.address,
               "0x9ca648d2f51098941688db9a0beb1dadc2d1b357",
               TOKEN_INFO.dUSD.address,
               "0x0000000000000000000000000000000000000000",
@@ -470,11 +505,11 @@ export async function getConfig(
         },
       ],
       isUnstakeTokens: {
-        [TOKEN_INFO.sFRAX.address]: true,
+        [TOKEN_INFO.sfrxUSD.address]: true,
       },
       proxyContractMap: {
-        [TOKEN_INFO.sFRAX.address]:
-          "0xBFc4D34Db83553725eC6c768da71D2D9c1456B55", // sFRAX proxy contract on Fraxtal mainnet
+        [TOKEN_INFO.sfrxUSD.address]:
+          "0xBFc4D34Db83553725eC6c768da71D2D9c1456B55", // sfrxUSD proxy contract on Fraxtal mainnet
       },
     },
     liquidatorBotOdos: {
@@ -484,18 +519,18 @@ export async function getConfig(
       healthFactorThreshold: 1,
       healthFactorBatchSize: 5,
       reserveBatchSize: 5,
-      profitableThresholdInUSD: 0,
+      profitableThresholdInUSD: 0.001,
       liquidatingBatchSize: 200,
       graphConfig: {
         url: "https://graph-node.dtrinity.org/subgraphs/name/stablyio-aave-v3-messari-mainnet",
         batchSize: 100,
       },
       isUnstakeTokens: {
-        [TOKEN_INFO.sFRAX.address]: true,
+        [TOKEN_INFO.sfrxUSD.address]: true,
       },
       proxyContractMap: {
-        [TOKEN_INFO.sFRAX.address]:
-          "0xBFc4D34Db83553725eC6c768da71D2D9c1456B55", // sFRAX proxy contract on Fraxtal mainnet
+        [TOKEN_INFO.sfrxUSD.address]:
+          "0xBFc4D34Db83553725eC6c768da71D2D9c1456B55", // sfrxUSD proxy contract on Fraxtal mainnet
       },
       odosRouter: "0x56c85a254DD12eE8D9C04049a4ab62769Ce98210",
       odosApiUrl: "https://api.odos.xyz",
@@ -504,7 +539,7 @@ export async function getConfig(
       address: TOKEN_INFO.dUSD.address,
       amoVaults: {
         curveStableSwapNG: {
-          pool: "0x9CA648D2f51098941688Db9a0beb1DadC2D1B357", // FRAX/dUSD pool
+          pool: "0x9CA648D2f51098941688Db9a0beb1DadC2D1B357", // frxUSD/dUSD pool
           router: "0x9f2Fa7709B30c75047980a0d70A106728f0Ef2db",
         },
       },
@@ -565,31 +600,42 @@ export async function getConfig(
       api3OracleAssets: {
         plainApi3OracleWrappers: {
           [TOKEN_INFO.wfrxETH.address]:
-            "0xC93Da088b0c78dE892f523db0eECb051Cb628991", // ETH/USD dtrinity OEV
+            "0xC93Da088b0c78dE892f523db0eECb051Cb628991", // ETH/USD dTrinity OEV
         },
         api3OracleWrappersWithThresholding: {
-          [TOKEN_INFO.FRAX.address]: {
-            proxy: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dtrinity OEV
+          [TOKEN_INFO.frxUSD.address]: {
+            proxy: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dTrinity OEV (legacy FRAX aka frxUSD)
             lowerThreshold: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
             fixedPrice: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
           },
           [TOKEN_INFO.DAI.address]: {
-            proxy: "0x99Cace7CbBAe9c619354579B893dB5695ee22A2c", // DAI/USD dtrinity OEV
+            proxy: "0x99Cace7CbBAe9c619354579B893dB5695ee22A2c", // DAI/USD dTrinity OEV
             lowerThreshold: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
             fixedPrice: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
           },
           [TOKEN_INFO.USDe.address]: {
-            proxy: "0xF3F5e6358251Fd2115424Ed1ADa9c9BED417EdaB", // USDe/USD dtrinity OEV
+            proxy: "0xF3F5e6358251Fd2115424Ed1ADa9c9BED417EdaB", // USDe/USD dTrinity OEV
             lowerThreshold: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
             fixedPrice: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
           },
           [TOKEN_INFO.USDC.address]: {
-            proxy: "0x5A27949E9C4BE327d45eE443d6672d1431597BEd", // USDC/USD dtrinity OEV
+            proxy: "0x5A27949E9C4BE327d45eE443d6672d1431597BEd", // USDC/USD dTrinity OEV
             lowerThreshold: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
             fixedPrice: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
           },
           [TOKEN_INFO.USDT.address]: {
-            proxy: "0x4eadC6ee74b7Ceb09A4ad90a33eA2915fbefcf76", // USDT/USD (generic, not dtrinity OEV)
+            proxy: "0x4eadC6ee74b7Ceb09A4ad90a33eA2915fbefcf76", // USDT/USD (generic, not dTrinity OEV)
+            lowerThreshold: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            fixedPrice: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+          },
+          [TOKEN_INFO.FRAX.address]: {
+            proxy: "0x7e5E61539B89522E36a5a97A265Ab3cA5A420d20", // FXS/USD (generic, not dTrinity OEV, note FXS hasn't been renamed yet)
+            // No thresholding
+            lowerThreshold: 0n,
+            fixedPrice: 0n,
+          },
+          [TOKEN_INFO.crvUSD.address]: {
+            proxy: "0x21234f61bFc55a586D7c28CC1776da35f9936246", // crvUSD/USD (generic, not dTrinity OEV)
             lowerThreshold: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
             fixedPrice: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
           },
@@ -597,18 +643,18 @@ export async function getConfig(
         compositeApi3OracleWrappersWithThresholding: {
           [TOKEN_INFO.sfrxETH.address]: {
             feedAsset: TOKEN_INFO.sfrxETH.address,
-            proxy1: "0xF14741dD62af0fE80A54F1784AD6ab707cd18707", // sfrxETH/frxETH dtrinity OEV
-            proxy2: "0xC93Da088b0c78dE892f523db0eECb051Cb628991", // ETH/USD dtrinity OEV
+            proxy1: "0xF14741dD62af0fE80A54F1784AD6ab707cd18707", // sfrxETH/frxETH dTrinity OEV
+            proxy2: "0xC93Da088b0c78dE892f523db0eECb051Cb628991", // ETH/USD dTrinity OEV
             // No thresholdling
             lowerThresholdInBase1: 0n,
             fixedPriceInBase1: 0n,
             lowerThresholdInBase2: 0n,
             fixedPriceInBase2: 0n,
           },
-          [TOKEN_INFO.sFRAX.address]: {
-            feedAsset: TOKEN_INFO.sFRAX.address,
-            proxy1: "0x90004e18f3bae0CCa3b259722F2BeD538C161B22", // sFRAX/FRAX dtrinity OEV
-            proxy2: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dtrinity OEV
+          [TOKEN_INFO.sfrxUSD.address]: {
+            feedAsset: TOKEN_INFO.sfrxUSD.address,
+            proxy1: "0xeBC6A39522Af1706cF7F37C55C098282b844ab78", // sfrxUSD/frxUSD dTrinity OEV
+            proxy2: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dTrinity OEV (legacy FRAX aka frxUSD)
             // Don't allow FRAX to go above $1
             lowerThresholdInBase1: 0n,
             fixedPriceInBase1: 0n,
@@ -617,8 +663,8 @@ export async function getConfig(
           },
           [TOKEN_INFO.sDAI.address]: {
             feedAsset: TOKEN_INFO.sDAI.address,
-            proxy1: "0xaCaD32f030Af764ab1B0Bcc227FFbCb217dDf469", // sDAI/DAI dtrinity OEV
-            proxy2: "0x99Cace7CbBAe9c619354579B893dB5695ee22A2c", // DAI/USD dtrinity OEV
+            proxy1: "0xaCaD32f030Af764ab1B0Bcc227FFbCb217dDf469", // sDAI/DAI dTrinity OEV
+            proxy2: "0x99Cace7CbBAe9c619354579B893dB5695ee22A2c", // DAI/USD dTrinity OEV
             // Don't allow DAI to go above $1
             lowerThresholdInBase1: 0n,
             fixedPriceInBase1: 0n,
@@ -627,9 +673,19 @@ export async function getConfig(
           },
           [TOKEN_INFO.sUSDe.address]: {
             feedAsset: TOKEN_INFO.sUSDe.address,
-            proxy1: "0xa925A7c304b96ea0ae763C73badBD5eeE74dd7ac", // sUSDe/USDe dtrinity OEV
-            proxy2: "0xF3F5e6358251Fd2115424Ed1ADa9c9BED417EdaB", // USDe/USD dtrinity OEV
+            proxy1: "0xa925A7c304b96ea0ae763C73badBD5eeE74dd7ac", // sUSDe/USDe dTrinity OEV
+            proxy2: "0xF3F5e6358251Fd2115424Ed1ADa9c9BED417EdaB", // USDe/USD dTrinity OEV
             // Don't allow USDe to go above $1
+            lowerThresholdInBase1: 0n,
+            fixedPriceInBase1: 0n,
+            lowerThresholdInBase2: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            fixedPriceInBase2: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+          },
+          [TOKEN_INFO.scrvUSD.address]: {
+            feedAsset: TOKEN_INFO.scrvUSD.address,
+            proxy1: "0x029c150a79526bEE6D3Db1b10C07C4CfA6b12485", // scrvUSD/USD dTrinity OEV
+            proxy2: "0x21234f61bFc55a586D7c28CC1776da35f9936246", // crvUSD/USD (generic, not dTrinity OEV)
+            // Don't allow scrvUSD to go above $1
             lowerThresholdInBase1: 0n,
             fixedPriceInBase1: 0n,
             lowerThresholdInBase2: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
@@ -640,10 +696,40 @@ export async function getConfig(
       curveOracleAssets: {
         curveApi3CompositeOracles: {
           [TOKEN_INFO.FXB20291231.address]: {
-            pool: "0xee454138083b9b9714cac3c7cf12560248d76d6b", // FRAX/FXB20291231 pool
+            pool: "0xee454138083b9b9714cac3c7cf12560248d76d6b", // frxUSD/FXB20291231 pool
             compositeAPI3Feed: {
-              api3Asset: TOKEN_INFO.FRAX.address,
-              api3Proxy: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dtrinity OEV
+              api3Asset: TOKEN_INFO.frxUSD.address,
+              api3Proxy: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dTrinity OEV (legacy FRAX aka frxUSD)
+              api3LowerThresholdInBase:
+                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              api3FixedPriceInBase:
+                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveLowerThresholdInBase:
+                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveFixedPriceInBase:
+                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            },
+          },
+          [TOKEN_INFO.FXB20251231.address]: {
+            pool: "0x63d64a76c2d616676cbac3068d3c6548f8485314", // frxUSD/FXB20251231 pool
+            compositeAPI3Feed: {
+              api3Asset: TOKEN_INFO.frxUSD.address,
+              api3Proxy: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dTrinity OEV (legacy FRAX aka frxUSD)
+              api3LowerThresholdInBase:
+                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              api3FixedPriceInBase:
+                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveLowerThresholdInBase:
+                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveFixedPriceInBase:
+                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+            },
+          },
+          [TOKEN_INFO.FXB20551231.address]: {
+            pool: "0x4cfc391d75c43cf1bdb368e8bf680aed1228df39", // frxUSD/FXB20551231 pool
+            compositeAPI3Feed: {
+              api3Asset: TOKEN_INFO.frxUSD.address,
+              api3Proxy: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dTrinity OEV (legacy FRAX aka frxUSD)
               api3LowerThresholdInBase:
                 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
               api3FixedPriceInBase:

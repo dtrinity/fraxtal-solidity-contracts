@@ -56,8 +56,7 @@ const main = async (): Promise<void> => {
     rateStrategyEncourageClose,
   ];
   const newReserveConfigs: { [symbol: string]: IReserveParams } = {
-    FXS: strategyDisable,
-    sfrxETH: strategyDisable,
+    YourTickerHere: strategyDisable,
   };
 
   const addressProviderDeployedResult = await hre.deployments.get(

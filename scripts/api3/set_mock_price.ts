@@ -36,7 +36,7 @@ async function setMockPrice(
 async function main(): Promise<void> {
   // Get command line arguments
   const oracleAddress = "0x4D1fE37682FD235d0861Daf74573db37d1d0f676"; // sFRAX/FRAX
-  const priceStr = "0.75";
+  const priceStr = "3.948391";
   const price = parseFloat(priceStr);
 
   if (isNaN(price)) {

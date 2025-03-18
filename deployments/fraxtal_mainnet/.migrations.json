@@ -39,5 +39,9 @@
   "FlashMintLiquidatorAaveBorrowRepayCurve": 1739501961,
   "FlashLoanLiquidatorAaveBorrowRepayCurve": 1739501973,
   "FlashMintLiquidatorAaveBorrowRepayOdos": 1739501985,
-  "FlashLoanLiquidatorAaveBorrowRepayOdos": 1739501997
+  "FlashLoanLiquidatorAaveBorrowRepayOdos": 1739501997,
+  "DeployNewOracleWrappers202502": 1740393322,
+  "PointNewOracleWrappers202502": 1740393611,
+  "AdddTrinity-LendReserves202502:lending-core@0.0.0": 1740456175,
+  "UpdateSfrxUSDOracleWrapper": 1740643025
 }
