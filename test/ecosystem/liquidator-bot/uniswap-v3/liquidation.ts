@@ -51,14 +51,14 @@ describe("Liquidation scenarios", function () {
 
     const { contract: dusdViaDeployer } = await getTokenContractForSymbol(
       dexDeployer,
-      "DUSD",
+      "dUSD",
     );
 
     const { contract: sfraxContract, tokenInfo: sfraxInfo } =
       await getTokenContractForSymbol(testAccount1, "SFRAX");
 
     const { contract: dusdContract, tokenInfo: dusdInfo } =
-      await getTokenContractForSymbol(testAccount1, "DUSD");
+      await getTokenContractForSymbol(testAccount1, "dUSD");
 
     // First we need some sFRAX to borrow against
     const sfrax1000 = ethers.parseUnits("1000", sfraxInfo.decimals);
@@ -207,7 +207,7 @@ describe("Test getMaxLiquidationAmount()", function () {
       await getTokenContractForSymbol(testAccount1, "SFRAX"));
 
     ({ contract: dusdContract, tokenInfo: dusdInfo } =
-      await getTokenContractForSymbol(testAccount1, "DUSD"));
+      await getTokenContractForSymbol(testAccount1, "dUSD"));
 
     // First we need some sFRAX to borrow against
     await sfraxViaDeployer.transfer(

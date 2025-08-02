@@ -109,4 +109,9 @@ contract MockAToken is IERC20, IERC20Detailed {
         emit Transfer(from, to, amount);
         return true;
     }
+
+    function setMetadata(string memory name_, string memory symbol_) external {
+        _name = name_;
+        _symbol = symbol_;
+    }
 }

@@ -4,6 +4,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getConfig } from "../../config/config";
 import { TEST_WETH9_ID } from "../dex/deploy-ids";
 import { fetchTokenInfo } from "../token";
+import { getTokenAddresses } from "../token-registry";
 import { isLocalNetwork } from "../utils";
 import { POOL_DATA_PROVIDER_ID } from "./deploy-ids";
 
@@ -21,29 +22,16 @@ export async function getReserveTokenAddresses(
   const config = await getConfig(hre);
 
   if (isLocalNetwork(hre.network.name)) {
-    // Get the token addresses from the deployments
-    if (!config.mintInfos) {
-      throw new Error(
-        `Mint infos not found in the configuration for network ${hre.network.name}`,
-      );
+    // Use the token registry for local networks
+    const tokenAddresses = await getTokenAddresses(hre);
+    
+    // Special case for WFRXETH on local networks
+    // We need to return WFRXETH so that we can open a market for it
+    const wfrxethDeployment = await hre.deployments.getOrNull(TEST_WETH9_ID);
+    if (wfrxethDeployment) {
+      tokenAddresses["WFRXETH"] = wfrxethDeployment.address;
     }
 
-    const mintInfos = config.mintInfos;
-    const tokenAddresses: { [symbol: string]: string } = {};
-
-    for (let symbol of Object.keys(mintInfos)) {
-      const tokenAddress = (await hre.deployments.get(symbol)).address;
-
-      if (tokenAddress === undefined) {
-        throw new Error(`Token address not found for ${symbol}`);
-      }
-      tokenAddresses[symbol] = tokenAddress;
-    }
-    // Special case for local, since we don't use an existing WETH9 deployment
-    // But we need to return WFRXETH so that we can open a market for it
-    tokenAddresses["WFRXETH"] = (
-      await hre.deployments.get(TEST_WETH9_ID)
-    ).address;
     return tokenAddresses;
   }
 

@@ -9,42 +9,43 @@ import {
 } from "../../../utils/lending/deploy-ids";
 import { getReserveTokenAddresses } from "../../../utils/lending/token";
 import {
-  eContractid,
   IInterestRateStrategyParams,
   IReserveParams,
 } from "../../../utils/lending/types";
 import { chunk } from "../../../utils/lending/utils";
+import { rateStrategyDUSD } from "../../../utils/lending/rate-strategies";
+import { strategyDUSD } from "../../../utils/lending/reserves-configs";
 
-const rateStrategyEncourageClose: IInterestRateStrategyParams = {
-  name: "rateStrategyEncourageClose",
-  optimalUsageRatio: ethers.parseUnits("0.5", 27).toString(),
-  baseVariableBorrowRate: ethers.parseUnits("0", 27).toString(),
-  variableRateSlope1: ethers.parseUnits("0.2", 27).toString(),
-  variableRateSlope2: ethers.parseUnits("1.5", 27).toString(),
-  stableRateSlope1: ethers.parseUnits("0", 27).toString(),
-  stableRateSlope2: ethers.parseUnits("0", 27).toString(),
-  baseStableRateOffset: ethers.parseUnits("0", 27).toString(),
-  stableRateExcessOffset: ethers.parseUnits("0", 27).toString(),
-  optimalStableToTotalDebtRatio: ethers.parseUnits("0", 27).toString(),
-};
+// const rateStrategyEncourageClose: IInterestRateStrategyParams = {
+//   name: "rateStrategyEncourageClose",
+//   optimalUsageRatio: ethers.parseUnits("0.5", 27).toString(),
+//   baseVariableBorrowRate: ethers.parseUnits("0", 27).toString(),
+//   variableRateSlope1: ethers.parseUnits("0.2", 27).toString(),
+//   variableRateSlope2: ethers.parseUnits("1.5", 27).toString(),
+//   stableRateSlope1: ethers.parseUnits("0", 27).toString(),
+//   stableRateSlope2: ethers.parseUnits("0", 27).toString(),
+//   baseStableRateOffset: ethers.parseUnits("0", 27).toString(),
+//   stableRateExcessOffset: ethers.parseUnits("0", 27).toString(),
+//   optimalStableToTotalDebtRatio: ethers.parseUnits("0", 27).toString(),
+// };
 
-const strategyDisable: IReserveParams = {
-  strategy: rateStrategyEncourageClose,
-  baseLTVAsCollateral: "0", // Disable collateral
-  liquidationThreshold: "7500",
-  liquidationBonus: "10500",
-  liquidationProtocolFee: "7000",
-  borrowingEnabled: false,
-  stableBorrowRateEnabled: false,
-  flashLoanEnabled: true,
-  reserveDecimals: "18", // Don't forget to change this
-  aTokenImpl: eContractid.AToken,
-  reserveFactor: "1000",
-  supplyCap: "0",
-  borrowCap: "0",
-  debtCeiling: "0",
-  borrowableIsolation: false,
-};
+// const strategyDisable: IReserveParams = {
+//   strategy: rateStrategyEncourageClose,
+//   baseLTVAsCollateral: "0", // Disable collateral
+//   liquidationThreshold: "7500",
+//   liquidationBonus: "10500",
+//   liquidationProtocolFee: "7000",
+//   borrowingEnabled: false,
+//   stableBorrowRateEnabled: false,
+//   flashLoanEnabled: true,
+//   reserveDecimals: "18", // Don't forget to change this
+//   aTokenImpl: eContractid.AToken,
+//   reserveFactor: "1000",
+//   supplyCap: "0",
+//   borrowCap: "0",
+//   debtCeiling: "0",
+//   borrowableIsolation: false,
+// };
 
 const main = async (): Promise<void> => {
   const { lendingDeployer } = await hre.getNamedAccounts();
@@ -52,11 +53,9 @@ const main = async (): Promise<void> => {
 
   /* Set up rate strategies */
 
-  const newRateStrategies: IInterestRateStrategyParams[] = [
-    rateStrategyEncourageClose,
-  ];
+  const newRateStrategies: IInterestRateStrategyParams[] = [rateStrategyDUSD];
   const newReserveConfigs: { [symbol: string]: IReserveParams } = {
-    YourTickerHere: strategyDisable,
+    dUSD: strategyDUSD,
   };
 
   const addressProviderDeployedResult = await hre.deployments.get(

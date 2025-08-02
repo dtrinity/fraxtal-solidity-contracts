@@ -43,5 +43,21 @@
   "DeployNewOracleWrappers202502": 1740393322,
   "PointNewOracleWrappers202502": 1740393611,
   "AdddTrinity-LendReserves202502:lending-core@0.0.0": 1740456175,
-  "UpdateSfrxUSDOracleWrapper": 1740643025
+  "UpdateSfrxUSDOracleWrapper": 1740643025,
+  "OdosAdapters:dTrinity-Lend:lending-periphery@0.0.0": 1743063151,
+  "NewWrappedTokenGateway": 1746232027,
+  "DeployCurveOracleWrapperFXB20261231": 1751850803,
+  "PointCurveOracleWrapperFXB20261231": 1751851956,
+  "DeployRebasingTokenWrappers": 1751852033,
+  "AdddTrinity-LendReservesFXB20261231:lending-core@0.0.0": 1751852058,
+  "deploy_dstable_tokens": 1753866311,
+  "ReservesInit:dTrinity-Lend:lending-core@0.0.0:v2": 1753866320,
+  "test_redeemer_with_fees_deployment": 1753866320,
+  "deploy_redeemer_with_fees": 1753868643,
+  "UniswapV3SwapLogic": 1753869468,
+  "CurveSwapLogic": 1753869474,
+  "OdosSwapLogic": 1753869481,
+  "verify_redeemer_with_fees": 1753869522,
+  "configure_redeemer_fees": 1753869590,
+  "transfer_dstake_roles_to_multisig": 1753871975
 }

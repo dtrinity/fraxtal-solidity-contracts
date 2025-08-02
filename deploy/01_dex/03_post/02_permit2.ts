@@ -1,12 +1,26 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
+import { getConfig } from "../../../config/config";
 import { deployContract } from "../../../utils/deploy";
 import { UNISWAP_PERMIT2_ID } from "../../../utils/dex/deploy-ids";
 import { getPermit2Address } from "../../../utils/dex/permit2";
-import { isLocalNetwork } from "../../../utils/utils";
+import { isLocalNetwork, isMainnetNetwork } from "../../../utils/utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  if (isMainnetNetwork(hre.network.name)) {
+    console.log("Skipping deployment on mainnet");
+    return false;
+  }
+
+  const config = await getConfig(hre);
+
+  // Skip deployment if dex config is not populated
+  if (!config.dex) {
+    console.log("Skipping Permit2 deployment - dex config not populated");
+    return false;
+  }
+
   const { dexDeployer } = await hre.getNamedAccounts();
 
   // Only deploy the Permit2 contract on local network

@@ -10,6 +10,7 @@ import { increaseTime } from "./utils.chain";
 import {
   createPoolAddLiquidityWithApproval,
   swapExactInputSingleWithApproval,
+  TEST_DEADLINE_SECONDS,
   useMockStaticOracleWrapper,
 } from "./utils.dex";
 import { depositCollateralWithApproval } from "./utils.lbp";
@@ -51,7 +52,7 @@ export async function standardUniswapV3DEXLBPLiquidityWithMockOracleFixtureImple
   const { dexDeployer } = await getNamedAccounts();
   const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
     dexDeployer,
-    "DUSD",
+    "dUSD",
   );
 
   // Use MockStaticOracleWrapper to mock the price
@@ -79,7 +80,7 @@ export async function standardUniswapV3DEXLBPLiquidityFixtureImplementation(
    */
   const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
     dexDeployer,
-    "DUSD",
+    "dUSD",
   );
 
   const { tokenInfo: sfraxInfo } = await getTokenContractForSymbol(
@@ -101,7 +102,7 @@ export async function standardUniswapV3DEXLBPLiquidityFixtureImplementation(
    * Set up DEX infra
    */
 
-  // Create DUSD/SFRAX pool with SFRAX = 1.25 DUSD
+  // Create dUSD/SFRAX pool with SFRAX = 1.25 dUSD
   await createPoolAddLiquidityWithApproval(
     dexDeployer,
     FeeAmount.HIGH,
@@ -109,10 +110,10 @@ export async function standardUniswapV3DEXLBPLiquidityFixtureImplementation(
     sfraxInfo.address,
     100_000,
     80_000,
-    6000,
+    TEST_DEADLINE_SECONDS,
   );
 
-  // Create DUSD/SFRXETH pool with SFRXETH = 4000 DUSD
+  // Create dUSD/SFRXETH pool with SFRXETH = 4000 dUSD
   await createPoolAddLiquidityWithApproval(
     dexDeployer,
     FeeAmount.HIGH,
@@ -120,10 +121,10 @@ export async function standardUniswapV3DEXLBPLiquidityFixtureImplementation(
     sfrxethInfo.address,
     40_000,
     10,
-    6000,
+    TEST_DEADLINE_SECONDS,
   );
 
-  // Create DUSD/FXS pool with FXS = 4 DUSD
+  // Create dUSD/FXS pool with FXS = 4 dUSD
   await createPoolAddLiquidityWithApproval(
     dexDeployer,
     FeeAmount.HIGH,
@@ -131,7 +132,7 @@ export async function standardUniswapV3DEXLBPLiquidityFixtureImplementation(
     fxsInfo.address,
     40_000,
     10_000,
-    6000,
+    TEST_DEADLINE_SECONDS,
   );
 
   // Warm up the pools by making some swaps
@@ -144,7 +145,7 @@ export async function standardUniswapV3DEXLBPLiquidityFixtureImplementation(
       dusdInfo.address,
       sfraxInfo.address,
       1,
-      6000,
+      TEST_DEADLINE_SECONDS,
     );
     // SFRXETH
     await swapExactInputSingleWithApproval(
@@ -153,7 +154,7 @@ export async function standardUniswapV3DEXLBPLiquidityFixtureImplementation(
       dusdInfo.address,
       sfrxethInfo.address,
       1,
-      6000,
+      TEST_DEADLINE_SECONDS,
     );
     // FXS
     await swapExactInputSingleWithApproval(
@@ -162,7 +163,7 @@ export async function standardUniswapV3DEXLBPLiquidityFixtureImplementation(
       dusdInfo.address,
       fxsInfo.address,
       1,
-      6000,
+      TEST_DEADLINE_SECONDS,
     );
     await increaseTime(60);
   }
@@ -180,7 +181,7 @@ export async function standardUniswapV3DEXLBPLiquidityFixtureImplementation(
    * Set up LBP infra
    */
 
-  // Deposit 100k DUSD for borrowing
+  // Deposit 100k dUSD for borrowing
   await depositCollateralWithApproval(dexDeployer, dusdInfo.address, 100_000);
 
   // Deposit 10k FXS for borrowing
@@ -260,7 +261,7 @@ export async function standardMockCurveDEXLBPLiquidityWithMockOracleFixtureImple
 
   const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
     dexDeployer,
-    "DUSD",
+    "dUSD",
   );
 
   // Use MockStaticOracleWrapper to mock the price
@@ -287,7 +288,7 @@ export async function standardCurveDEXLBPLiquidityFixtureImplementation(
    */
   const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
     dexDeployer,
-    "DUSD",
+    "dUSD",
   );
 
   const { tokenInfo: fxsInfo } = await getTokenContractForSymbol(
@@ -299,7 +300,7 @@ export async function standardCurveDEXLBPLiquidityFixtureImplementation(
    * Set up LBP infra
    */
 
-  // Deposit 100k DUSD for borrowing
+  // Deposit 100k dUSD for borrowing
   await depositCollateralWithApproval(dexDeployer, dusdInfo.address, 100_000);
 
   // Deposit 10k FXS for borrowing
@@ -328,7 +329,7 @@ export async function standardMockCurveDEXLBPLiquidityFixtureImplementation(
    */
   const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
     dexDeployer,
-    "DUSD",
+    "dUSD",
   );
 
   const { tokenInfo: fxsInfo } = await getTokenContractForSymbol(
@@ -340,7 +341,7 @@ export async function standardMockCurveDEXLBPLiquidityFixtureImplementation(
    * Set up LBP infra
    */
 
-  // Deposit 100k DUSD for borrowing
+  // Deposit 100k dUSD for borrowing
   await depositCollateralWithApproval(dexDeployer, dusdInfo.address, 100_000);
 
   // Deposit 10k FXS for borrowing

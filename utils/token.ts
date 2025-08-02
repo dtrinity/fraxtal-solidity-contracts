@@ -6,6 +6,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getConfig } from "../config/config";
 import { MintConfig } from "../config/types";
 import { deployContract, DeployContractResult } from "./deploy";
+import { getTokenRegistry, TokenDeploymentStrategy } from "./token-registry";
 import { isLocalNetwork, isTestnetNetwork } from "./utils";
 
 export interface DeployTestTokenResult {
@@ -26,9 +27,11 @@ export async function getTestTokenSymbols(
   hre: HardhatRuntimeEnvironment,
 ): Promise<string[]> {
   if (isLocalNetwork(hre.network.name)) {
-    const config = await getConfig(hre);
-    // Get all symbols from the mint info
-    return Object.keys(config.mintInfos as { [symbol: string]: MintConfig[] });
+    const registry = await getTokenRegistry(hre);
+    // Get all symbols that have MINT strategy
+    return Object.values(registry.tokens)
+      .filter(token => token.strategy === TokenDeploymentStrategy.MINT)
+      .map(token => token.symbol);
   }
   throw new Error(
     `Test token symbols are not available on network ${hre.network.name}`,

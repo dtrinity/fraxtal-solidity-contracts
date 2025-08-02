@@ -73,3 +73,18 @@ export const PROXY_ADMIN_ID = "ProxyAdmin";
  * The underlying contract name is `TransparentUpgradeableProxy`
  */
 export const TRANSPARENT_UPGRADEABLE_PROXY_ID = "TransparentUpgradeableProxy";
+
+/**
+ * The actual contract name is `UniswapV3SwapLogic`
+ */
+export const UNISWAP_V3_SWAP_LOGIC_ID = "UniswapV3SwapLogic";
+
+/**
+ * The actual contract name is `CurveSwapLogic`
+ */
+export const CURVE_SWAP_LOGIC_ID = "CurveSwapLogic";
+
+/**
+ * The actual contract name is `OdosSwapLogic`
+ */
+export const ODOS_SWAP_LOGIC_ID = "OdosSwapLogic";

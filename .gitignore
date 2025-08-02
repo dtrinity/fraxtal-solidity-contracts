@@ -15,6 +15,9 @@ package-lock.json
 typechain
 typechain-types
 
+# TypeScript build output
+dist/
+
 # Hardhat files
 cache
 ignition/deployments
@@ -53,6 +56,9 @@ state/
 
 # This data is only for analysis purposes
 remote-state/
+
+# Script outputs
+contract-addresses_*.md
 
 # Docker image
 liquidator-bot-image/*

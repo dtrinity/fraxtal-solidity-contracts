@@ -1,10 +1,19 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
+import { getConfig } from "../../../config/config";
 import { CURVE_HELPER_ID } from "../../../utils/curve/deploy-ids";
 import { deployContract } from "../../../utils/deploy";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  const config = await getConfig(hre);
+
+  // Skip deployment if dex config is not populated
+  if (!config.dex) {
+    console.log("Skipping Curve Helper deployment - dex config not populated");
+    return false;
+  }
+
   const { curveHelperDeployer } = await hre.getNamedAccounts();
 
   if (!curveHelperDeployer) {

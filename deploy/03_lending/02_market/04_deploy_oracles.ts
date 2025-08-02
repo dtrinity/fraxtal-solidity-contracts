@@ -22,7 +22,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fallbackOracleAddress = oracleAggregatorAddress;
 
   const config = await getConfig(hre);
-  const baseCurencyDecimals = config.dex.oracle.baseTokenDecimals;
+  const baseCurencyDecimals = config.oracleAggregator.priceDecimals;
 
   return deployOracles(
     hre,

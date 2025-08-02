@@ -44,7 +44,7 @@ describe("Test getUserSupplyBalance() and getUserDebtBalance()", function () {
       collateralTokenSymbol: "SFRAX",
       depositAmount: 2000,
       expectedSupplyBalance: "2000000000000000000000",
-      borrowTokenSymbol: "DUSD",
+      borrowTokenSymbol: "dUSD",
       borrowAmount: 500,
       expectedDebtBalance: "500000000",
     },
@@ -52,7 +52,7 @@ describe("Test getUserSupplyBalance() and getUserDebtBalance()", function () {
       collateralTokenSymbol: "SFRAX",
       depositAmount: 1234,
       expectedSupplyBalance: "1234000000000000000000",
-      borrowTokenSymbol: "DUSD",
+      borrowTokenSymbol: "dUSD",
       borrowAmount: 1000,
       expectedDebtBalance: "1000000000",
     },
@@ -62,7 +62,7 @@ describe("Test getUserSupplyBalance() and getUserDebtBalance()", function () {
       collateralTokenSymbol: "FXS",
       depositAmount: 100,
       expectedSupplyBalance: "100000000000000000000",
-      borrowTokenSymbol: "DUSD",
+      borrowTokenSymbol: "dUSD",
       borrowAmount: 1,
       expectedDebtBalance: "1000000",
     },
@@ -169,7 +169,7 @@ describe("Test getUserSupplyBalance() and getUserDebtBalance()", function () {
 
 describe("Test getUserHealthFactor()", function () {
   const collateralTokenSymbol = "SFRAX";
-  const borrowTokenSymbol = "DUSD";
+  const borrowTokenSymbol = "dUSD";
   const initialSupply = 100000;
   const depositAmount = 2000;
   const borrowAmount = 1900;
@@ -290,7 +290,7 @@ describe("Test getReservesList()", function () {
     // Sort to make sure a deterministic order
     tokenSymbols = tokenSymbols.sort((a, b) => a.localeCompare(b));
     assert.deepEqual(tokenSymbols, [
-      "DUSD",
+      "dUSD",
       "FXS",
       "SFRAX",
       "SFRXETH",
@@ -338,7 +338,7 @@ describe("Test getUserReserveData()", function () {
 
     const { tokenInfo: borrowTokenInfo } = await getTokenContractForSymbol(
       testAccount1,
-      "DUSD",
+      "dUSD",
     );
 
     const { tokenInfo: borrowTokenInfo2 } = await getTokenContractForSymbol(
@@ -520,7 +520,7 @@ describe("getUsersReserveBalances", () => {
 
     const { tokenInfo: borrowTokenInfo } = await getTokenContractForSymbol(
       testAccount1,
-      "DUSD",
+      "dUSD",
     );
 
     // Get some collateral token
@@ -565,7 +565,7 @@ describe("getUsersReserveBalances", () => {
 
     const { tokenInfo: borrowTokenInfo } = await getTokenContractForSymbol(
       testAccount1,
-      "DUSD",
+      "dUSD",
     );
 
     // First user deposits and borrows

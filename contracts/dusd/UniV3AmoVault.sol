@@ -42,7 +42,7 @@ contract UniV3AmoVault is AmoVault {
     IERC20 public immutable collateralToken;
     uint8 private immutable collateralDecimals;
 
-    uint256 public swapDeadlineBuffer = 240; // 4 minutes in seconds
+    uint256 public swapDeadlineBuffer = 86400; // 24 hours in seconds (increased from 4 minutes)
 
     /* Roles */
 
@@ -148,10 +148,10 @@ contract UniV3AmoVault is AmoVault {
     }
 
     /**
-     * @notice Calculates the total values of collateral and DUSD across all UniV3 positions
+     * @notice Calculates the total values of collateral and dUSD across all UniV3 positions
      * @dev Internal helper function used by totalCollateralValue() and totalDusdValue()
-     * @return _totalCollateralValue The sum of all non-DUSD token values in BASE_CURRENCY_UNIT
-     * @return _totalDusdValue The sum of all DUSD values in BASE_CURRENCY_UNIT
+     * @return _totalCollateralValue The sum of all non-dUSD token values in BASE_CURRENCY_UNIT
+     * @return _totalDusdValue The sum of all dUSD values in BASE_CURRENCY_UNIT
      */
     function _totalPositionValues()
         internal
@@ -171,8 +171,8 @@ contract UniV3AmoVault is AmoVault {
     /**
      * @notice Gets the current value of a specific UniV3 liquidity position
      * @param position The position struct containing tokenId and liquidity details
-     * @return collateralValue The value of non-DUSD tokens in BASE_CURRENCY_UNIT
-     * @return dusdValue The value of DUSD in BASE_CURRENCY_UNIT
+     * @return collateralValue The value of non-dUSD tokens in BASE_CURRENCY_UNIT
+     * @return dusdValue The value of dUSD in BASE_CURRENCY_UNIT
      */
     function _getPositionValues(
         Position memory position
@@ -193,7 +193,7 @@ contract UniV3AmoVault is AmoVault {
             position.liquidity
         );
 
-        // Split values between DUSD and collateral
+        // Split values between dUSD and collateral
         if (dusdIsToken0) {
             dusdValue = amount0;
             collateralValue =
@@ -206,7 +206,7 @@ contract UniV3AmoVault is AmoVault {
                 (10 ** collateralDecimals);
         }
 
-        // Convert DUSD to BASE_CURRENCY_UNIT
+        // Convert dUSD to BASE_CURRENCY_UNIT
         dusdValue =
             (dusdValue * oracle.getAssetPrice(address(dusd))) /
             (10 ** dusdDecimals);

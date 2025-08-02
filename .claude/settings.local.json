@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ide__getDiagnostics",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node:*)",
+      "Bash(mkdir:*)",
+      "Bash(grep:*)",
+      "Bash(git stash:*)",
+      "Bash(npx hardhat compile:*)",
+      "Bash(find:*)",
+      "Bash(npx ts-prune:*)",
+      "Bash(make:*)",
+      "Bash(yarn hardhat deploy:*)",
+      "Bash(rm:*)",
+      "Bash(ls:*)",
+      "Bash(./scripts/deployments/print-contract-addresses.sh:*)",
+      "Bash(yarn hardhat run:*)",
+      "Bash(yarn hardhat:*)",
+      "Bash(mv:*)",
+      "Bash(yarn compile:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(npx hardhat run:*)",
+      "Bash(npx hardhat deploy:*)",
+      "Bash(jq:*)",
+      "Bash(npx hardhat test:*)",
+      "Bash(npx hardhat console:*)",
+      "Bash(npx hardhat accounts:*)",
+      "Bash(yarn test:*)",
+      "Bash(npm test:*)",
+      "Bash(yarn run:*)",
+      "Bash(yarn workspaces:*)",
+      "Bash(yarn config:*)"
+    ],
+    "deny": []
+  }
+}

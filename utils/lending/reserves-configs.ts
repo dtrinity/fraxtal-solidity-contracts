@@ -3,15 +3,16 @@ import {
   rateStrategyHighLiquidityVolatile,
   rateStrategyMediumLiquidityStable,
   rateStrategyMediumLiquidityVolatile,
+  rateStrategyDUSD,
 } from "./rate-strategies";
 import { eContractid, IReserveParams } from "./types";
 
 // Explainer: https://docs.aave.com/developers/guides/governance-guide/asset-listing
 export const strategyDUSD: IReserveParams = {
-  strategy: rateStrategyHighLiquidityStable,
+  strategy: rateStrategyDUSD,
   // CAUTION: If LTV is > 0, people may loop and dillute other borrowers
   baseLTVAsCollateral: "0", // 0 Don't allow dUSD as collateral to prevent subsidy syphoning
-  liquidationThreshold: "9000", // 9500 bps = 95%
+  liquidationThreshold: "9000", // 9000 bps = 90%, must be non-zero to allow reserve updates
   liquidationBonus: "10500", // 10500 bps = 105%, amount over 100% is the fee portion
   liquidationProtocolFee: "7000", // 7000 bps = 70%
   borrowingEnabled: true,
@@ -20,7 +21,7 @@ export const strategyDUSD: IReserveParams = {
   reserveDecimals: "6",
   aTokenImpl: eContractid.AToken,
   reserveFactor: "1000", // 1000 bps = 10%
-  supplyCap: "400000", // these are decimal units, not raw on-chain integer values
+  supplyCap: "2000000", // these are decimal units, not raw on-chain integer values
   borrowCap: "0",
   debtCeiling: "0",
   borrowableIsolation: false,
@@ -171,4 +172,9 @@ export const strategysDAI: IReserveParams = {
 export const strategyUSDe: IReserveParams = {
   ...strategyYieldBearingStablecoin,
   supplyCap: "350000",
+};
+
+export const strategyFXB20261231: IReserveParams = {
+  ...strategyFXB20291231,
+  supplyCap: "300000",
 };

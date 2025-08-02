@@ -13,16 +13,36 @@ export interface Config {
         readonly [tokenSymbol: string]: MintConfig[];
       }
     | undefined;
-  readonly dex: DEXConfig;
+  readonly walletAddresses: WalletAddresses;
+  readonly dex?: DEXConfig;
   readonly lending: LendingConfig;
   readonly dusd: DUSDConfig;
-  readonly dLoopUniswapV3: DLoopUniswapV3Config | undefined;
-  readonly dLoopCurve: DLoopCurveConfig | undefined;
+  readonly dLoop: DLoopConfig;
   readonly oracleAggregator: OracleAggregatorConfig;
   readonly curve: CurveConfig;
   readonly liquidatorBotUniswapV3?: LiquidatorBotUniswapV3Config;
   readonly liquidatorBotCurve?: LiquidatorBotCurveConfig;
   readonly liquidatorBotOdos?: LiquidatorBotOdosConfig;
+  readonly odos?: OdosConfig;
+  readonly dStake?: DStakeConfig;
+  readonly vesting?: VestingConfig;
+  readonly dStables?: DStablesConfig;
+  // Optional: Override token registry for specific networks
+  readonly tokenRegistry?: TokenRegistryConfig;
+}
+
+export interface TokenRegistryConfig {
+  readonly tokens?: {
+    readonly [symbol: string]: {
+      readonly strategy: "mint" | "deploy-only" | "external";
+      readonly address?: string;
+      readonly aliases?: string[];
+    };
+  };
+}
+
+export interface WalletAddresses {
+  readonly governanceMultisig: string;
 }
 
 export interface MintConfig {
@@ -144,25 +164,39 @@ export interface DUSDConfig {
   };
 }
 
+export interface DLoopConfig {
+  readonly dUSDAddress: string;
+  readonly coreVaults?: { [vaultName: string]: DLoopCoreConfig };
+  readonly depositors?: {
+    uniswapV3?: DLoopDepositorUniswapV3Config;
+    curve?: DLoopDepositorCurveConfig;
+    odos?: DLoopDepositorOdosConfig;
+  };
+  readonly withdrawers?: {
+    uniswapV3?: DLoopWithdrawerUniswapV3Config;
+    curve?: DLoopWithdrawerCurveConfig;
+    odos?: DLoopWithdrawerOdosConfig;
+  };
+}
+
+export interface DLoopCoreConfig {
+  readonly venue: "dlend";
+  readonly name: string;
+  readonly symbol: string;
+  readonly underlyingAsset: string;
+  readonly dStable: string;
+  readonly targetLeverageBps: number;
+  readonly lowerBoundTargetLeverageBps: number;
+  readonly upperBoundTargetLeverageBps: number;
+  readonly maxSubsidyBps: number;
+  readonly extraParams: { [key: string]: any }; // Add more params here
+}
+
 export interface UniswapV3SwapPath {
   // The addresses of the tokens in the path, from input to output (e.g., USDC -> WETH -> DAI means [USDC, WETH, DAI])
   readonly tokenAddressesPath: string[];
   // The corresponding fee amounts for each consecutive pair of tokens in the path (e.g., [3000, 500] means 0.3% fee for USDC -> WETH and 0.5% fee for WETH -> DAI)
   readonly poolFeeSchemaPath: number[];
-}
-
-export interface DLoopUniswapV3Config {
-  readonly vaults: {
-    readonly underlyingAssetAddress: string;
-    readonly dusdAddress: string;
-    readonly defaultDusdToUnderlyingSwapPath: UniswapV3SwapPath;
-    readonly defaultUnderlyingToDusdSwapPath: UniswapV3SwapPath;
-    readonly targetLeverageBps: number;
-    readonly swapSlippageTolerance: number;
-    readonly maxSubsidyBps: number;
-    readonly minimumUnderlyingAssetAmount: number;
-    readonly minimumSharesAmount: number;
-  }[];
 }
 
 export interface CurveSwapExtraParams {
@@ -171,20 +205,42 @@ export interface CurveSwapExtraParams {
   readonly swapSlippageBufferBps: number;
 }
 
-export interface DLoopCurveConfig {
-  readonly dUSDAddress: string;
-  readonly vaults: {
-    readonly underlyingAssetAddress: string;
-    readonly swapRouter: string;
-    readonly defaultDusdToUnderlyingSwapExtraParams: CurveSwapExtraParams;
-    readonly defaultUnderlyingToDusdSwapExtraParams: CurveSwapExtraParams;
-    readonly targetLeverageBps: number;
-    readonly swapSlippageTolerance: number;
-    readonly maxSubsidyBps: number;
-    readonly maxSlippageSurplusSwapBps: number;
-    readonly minimumUnderlyingAssetAmount: number;
-    readonly minimumSharesAmount: number;
+export interface DLoopDepositorUniswapV3Config {
+  readonly defaultDusdToUnderlyingSwapPath: UniswapV3SwapPath;
+  readonly defaultUnderlyingToDusdSwapPath: UniswapV3SwapPath;
+}
+
+export interface DLoopDepositorCurveConfig {
+  readonly swapRouter: string;
+  readonly defaultSwapParamsList: {
+    readonly inputToken: string;
+    readonly outputToken: string;
+    readonly swapExtraParams: CurveSwapExtraParams;
+    readonly reverseSwapExtraParams: CurveSwapExtraParams;
   }[];
+}
+
+export interface DLoopDepositorOdosConfig {
+  readonly router: string;
+}
+
+export interface DLoopWithdrawerUniswapV3Config {
+  readonly defaultDusdToUnderlyingSwapPath: UniswapV3SwapPath;
+  readonly defaultUnderlyingToDusdSwapPath: UniswapV3SwapPath;
+}
+
+export interface DLoopWithdrawerCurveConfig {
+  readonly swapRouter: string;
+  readonly defaultSwapParamsList: {
+    readonly inputToken: string;
+    readonly outputToken: string;
+    readonly swapExtraParams: CurveSwapExtraParams;
+    readonly reverseSwapExtraParams: CurveSwapExtraParams;
+  }[];
+}
+
+export interface DLoopWithdrawerOdosConfig {
+  readonly router: string;
 }
 
 export interface OracleWrapperAsset {
@@ -244,4 +300,60 @@ export interface CurveConfig {
   readonly tools?: {
     readonly httpServiceHost: string; // e.g. "http://localhost:3000"
   };
+}
+
+export interface OdosConfig {
+  readonly router: string;
+}
+
+export interface DStakeConfig {
+  readonly [instanceKey: string]: DStakeInstanceConfig;
+}
+export interface DStakeAdapterConfig {
+  readonly vaultAsset: string;
+  readonly adapterContract: string;
+}
+export interface DLendRewardManagerConfig {
+  readonly managedVaultAsset: string;
+  readonly dLendAssetToClaimFor: string;
+  readonly dLendRewardsController: string;
+  readonly treasury: string;
+  readonly maxTreasuryFeeBps: number;
+  readonly initialTreasuryFeeBps: number;
+  readonly initialExchangeThreshold: string;
+}
+
+export interface DStakeInstanceConfig {
+  readonly dStable: string;
+  readonly name: string;
+  readonly symbol: string;
+  readonly initialAdmin: string;
+  readonly initialFeeManager: string;
+  readonly initialWithdrawalFeeBps: number;
+  readonly adapters: DStakeAdapterConfig[];
+  readonly defaultDepositVaultAsset: string;
+  readonly collateralVault: string;
+  readonly collateralExchangers: string[];
+  readonly dLendRewardManager?: DLendRewardManagerConfig;
+}
+
+export interface VestingConfig {
+  readonly name: string;
+  readonly symbol: string;
+  readonly dstakeToken: string;
+  readonly vestingPeriod: number;
+  readonly maxTotalSupply: string;
+  readonly initialOwner: string;
+  readonly minDepositThreshold: string;
+}
+
+export interface DStablesConfig {
+  readonly [key: string]: DStableInstanceConfig;
+}
+
+export interface DStableInstanceConfig {
+  readonly collaterals: string[];
+  readonly initialFeeReceiver: string;
+  readonly initialRedemptionFeeBps: number;
+  readonly collateralRedemptionFees?: Record<string, number>;
 }

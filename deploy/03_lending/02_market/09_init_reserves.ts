@@ -25,7 +25,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 // This script can only be run successfully once per market, core version, and network
-func.id = `ReservesInit:${MARKET_NAME}:lending-core@${LENDING_CORE_VERSION}`;
+// Bump the ID so the script re-runs once to pick up new reserves (e.g. dUSD)
+func.id = `ReservesInit:${MARKET_NAME}:lending-core@${LENDING_CORE_VERSION}:v2`;
 func.tags = ["lbp", "lbp-market", "lbp-init-reserves"];
 func.dependencies = [
   "before-deploy",
@@ -34,6 +35,7 @@ func.dependencies = [
   "lbp-provider",
   "lbp-init-pool",
   "lbp-oracles",
+  "dStable", // Ensure dUSD token is deployed before initializing reserves
 ];
 
 export default func;

@@ -241,15 +241,38 @@ deploy-contract.fraxtal_testnet: deploy-contract
 deploy-contract.fraxtal_testnet.reset: network=fraxtal_testnet
 deploy-contract.fraxtal_testnet.reset: deploy-contract.reset
 
+deploy-contract.dloop:
+	@if [ "$(network)" = "" ]; then \
+		echo "Must provide 'network' argument"; \
+		exit 1; \
+	fi
+	@if [ "$(is_reset)" = "" ]; then \
+		echo "Must provide 'is_reset' argument"; \
+		exit 1; \
+	fi
+	@if [ "$(is_reset)" = "true" ]; then \
+		make clean-deployments network=$(network) deployment_prefix=DLoop; \
+	else \
+		echo "Skipping clean-deployments for $(network) network"; \
+	fi
+	@echo "Deploying DLoop contracts to $(network) network..."
+	@yarn hardhat deploy $(flag) --network $(network) --tags "dloop"
+
 deploy-contract.dloop.fraxtal_testnet: network=fraxtal_testnet
-deploy-contract.dloop.fraxtal_testnet: deployment_prefix=DLoopVault
-deploy-contract.dloop.fraxtal_testnet: clean-deployments
-deploy-contract.dloop.fraxtal_testnet: deploy-contract
+deploy-contract.dloop.fraxtal_testnet: is_reset=false
+deploy-contract.dloop.fraxtal_testnet: deploy-contract.dloop
 
 deploy-contract.dloop.fraxtal_mainnet: network=fraxtal_mainnet
-deploy-contract.dloop.fraxtal_mainnet: deployment_prefix=DLoopVault
-deploy-contract.dloop.fraxtal_mainnet: clean-deployments
-deploy-contract.dloop.fraxtal_mainnet: deploy-contract
+deploy-contract.dloop.fraxtal_mainnet: is_reset=false
+deploy-contract.dloop.fraxtal_mainnet: deploy-contract.dloop
+
+deploy-contract.dloop.fraxtal_testnet.reset: network=fraxtal_testnet
+deploy-contract.dloop.fraxtal_testnet.reset: is_reset=true
+deploy-contract.dloop.fraxtal_testnet.reset: deploy-contract.dloop
+
+deploy-contract.dloop.fraxtal_mainnet.reset: network=fraxtal_mainnet
+deploy-contract.dloop.fraxtal_mainnet.reset: is_reset=true
+deploy-contract.dloop.fraxtal_mainnet.reset: deploy-contract.dloop
 
 # ---------- Deploy to Fraxtal mainnet ----------
 

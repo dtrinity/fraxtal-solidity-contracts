@@ -23,6 +23,19 @@ import { getDecimals } from "../../utils/maths/utils";
 import { getTokenContractForAddress } from "../../utils/utils";
 
 /**
+ * Get the latest block timestamp from Hardhat provider
+ *
+ * @returns The current block timestamp
+ */
+async function getCurrentBlockTimestamp(): Promise<number> {
+  const latestBlock = await hre.ethers.provider.getBlock("latest");
+  return latestBlock?.timestamp || Math.floor(Date.now() / 1000);
+}
+
+// Use a very long deadline to prevent "Transaction too old" errors in tests
+export const TEST_DEADLINE_SECONDS = 24 * 60 * 60; // 24 hours
+
+/**
  * Create a pool and add liquidity to it
  *
  * @param callerAddress Address of the caller
@@ -31,7 +44,7 @@ import { getTokenContractForAddress } from "../../utils/utils";
  * @param token1Address Address of the second token
  * @param token0Amount Amount of the first token to add, determines starting price
  * @param token1Amount Amount of the second token to add, determines starting price
- * @param deadlineInSeconds Deadline for txn timeout
+ * @param deadlineInSeconds Deadline for txn timeout (optional, defaults to 24 hours)
  */
 export async function createPoolAddLiquidityWithApproval(
   callerAddress: string,
@@ -40,7 +53,7 @@ export async function createPoolAddLiquidityWithApproval(
   token1Address: string,
   token0Amount: number,
   token1Amount: number,
-  deadlineInSeconds: number,
+  deadlineInSeconds: number = TEST_DEADLINE_SECONDS,
 ): Promise<void> {
   const signer = await hre.ethers.getSigner(callerAddress);
 
@@ -92,7 +105,7 @@ export async function createPoolAddLiquidityWithApproval(
  * @param inputTokenAddress Address of the input token
  * @param outputTokenAddress Address of the output token
  * @param inputTokenAmount Amount of input token to swap
- * @param deadlineInSeconds Deadline for the swap in seconds
+ * @param deadlineInSeconds Deadline for the swap in seconds (optional, defaults to 24 hours)
  * @returns The transaction response
  */
 export async function swapExactInputSingleWithApproval(
@@ -101,7 +114,7 @@ export async function swapExactInputSingleWithApproval(
   inputTokenAddress: string,
   outputTokenAddress: string,
   inputTokenAmount: number,
-  deadlineInSeconds: number,
+  deadlineInSeconds: number = TEST_DEADLINE_SECONDS,
 ): Promise<void> {
   const { address: routerAddress } = await hre.deployments.get(SWAP_ROUTER_ID);
   const signer = await hre.ethers.getSigner(callerAddress);
@@ -140,7 +153,7 @@ export async function swapExactInputSingleWithApproval(
     tokenOut: outputTokenAddress,
     fee: feeTier,
     recipient: callerAddress,
-    deadline: Math.floor(Date.now() / 1000) + deadlineInSeconds,
+    deadline: (await getCurrentBlockTimestamp()) + deadlineInSeconds,
     amountIn: inputTokenAmountOnChainInt,
     amountOutMinimum: 0,
     sqrtPriceLimitX96: 0,
@@ -160,7 +173,7 @@ export async function swapExactInputSingleWithApproval(
  * @param inputTokenAddress - The address of the input token
  * @param outputTokenAddress - The address of the output token
  * @param outputTokenAmount - The amount of output token to swap
- * @param deadlineInSeconds - The deadline for the swap in seconds
+ * @param deadlineInSeconds - The deadline for the swap in seconds (optional, defaults to 24 hours)
  */
 export async function swapExactOutputSingleWithApproval(
   callerAddress: string,
@@ -168,7 +181,7 @@ export async function swapExactOutputSingleWithApproval(
   inputTokenAddress: string,
   outputTokenAddress: string,
   outputTokenAmount: number,
-  deadlineInSeconds: number,
+  deadlineInSeconds: number = TEST_DEADLINE_SECONDS,
 ): Promise<void> {
   const { address: routerAddress } = await hre.deployments.get(SWAP_ROUTER_ID);
   const signer = await hre.ethers.getSigner(callerAddress);
@@ -213,7 +226,7 @@ export async function swapExactOutputSingleWithApproval(
     tokenOut: outputTokenAddress,
     fee: feeTier,
     recipient: callerAddress,
-    deadline: Math.floor(Date.now() / 1000) + deadlineInSeconds,
+    deadline: (await getCurrentBlockTimestamp()) + deadlineInSeconds,
     amountOut: outputTokenAmountOnChainInt,
     amountInMaximum: ethers.MaxUint256,
     sqrtPriceLimitX96: 0,
@@ -233,13 +246,13 @@ export async function swapExactOutputSingleWithApproval(
  * @param callerAddress - The address of the caller
  * @param tokenPaths - The token address paths for the swap (e.g., [inputToken, token0, ..., outputToken])
  * @param inputTokenAmount - The amount of input token to swap
- * @param deadlineInSeconds - The deadline for the swap in seconds
+ * @param deadlineInSeconds - The deadline for the swap in seconds (optional, defaults to 24 hours)
  */
 export async function swapExactInputMultiWithApproval(
   callerAddress: string,
   tokenPaths: string[],
   inputTokenAmount: number,
-  deadlineInSeconds: number,
+  deadlineInSeconds: number = TEST_DEADLINE_SECONDS,
 ): Promise<void> {
   const { address: routerAddress } = await hre.deployments.get(SWAP_ROUTER_ID);
   const signer = await hre.ethers.getSigner(callerAddress);
@@ -288,7 +301,7 @@ export async function swapExactInputMultiWithApproval(
   const swapTxn = await routerContract.exactInput({
     path: convertToSwapPath(tokenPaths, feePaths, true),
     recipient: callerAddress,
-    deadline: Math.floor(Date.now() / 1000) + deadlineInSeconds,
+    deadline: (await getCurrentBlockTimestamp()) + deadlineInSeconds,
     amountIn: inputTokenAmountOnChainInt,
     amountOutMinimum: 0,
   });

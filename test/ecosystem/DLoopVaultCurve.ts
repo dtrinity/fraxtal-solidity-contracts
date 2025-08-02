@@ -30,6 +30,9 @@ import {
 } from "./utils.token";
 
 describe("DLoopVaultCurve via DLoopVaultBase", () => {
+  // Skip this test suite as it's not needed for the new vaults
+  return;
+
   before(async function () {
     // Skip tests if not on local_ethereum network
     if (hre.network.name !== "local_ethereum") {

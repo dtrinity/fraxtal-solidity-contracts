@@ -19,5 +19,10 @@ export async function getWETH9Address(
   }
 
   const config = await getConfig(hre);
+
+  if (!config.dex) {
+    throw new Error("DEX config is not set in the configuration");
+  }
+
   return config.dex.weth9Address;
 }

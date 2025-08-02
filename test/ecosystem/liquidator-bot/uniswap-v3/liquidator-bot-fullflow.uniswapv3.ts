@@ -20,7 +20,7 @@ describe("Test UniswapV3 liquidator bot", function () {
   // TODO:Skip these test for now as we dont have UniswapV3 liquidator bot
   it.skip("normal case", async function () {
     const collateralTokenSymbol = "SFRAX";
-    const borrowTokenSymbol = "DUSD";
+    const borrowTokenSymbol = "dUSD";
     const priceDecimals = 8;
 
     await standardUniswapV3DEXLBPLiquidityFixture();

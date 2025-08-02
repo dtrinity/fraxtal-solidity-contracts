@@ -25,6 +25,19 @@ import {
 } from "./deploy-ids";
 import { encodePriceSqrtX96 } from "./utils";
 
+/**
+ * Get the latest block timestamp from Hardhat provider
+ *
+ * @param hre Hardhat Runtime Environment
+ * @returns The current block timestamp
+ */
+async function getCurrentBlockTimestamp(
+  hre: HardhatRuntimeEnvironment,
+): Promise<number> {
+  const latestBlock = await hre.ethers.provider.getBlock("latest");
+  return latestBlock?.timestamp || Math.floor(Date.now() / 1000);
+}
+
 export interface PoolDeploymentResult {
   poolAddress: string;
   receipt: ContractTransactionReceipt | null;
@@ -362,6 +375,10 @@ export async function addPoolLiquidity(
   gasLimit: number | undefined,
   deadlineInSeconds: number,
 ): Promise<AddPoolLiquidityResult> {
+  // Get the current block timestamp and add the deadline seconds to ensure it's always in the future
+  const currentTimestamp = await getCurrentBlockTimestamp(hre);
+  const deadline = currentTimestamp + deadlineInSeconds;
+
   // Calculate the position for adding liquidity
   const chainID = parseInt(await hre.getChainId());
   const poolData = await getPoolData(hre, poolAddress);
@@ -439,7 +456,7 @@ export async function addPoolLiquidity(
     amount0Min: toHex(0),
     amount1Min: toHex(0),
     recipient: liquidityAdder.address,
-    deadline: toHex(Math.floor(Date.now() / 1000) + deadlineInSeconds),
+    deadline: toHex(deadline),
   };
 
   console.log("-----------------");

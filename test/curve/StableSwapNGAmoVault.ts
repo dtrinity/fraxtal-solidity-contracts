@@ -3,7 +3,7 @@ import { expect } from "chai";
 import hre, { ethers } from "hardhat";
 
 import { ICurveStableSwapNG, IERC20 } from "../../typechain-types";
-import { POOLS, TOKENS, WHALES } from "./registry";
+import { POOLS, TOKENS } from "./registry";
 
 describe("Curve StableSwapNG", function () {
   let owner: SignerWithAddress;

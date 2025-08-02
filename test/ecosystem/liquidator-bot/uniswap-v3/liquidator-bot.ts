@@ -28,7 +28,7 @@ describe("Uniswap V3 liquidator bot scenarios", function () {
   it.skip("Liquidate with sFRAX collateral and DUSD as borrowed token", async function () {
     // Define the tokens and the swap fees
     const collateralTokenSymbol = "SFRAX";
-    const borrowTokenSymbol = "DUSD";
+    const borrowTokenSymbol = "dUSD";
     const repayAmount = "800";
 
     const priceDecimals = AAVE_ORACLE_USD_DECIMALS;
@@ -241,7 +241,7 @@ describe("Uniswap V3 liquidator bot scenarios", function () {
     // Define the tokens and the swap fees
     const collateralTokenSymbol = "SFRAX";
     const borrowTokenSymbol = "FXS";
-    const oracleQuoteTokenSymbol = "DUSD";
+    const oracleQuoteTokenSymbol = "dUSD";
     const repayAmount = "200";
 
     const priceDecimals = AAVE_ORACLE_USD_DECIMALS;
@@ -460,37 +460,37 @@ describe("Test getLiquidationProfitInUSD()", function () {
     expectedProfitUSD: number;
   }[] = [
     {
-      borrowTokenSymbol: "DUSD",
+      borrowTokenSymbol: "dUSD",
       borrowTokenPriceUSD: 0.5,
       borrowAmount: "1000",
       expectedProfitUSD: 25,
     },
     {
-      borrowTokenSymbol: "DUSD",
+      borrowTokenSymbol: "dUSD",
       borrowTokenPriceUSD: 0.659,
       borrowAmount: "1000",
       expectedProfitUSD: 32.95,
     },
     {
-      borrowTokenSymbol: "DUSD",
+      borrowTokenSymbol: "dUSD",
       borrowTokenPriceUSD: 0.233,
       borrowAmount: "1000",
       expectedProfitUSD: 11.65,
     },
     {
-      borrowTokenSymbol: "DUSD",
+      borrowTokenSymbol: "dUSD",
       borrowTokenPriceUSD: 0.142,
       borrowAmount: "1000",
       expectedProfitUSD: 7.1,
     },
     {
-      borrowTokenSymbol: "DUSD",
+      borrowTokenSymbol: "dUSD",
       borrowTokenPriceUSD: 0.142,
       borrowAmount: "5435",
       expectedProfitUSD: 38.5885,
     },
     {
-      borrowTokenSymbol: "DUSD",
+      borrowTokenSymbol: "dUSD",
       borrowTokenPriceUSD: 3.05,
       borrowAmount: "800",
       expectedProfitUSD: 122,

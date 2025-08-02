@@ -7,9 +7,22 @@ import {
   UNISWAP_STATIC_ORACLE_ID,
   UNISWAP_V3_FACTORY_ID,
 } from "../../../utils/dex/deploy-ids";
+import { isMainnetNetwork } from "../../../utils/utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  if (isMainnetNetwork(hre.network.name)) {
+    console.log("Skipping deployment on mainnet");
+    return false;
+  }
+
   const config = await getConfig(hre);
+
+  // Skip deployment if dex config is not populated
+  if (!config.dex) {
+    console.log("Skipping Static Oracle deployment - dex config not populated");
+    return false;
+  }
+
   const cardinalityPerMinute = config.dex.oracle.cardinalityPerMinute;
 
   if (cardinalityPerMinute === undefined || cardinalityPerMinute < 1) {

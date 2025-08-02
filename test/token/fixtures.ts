@@ -12,7 +12,7 @@ export const standardTestTokenFixture = hre.deployments.createFixture(
 
     const { tokenInfo: receiptInfo } = await getTokenContractForSymbol(
       testTokenDeployer,
-      "DUSD",
+      "dUSD",
     );
 
     const { tokenInfo: collateralInfo } = await getTokenContractForSymbol(

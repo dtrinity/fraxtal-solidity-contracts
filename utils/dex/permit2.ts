@@ -21,6 +21,10 @@ export async function getPermit2Address(
 
   const config = await getConfig(hre);
 
+  if (!config.dex) {
+    throw new Error("DEX config is not set in the configuration");
+  }
+
   if (config.dex.permit2Address != "") {
     return config.dex.permit2Address;
   }

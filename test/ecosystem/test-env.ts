@@ -96,7 +96,7 @@ export async function loadTestEnv(): Promise<TestEnv> {
 
   const { contract: dusd } = await getTokenContractForSymbol(
     dexDeployer,
-    "DUSD",
+    "dUSD",
   );
 
   const { contract: sfrax } = await getTokenContractForSymbol(
@@ -104,7 +104,7 @@ export async function loadTestEnv(): Promise<TestEnv> {
     "SFRAX",
   );
 
-  const aDUSD = await getATokenForSymbol(lendingDeployer, "DUSD");
+  const aDUSD = await getATokenForSymbol(lendingDeployer, "dUSD");
   const { contract: fxs } = await getTokenContractForSymbol(dexDeployer, "FXS");
   const aFXS = await getATokenForSymbol(lendingDeployer, "FXS");
   const aSFRAX = await getATokenForSymbol(lendingDeployer, "SFRAX");

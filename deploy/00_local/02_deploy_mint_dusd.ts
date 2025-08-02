@@ -15,7 +15,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await deployTestERC20StablecoinUpgradeableTokens(
     hre,
     {
-      DUSD: [
+      // Deploy only dUSD for consistency with production deployments
+      dUSD: [
         {
           amount: 1e8,
           toAddress: dexDeployer,
@@ -25,8 +26,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
           toAddress: testTokenOwner1,
         },
       ],
-      // Test depends on no-unbacked dUSD mints
-      dUSD: [],
     },
     await hre.ethers.getSigner(testTokenDeployer),
   );

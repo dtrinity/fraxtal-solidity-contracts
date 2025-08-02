@@ -3,12 +3,24 @@ import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../../config/config";
 import { deployAndInitializePool } from "../../../utils/dex/pool";
+import { isMainnetNetwork } from "../../../utils/utils";
 
 // We need an initial stablecoin pool to bootstrap the UI
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { dexDeployer, dexLiquidityAdder } = await hre.getNamedAccounts();
+  if (isMainnetNetwork(hre.network.name)) {
+    console.log("Skipping pool initialization on mainnet");
+    return false;
+  }
 
   const config = await getConfig(hre);
+
+  // Skip deployment if dex config is not populated
+  if (!config.dex) {
+    console.log("Skipping DEX pool initialization - dex config not populated");
+    return false;
+  }
+
+  const { dexDeployer, dexLiquidityAdder } = await hre.getNamedAccounts();
   const initialPools = config.dex.initialPools;
 
   if (initialPools.length == 0) {

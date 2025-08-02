@@ -8,9 +8,9 @@
   ],
   "scripts": {
     "test-ts": "env-cmd --silent -f .env yarn jest",
-    "ts-lint": "eslint . --ext .ts --ext .js --ext .json",
+    "ts-lint": "eslint .",
     "ts-lint-fix": "yarn ts-lint --fix && yarn ts-typecheck",
-    "ts-typecheck": "tsc -p tsconfig.lint.json --noEmit"
+    "ts-typecheck": "node ./scripts/disable_tscheck_typechain.js && tsc --noEmit -p tsconfig.typecheck.json"
   },
   "devDependencies": {
     "@curvefi/api": "2.30.1",

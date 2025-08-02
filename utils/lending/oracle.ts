@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { getConfig } from "../../config/config";
+import { getTokenRegistry, TokenDeploymentStrategy } from "../token-registry";
 import { isLocalNetwork, isTestnetNetwork } from "../utils";
 
 /**
@@ -39,13 +40,11 @@ export async function getChainlinkOracles(
   const config = await getConfig(hre);
 
   if (isLocalNetwork(hre.network.name)) {
-    if (!config.mintInfos) {
-      throw new Error(
-        `Mint infos not found in the configuration for network ${hre.network.name}`,
-      );
-    }
-
-    const mintedTestTokens = Object.keys(config.mintInfos);
+    const registry = await getTokenRegistry(hre);
+    const mintedTestTokens = Object.values(registry.tokens)
+      .filter(token => token.strategy === TokenDeploymentStrategy.MINT)
+      .map(token => token.symbol);
+    
     const mockOracleTokens = config.lending.mockPriceAggregatorInitialUSDPrices;
 
     if (!mockOracleTokens) {

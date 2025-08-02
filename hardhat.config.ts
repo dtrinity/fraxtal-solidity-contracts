@@ -62,6 +62,7 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       fraxtal_mainnet: "AMT6AWIRDZV3RVNSSU6T2638K59QSX4Q89",
+      fraxtal_testnet: "AMT6AWIRDZV3RVNSSU6T2638K59QSX4Q89",
     },
     customChains: [
       {
@@ -70,6 +71,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api.fraxscan.com/api",
           browserURL: "https://fraxscan.com",
+        },
+      },
+      {
+        network: "fraxtal_testnet",
+        chainId: 2522,
+        urls: {
+          apiURL: "https://api-holesky.fraxscan.com/api",
+          browserURL: "https://holesky.fraxscan.com",
         },
       },
     ],

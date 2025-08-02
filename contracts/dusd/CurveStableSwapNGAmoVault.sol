@@ -47,7 +47,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
 
     /**
      * @notice Initializes the CurveStableSwapNGAmoVault
-     * @param _dusd Address of the DUSD token
+     * @param _dusd Address of the dUSD token
      * @param _amoManager Address of the AMO manager
      * @param _oracle Address of the price oracle
      * @param _router Address of the Curve Router NG
@@ -388,7 +388,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
     }
 
     /**
-     * @dev Calculates the value of an LP excluding DUSD.
+     * @dev Calculates the value of an LP excluding dUSD.
      * @param lpToken The address of the LP token.
      * @return collateralValue The value of the collateral in BASE_CURRENCY_UNIT
      * @return dusdValue The value of the dUSD in BASE_CURRENCY_UNIT
@@ -435,8 +435,8 @@ contract CurveStableSwapNGAmoVault is AmoVault {
 
     /**
      * @dev Calculates the total values across all LP positions
-     * @return _totalCollateralValue The sum of all non-DUSD token values in BASE_CURRENCY_UNIT
-     * @return _totalDusdValue The sum of all DUSD values in BASE_CURRENCY_UNIT
+     * @return _totalCollateralValue The sum of all non-dUSD token values in BASE_CURRENCY_UNIT
+     * @return _totalDusdValue The sum of all dUSD values in BASE_CURRENCY_UNIT
      */
     function _totalLpValues()
         internal

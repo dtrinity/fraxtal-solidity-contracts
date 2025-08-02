@@ -3,9 +3,21 @@ import { ethers } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { CURVE_CONTRACTS, POOLS } from "../../test/curve/registry";
-import { AAVE_ORACLE_USD_DECIMALS, ONE_BPS_UNIT } from "../../utils/constants";
+import {
+  ATOKEN_IMPL_ID,
+  dUSD_A_TOKEN_WRAPPER_ID,
+  INCENTIVES_PROXY_ID,
+  SDUSD_DSTAKE_TOKEN_ID,
+  SDUSD_REWARD_MANAGER_ID,
+  SDUSD_WRAPPED_DLEND_CONVERSION_ADAPTER_ID,
+} from "../../typescript/deploy-ids";
+import {
+  AAVE_ORACLE_USD_DECIMALS,
+  ONE_PERCENT_BPS,
+} from "../../utils/constants";
 import { TEST_WETH9_ID } from "../../utils/dex/deploy-ids";
 import {
+  rateStrategyDUSD,
   rateStrategyHighLiquidityStable,
   rateStrategyHighLiquidityVolatile,
   rateStrategyMediumLiquidityStable,
@@ -36,7 +48,7 @@ export async function getConfig(
   // We currently use the pre-minted test DUSD token in liquidity pools
   // Whereas dUSD starts at 0 supply, DUSD is pre-minted. In order to change to
   // using dUSD we also need to migrate away from using dSWAP with the old DUSD
-  const DUSDDeployment = await hre.deployments.getOrNull("DUSD");
+  const _DUSDDeployment = await hre.deployments.getOrNull("DUSD");
   const dUSDDeployment = await hre.deployments.getOrNull("dUSD");
   const FXSDeployment = await hre.deployments.getOrNull("FXS");
   const SFRAXDeployment = await hre.deployments.getOrNull("SFRAX");
@@ -47,7 +59,29 @@ export async function getConfig(
     DEX_ORACLE_WRAPPER_ID,
   );
 
+  // Fetch dSTAKE related deployments
+  const sdUSDDeployment = await hre.deployments.getOrNull(
+    SDUSD_DSTAKE_TOKEN_ID,
+  );
+  const dUSDStaticATokenDeployment = await hre.deployments.getOrNull(
+    dUSD_A_TOKEN_WRAPPER_ID,
+  );
+  const conversionAdapterDeployment = await hre.deployments.getOrNull(
+    SDUSD_WRAPPED_DLEND_CONVERSION_ADAPTER_ID,
+  );
+  const _rewardManagerDeployment = await hre.deployments.getOrNull(
+    SDUSD_REWARD_MANAGER_ID,
+  );
+  const rewardsControllerDeployment =
+    await hre.deployments.getOrNull(INCENTIVES_PROXY_ID);
+  const dUSDATokenDeployment = await hre.deployments.getOrNull(
+    `${ATOKEN_IMPL_ID}_dUSD`,
+  );
+
   return {
+    walletAddresses: {
+      governanceMultisig: dexDeployer,
+    },
     // Mint amounts for the test tokens
     mintInfos: {
       DUSD: [
@@ -111,7 +145,7 @@ export async function getConfig(
       initialPools: [
         {
           token0Address: emptyIfUndefined(WFRXETHDeployment?.address, ""),
-          token1Address: emptyIfUndefined(DUSDDeployment?.address, ""),
+          token1Address: emptyIfUndefined(dUSDDeployment?.address, ""),
           fee: FeeAmount.MEDIUM,
           initPrice: {
             // Initial price ratio
@@ -150,28 +184,15 @@ export async function getConfig(
         rateStrategyMediumLiquidityVolatile,
         rateStrategyHighLiquidityStable,
         rateStrategyMediumLiquidityStable,
+        rateStrategyDUSD,
       ],
       chainlinkEthUsdAggregatorProxy: "", // No fixed chainlink aggregator proxy for localhost
       incentivesVault: dexDeployer, // Default to the main deployer
       incentivesEmissionManager: dexDeployer, // Default to the main deployer
     },
-    liquidatorBotUniswapV3: {
-      flashMinter: emptyIfUndefined(DUSDDeployment?.address, ""),
-      dUSDAddress: emptyIfUndefined(DUSDDeployment?.address, ""),
-      slippageTolerance: 50 * 100 * ONE_BPS_UNIT, // 50% slippage tolerance
-      healthFactorThreshold: 1,
-      healthFactorBatchSize: 10,
-      reserveBatchSize: 10,
-      profitableThresholdInUSD: 1,
-      liquidatingBatchSize: 200,
-      graphConfig: {
-        url: "", // Not used for localhost
-        batchSize: 0,
-      },
-      isUnstakeTokens: {}, // No unstake tokens on localhost
-      proxyContractMap: {}, // No proxy contracts
-    },
+    liquidatorBotUniswapV3: undefined,
     liquidatorBotCurve: undefined, // No Curve liquidator on localhost
+    liquidatorBotOdos: undefined, // No Odos liquidator on localhost
     dusd: {
       address: emptyIfUndefined(dUSDDeployment?.address, ""),
       amoVaults: {
@@ -182,108 +203,19 @@ export async function getConfig(
         },
       },
     },
-    dLoopUniswapV3: {
-      vaults: [
-        {
-          // The sFRAX-DUSD (HIGH) pool is initialized in test/ecosystem/fixtures.ts
-          dusdAddress: emptyIfUndefined(DUSDDeployment?.address, ""),
-          underlyingAssetAddress: emptyIfUndefined(
-            SFRAXDeployment?.address,
-            "",
-          ),
-          defaultDusdToUnderlyingSwapPath: {
-            tokenAddressesPath: [
-              emptyIfUndefined(DUSDDeployment?.address, ""),
-              emptyIfUndefined(SFRAXDeployment?.address, ""),
-            ],
-            poolFeeSchemaPath: [FeeAmount.HIGH],
-          },
-          defaultUnderlyingToDusdSwapPath: {
-            tokenAddressesPath: [
-              emptyIfUndefined(SFRAXDeployment?.address, ""),
-              emptyIfUndefined(DUSDDeployment?.address, ""),
-            ],
-            poolFeeSchemaPath: [FeeAmount.HIGH],
-          },
-          targetLeverageBps: 300 * 100 * ONE_BPS_UNIT, // 300% leverage, meaning 3x leverage
-          swapSlippageTolerance: 5 * 100 * ONE_BPS_UNIT, // 5% slippage tolerance
-          maxSubsidyBps: 2 * 100 * ONE_BPS_UNIT, // 2% subsidy, meaning 1x leverage
-          minimumUnderlyingAssetAmount: 0.0001,
-          minimumSharesAmount: 0.0001,
-        },
-      ],
+    dLoop: {
+      // TODO: will add later
+      dUSDAddress: emptyIfUndefined(dUSDDeployment?.address, ""),
+      coreVaults: {},
+      depositors: {},
+      withdrawers: {},
     },
-    dLoopCurve: undefined, // No dLoopCurve configuration for localhost
-    // dLoopCurve: {
-    //   dUSDAddress: TOKENS.USDe.address,
-    //   vaults: [
-    //     {
-    //       underlyingAssetAddress: TOKENS.sDAI.address,
-    //       swapRouter: CURVE_CONTRACTS.router,
-    //       defaultDusdToUnderlyingSwapExtraParams: {
-    //         route: [
-    //           TOKENS.USDe.address,
-    //           POOLS.stableswapng.USDe_DAI.address,
-    //           TOKENS.sDAI.address,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //         ],
-    //         swapParams: [
-    //           [0, 1, 1, 2],
-    //           [0, 0, 0, 0],
-    //           [0, 0, 0, 0],
-    //           [0, 0, 0, 0],
-    //           [0, 0, 0, 0],
-    //         ],
-    //         swapSlippageBufferBps: 5000, // 50% slippage buffer
-    //       },
-    //       defaultUnderlyingToDusdSwapExtraParams: {
-    //         route: [
-    //           TOKENS.sDAI.address,
-    //           POOLS.stableswapng.USDe_DAI.address,
-    //           TOKENS.USDe.address,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //           ethers.ZeroAddress,
-    //         ],
-    //         swapParams: [
-    //           [0, 1, 1, 2],
-    //           [0, 0, 0, 0],
-    //           [0, 0, 0, 0],
-    //           [0, 0, 0, 0],
-    //           [0, 0, 0, 0],
-    //         ],
-    //         swapSlippageBufferBps: 5000, // 50% slippage buffer
-    //       },
-    //       targetLeverageBps: 300 * 100 * ONE_BPS_UNIT, // 300% leverage, meaning 3x leverage
-    //       swapSlippageTolerance: 20 * 100 * ONE_BPS_UNIT, // 20% slippage tolerance
-    //       maxSubsidyBps: 2 * 100 * ONE_BPS_UNIT, // 2% subsidy, meaning 1x leverage
-    //       maxSlippageSurplusSwapBps: 20 * 100 * ONE_BPS_UNIT, // 20% slippage surplus swap
-    //     },
-    //   ],
-    // },
     oracleAggregator: {
       hardDusdPeg: 10 ** AAVE_ORACLE_USD_DECIMALS,
       priceDecimals: AAVE_ORACLE_USD_DECIMALS,
       dUSDAddress: emptyIfUndefined(dUSDDeployment?.address, ""),
       dexOracleAssets: {
-        // TODO remove once we deprecate DUSD in favor of dUSD
-        // Note that dUSD is already hard pegged to $1
-        [emptyIfUndefined(DUSDDeployment?.address, "")]: emptyIfUndefined(
-          dexOracleWrapperDeployment?.address,
-          "",
-        ),
+        // Note that dUSD is already hard pegged to $1, so it's not included in dexOracleAssets
         [emptyIfUndefined(SFRAXDeployment?.address, "")]: emptyIfUndefined(
           dexOracleWrapperDeployment?.address,
           "",
@@ -311,6 +243,102 @@ export async function getConfig(
       // Use the Curve router deployed on Ethereum mainnet
       router: "0x16C6521Dff6baB339122a0FE25a9116693265353",
     },
+    odos: {
+      router: "0x56c85a254DD12eE8D9C04049a4ab62769Ce98210", // Dummy address
+    },
+    dStables: {
+      dUSD: {
+        collaterals: [
+          // Mock addresses for localhost testing
+          "0x0000000000000000000000000000000000000001", // frxUSD mock
+          "0x0000000000000000000000000000000000000008", // sfrxUSD mock
+          "0x0000000000000000000000000000000000000009", // DAI mock
+          "0x000000000000000000000000000000000000000A", // sDAI mock
+          "0x000000000000000000000000000000000000000B", // USDe mock
+          "0x000000000000000000000000000000000000000C", // sUSDe mock
+          "0x000000000000000000000000000000000000000D", // USDC mock
+          "0x000000000000000000000000000000000000000E", // USDT mock
+          "0x000000000000000000000000000000000000000F", // crvUSD mock
+          "0x0000000000000000000000000000000000000010", // scrvUSD mock
+        ],
+        initialFeeReceiver: dexDeployer, // governanceMultisig
+        initialRedemptionFeeBps: 0.4 * ONE_PERCENT_BPS, // 0.4% default
+        collateralRedemptionFees: {
+          // Stablecoins: 0.4%
+          ["0x0000000000000000000000000000000000000001"]: 0.4 * ONE_PERCENT_BPS, // frxUSD
+          ["0x0000000000000000000000000000000000000009"]: 0.4 * ONE_PERCENT_BPS, // DAI
+          ["0x000000000000000000000000000000000000000B"]: 0.4 * ONE_PERCENT_BPS, // USDe
+          ["0x000000000000000000000000000000000000000D"]: 0.4 * ONE_PERCENT_BPS, // USDC
+          ["0x000000000000000000000000000000000000000E"]: 0.4 * ONE_PERCENT_BPS, // USDT
+          ["0x000000000000000000000000000000000000000F"]: 0.4 * ONE_PERCENT_BPS, // crvUSD
+          // Yield bearing stablecoins: 0.5%
+          ["0x0000000000000000000000000000000000000008"]: 0.5 * ONE_PERCENT_BPS, // sfrxUSD
+          ["0x000000000000000000000000000000000000000A"]: 0.5 * ONE_PERCENT_BPS, // sDAI
+          ["0x000000000000000000000000000000000000000C"]: 0.5 * ONE_PERCENT_BPS, // sUSDe
+          ["0x0000000000000000000000000000000000000010"]: 0.5 * ONE_PERCENT_BPS, // scrvUSD
+        },
+      },
+    },
+    dStake:
+      dUSDDeployment &&
+      dUSDStaticATokenDeployment &&
+      dUSDStaticATokenDeployment.address !== ""
+        ? {
+            sdUSD: {
+              dStable: dUSDDeployment.address,
+              name: "Staked dUSD",
+              symbol: "sdUSD",
+              initialAdmin: dexDeployer,
+              initialFeeManager: dexDeployer,
+              initialWithdrawalFeeBps: 0.1 * ONE_PERCENT_BPS, // 0.1% (1000 in contract terms = 10 basis points)
+              adapters:
+                dUSDStaticATokenDeployment &&
+                dUSDStaticATokenDeployment.address !== "" &&
+                conversionAdapterDeployment
+                  ? [
+                      {
+                        vaultAsset: dUSDStaticATokenDeployment.address,
+                        adapterContract: "WrappedDLendConversionAdapter",
+                      },
+                    ]
+                  : [],
+              defaultDepositVaultAsset: emptyIfUndefined(
+                dUSDStaticATokenDeployment?.address,
+                "",
+              ),
+              collateralVault: "DStakeCollateralVault_sdUSD",
+              collateralExchangers: [dexDeployer],
+              dLendRewardManager:
+                dUSDStaticATokenDeployment &&
+                dUSDATokenDeployment &&
+                rewardsControllerDeployment
+                  ? {
+                      managedVaultAsset: dUSDStaticATokenDeployment.address,
+                      dLendAssetToClaimFor: dUSDATokenDeployment.address,
+                      dLendRewardsController:
+                        rewardsControllerDeployment.address,
+                      treasury: dexDeployer,
+                      maxTreasuryFeeBps: 5 * ONE_PERCENT_BPS, // 5%
+                      initialTreasuryFeeBps: 1 * ONE_PERCENT_BPS, // 1%
+                      initialExchangeThreshold: ethers
+                        .parseUnits("1", 6)
+                        .toString(), // 1 dUSD (6 decimals)
+                    }
+                  : undefined,
+            },
+          }
+        : undefined,
+    vesting: sdUSDDeployment
+      ? {
+          name: "dBOOST sdUSD Season 1",
+          symbol: "sdUSD-S1",
+          dstakeToken: sdUSDDeployment.address,
+          vestingPeriod: 180 * 24 * 60 * 60, // 6 months
+          maxTotalSupply: ethers.parseUnits("20000000", 18).toString(), // 20M tokens
+          initialOwner: dexDeployer,
+          minDepositThreshold: ethers.parseUnits("250000", 18).toString(), // 250k tokens
+        }
+      : undefined,
   };
 }
 

@@ -24,6 +24,18 @@ import { getMaxTick, getMinTick } from "../ecosystem/utils.dex";
 import { getTokenContractForSymbol } from "../ecosystem/utils.token";
 import { standardDUSDDEXFixture } from "./fixtures";
 
+// Helper function to create a deadline that's far enough in the future to avoid "Transaction too old" errors
+/**
+ * Creates a timestamp for a deadline that's far enough in the future (24h) to avoid "Transaction too old" errors
+ * in tests. This ensures that deadline-sensitive operations like adding liquidity or swapping tokens don't fail.
+ *
+ * @returns The timestamp (in seconds) 24 hours from the current time
+ */
+function createTestDeadline(): number {
+  // Create a deadline 24 hours in the future
+  return Math.floor(Date.now() / 1000) + 86400;
+}
+
 describe("UniV3AmoVault", () => {
   let uniV3AmoVault: UniV3AmoVault;
   let dusdContract: MintableERC20;
@@ -190,7 +202,7 @@ describe("UniV3AmoVault", () => {
         amount0Min: 0,
         amount1Min: 0,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       // Allocate dUSD to the AMO vault
@@ -267,7 +279,7 @@ describe("UniV3AmoVault", () => {
         amount0Min: 0,
         amount1Min: 0,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       // Don't allocate any dUSD to the AMO vault
@@ -314,7 +326,7 @@ describe("UniV3AmoVault", () => {
         amount0Min: 0,
         amount1Min: 0,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       await dusdContract.mint(await amoManager.getAddress(), mintDUSDAmount);
@@ -386,7 +398,7 @@ describe("UniV3AmoVault", () => {
         amount0Min: 0,
         amount1Min: 0,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       // Allocate initial dUSD and sFRAX to the AMO vault
@@ -435,7 +447,7 @@ describe("UniV3AmoVault", () => {
           : increaseDUSDAmount,
         amount0Min: 0,
         amount1Min: 0,
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       // Allocate additional dUSD and sFRAX to the AMO vault
@@ -505,7 +517,7 @@ describe("UniV3AmoVault", () => {
         amount0Min: 0,
         amount1Min: 0,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       // Allocate initial dUSD and sFRAX to the AMO vault
@@ -565,7 +577,7 @@ describe("UniV3AmoVault", () => {
         tokenOut: dusdInfo.address,
         fee: FeeAmount.HIGH,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
         amountOut: swapAmount,
         amountInMaximum: maxInputAmount,
         sqrtPriceLimitX96: 0,
@@ -611,7 +623,7 @@ describe("UniV3AmoVault", () => {
         tokenOut: dusdInfo.address,
         fee: FeeAmount.HIGH,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
         amountIn: swapAmount,
         amountOutMinimum: minOutputAmount,
         sqrtPriceLimitX96: 0,
@@ -655,7 +667,7 @@ describe("UniV3AmoVault", () => {
         tokenOut: dusdInfo.address,
         fee: FeeAmount.HIGH,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
         amountOut: swapAmount,
         amountInMaximum: maxInputAmount,
         sqrtPriceLimitX96: 0,
@@ -683,7 +695,7 @@ describe("UniV3AmoVault", () => {
         tokenOut: dusdInfo.address,
         fee: FeeAmount.HIGH,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
         amountIn: swapAmount,
         amountOutMinimum: minOutputAmount,
         sqrtPriceLimitX96: 0,
@@ -712,7 +724,7 @@ describe("UniV3AmoVault", () => {
         amount0Min: 0,
         amount1Min: 0,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       await expect(uniV3AmoVault.connect(normalUser).mint(mintParams))
@@ -747,7 +759,7 @@ describe("UniV3AmoVault", () => {
         amount1Desired: hre.ethers.parseUnits("500", dusdInfo.decimals),
         amount0Min: 0,
         amount1Min: 0,
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       await expect(
@@ -793,7 +805,7 @@ describe("UniV3AmoVault", () => {
         tokenOut: dusdInfo.address,
         fee: FeeAmount.HIGH,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
         amountOut: swapAmount,
         amountInMaximum: maxInputAmount,
         sqrtPriceLimitX96: 0,
@@ -804,7 +816,7 @@ describe("UniV3AmoVault", () => {
         tokenOut: dusdInfo.address,
         fee: FeeAmount.HIGH,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
         amountIn: swapAmount,
         amountOutMinimum: hre.ethers.parseUnits("90", dusdInfo.decimals),
         sqrtPriceLimitX96: 0,
@@ -855,7 +867,7 @@ describe("UniV3AmoVault", () => {
         amount0Min: 0,
         amount1Min: 0,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       await expect(
@@ -872,7 +884,7 @@ describe("UniV3AmoVault", () => {
         amount1Desired: 0,
         amount0Min: 0,
         amount1Min: 0,
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       await expect(
@@ -904,7 +916,7 @@ describe("UniV3AmoVault", () => {
         amount0Min: 0,
         amount1Min: 0,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       // Allocate tokens to the AMO vault
@@ -943,7 +955,7 @@ describe("UniV3AmoVault", () => {
         amount0Min: 0,
         amount1Min: 0,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       // Allocate tokens to the AMO vault
@@ -987,7 +999,7 @@ describe("UniV3AmoVault", () => {
         tokenOut: dusdInfo.address,
         fee: FeeAmount.HIGH,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
         amountOut: minAmount,
         amountInMaximum: hre.ethers.parseUnits("1", sfraxInfo.decimals), // Set a reasonable max input
         sqrtPriceLimitX96: 0,
@@ -1055,7 +1067,7 @@ describe("UniV3AmoVault", () => {
         amount0Min: 0,
         amount1Min: 0,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       await dusdContract.mint(await amoManager.getAddress(), mintDUSDAmount);
@@ -1104,7 +1116,7 @@ describe("UniV3AmoVault", () => {
         amount0Min: 0,
         amount1Min: 0,
         recipient: await uniV3AmoVault.getAddress(),
-        deadline: Math.floor(Date.now() / 1000) + 3600,
+        deadline: createTestDeadline(),
       };
 
       await dusdContract.mint(

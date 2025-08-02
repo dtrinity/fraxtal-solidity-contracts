@@ -8,9 +8,24 @@ import {
   UNISWAP_STATIC_ORACLE_ID,
   UNISWAP_STATIC_ORACLE_WRAPPER_ID,
 } from "../../../utils/dex/deploy-ids";
-import { isLocalNetwork } from "../../../utils/utils";
+import { isLocalNetwork, isMainnetNetwork } from "../../../utils/utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  if (isMainnetNetwork(hre.network.name)) {
+    console.log("Skipping deployment on mainnet");
+    return false;
+  }
+
+  const config = await getConfig(hre);
+
+  // Skip deployment if dex config is not populated
+  if (!config.dex) {
+    console.log(
+      "Skipping Oracle Wrapper deployment - dex config not populated",
+    );
+    return false;
+  }
+
   const { dexDeployer } = await hre.getNamedAccounts();
 
   const baseTokenAddress = await getBaseTokenAddress(hre);
@@ -18,8 +33,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { address: staticOracleAddress } = await hre.deployments.get(
     UNISWAP_STATIC_ORACLE_ID,
   );
-
-  const config = await getConfig(hre);
 
   const baseTokenAmountForQuoting = config.dex.oracle.baseTokenAmountForQuoting;
   const quotePeriodSeconds = config.dex.oracle.quotePeriodSeconds;
@@ -56,12 +69,16 @@ async function getBaseTokenAddress(
   hre: HardhatRuntimeEnvironment,
 ): Promise<string> {
   if (isLocalNetwork(hre.network.name)) {
-    // TODO: change to dUSD instead of DUSD
-    const { address: baseTokenAddress } = await hre.deployments.get("DUSD");
+    // Use dUSD for local networks
+    const { address: baseTokenAddress } = await hre.deployments.get("dUSD");
     return baseTokenAddress;
   }
 
   const config = await getConfig(hre);
+
+  if (!config.dex) {
+    throw new Error(`DEX config is not set for network: ${hre.network.name}`);
+  }
   const baseTokenAddress = config.dex.oracle.baseTokenAddress;
 
   if (!baseTokenAddress) {
