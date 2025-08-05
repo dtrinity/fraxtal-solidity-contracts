@@ -268,7 +268,7 @@ export async function getConfig(
         },
         api3OracleWrappersWithThresholding: {
           [TOKEN_INFO.frxUSD.address]: {
-            proxy: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dTrinity OEV (legacy FRAX aka frxUSD)
+            proxy: "0x4d66E060d24A1bb2983da9781f017258A439CBBb", // frxUSD/USD dTrinity OEV
             lowerThreshold: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
             fixedPrice: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
           },
@@ -318,7 +318,7 @@ export async function getConfig(
           [TOKEN_INFO.sfrxUSD.address]: {
             feedAsset: TOKEN_INFO.sfrxUSD.address,
             proxy1: "0xeBC6A39522Af1706cF7F37C55C098282b844ab78", // sfrxUSD/frxUSD dTrinity OEV
-            proxy2: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dTrinity OEV (legacy FRAX aka frxUSD)
+            proxy2: "0x4d66E060d24A1bb2983da9781f017258A439CBBb", // frxUSD/USD dTrinity OEV
             // Don't allow FRAX to go above $1
             lowerThresholdInBase1: 0n,
             fixedPriceInBase1: 0n,
@@ -363,7 +363,7 @@ export async function getConfig(
             pool: "0xee454138083b9b9714cac3c7cf12560248d76d6b", // frxUSD/FXB20291231 pool
             compositeAPI3Feed: {
               api3Asset: TOKEN_INFO.frxUSD.address,
-              api3Proxy: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dTrinity OEV (legacy FRAX aka frxUSD)
+              api3Proxy: "0x4d66E060d24A1bb2983da9781f017258A439CBBb", // frxUSD/USD dTrinity OEV
               api3LowerThresholdInBase:
                 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
               api3FixedPriceInBase:
@@ -378,7 +378,7 @@ export async function getConfig(
             pool: "0x63d64a76c2d616676cbac3068d3c6548f8485314", // frxUSD/FXB20251231 pool
             compositeAPI3Feed: {
               api3Asset: TOKEN_INFO.frxUSD.address,
-              api3Proxy: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dTrinity OEV (legacy FRAX aka frxUSD)
+              api3Proxy: "0x4d66E060d24A1bb2983da9781f017258A439CBBb", // frxUSD/USD dTrinity OEV
               api3LowerThresholdInBase:
                 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
               api3FixedPriceInBase:
@@ -393,7 +393,7 @@ export async function getConfig(
             pool: "0x4cfc391d75c43cf1bdb368e8bf680aed1228df39", // frxUSD/FXB20551231 pool
             compositeAPI3Feed: {
               api3Asset: TOKEN_INFO.frxUSD.address,
-              api3Proxy: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dTrinity OEV (legacy FRAX aka frxUSD)
+              api3Proxy: "0x4d66E060d24A1bb2983da9781f017258A439CBBb", // frxUSD/USD dTrinity OEV
               api3LowerThresholdInBase:
                 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
               api3FixedPriceInBase:
@@ -408,7 +408,7 @@ export async function getConfig(
             pool: "0xbC3705b2bfD42d38e8FA2c8EFDC3Fdda645C3b2a", // frxUSD/FXB20261231 pool
             compositeAPI3Feed: {
               api3Asset: TOKEN_INFO.frxUSD.address,
-              api3Proxy: "0xA5a23fbE863EfF09690103Cfb9af210e345592Dc", // FRAX/USD dTrinity OEV (legacy FRAX aka frxUSD)
+              api3Proxy: "0x4d66E060d24A1bb2983da9781f017258A439CBBb", // frxUSD/USD dTrinity OEV
               api3LowerThresholdInBase:
                 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
               api3FixedPriceInBase:
