@@ -37,21 +37,21 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
 
     /**
      * @param initialAdmin The address that will be granted the DEFAULT_ADMIN_ROLE
-     * @param vaultToken The address of the primary vault token (ERC4626 vault)
+     * @param _vaultToken The address of the primary vault token (ERC4626 vault)
      */
-    constructor(address initialAdmin, address vaultToken) {
+    constructor(address initialAdmin, address _vaultToken) {
         if (initialAdmin == address(0)) {
             revert InvalidAddress(initialAdmin);
         }
-        if (vaultToken == address(0)) {
-            revert InvalidAddress(vaultToken);
+        if (_vaultToken == address(0)) {
+            revert InvalidAddress(_vaultToken);
         }
 
-        VAULT_TOKEN = vaultToken;
+        VAULT_TOKEN = _vaultToken;
         _grantRole(DEFAULT_ADMIN_ROLE, initialAdmin);
 
         // Map the vault token to itself for direct queries
-        externalSourceToInternalToken[vaultToken] = vaultToken;
+        externalSourceToInternalToken[_vaultToken] = _vaultToken;
     }
 
     /**
