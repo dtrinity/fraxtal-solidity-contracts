@@ -1,0 +1,908 @@
+{
+  "address": "0x09c418A9d8027EF890a91cCDFCe3C14D055E44dd",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "initialAdmin",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_vaultToken",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "AccessControlBadConfirmation",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "neededRole",
+          "type": "bytes32"
+        }
+      ],
+      "name": "AccessControlUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "externalToken",
+          "type": "address"
+        }
+      ],
+      "name": "ExternalTokenNotMapped",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "InvalidAddress",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "InvalidERC4626Token",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NoSourcesProvided",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "previousAdminRole",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "newAdminRole",
+          "type": "bytes32"
+        }
+      ],
+      "name": "RoleAdminChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "RoleGranted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "RoleRevoked",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "DEFAULT_ADMIN_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_ADDRESSES",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "VAULT_TOKEN",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "sources",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "addresses",
+          "type": "address[]"
+        }
+      ],
+      "name": "batchTokenBalances",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "result",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "vaultToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "assets",
+          "type": "uint256"
+        }
+      ],
+      "name": "convertAssetsToShares",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "vaultToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "shares",
+          "type": "uint256"
+        }
+      ],
+      "name": "convertSharesToAssets",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "externalSourceToInternalToken",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "externalToken",
+          "type": "address"
+        }
+      ],
+      "name": "getMappedToken",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getRoleAdmin",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "vaultToken",
+          "type": "address"
+        }
+      ],
+      "name": "getTotalAssets",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "vaultToken",
+          "type": "address"
+        }
+      ],
+      "name": "getTotalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "vaultToken",
+          "type": "address"
+        }
+      ],
+      "name": "getUnderlyingAsset",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "grantRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "hasRole",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "isExternalToken",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "externalToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "internalToken",
+          "type": "address"
+        }
+      ],
+      "name": "mapExternalSource",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "externalToken",
+          "type": "address"
+        }
+      ],
+      "name": "removeExternalSource",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "callerConfirmation",
+          "type": "address"
+        }
+      ],
+      "name": "renounceRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "revokeRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address[]",
+          "name": "addresses",
+          "type": "address[]"
+        }
+      ],
+      "name": "tokenBalances",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "result",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "vaultToken",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xebb57d1f63ef50a812a0074dbbf0cbfc667073681841a35d269472164ca6ac23",
+  "receipt": {
+    "to": null,
+    "from": "0x0f5e3D9AEe7Ab5fDa909Af1ef147D98a7f4B3022",
+    "contractAddress": "0x09c418A9d8027EF890a91cCDFCe3C14D055E44dd",
+    "transactionIndex": 2,
+    "gasUsed": "1022871",
+    "logsBloom": "0x00000004000000000000000000000500000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000020000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000100000000000020000001000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xa28bbe74ffb3c54544f19c79948a367e3df32b021a3e7feab2e98a5cceca45eb",
+    "transactionHash": "0xebb57d1f63ef50a812a0074dbbf0cbfc667073681841a35d269472164ca6ac23",
+    "logs": [
+      {
+        "transactionIndex": 2,
+        "blockNumber": 23794853,
+        "transactionHash": "0xebb57d1f63ef50a812a0074dbbf0cbfc667073681841a35d269472164ca6ac23",
+        "address": "0x09c418A9d8027EF890a91cCDFCe3C14D055E44dd",
+        "topics": [
+          "0x2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000000f5e3d9aee7ab5fda909af1ef147d98a7f4b3022",
+          "0x0000000000000000000000000f5e3d9aee7ab5fda909af1ef147d98a7f4b3022"
+        ],
+        "data": "0x",
+        "logIndex": 29,
+        "blockHash": "0xa28bbe74ffb3c54544f19c79948a367e3df32b021a3e7feab2e98a5cceca45eb"
+      }
+    ],
+    "blockNumber": 23794853,
+    "cumulativeGasUsed": "2112417",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x0f5e3D9AEe7Ab5fDa909Af1ef147D98a7f4B3022",
+    "0x58AcC2600835211Dcb5847c5Fa422791Fd492409"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "bafde7e70357f32a71ffb0c5c9aaaa3d",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.24+commit.e11b9ed9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"initialAdmin\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_vaultToken\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"AccessControlBadConfirmation\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"neededRole\",\"type\":\"bytes32\"}],\"name\":\"AccessControlUnauthorizedAccount\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"externalToken\",\"type\":\"address\"}],\"name\":\"ExternalTokenNotMapped\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"InvalidAddress\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"InvalidERC4626Token\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NoSourcesProvided\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"previousAdminRole\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"newAdminRole\",\"type\":\"bytes32\"}],\"name\":\"RoleAdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleRevoked\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"DEFAULT_ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MAX_ADDRESSES\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"VAULT_TOKEN\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"sources\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"addresses\",\"type\":\"address[]\"}],\"name\":\"batchTokenBalances\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"result\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"vaultToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"assets\",\"type\":\"uint256\"}],\"name\":\"convertAssetsToShares\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"vaultToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"shares\",\"type\":\"uint256\"}],\"name\":\"convertSharesToAssets\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"externalSourceToInternalToken\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"externalToken\",\"type\":\"address\"}],\"name\":\"getMappedToken\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"}],\"name\":\"getRoleAdmin\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"vaultToken\",\"type\":\"address\"}],\"name\":\"getTotalAssets\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"vaultToken\",\"type\":\"address\"}],\"name\":\"getTotalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"vaultToken\",\"type\":\"address\"}],\"name\":\"getUnderlyingAsset\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"grantRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"isExternalToken\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"externalToken\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"internalToken\",\"type\":\"address\"}],\"name\":\"mapExternalSource\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"externalToken\",\"type\":\"address\"}],\"name\":\"removeExternalSource\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"callerConfirmation\",\"type\":\"address\"}],\"name\":\"renounceRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"revokeRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address[]\",\"name\":\"addresses\",\"type\":\"address[]\"}],\"name\":\"tokenBalances\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"result\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"vaultToken\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"dTrinity\",\"details\":\"For ERC4626 tokens, the balance is calculated by converting shares to underlying assets      using the ERC4626 convertToAssets() function. No debt calculation is needed      since ERC4626 tokens represent direct vault shares.\",\"errors\":{\"AccessControlBadConfirmation()\":[{\"details\":\"The caller of a function is not the expected one. NOTE: Don't confuse with {AccessControlUnauthorizedAccount}.\"}],\"AccessControlUnauthorizedAccount(address,bytes32)\":[{\"details\":\"The `account` is missing a role.\"}]},\"events\":{\"RoleAdminChanged(bytes32,bytes32,bytes32)\":{\"details\":\"Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole` `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite {RoleAdminChanged} not being emitted signaling this.\"},\"RoleGranted(bytes32,address,address)\":{\"details\":\"Emitted when `account` is granted `role`. `sender` is the account that originated the contract call, an admin role bearer except when using {AccessControl-_setupRole}.\"},\"RoleRevoked(bytes32,address,address)\":{\"details\":\"Emitted when `account` is revoked `role`. `sender` is the account that originated the contract call:   - if using `revokeRole`, it is the admin role bearer   - if using `renounceRole`, it is the role bearer (i.e. `account`)\"}},\"kind\":\"dev\",\"methods\":{\"batchTokenBalances(address[],address[])\":{\"params\":{\"addresses\":\"Array of addresses to check balances for (up to 1000 addresses)\",\"sources\":\"Array of token addresses to check balances for\"},\"returns\":{\"result\":\"Array of effective balances (18 decimals) for each address across all sources\"}},\"constructor\":{\"params\":{\"_vaultToken\":\"The address of the primary vault token (ERC4626 vault)\",\"initialAdmin\":\"The address that will be granted the DEFAULT_ADMIN_ROLE\"}},\"convertAssetsToShares(address,uint256)\":{\"params\":{\"assets\":\"The amount of assets to convert\",\"vaultToken\":\"The vault token address\"},\"returns\":{\"_0\":\"The equivalent amount of shares\"}},\"convertSharesToAssets(address,uint256)\":{\"params\":{\"shares\":\"The amount of shares to convert\",\"vaultToken\":\"The vault token address\"},\"returns\":{\"_0\":\"The equivalent amount of underlying assets\"}},\"getMappedToken(address)\":{\"params\":{\"externalToken\":\"The external token address\"},\"returns\":{\"_0\":\"The mapped internal token address (address(0) if not mapped)\"}},\"getRoleAdmin(bytes32)\":{\"details\":\"Returns the admin role that controls `role`. See {grantRole} and {revokeRole}. To change a role's admin, use {_setRoleAdmin}.\"},\"getTotalAssets(address)\":{\"params\":{\"vaultToken\":\"The vault token address\"},\"returns\":{\"_0\":\"The total amount of underlying assets managed by the vault\"}},\"getTotalSupply(address)\":{\"params\":{\"vaultToken\":\"The vault token address\"},\"returns\":{\"_0\":\"The total supply of vault shares\"}},\"getUnderlyingAsset(address)\":{\"params\":{\"vaultToken\":\"The vault token address\"},\"returns\":{\"_0\":\"The underlying asset address\"}},\"grantRole(bytes32,address)\":{\"details\":\"Grants `role` to `account`. If `account` had not been already granted `role`, emits a {RoleGranted} event. Requirements: - the caller must have ``role``'s admin role. May emit a {RoleGranted} event.\"},\"hasRole(bytes32,address)\":{\"details\":\"Returns `true` if `account` has been granted `role`.\"},\"isExternalToken(address)\":{\"params\":{\"token\":\"The token address to check\"},\"returns\":{\"_0\":\"True if the token is mapped as an external source\"}},\"mapExternalSource(address,address)\":{\"params\":{\"externalToken\":\"The address of the external token\",\"internalToken\":\"The address of the corresponding internal token\"}},\"removeExternalSource(address)\":{\"params\":{\"externalToken\":\"The address of the external token to remove\"}},\"renounceRole(bytes32,address)\":{\"details\":\"Revokes `role` from the calling account. Roles are often managed via {grantRole} and {revokeRole}: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced). If the calling account had been revoked `role`, emits a {RoleRevoked} event. Requirements: - the caller must be `callerConfirmation`. May emit a {RoleRevoked} event.\"},\"revokeRole(bytes32,address)\":{\"details\":\"Revokes `role` from `account`. If `account` had been granted `role`, emits a {RoleRevoked} event. Requirements: - the caller must have ``role``'s admin role. May emit a {RoleRevoked} event.\"},\"supportsInterface(bytes4)\":{\"details\":\"See {IERC165-supportsInterface}.\"},\"tokenBalances(address,address[])\":{\"params\":{\"addresses\":\"Array of addresses to check balances for (up to 1000 addresses)\",\"token\":\"The address of the token to check balances for\"},\"returns\":{\"result\":\"Array of effective balances (18 decimals) corresponding to the addresses array\"}},\"vaultToken()\":{\"returns\":{\"_0\":\"The vault token address\"}}},\"title\":\"ERC4626BalanceChecker\",\"version\":1},\"userdoc\":{\"errors\":{\"ExternalTokenNotMapped(address)\":[{\"notice\":\"Error thrown when trying to get balances for an external token that isn't mapped\"}],\"InvalidAddress(address)\":[{\"notice\":\"Error thrown when an invalid address is provided\"}],\"InvalidERC4626Token(address)\":[{\"notice\":\"Error thrown when a token is not a valid ERC4626 vault\"}],\"NoSourcesProvided()\":[{\"notice\":\"Error thrown when no sources are provided to batch functions\"}]},\"kind\":\"user\",\"methods\":{\"MAX_ADDRESSES()\":{\"notice\":\"Maximum number of addresses that can be processed in a single batch\"},\"VAULT_TOKEN()\":{\"notice\":\"The primary vault token address (ERC4626 vault)\"},\"batchTokenBalances(address[],address[])\":{\"notice\":\"Returns the effective balances for multiple addresses across multiple tokens\"},\"convertAssetsToShares(address,uint256)\":{\"notice\":\"Convert underlying asset amount to vault shares\"},\"convertSharesToAssets(address,uint256)\":{\"notice\":\"Convert vault shares to underlying asset amount\"},\"externalSourceToInternalToken(address)\":{\"notice\":\"Mapping from external token to its corresponding internal token\"},\"getMappedToken(address)\":{\"notice\":\"Gets the mapped internal token for an external token\"},\"getTotalAssets(address)\":{\"notice\":\"Get the total assets managed by a vault\"},\"getTotalSupply(address)\":{\"notice\":\"Get the total supply of vault shares\"},\"getUnderlyingAsset(address)\":{\"notice\":\"Get the underlying asset address for a given vault token\"},\"isExternalToken(address)\":{\"notice\":\"Checks if a token is mapped as an external source\"},\"mapExternalSource(address,address)\":{\"notice\":\"Maps an external token to its corresponding internal token\"},\"removeExternalSource(address)\":{\"notice\":\"Removes an external token mapping\"},\"tokenBalances(address,address[])\":{\"notice\":\"Returns the effective balances for multiple addresses for a single token\"},\"vaultToken()\":{\"notice\":\"Get the vault token address\"}},\"notice\":\"Contract for checking balances of ERC4626 vault tokens\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/fxtl_balance_checkers/implementations/ERC4626BalanceChecker.sol\":\"ERC4626BalanceChecker\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"@openzeppelin/contracts-5/access/AccessControl.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (access/AccessControl.sol)\\n\\npragma solidity ^0.8.20;\\n\\nimport {IAccessControl} from \\\"./IAccessControl.sol\\\";\\nimport {Context} from \\\"../utils/Context.sol\\\";\\nimport {ERC165} from \\\"../utils/introspection/ERC165.sol\\\";\\n\\n/**\\n * @dev Contract module that allows children to implement role-based access\\n * control mechanisms. This is a lightweight version that doesn't allow enumerating role\\n * members except through off-chain means by accessing the contract event logs. Some\\n * applications may benefit from on-chain enumerability, for those cases see\\n * {AccessControlEnumerable}.\\n *\\n * Roles are referred to by their `bytes32` identifier. These should be exposed\\n * in the external API and be unique. The best way to achieve this is by\\n * using `public constant` hash digests:\\n *\\n * ```solidity\\n * bytes32 public constant MY_ROLE = keccak256(\\\"MY_ROLE\\\");\\n * ```\\n *\\n * Roles can be used to represent a set of permissions. To restrict access to a\\n * function call, use {hasRole}:\\n *\\n * ```solidity\\n * function foo() public {\\n *     require(hasRole(MY_ROLE, msg.sender));\\n *     ...\\n * }\\n * ```\\n *\\n * Roles can be granted and revoked dynamically via the {grantRole} and\\n * {revokeRole} functions. Each role has an associated admin role, and only\\n * accounts that have a role's admin role can call {grantRole} and {revokeRole}.\\n *\\n * By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means\\n * that only accounts with this role will be able to grant or revoke other\\n * roles. More complex role relationships can be created by using\\n * {_setRoleAdmin}.\\n *\\n * WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to\\n * grant and revoke this role. Extra precautions should be taken to secure\\n * accounts that have been granted it. We recommend using {AccessControlDefaultAdminRules}\\n * to enforce additional security measures for this role.\\n */\\nabstract contract AccessControl is Context, IAccessControl, ERC165 {\\n    struct RoleData {\\n        mapping(address account => bool) hasRole;\\n        bytes32 adminRole;\\n    }\\n\\n    mapping(bytes32 role => RoleData) private _roles;\\n\\n    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;\\n\\n    /**\\n     * @dev Modifier that checks that an account has a specific role. Reverts\\n     * with an {AccessControlUnauthorizedAccount} error including the required role.\\n     */\\n    modifier onlyRole(bytes32 role) {\\n        _checkRole(role);\\n        _;\\n    }\\n\\n    /**\\n     * @dev See {IERC165-supportsInterface}.\\n     */\\n    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {\\n        return interfaceId == type(IAccessControl).interfaceId || super.supportsInterface(interfaceId);\\n    }\\n\\n    /**\\n     * @dev Returns `true` if `account` has been granted `role`.\\n     */\\n    function hasRole(bytes32 role, address account) public view virtual returns (bool) {\\n        return _roles[role].hasRole[account];\\n    }\\n\\n    /**\\n     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `_msgSender()`\\n     * is missing `role`. Overriding this function changes the behavior of the {onlyRole} modifier.\\n     */\\n    function _checkRole(bytes32 role) internal view virtual {\\n        _checkRole(role, _msgSender());\\n    }\\n\\n    /**\\n     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `account`\\n     * is missing `role`.\\n     */\\n    function _checkRole(bytes32 role, address account) internal view virtual {\\n        if (!hasRole(role, account)) {\\n            revert AccessControlUnauthorizedAccount(account, role);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the admin role that controls `role`. See {grantRole} and\\n     * {revokeRole}.\\n     *\\n     * To change a role's admin, use {_setRoleAdmin}.\\n     */\\n    function getRoleAdmin(bytes32 role) public view virtual returns (bytes32) {\\n        return _roles[role].adminRole;\\n    }\\n\\n    /**\\n     * @dev Grants `role` to `account`.\\n     *\\n     * If `account` had not been already granted `role`, emits a {RoleGranted}\\n     * event.\\n     *\\n     * Requirements:\\n     *\\n     * - the caller must have ``role``'s admin role.\\n     *\\n     * May emit a {RoleGranted} event.\\n     */\\n    function grantRole(bytes32 role, address account) public virtual onlyRole(getRoleAdmin(role)) {\\n        _grantRole(role, account);\\n    }\\n\\n    /**\\n     * @dev Revokes `role` from `account`.\\n     *\\n     * If `account` had been granted `role`, emits a {RoleRevoked} event.\\n     *\\n     * Requirements:\\n     *\\n     * - the caller must have ``role``'s admin role.\\n     *\\n     * May emit a {RoleRevoked} event.\\n     */\\n    function revokeRole(bytes32 role, address account) public virtual onlyRole(getRoleAdmin(role)) {\\n        _revokeRole(role, account);\\n    }\\n\\n    /**\\n     * @dev Revokes `role` from the calling account.\\n     *\\n     * Roles are often managed via {grantRole} and {revokeRole}: this function's\\n     * purpose is to provide a mechanism for accounts to lose their privileges\\n     * if they are compromised (such as when a trusted device is misplaced).\\n     *\\n     * If the calling account had been revoked `role`, emits a {RoleRevoked}\\n     * event.\\n     *\\n     * Requirements:\\n     *\\n     * - the caller must be `callerConfirmation`.\\n     *\\n     * May emit a {RoleRevoked} event.\\n     */\\n    function renounceRole(bytes32 role, address callerConfirmation) public virtual {\\n        if (callerConfirmation != _msgSender()) {\\n            revert AccessControlBadConfirmation();\\n        }\\n\\n        _revokeRole(role, callerConfirmation);\\n    }\\n\\n    /**\\n     * @dev Sets `adminRole` as ``role``'s admin role.\\n     *\\n     * Emits a {RoleAdminChanged} event.\\n     */\\n    function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {\\n        bytes32 previousAdminRole = getRoleAdmin(role);\\n        _roles[role].adminRole = adminRole;\\n        emit RoleAdminChanged(role, previousAdminRole, adminRole);\\n    }\\n\\n    /**\\n     * @dev Attempts to grant `role` to `account` and returns a boolean indicating if `role` was granted.\\n     *\\n     * Internal function without access restriction.\\n     *\\n     * May emit a {RoleGranted} event.\\n     */\\n    function _grantRole(bytes32 role, address account) internal virtual returns (bool) {\\n        if (!hasRole(role, account)) {\\n            _roles[role].hasRole[account] = true;\\n            emit RoleGranted(role, account, _msgSender());\\n            return true;\\n        } else {\\n            return false;\\n        }\\n    }\\n\\n    /**\\n     * @dev Attempts to revoke `role` to `account` and returns a boolean indicating if `role` was revoked.\\n     *\\n     * Internal function without access restriction.\\n     *\\n     * May emit a {RoleRevoked} event.\\n     */\\n    function _revokeRole(bytes32 role, address account) internal virtual returns (bool) {\\n        if (hasRole(role, account)) {\\n            _roles[role].hasRole[account] = false;\\n            emit RoleRevoked(role, account, _msgSender());\\n            return true;\\n        } else {\\n            return false;\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xa0e92d42942f4f57c5be50568dac11e9d00c93efcb458026e18d2d9b9b2e7308\",\"license\":\"MIT\"},\"@openzeppelin/contracts-5/access/IAccessControl.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (access/IAccessControl.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev External interface of AccessControl declared to support ERC165 detection.\\n */\\ninterface IAccessControl {\\n    /**\\n     * @dev The `account` is missing a role.\\n     */\\n    error AccessControlUnauthorizedAccount(address account, bytes32 neededRole);\\n\\n    /**\\n     * @dev The caller of a function is not the expected one.\\n     *\\n     * NOTE: Don't confuse with {AccessControlUnauthorizedAccount}.\\n     */\\n    error AccessControlBadConfirmation();\\n\\n    /**\\n     * @dev Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`\\n     *\\n     * `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite\\n     * {RoleAdminChanged} not being emitted signaling this.\\n     */\\n    event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole);\\n\\n    /**\\n     * @dev Emitted when `account` is granted `role`.\\n     *\\n     * `sender` is the account that originated the contract call, an admin role\\n     * bearer except when using {AccessControl-_setupRole}.\\n     */\\n    event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);\\n\\n    /**\\n     * @dev Emitted when `account` is revoked `role`.\\n     *\\n     * `sender` is the account that originated the contract call:\\n     *   - if using `revokeRole`, it is the admin role bearer\\n     *   - if using `renounceRole`, it is the role bearer (i.e. `account`)\\n     */\\n    event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);\\n\\n    /**\\n     * @dev Returns `true` if `account` has been granted `role`.\\n     */\\n    function hasRole(bytes32 role, address account) external view returns (bool);\\n\\n    /**\\n     * @dev Returns the admin role that controls `role`. See {grantRole} and\\n     * {revokeRole}.\\n     *\\n     * To change a role's admin, use {AccessControl-_setRoleAdmin}.\\n     */\\n    function getRoleAdmin(bytes32 role) external view returns (bytes32);\\n\\n    /**\\n     * @dev Grants `role` to `account`.\\n     *\\n     * If `account` had not been already granted `role`, emits a {RoleGranted}\\n     * event.\\n     *\\n     * Requirements:\\n     *\\n     * - the caller must have ``role``'s admin role.\\n     */\\n    function grantRole(bytes32 role, address account) external;\\n\\n    /**\\n     * @dev Revokes `role` from `account`.\\n     *\\n     * If `account` had been granted `role`, emits a {RoleRevoked} event.\\n     *\\n     * Requirements:\\n     *\\n     * - the caller must have ``role``'s admin role.\\n     */\\n    function revokeRole(bytes32 role, address account) external;\\n\\n    /**\\n     * @dev Revokes `role` from the calling account.\\n     *\\n     * Roles are often managed via {grantRole} and {revokeRole}: this function's\\n     * purpose is to provide a mechanism for accounts to lose their privileges\\n     * if they are compromised (such as when a trusted device is misplaced).\\n     *\\n     * If the calling account had been granted `role`, emits a {RoleRevoked}\\n     * event.\\n     *\\n     * Requirements:\\n     *\\n     * - the caller must be `callerConfirmation`.\\n     */\\n    function renounceRole(bytes32 role, address callerConfirmation) external;\\n}\\n\",\"keccak256\":\"0xb6b36edd6a2999fd243ff226d6cbf84bd71af2432bbd0dfe19392996a1d9cb41\",\"license\":\"MIT\"},\"@openzeppelin/contracts-5/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the value of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the value of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the\\n     * caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from `from` to `to` using the\\n     * allowance mechanism. `value` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(address from, address to, uint256 value) external returns (bool);\\n}\\n\",\"keccak256\":\"0xc6a8ff0ea489379b61faa647490411b80102578440ab9d84e9a957cc12164e70\",\"license\":\"MIT\"},\"@openzeppelin/contracts-5/token/ERC20/extensions/IERC20Metadata.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/IERC20Metadata.sol)\\n\\npragma solidity ^0.8.20;\\n\\nimport {IERC20} from \\\"../IERC20.sol\\\";\\n\\n/**\\n * @dev Interface for the optional metadata functions from the ERC20 standard.\\n */\\ninterface IERC20Metadata is IERC20 {\\n    /**\\n     * @dev Returns the name of the token.\\n     */\\n    function name() external view returns (string memory);\\n\\n    /**\\n     * @dev Returns the symbol of the token.\\n     */\\n    function symbol() external view returns (string memory);\\n\\n    /**\\n     * @dev Returns the decimals places of the token.\\n     */\\n    function decimals() external view returns (uint8);\\n}\\n\",\"keccak256\":\"0xaa761817f6cd7892fcf158b3c776b34551cde36f48ff9703d53898bc45a94ea2\",\"license\":\"MIT\"},\"@openzeppelin/contracts-5/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n\\n    function _contextSuffixLength() internal view virtual returns (uint256) {\\n        return 0;\\n    }\\n}\\n\",\"keccak256\":\"0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2\",\"license\":\"MIT\"},\"@openzeppelin/contracts-5/utils/introspection/ERC165.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (utils/introspection/ERC165.sol)\\n\\npragma solidity ^0.8.20;\\n\\nimport {IERC165} from \\\"./IERC165.sol\\\";\\n\\n/**\\n * @dev Implementation of the {IERC165} interface.\\n *\\n * Contracts that want to implement ERC165 should inherit from this contract and override {supportsInterface} to check\\n * for the additional interface id that will be supported. For example:\\n *\\n * ```solidity\\n * function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {\\n *     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);\\n * }\\n * ```\\n */\\nabstract contract ERC165 is IERC165 {\\n    /**\\n     * @dev See {IERC165-supportsInterface}.\\n     */\\n    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {\\n        return interfaceId == type(IERC165).interfaceId;\\n    }\\n}\\n\",\"keccak256\":\"0x9e8778b14317ba9e256c30a76fd6c32b960af621987f56069e1e819c77c6a133\",\"license\":\"MIT\"},\"@openzeppelin/contracts-5/utils/introspection/IERC165.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (utils/introspection/IERC165.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Interface of the ERC165 standard, as defined in the\\n * https://eips.ethereum.org/EIPS/eip-165[EIP].\\n *\\n * Implementers can declare support of contract interfaces, which can then be\\n * queried by others ({ERC165Checker}).\\n *\\n * For an implementation, see {ERC165}.\\n */\\ninterface IERC165 {\\n    /**\\n     * @dev Returns true if this contract implements the interface defined by\\n     * `interfaceId`. See the corresponding\\n     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]\\n     * to learn more about how these ids are created.\\n     *\\n     * This function call must use less than 30 000 gas.\\n     */\\n    function supportsInterface(bytes4 interfaceId) external view returns (bool);\\n}\\n\",\"keccak256\":\"0x4296879f55019b23e135000eb36896057e7101fb7fb859c5ef690cf14643757b\",\"license\":\"MIT\"},\"contracts/fxtl_balance_checkers/base/BaseBalanceChecker.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\n/* \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *    _____     ______   ______     __     __   __     __     ______   __  __       *\\n *   /\\\\  __-.  /\\\\__  _\\\\ /\\\\  == \\\\   /\\\\ \\\\   /\\\\ \\\"-.\\\\ \\\\   /\\\\ \\\\   /\\\\__  _\\\\ /\\\\ \\\\_\\\\ \\\\      *\\n *   \\\\ \\\\ \\\\/\\\\ \\\\ \\\\/_/\\\\ \\\\/ \\\\ \\\\  __<   \\\\ \\\\ \\\\  \\\\ \\\\ \\\\-.  \\\\  \\\\ \\\\ \\\\  \\\\/_/\\\\ \\\\/ \\\\ \\\\____ \\\\     *\\n *    \\\\ \\\\____-    \\\\ \\\\_\\\\  \\\\ \\\\_\\\\ \\\\_\\\\  \\\\ \\\\_\\\\  \\\\ \\\\_\\\\\\\\\\\"\\\\_\\\\  \\\\ \\\\_\\\\    \\\\ \\\\_\\\\  \\\\/\\\\_____\\\\    *\\n *     \\\\/____/     \\\\/_/   \\\\/_/ /_/   \\\\/_/   \\\\/_/ \\\\/_/   \\\\/_/     \\\\/_/   \\\\/_____/    *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 dtrinity.org \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *                                                                                  *\\n *                                         \\u25b2                                        *\\n *                                        \\u25b2 \\u25b2                                       *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n * dTRINITY Protocol: https://github.com/dtrinity                                   *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 */\\n\\npragma solidity ^0.8.20;\\n\\nimport \\\"../interfaces/IBalanceChecker.sol\\\";\\nimport \\\"@openzeppelin/contracts-5/access/AccessControl.sol\\\";\\nimport \\\"@openzeppelin/contracts-5/token/ERC20/IERC20.sol\\\";\\nimport \\\"@openzeppelin/contracts-5/token/ERC20/extensions/IERC20Metadata.sol\\\";\\n\\n/// @notice Error thrown when trying to get balances for an external token that isn't mapped\\nerror ExternalTokenNotMapped(address externalToken);\\n\\n/// @notice Error thrown when a token is invalid or not supported\\nerror InvalidToken(address token);\\n\\n/// @notice Error thrown when no sources are provided to batch functions\\nerror NoSourcesProvided();\\n\\n/// @notice Error thrown when an invalid address is provided\\nerror InvalidAddress(address addr);\\n\\n/**\\n * @title BaseBalanceChecker\\n * @author dTrinity\\n * @notice Abstract base contract providing common functionality for balance checkers\\n * @dev This contract provides:\\n *      - Access control for external token mappings\\n *      - Decimal normalization utilities\\n *      - Batch processing logic\\n *      - Common error definitions\\n */\\nabstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {\\n    /// @notice Maximum number of addresses that can be processed in a single batch\\n    uint256 public constant MAX_ADDRESSES = 1000;\\n\\n    /// @notice Mapping from external token to its corresponding internal token\\n    mapping(address => address) public externalSourceToInternalToken;\\n\\n    /**\\n     * @notice Maps an external token to its corresponding internal token\\n     * @param externalToken The address of the external token\\n     * @param internalToken The address of the corresponding internal token\\n     */\\n    function mapExternalSource(\\n        address externalToken,\\n        address internalToken\\n    ) external onlyRole(DEFAULT_ADMIN_ROLE) {\\n        if (internalToken == address(0)) {\\n            revert InvalidAddress(internalToken);\\n        }\\n        externalSourceToInternalToken[externalToken] = internalToken;\\n    }\\n\\n    /**\\n     * @notice Removes an external token mapping\\n     * @param externalToken The address of the external token to remove\\n     */\\n    function removeExternalSource(\\n        address externalToken\\n    ) external onlyRole(DEFAULT_ADMIN_ROLE) {\\n        delete externalSourceToInternalToken[externalToken];\\n    }\\n\\n    /**\\n     * @notice Normalizes a balance to 18 decimals\\n     * @param balance The balance to normalize\\n     * @param tokenDecimals The current decimals of the token\\n     * @return The normalized balance (18 decimals)\\n     */\\n    function _normalizeToDecimals18(\\n        uint256 balance,\\n        uint256 tokenDecimals\\n    ) internal pure returns (uint256) {\\n        if (tokenDecimals < 18) {\\n            return balance * (10 ** (18 - tokenDecimals));\\n        } else if (tokenDecimals > 18) {\\n            return balance / (10 ** (tokenDecimals - 18));\\n        }\\n        return balance;\\n    }\\n\\n    /**\\n     * @notice Gets the decimals for a token, defaulting to 18 if not available\\n     * @param token The token address\\n     * @return The number of decimals\\n     */\\n    function _getTokenDecimals(address token) internal view returns (uint256) {\\n        try IERC20Metadata(token).decimals() returns (uint8 decimals) {\\n            return uint256(decimals);\\n        } catch {\\n            return 18; // Default to 18 decimals if not available\\n        }\\n    }\\n\\n    /**\\n     * @notice Validates that the addresses array is not too large\\n     * @param addresses The addresses array to validate\\n     */\\n    function _validateAddressesLength(\\n        address[] memory addresses\\n    ) internal pure {\\n        require(addresses.length <= MAX_ADDRESSES, \\\"TOO_MANY_ADDRESSES\\\");\\n    }\\n\\n    /**\\n     * @notice Abstract function to calculate balance for a single token and address\\n     * @param token The token address\\n     * @param user The user address\\n     * @return The calculated balance (normalized to 18 decimals)\\n     */\\n    function _calculateTokenBalance(\\n        address token,\\n        address user\\n    ) internal view virtual returns (uint256);\\n\\n    /**\\n     * @notice Abstract function to validate a token and get necessary details\\n     * @param token The token address to validate\\n     * @return validToken The validated token address\\n     * @return originalToken The original token address\\n     * @return isExternalToken Whether the token is external\\n     */\\n    function _validateTokenAndGetDetails(\\n        address token\\n    )\\n        internal\\n        view\\n        virtual\\n        returns (\\n            address validToken,\\n            address originalToken,\\n            bool isExternalToken\\n        );\\n\\n    /**\\n     * @inheritdoc IBalanceChecker\\n     */\\n    function tokenBalances(\\n        address token,\\n        address[] memory addresses\\n    ) external view virtual override returns (uint256[] memory result) {\\n        _validateAddressesLength(addresses);\\n        result = new uint256[](addresses.length);\\n\\n        // Calculate balance for each address\\n        for (uint256 i = 0; i < addresses.length; i++) {\\n            result[i] = _calculateTokenBalance(token, addresses[i]);\\n        }\\n    }\\n\\n    /**\\n     * @inheritdoc IBalanceChecker\\n     */\\n    function batchTokenBalances(\\n        address[] memory sources,\\n        address[] memory addresses\\n    ) external view virtual override returns (uint256[] memory result) {\\n        if (sources.length == 0) {\\n            revert NoSourcesProvided();\\n        }\\n        _validateAddressesLength(addresses);\\n\\n        result = new uint256[](addresses.length);\\n\\n        // Process each source token\\n        for (uint256 i = 0; i < sources.length; i++) {\\n            // Skip zero addresses\\n            if (sources[i] == address(0)) {\\n                continue;\\n            }\\n\\n            try this.tokenBalances(sources[i], addresses) returns (\\n                uint256[] memory balances\\n            ) {\\n                // Add balances from this source to the running total\\n                for (uint256 j = 0; j < addresses.length; j++) {\\n                    result[j] += balances[j];\\n                }\\n            } catch {\\n                // Skip invalid sources silently as per original behavior\\n                continue;\\n            }\\n        }\\n    }\\n\\n    /**\\n     * @notice Gets the mapped internal token for an external token\\n     * @param externalToken The external token address\\n     * @return The mapped internal token address (address(0) if not mapped)\\n     */\\n    function getMappedToken(\\n        address externalToken\\n    ) external view returns (address) {\\n        return externalSourceToInternalToken[externalToken];\\n    }\\n\\n    /**\\n     * @notice Checks if a token is mapped as an external source\\n     * @param token The token address to check\\n     * @return True if the token is mapped as an external source\\n     */\\n    function isExternalToken(address token) external view returns (bool) {\\n        address mapped = externalSourceToInternalToken[token];\\n        return mapped != address(0) && mapped != token;\\n    }\\n}\\n\",\"keccak256\":\"0xb7a70d4b86bfd0c29900d25306b2022f49626a8fa785e92e66ecbbab67e335a4\",\"license\":\"BUSL-1.1\"},\"contracts/fxtl_balance_checkers/implementations/ERC4626BalanceChecker.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\n/* \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *    _____     ______   ______     __     __   __     __     ______   __  __       *\\n *   /\\\\  __-.  /\\\\__  _\\\\ /\\\\  == \\\\   /\\\\ \\\\   /\\\\ \\\"-.\\\\ \\\\   /\\\\ \\\\   /\\\\__  _\\\\ /\\\\ \\\\_\\\\ \\\\      *\\n *   \\\\ \\\\ \\\\/\\\\ \\\\ \\\\/_/\\\\ \\\\/ \\\\ \\\\  __<   \\\\ \\\\ \\\\  \\\\ \\\\ \\\\-.  \\\\  \\\\ \\\\ \\\\  \\\\/_/\\\\ \\\\/ \\\\ \\\\____ \\\\     *\\n *    \\\\ \\\\____-    \\\\ \\\\_\\\\  \\\\ \\\\_\\\\ \\\\_\\\\  \\\\ \\\\_\\\\  \\\\ \\\\_\\\\\\\\\\\"\\\\_\\\\  \\\\ \\\\_\\\\    \\\\ \\\\_\\\\  \\\\/\\\\_____\\\\    *\\n *     \\\\/____/     \\\\/_/   \\\\/_/ /_/   \\\\/_/   \\\\/_/ \\\\/_/   \\\\/_/     \\\\/_/   \\\\/_____/    *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 dtrinity.org \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *                                                                                  *\\n *                                         \\u25b2                                        *\\n *                                        \\u25b2 \\u25b2                                       *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n * dTRINITY Protocol: https://github.com/dtrinity                                   *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 */\\n\\npragma solidity ^0.8.20;\\n\\nimport \\\"../base/BaseBalanceChecker.sol\\\";\\nimport \\\"../../vaults/atoken_wrapper/interfaces/IERC4626.sol\\\";\\n\\n/// @notice Error thrown when a token is not a valid ERC4626 vault\\nerror InvalidERC4626Token(address token);\\n\\n/**\\n * @title ERC4626BalanceChecker\\n * @author dTrinity\\n * @notice Contract for checking balances of ERC4626 vault tokens\\n * @dev For ERC4626 tokens, the balance is calculated by converting shares to underlying assets\\n *      using the ERC4626 convertToAssets() function. No debt calculation is needed\\n *      since ERC4626 tokens represent direct vault shares.\\n */\\ncontract ERC4626BalanceChecker is BaseBalanceChecker {\\n    /// @notice The primary vault token address (ERC4626 vault)\\n    address public immutable VAULT_TOKEN;\\n\\n    /**\\n     * @param initialAdmin The address that will be granted the DEFAULT_ADMIN_ROLE\\n     * @param _vaultToken The address of the primary vault token (ERC4626 vault)\\n     */\\n    constructor(address initialAdmin, address _vaultToken) {\\n        if (initialAdmin == address(0)) {\\n            revert InvalidAddress(initialAdmin);\\n        }\\n        if (_vaultToken == address(0)) {\\n            revert InvalidAddress(_vaultToken);\\n        }\\n\\n        VAULT_TOKEN = _vaultToken;\\n        _grantRole(DEFAULT_ADMIN_ROLE, initialAdmin);\\n\\n        // Map the vault token to itself for direct queries\\n        externalSourceToInternalToken[_vaultToken] = _vaultToken;\\n    }\\n\\n    /**\\n     * @notice Get the vault token address\\n     * @return The vault token address\\n     */\\n    function vaultToken() external view returns (address) {\\n        return VAULT_TOKEN;\\n    }\\n\\n    /**\\n     * @dev Internal helper function to validate token and get necessary details\\n     * @param token The token address to validate\\n     * @return validToken The validated token address (vault token)\\n     * @return originalToken The original token address\\n     * @return isExternalToken Whether the token is external\\n     */\\n    function _validateTokenAndGetDetails(\\n        address token\\n    )\\n        internal\\n        view\\n        override\\n        returns (\\n            address validToken,\\n            address originalToken,\\n            bool isExternalToken\\n        )\\n    {\\n        originalToken = token;\\n        address mappedVaultToken = externalSourceToInternalToken[token];\\n        isExternalToken =\\n            mappedVaultToken != address(0) &&\\n            mappedVaultToken != token;\\n        validToken = isExternalToken ? mappedVaultToken : token;\\n\\n        // Validate that the token is a valid ERC4626 vault\\n        try IERC4626(validToken).asset() returns (address) {\\n            // Token is valid ERC4626\\n        } catch {\\n            if (isExternalToken) {\\n                revert InvalidERC4626Token(mappedVaultToken);\\n            } else {\\n                revert ExternalTokenNotMapped(originalToken);\\n            }\\n        }\\n    }\\n\\n    /**\\n     * @dev Calculates the balance for a single token and address\\n     * @param token The token address\\n     * @param user The user address\\n     * @return The calculated balance (normalized to 18 decimals)\\n     */\\n    function _calculateTokenBalance(\\n        address token,\\n        address user\\n    ) internal view override returns (uint256) {\\n        // Validate token and get necessary details\\n        (\\n            address validToken,\\n            address originalToken,\\n            bool isExternalToken\\n        ) = _validateTokenAndGetDetails(token);\\n\\n        uint256 balance;\\n\\n        if (isExternalToken) {\\n            // For external tokens, get balance directly\\n            balance = IERC20(originalToken).balanceOf(user);\\n        } else {\\n            // For vault tokens, get shares and convert to assets\\n            uint256 shares = IERC20(validToken).balanceOf(user);\\n            if (shares > 0) {\\n                // Convert shares to underlying assets using ERC4626\\n                balance = IERC4626(validToken).convertToAssets(shares);\\n            } else {\\n                balance = 0;\\n            }\\n        }\\n\\n        // Get decimals for normalization\\n        uint256 tokenDecimals = isExternalToken\\n            ? _getTokenDecimals(originalToken)\\n            : _getTokenDecimals(validToken);\\n\\n        // Normalize to 18 decimals\\n        return _normalizeToDecimals18(balance, tokenDecimals);\\n    }\\n\\n    /**\\n     * @notice Get the underlying asset address for a given vault token\\n     * @param vaultToken The vault token address\\n     * @return The underlying asset address\\n     */\\n    function getUnderlyingAsset(\\n        address vaultToken\\n    ) external view returns (address) {\\n        return IERC4626(vaultToken).asset();\\n    }\\n\\n    /**\\n     * @notice Convert vault shares to underlying asset amount\\n     * @param vaultToken The vault token address\\n     * @param shares The amount of shares to convert\\n     * @return The equivalent amount of underlying assets\\n     */\\n    function convertSharesToAssets(\\n        address vaultToken,\\n        uint256 shares\\n    ) external view returns (uint256) {\\n        return IERC4626(vaultToken).convertToAssets(shares);\\n    }\\n\\n    /**\\n     * @notice Convert underlying asset amount to vault shares\\n     * @param vaultToken The vault token address\\n     * @param assets The amount of assets to convert\\n     * @return The equivalent amount of shares\\n     */\\n    function convertAssetsToShares(\\n        address vaultToken,\\n        uint256 assets\\n    ) external view returns (uint256) {\\n        return IERC4626(vaultToken).convertToShares(assets);\\n    }\\n\\n    /**\\n     * @notice Get the total assets managed by a vault\\n     * @param vaultToken The vault token address\\n     * @return The total amount of underlying assets managed by the vault\\n     */\\n    function getTotalAssets(\\n        address vaultToken\\n    ) external view returns (uint256) {\\n        return IERC4626(vaultToken).totalAssets();\\n    }\\n\\n    /**\\n     * @notice Get the total supply of vault shares\\n     * @param vaultToken The vault token address\\n     * @return The total supply of vault shares\\n     */\\n    function getTotalSupply(\\n        address vaultToken\\n    ) external view returns (uint256) {\\n        return IERC20(vaultToken).totalSupply();\\n    }\\n}\\n\",\"keccak256\":\"0xadec2cf8d262b34cf648b1e0004da275d5599fbf13c29230319ffd078b339db4\",\"license\":\"BUSL-1.1\"},\"contracts/fxtl_balance_checkers/interfaces/IBalanceChecker.sol\":{\"content\":\"// SPDX-License-Identifier: BUSL-1.1\\n/* \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *    _____     ______   ______     __     __   __     __     ______   __  __       *\\n *   /\\\\  __-.  /\\\\__  _\\\\ /\\\\  == \\\\   /\\\\ \\\\   /\\\\ \\\"-.\\\\ \\\\   /\\\\ \\\\   /\\\\__  _\\\\ /\\\\ \\\\_\\\\ \\\\      *\\n *   \\\\ \\\\ \\\\/\\\\ \\\\ \\\\/_/\\\\ \\\\/ \\\\ \\\\  __<   \\\\ \\\\ \\\\  \\\\ \\\\ \\\\-.  \\\\  \\\\ \\\\ \\\\  \\\\/_/\\\\ \\\\/ \\\\ \\\\____ \\\\     *\\n *    \\\\ \\\\____-    \\\\ \\\\_\\\\  \\\\ \\\\_\\\\ \\\\_\\\\  \\\\ \\\\_\\\\  \\\\ \\\\_\\\\\\\\\\\"\\\\_\\\\  \\\\ \\\\_\\\\    \\\\ \\\\_\\\\  \\\\/\\\\_____\\\\    *\\n *     \\\\/____/     \\\\/_/   \\\\/_/ /_/   \\\\/_/   \\\\/_/ \\\\/_/   \\\\/_/     \\\\/_/   \\\\/_____/    *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 dtrinity.org \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n *                                                                                  *\\n *                                         \\u25b2                                        *\\n *                                        \\u25b2 \\u25b2                                       *\\n *                                                                                  *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 *\\n * dTRINITY Protocol: https://github.com/dtrinity                                   *\\n * \\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014\\u2014 */\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @title IBalanceChecker\\n * @author dTrinity\\n * @notice Interface for checking effective balances of various token types\\n * @dev This interface provides a standardized way to check balances across different token implementations:\\n *      - For dLEND tokens: effective balance is calculated as userBalance * (totalSupply - totalDebt) / totalSupply\\n *      - For ERC4626 tokens: balance is calculated by converting shares to underlying assets\\n *      - For other tokens: balance may be calculated using various strategies\\n */\\ninterface IBalanceChecker {\\n    /**\\n     * @notice Returns the effective balances for multiple addresses for a single token\\n     * @param token The address of the token to check balances for\\n     * @param addresses Array of addresses to check balances for (up to 1000 addresses)\\n     * @return result Array of effective balances (18 decimals) corresponding to the addresses array\\n     */\\n    function tokenBalances(\\n        address token,\\n        address[] memory addresses\\n    ) external view returns (uint256[] memory result);\\n\\n    /**\\n     * @notice Returns the effective balances for multiple addresses across multiple tokens\\n     * @param sources Array of token addresses to check balances for\\n     * @param addresses Array of addresses to check balances for (up to 1000 addresses)\\n     * @return result Array of effective balances (18 decimals) for each address across all sources\\n     */\\n    function batchTokenBalances(\\n        address[] memory sources,\\n        address[] memory addresses\\n    ) external view returns (uint256[] memory result);\\n}\\n\",\"keccak256\":\"0x61ddeea80e4e92a0baa50452fe08a69412377e9f90230d4a14e8e50223ffa7a3\",\"license\":\"BUSL-1.1\"},\"contracts/vaults/atoken_wrapper/interfaces/IERC4626.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.7.0) (interfaces/IERC4626.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Interface of the ERC4626 \\\"Tokenized Vault Standard\\\", as defined in\\n * https://eips.ethereum.org/EIPS/eip-4626[ERC-4626].\\n *\\n * _Available since v4.7._\\n */\\ninterface IERC4626 {\\n    event Deposit(\\n        address indexed sender,\\n        address indexed owner,\\n        uint256 assets,\\n        uint256 shares\\n    );\\n\\n    event Withdraw(\\n        address indexed sender,\\n        address indexed receiver,\\n        address indexed owner,\\n        uint256 assets,\\n        uint256 shares\\n    );\\n\\n    /**\\n     * @dev Returns the address of the underlying token used for the Vault for accounting, depositing, and withdrawing.\\n     *\\n     * - MUST be an ERC-20 token contract.\\n     * - MUST NOT revert.\\n     */\\n    function asset() external view returns (address assetTokenAddress);\\n\\n    /**\\n     * @dev Returns the total amount of the underlying asset that is \\\"managed\\\" by Vault.\\n     *\\n     * - SHOULD include any compounding that occurs from yield.\\n     * - MUST be inclusive of any fees that are charged against assets in the Vault.\\n     * - MUST NOT revert.\\n     */\\n    function totalAssets() external view returns (uint256 totalManagedAssets);\\n\\n    /**\\n     * @dev Returns the amount of shares that the Vault would exchange for the amount of assets provided, in an ideal\\n     * scenario where all the conditions are met.\\n     *\\n     * - MUST NOT be inclusive of any fees that are charged against assets in the Vault.\\n     * - MUST NOT show any variations depending on the caller.\\n     * - MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.\\n     * - MUST NOT revert.\\n     *\\n     * NOTE: This calculation MAY NOT reflect the \\\"per-user\\\" price-per-share, and instead should reflect the\\n     * \\\"average-user's\\\" price-per-share, meaning what the average user should expect to see when exchanging to and\\n     * from.\\n     */\\n    function convertToShares(\\n        uint256 assets\\n    ) external view returns (uint256 shares);\\n\\n    /**\\n     * @dev Returns the amount of assets that the Vault would exchange for the amount of shares provided, in an ideal\\n     * scenario where all the conditions are met.\\n     *\\n     * - MUST NOT be inclusive of any fees that are charged against assets in the Vault.\\n     * - MUST NOT show any variations depending on the caller.\\n     * - MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.\\n     * - MUST NOT revert unless due to integer overflow caused by an unreasonably large input.\\n     *\\n     * NOTE: This calculation MAY NOT reflect the \\\"per-user\\\" price-per-share, and instead should reflect the\\n     * \\\"average-user's\\\" price-per-share, meaning what the average user should expect to see when exchanging to and\\n     * from.\\n     */\\n    function convertToAssets(\\n        uint256 shares\\n    ) external view returns (uint256 assets);\\n\\n    /**\\n     * @dev Returns the maximum amount of the underlying asset that can be deposited into the Vault for the receiver,\\n     * through a deposit call.\\n     * While deposit of aToken is not affected by aave pool configrations, deposit of the aTokenUnderlying will need to deposit to aave\\n     * so it is affected by current aave pool configuration.\\n     * Reference: https://github.com/aave/aave-v3-core/blob/29ff9b9f89af7cd8255231bc5faf26c3ce0fb7ce/contracts/protocol/libraries/logic/ValidationLogic.sol#L57\\n     * - MUST return a limited value if receiver is subject to some deposit limit.\\n     * - MUST return 2 ** 256 - 1 if there is no limit on the maximum amount of assets that may be deposited.\\n     * - MUST NOT revert unless due to integer overflow caused by an unreasonably large input.\\n     */\\n    function maxDeposit(\\n        address receiver\\n    ) external view returns (uint256 maxAssets);\\n\\n    /**\\n     * @dev Allows an on-chain or off-chain user to simulate the effects of their deposit at the current block, given\\n     * current on-chain conditions.\\n     *\\n     * - MUST return as close to and no more than the exact amount of Vault shares that would be minted in a deposit\\n     *   call in the same transaction. I.e. deposit should return the same or more shares as previewDeposit if called\\n     *   in the same transaction.\\n     * - MUST NOT account for deposit limits like those returned from maxDeposit and should always act as though the\\n     *   deposit would be accepted, regardless if the user has enough tokens approved, etc.\\n     * - MUST be inclusive of deposit fees. Integrators should be aware of the existence of deposit fees.\\n     * - MUST NOT revert.\\n     *\\n     * NOTE: any unfavorable discrepancy between convertToShares and previewDeposit SHOULD be considered slippage in\\n     * share price or some other type of condition, meaning the depositor will lose assets by depositing.\\n     */\\n    function previewDeposit(\\n        uint256 assets\\n    ) external view returns (uint256 shares);\\n\\n    /**\\n     * @dev Mints shares Vault shares to receiver by depositing exactly amount of underlying tokens.\\n     *\\n     * - MUST emit the Deposit event.\\n     * - MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the\\n     *   deposit execution, and are accounted for during deposit.\\n     * - MUST revert if all of assets cannot be deposited (due to deposit limit being reached, slippage, the user not\\n     *   approving enough underlying tokens to the Vault contract, etc).\\n     *\\n     * NOTE: most implementations will require pre-approval of the Vault with the Vault's underlying asset token.\\n     */\\n    function deposit(\\n        uint256 assets,\\n        address receiver\\n    ) external returns (uint256 shares);\\n\\n    /**\\n     * @dev Returns the maximum amount of the Vault shares that can be minted for the receiver, through a mint call.\\n     * - MUST return a limited value if receiver is subject to some mint limit.\\n     * - MUST return 2 ** 256 - 1 if there is no limit on the maximum amount of shares that may be minted.\\n     * - MUST NOT revert.\\n     */\\n    function maxMint(\\n        address receiver\\n    ) external view returns (uint256 maxShares);\\n\\n    /**\\n     * @dev Allows an on-chain or off-chain user to simulate the effects of their mint at the current block, given\\n     * current on-chain conditions.\\n     *\\n     * - MUST return as close to and no fewer than the exact amount of assets that would be deposited in a mint call\\n     *   in the same transaction. I.e. mint should return the same or fewer assets as previewMint if called in the\\n     *   same transaction.\\n     * - MUST NOT account for mint limits like those returned from maxMint and should always act as though the mint\\n     *   would be accepted, regardless if the user has enough tokens approved, etc.\\n     * - MUST be inclusive of deposit fees. Integrators should be aware of the existence of deposit fees.\\n     * - MUST NOT revert.\\n     *\\n     * NOTE: any unfavorable discrepancy between convertToAssets and previewMint SHOULD be considered slippage in\\n     * share price or some other type of condition, meaning the depositor will lose assets by minting.\\n     */\\n    function previewMint(uint256 shares) external view returns (uint256 assets);\\n\\n    /**\\n     * @dev Mints exactly shares Vault shares to receiver by depositing amount of underlying tokens.\\n     *\\n     * - MUST emit the Deposit event.\\n     * - MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the mint\\n     *   execution, and are accounted for during mint.\\n     * - MUST revert if all of shares cannot be minted (due to deposit limit being reached, slippage, the user not\\n     *   approving enough underlying tokens to the Vault contract, etc).\\n     *\\n     * NOTE: most implementations will require pre-approval of the Vault with the Vault's underlying asset token.\\n     */\\n    function mint(\\n        uint256 shares,\\n        address receiver\\n    ) external returns (uint256 assets);\\n\\n    /**\\n     * @dev Returns the maximum amount of the underlying asset that can be withdrawn from the owner balance in the\\n     * Vault, through a withdraw call.\\n     *\\n     * - MUST return a limited value if owner is subject to some withdrawal limit or timelock.\\n     * - MUST NOT revert.\\n     */\\n    function maxWithdraw(\\n        address owner\\n    ) external view returns (uint256 maxAssets);\\n\\n    /**\\n     * @dev Allows an on-chain or off-chain user to simulate the effects of their withdrawal at the current block,\\n     * given current on-chain conditions.\\n     *\\n     * - MUST return as close to and no fewer than the exact amount of Vault shares that would be burned in a withdraw\\n     *   call in the same transaction. I.e. withdraw should return the same or fewer shares as previewWithdraw if\\n     *   called\\n     *   in the same transaction.\\n     * - MUST NOT account for withdrawal limits like those returned from maxWithdraw and should always act as though\\n     *   the withdrawal would be accepted, regardless if the user has enough shares, etc.\\n     * - MUST be inclusive of withdrawal fees. Integrators should be aware of the existence of withdrawal fees.\\n     * - MUST NOT revert.\\n     *\\n     * NOTE: any unfavorable discrepancy between convertToShares and previewWithdraw SHOULD be considered slippage in\\n     * share price or some other type of condition, meaning the depositor will lose assets by depositing.\\n     */\\n    function previewWithdraw(\\n        uint256 assets\\n    ) external view returns (uint256 shares);\\n\\n    /**\\n     * @dev Burns shares from owner and sends exactly assets of underlying tokens to receiver.\\n     *\\n     * - MUST emit the Withdraw event.\\n     * - MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the\\n     *   withdraw execution, and are accounted for during withdraw.\\n     * - MUST revert if all of assets cannot be withdrawn (due to withdrawal limit being reached, slippage, the owner\\n     *   not having enough shares, etc).\\n     *\\n     * Note that some implementations will require pre-requesting to the Vault before a withdrawal may be performed.\\n     * Those methods should be performed separately.\\n     */\\n    function withdraw(\\n        uint256 assets,\\n        address receiver,\\n        address owner\\n    ) external returns (uint256 shares);\\n\\n    /**\\n     * @dev Returns the maximum amount of Vault shares that can be redeemed from the owner balance in the Vault,\\n     * through a redeem call to the aToken underlying.\\n     * While redeem of aToken is not affected by aave pool configrations, redeeming of the aTokenUnderlying will need to redeem from aave\\n     * so it is affected by current aave pool configuration.\\n     * Reference: https://github.com/aave/aave-v3-core/blob/29ff9b9f89af7cd8255231bc5faf26c3ce0fb7ce/contracts/protocol/libraries/logic/ValidationLogic.sol#L87\\n     * - MUST return a limited value if owner is subject to some withdrawal limit or timelock.\\n     * - MUST return balanceOf(owner) if owner is not subject to any withdrawal limit or timelock.\\n     * - MUST NOT revert.\\n     */\\n    function maxRedeem(address owner) external view returns (uint256 maxShares);\\n\\n    /**\\n     * @dev Allows an on-chain or off-chain user to simulate the effects of their redeemption at the current block,\\n     * given current on-chain conditions.\\n     *\\n     * - MUST return as close to and no more than the exact amount of assets that would be withdrawn in a redeem call\\n     *   in the same transaction. I.e. redeem should return the same or more assets as previewRedeem if called in the\\n     *   same transaction.\\n     * - MUST NOT account for redemption limits like those returned from maxRedeem and should always act as though the\\n     *   redemption would be accepted, regardless if the user has enough shares, etc.\\n     * - MUST be inclusive of withdrawal fees. Integrators should be aware of the existence of withdrawal fees.\\n     * - MUST NOT revert.\\n     *\\n     * NOTE: any unfavorable discrepancy between convertToAssets and previewRedeem SHOULD be considered slippage in\\n     * share price or some other type of condition, meaning the depositor will lose assets by redeeming.\\n     */\\n    function previewRedeem(\\n        uint256 shares\\n    ) external view returns (uint256 assets);\\n\\n    /**\\n     * @dev Burns exactly shares from owner and sends assets of underlying tokens to receiver.\\n     *\\n     * - MUST emit the Withdraw event.\\n     * - MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the\\n     *   redeem execution, and are accounted for during redeem.\\n     * - MUST revert if all of shares cannot be redeemed (due to withdrawal limit being reached, slippage, the owner\\n     *   not having enough shares, etc).\\n     *\\n     * NOTE: some implementations will require pre-requesting to the Vault before a withdrawal may be performed.\\n     * Those methods should be performed separately.\\n     */\\n    function redeem(\\n        uint256 shares,\\n        address receiver,\\n        address owner\\n    ) external returns (uint256 assets);\\n}\\n\",\"keccak256\":\"0x1af9f7ac27f7ce3564faa580355ec9afde77b22e32fef3cb18ca813e67f1b5a4\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60a0346100e15761122e90601f38839003908101601f19168201906001600160401b038211838310176100e657808391604095869485528339810103126100e157610055602061004e836100fc565b92016100fc565b906001600160a01b0380821680156100ca575082169182156100b25760805261007d90610110565b506000818152600160205282902080546001600160a01b03191690911790555161108d90816101a1823960805181610ce30152f35b8351634726455360e11b815260048101849052602490fd5b602490855190634726455360e11b82526004820152fd5b600080fd5b634e487b7160e01b600052604160045260246000fd5b51906001600160a01b03821682036100e157565b6001600160a01b031660008181527fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5602052604081205490919060ff1661019c57818052816020526040822081835260205260408220600160ff1982541617905533917f2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d8180a4600190565b509056fe608060408181526004918236101561001657600080fd5b600092833560e01c91826301ffc9a714610b4d5750816312e4653d14610af2578163248a9ca314610ac85781632f2ff15d14610a9e57816336568abe14610a585781633ad206cc1461077e5781634499d14b14610670578163634da787146107615781636674b85f146106c357816368da10ae14610675578163703bafd5146106705781637688a47d146103e657816387d74481146104215781638c4ec2e3146103e657816391d14854146103a0578163a217fddf14610385578163d2de728d14610330578163d547741f146102f1578163e23bd2ad1461027d578163e8689daa146101f1578163ead6d2951461015f575063ed7d5c351461011757600080fd5b3461015b57602036600319011261015b57610130610ba0565b610138610d8d565b6001600160a01b031682526001602052812080546001600160a01b031916905580f35b5080fd5b83833461015b57602092836003193601126101ed57836001600160a01b03610185610ba0565b168351928380926278744560e21b82525afa9283156101e25780936101ad575b505051908152f35b909192508382813d83116101db575b6101c68183610bd1565b810103126101d85750519083806101a5565b80fd5b503d6101bc565b8251903d90823e3d90fd5b8280fd5b919050346101ed5760203660031901126101ed576001600160a01b0390602082610219610ba0565b168251948580926338d52e0f60e01b82525afa9283156102735760209493610244575b505191168152f35b610265919350843d861161026c575b61025d8183610bd1565b810190610d6e565b913861023c565b503d610253565b81513d86823e3d90fd5b919050346101ed57806003193601126101ed57610298610ba0565b6102a0610bbb565b906102a9610d8d565b6001600160a01b039182169384156102da57501683526001602052822080546001600160a01b031916909117905580f35b8351634726455360e11b8152908101859052602490fd5b919050346101ed57806003193601126101ed5761032c91356103276001610316610bbb565b938387528660205286200154610de5565b610e89565b5080f35b50503461015b57602036600319011261015b57602091906001600160a01b038181610359610ba0565b16938481526001865220541691821515928361037a575b5050519015158152f35b141591503880610370565b50503461015b578160031936011261015b5751908152602090f35b9050346101ed57816003193601126101ed578160209360ff926103c1610bbb565b903582528186528282206001600160a01b039091168252855220549151911615158152f35b50503461015b57602036600319011261015b576020916001600160a01b0390829082610410610ba0565b168152600185522054169051908152f35b8284346101d857816003193601126101d85767ffffffffffffffff9280358481116101ed576104539036908301610c21565b9160249060243586811161015b5761046e9036908501610c21565b938051156106605761047f85610efe565b6104898551610d12565b9682966020808801985b845181101561064f576001600160a01b03806104af8388610d44565b51161561064657868a8c8b848c956104c7888d610d44565b511693898051978896630eb481b360e21b885260448801958801528601525180925260648401929185915b8982841061062657505050505081900381305afa879181610590575b5061051e57506001905b01610493565b9596979899928795929491955b8b5181101561057d578c61054a82610543818c610d44565b5192610d44565b5190810180911161056b57906001916105648f8390610d44565b520161052b565b634e487b7160e01b8a5260118c528a8afd5b5092999897969550929093600190610518565b9091503d8089833e6105a28183610bd1565b810190848183031261061e5780519087821161062257019080601f8301121561061e5781516105d081610c09565b926105dd88519485610bd1565b818452868085019260051b82010192831161061a5786809101915b83831061060a5750505050908d61050e565b82518152918101918791016105f8565b8a80fd5b8880fd5b8980fd5b8451821686528e97508896509485019490930192600192909201916104f2565b50600190610518565b82518061065c8d82610c91565b0390f35b8551636234893160e11b81528490fd5b610ccd565b83833461015b57602092836003193601126101ed57836001600160a01b0361069b610ba0565b168351928380926318160ddd60e01b82525afa9283156101e25780936101ad57505051908152f35b919050346101ed57806003193601126101ed5760206106e0610ba0565b82516303d1689d60e11b8152602480359582019590955293849182906001600160a01b03165afa91821561075757839261071f575b6020838351908152f35b9091506020813d60201161074f575b8161073b60209383610bd1565b810103126101ed5760209250519038610715565b3d915061072e565b81513d85823e3d90fd5b50503461015b578160031936011261015b57602090516103e88152f35b905082346101d857826003193601126101d857610799610ba0565b92602493843567ffffffffffffffff8111610a54576107bb9036908601610c21565b6107c481610efe565b6107ce8151610d12565b918460018060a01b0392838316945b8151881015610a4557908493929189956107f78a84610d44565b5116988784528b6020600181528a8881882054169c8d9a8b15159b8c610a3a575b8c15610a3257945b8b861693516338d52e0f60e01b815285818481885afa9081610a15575b5061087157908f8f8f8f1561085e57505163662ca37360e11b815291820152fd5b9051630d136c1d60e11b81529283015250fd5b849596989a9c97999b9f508e949293948860001461092f57516370a0823160e01b8152918201939093529250908290818d5afa9182156109255788926108f2575b50600194936108d39391505b156108e957506108cd88610f44565b90610fe3565b6108dd8285610d44565b520196939291906107dd565b6108cd90610f44565b90809250813d831161091e575b6109098183610bd1565b8101031261091a57518160016108b2565b8680fd5b503d6108ff565b8b513d8a823e3d90fd5b519384926370a0823160e01b845283015281855afa908115610a0b578f908f908b936109da575b508d83156109c55790859392915194859384926303d1689d60e11b84528301525afa918215610925578892610996575b50600194936108d39391506108be565b90809250813d83116109be575b6109ad8183610bd1565b8101031261091a5751816001610986565b503d6109a3565b505050505050600192916108d39187916108be565b925050508281813d8311610a04575b6109f38183610bd1565b8101031261061e57518e8e38610956565b503d6109e9565b8c513d8b823e3d90fd5b610a2b90873d891161026c5761025d8183610bd1565b503861083d565b508994610820565b8d8114159c50610818565b61065c90875191829182610c91565b8380fd5b83833461015b578060031936011261015b57610a72610bbb565b90336001600160a01b03831603610a8f575061032c919235610e89565b5163334bd91960e11b81528390fd5b919050346101ed57806003193601126101ed5761032c9135610ac36001610316610bbb565b610e0b565b9050346101ed5760203660031901126101ed57816020936001923581528085522001549051908152f35b919050346101ed57806003193601126101ed576020610b0f610ba0565b82516363737ac960e11b8152602480359582019590955293849182906001600160a01b03165afa91821561075757839261071f576020838351908152f35b8491346101ed5760203660031901126101ed573563ffffffff60e01b81168091036101ed5760209250637965db0b60e01b8114908115610b8f575b5015158152f35b6301ffc9a760e01b14905083610b88565b600435906001600160a01b0382168203610bb657565b600080fd5b602435906001600160a01b0382168203610bb657565b90601f8019910116810190811067ffffffffffffffff821117610bf357604052565b634e487b7160e01b600052604160045260246000fd5b67ffffffffffffffff8111610bf35760051b60200190565b9080601f83011215610bb6576020908235610c3b81610c09565b93610c496040519586610bd1565b81855260208086019260051b820101928311610bb657602001905b828210610c72575050505090565b81356001600160a01b0381168103610bb6578152908301908301610c64565b602090602060408183019282815285518094520193019160005b828110610cb9575050505090565b835185529381019392810192600101610cab565b34610bb6576000366003190112610bb6576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b90610d1c82610c09565b610d296040519182610bd1565b8281528092610d3a601f1991610c09565b0190602036910137565b8051821015610d585760209160051b010190565b634e487b7160e01b600052603260045260246000fd5b90816020910312610bb657516001600160a01b0381168103610bb65790565b3360009081527fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5602052604081205460ff1615610dc75750565b6044906040519063e2517d3f60e01b82523360048301526024820152fd5b80600052600060205260406000203360005260205260ff6040600020541615610dc75750565b9060009180835282602052604083209160018060a01b03169182845260205260ff60408420541615600014610e8457808352826020526040832082845260205260408320600160ff198254161790557f2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d339380a4600190565b505090565b9060009180835282602052604083209160018060a01b03169182845260205260ff604084205416600014610e845780835282602052604083208284526020526040832060ff1981541690557ff6391f5c32d9c69d2a47ea670b442974b53935d1edc7fd64eb21e047a839171b339380a4600190565b6103e8905111610f0a57565b60405162461bcd60e51b8152602060048201526012602482015271544f4f5f4d414e595f41444452455353455360701b6044820152606490fd5b60405163313ce56760e01b815290602090829060049082906001600160a01b03165afa8091600091610f83575b5090610f7d5750601290565b60ff1690565b6020813d602011610fb7575b81610f9c60209383610bd1565b8101031261015b57519060ff821682036101d8575038610f71565b3d9150610f8f565b604d8111610fcd57600a0a90565b634e487b7160e01b600052601160045260246000fd5b9060128110156110155760120360128111610fcd5761100190610fbf565b90818102918183041490151715610fcd5790565b60128111611021575090565b6011198101908111610fcd5761103690610fbf565b908115611041570490565b634e487b7160e01b600052601260045260246000fdfea264697066735822122009318bca50e65b5340e47af7ea86a5a4c7e39b866c2226cdbc77e45213c46f7a64736f6c63430008180033",
+  "deployedBytecode": "0x608060408181526004918236101561001657600080fd5b600092833560e01c91826301ffc9a714610b4d5750816312e4653d14610af2578163248a9ca314610ac85781632f2ff15d14610a9e57816336568abe14610a585781633ad206cc1461077e5781634499d14b14610670578163634da787146107615781636674b85f146106c357816368da10ae14610675578163703bafd5146106705781637688a47d146103e657816387d74481146104215781638c4ec2e3146103e657816391d14854146103a0578163a217fddf14610385578163d2de728d14610330578163d547741f146102f1578163e23bd2ad1461027d578163e8689daa146101f1578163ead6d2951461015f575063ed7d5c351461011757600080fd5b3461015b57602036600319011261015b57610130610ba0565b610138610d8d565b6001600160a01b031682526001602052812080546001600160a01b031916905580f35b5080fd5b83833461015b57602092836003193601126101ed57836001600160a01b03610185610ba0565b168351928380926278744560e21b82525afa9283156101e25780936101ad575b505051908152f35b909192508382813d83116101db575b6101c68183610bd1565b810103126101d85750519083806101a5565b80fd5b503d6101bc565b8251903d90823e3d90fd5b8280fd5b919050346101ed5760203660031901126101ed576001600160a01b0390602082610219610ba0565b168251948580926338d52e0f60e01b82525afa9283156102735760209493610244575b505191168152f35b610265919350843d861161026c575b61025d8183610bd1565b810190610d6e565b913861023c565b503d610253565b81513d86823e3d90fd5b919050346101ed57806003193601126101ed57610298610ba0565b6102a0610bbb565b906102a9610d8d565b6001600160a01b039182169384156102da57501683526001602052822080546001600160a01b031916909117905580f35b8351634726455360e11b8152908101859052602490fd5b919050346101ed57806003193601126101ed5761032c91356103276001610316610bbb565b938387528660205286200154610de5565b610e89565b5080f35b50503461015b57602036600319011261015b57602091906001600160a01b038181610359610ba0565b16938481526001865220541691821515928361037a575b5050519015158152f35b141591503880610370565b50503461015b578160031936011261015b5751908152602090f35b9050346101ed57816003193601126101ed578160209360ff926103c1610bbb565b903582528186528282206001600160a01b039091168252855220549151911615158152f35b50503461015b57602036600319011261015b576020916001600160a01b0390829082610410610ba0565b168152600185522054169051908152f35b8284346101d857816003193601126101d85767ffffffffffffffff9280358481116101ed576104539036908301610c21565b9160249060243586811161015b5761046e9036908501610c21565b938051156106605761047f85610efe565b6104898551610d12565b9682966020808801985b845181101561064f576001600160a01b03806104af8388610d44565b51161561064657868a8c8b848c956104c7888d610d44565b511693898051978896630eb481b360e21b885260448801958801528601525180925260648401929185915b8982841061062657505050505081900381305afa879181610590575b5061051e57506001905b01610493565b9596979899928795929491955b8b5181101561057d578c61054a82610543818c610d44565b5192610d44565b5190810180911161056b57906001916105648f8390610d44565b520161052b565b634e487b7160e01b8a5260118c528a8afd5b5092999897969550929093600190610518565b9091503d8089833e6105a28183610bd1565b810190848183031261061e5780519087821161062257019080601f8301121561061e5781516105d081610c09565b926105dd88519485610bd1565b818452868085019260051b82010192831161061a5786809101915b83831061060a5750505050908d61050e565b82518152918101918791016105f8565b8a80fd5b8880fd5b8980fd5b8451821686528e97508896509485019490930192600192909201916104f2565b50600190610518565b82518061065c8d82610c91565b0390f35b8551636234893160e11b81528490fd5b610ccd565b83833461015b57602092836003193601126101ed57836001600160a01b0361069b610ba0565b168351928380926318160ddd60e01b82525afa9283156101e25780936101ad57505051908152f35b919050346101ed57806003193601126101ed5760206106e0610ba0565b82516303d1689d60e11b8152602480359582019590955293849182906001600160a01b03165afa91821561075757839261071f575b6020838351908152f35b9091506020813d60201161074f575b8161073b60209383610bd1565b810103126101ed5760209250519038610715565b3d915061072e565b81513d85823e3d90fd5b50503461015b578160031936011261015b57602090516103e88152f35b905082346101d857826003193601126101d857610799610ba0565b92602493843567ffffffffffffffff8111610a54576107bb9036908601610c21565b6107c481610efe565b6107ce8151610d12565b918460018060a01b0392838316945b8151881015610a4557908493929189956107f78a84610d44565b5116988784528b6020600181528a8881882054169c8d9a8b15159b8c610a3a575b8c15610a3257945b8b861693516338d52e0f60e01b815285818481885afa9081610a15575b5061087157908f8f8f8f1561085e57505163662ca37360e11b815291820152fd5b9051630d136c1d60e11b81529283015250fd5b849596989a9c97999b9f508e949293948860001461092f57516370a0823160e01b8152918201939093529250908290818d5afa9182156109255788926108f2575b50600194936108d39391505b156108e957506108cd88610f44565b90610fe3565b6108dd8285610d44565b520196939291906107dd565b6108cd90610f44565b90809250813d831161091e575b6109098183610bd1565b8101031261091a57518160016108b2565b8680fd5b503d6108ff565b8b513d8a823e3d90fd5b519384926370a0823160e01b845283015281855afa908115610a0b578f908f908b936109da575b508d83156109c55790859392915194859384926303d1689d60e11b84528301525afa918215610925578892610996575b50600194936108d39391506108be565b90809250813d83116109be575b6109ad8183610bd1565b8101031261091a5751816001610986565b503d6109a3565b505050505050600192916108d39187916108be565b925050508281813d8311610a04575b6109f38183610bd1565b8101031261061e57518e8e38610956565b503d6109e9565b8c513d8b823e3d90fd5b610a2b90873d891161026c5761025d8183610bd1565b503861083d565b508994610820565b8d8114159c50610818565b61065c90875191829182610c91565b8380fd5b83833461015b578060031936011261015b57610a72610bbb565b90336001600160a01b03831603610a8f575061032c919235610e89565b5163334bd91960e11b81528390fd5b919050346101ed57806003193601126101ed5761032c9135610ac36001610316610bbb565b610e0b565b9050346101ed5760203660031901126101ed57816020936001923581528085522001549051908152f35b919050346101ed57806003193601126101ed576020610b0f610ba0565b82516363737ac960e11b8152602480359582019590955293849182906001600160a01b03165afa91821561075757839261071f576020838351908152f35b8491346101ed5760203660031901126101ed573563ffffffff60e01b81168091036101ed5760209250637965db0b60e01b8114908115610b8f575b5015158152f35b6301ffc9a760e01b14905083610b88565b600435906001600160a01b0382168203610bb657565b600080fd5b602435906001600160a01b0382168203610bb657565b90601f8019910116810190811067ffffffffffffffff821117610bf357604052565b634e487b7160e01b600052604160045260246000fd5b67ffffffffffffffff8111610bf35760051b60200190565b9080601f83011215610bb6576020908235610c3b81610c09565b93610c496040519586610bd1565b81855260208086019260051b820101928311610bb657602001905b828210610c72575050505090565b81356001600160a01b0381168103610bb6578152908301908301610c64565b602090602060408183019282815285518094520193019160005b828110610cb9575050505090565b835185529381019392810192600101610cab565b34610bb6576000366003190112610bb6576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b90610d1c82610c09565b610d296040519182610bd1565b8281528092610d3a601f1991610c09565b0190602036910137565b8051821015610d585760209160051b010190565b634e487b7160e01b600052603260045260246000fd5b90816020910312610bb657516001600160a01b0381168103610bb65790565b3360009081527fad3228b676f7d3cd4284a5443f17f1962b36e491b30a40b2405849e597ba5fb5602052604081205460ff1615610dc75750565b6044906040519063e2517d3f60e01b82523360048301526024820152fd5b80600052600060205260406000203360005260205260ff6040600020541615610dc75750565b9060009180835282602052604083209160018060a01b03169182845260205260ff60408420541615600014610e8457808352826020526040832082845260205260408320600160ff198254161790557f2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d339380a4600190565b505090565b9060009180835282602052604083209160018060a01b03169182845260205260ff604084205416600014610e845780835282602052604083208284526020526040832060ff1981541690557ff6391f5c32d9c69d2a47ea670b442974b53935d1edc7fd64eb21e047a839171b339380a4600190565b6103e8905111610f0a57565b60405162461bcd60e51b8152602060048201526012602482015271544f4f5f4d414e595f41444452455353455360701b6044820152606490fd5b60405163313ce56760e01b815290602090829060049082906001600160a01b03165afa8091600091610f83575b5090610f7d5750601290565b60ff1690565b6020813d602011610fb7575b81610f9c60209383610bd1565b8101031261015b57519060ff821682036101d8575038610f71565b3d9150610f8f565b604d8111610fcd57600a0a90565b634e487b7160e01b600052601160045260246000fd5b9060128110156110155760120360128111610fcd5761100190610fbf565b90818102918183041490151715610fcd5790565b60128111611021575090565b6011198101908111610fcd5761103690610fbf565b908115611041570490565b634e487b7160e01b600052601260045260246000fdfea264697066735822122009318bca50e65b5340e47af7ea86a5a4c7e39b866c2226cdbc77e45213c46f7a64736f6c63430008180033",
+  "devdoc": {
+    "author": "dTrinity",
+    "details": "For ERC4626 tokens, the balance is calculated by converting shares to underlying assets      using the ERC4626 convertToAssets() function. No debt calculation is needed      since ERC4626 tokens represent direct vault shares.",
+    "errors": {
+      "AccessControlBadConfirmation()": [
+        {
+          "details": "The caller of a function is not the expected one. NOTE: Don't confuse with {AccessControlUnauthorizedAccount}."
+        }
+      ],
+      "AccessControlUnauthorizedAccount(address,bytes32)": [
+        {
+          "details": "The `account` is missing a role."
+        }
+      ]
+    },
+    "events": {
+      "RoleAdminChanged(bytes32,bytes32,bytes32)": {
+        "details": "Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole` `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite {RoleAdminChanged} not being emitted signaling this."
+      },
+      "RoleGranted(bytes32,address,address)": {
+        "details": "Emitted when `account` is granted `role`. `sender` is the account that originated the contract call, an admin role bearer except when using {AccessControl-_setupRole}."
+      },
+      "RoleRevoked(bytes32,address,address)": {
+        "details": "Emitted when `account` is revoked `role`. `sender` is the account that originated the contract call:   - if using `revokeRole`, it is the admin role bearer   - if using `renounceRole`, it is the role bearer (i.e. `account`)"
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "batchTokenBalances(address[],address[])": {
+        "params": {
+          "addresses": "Array of addresses to check balances for (up to 1000 addresses)",
+          "sources": "Array of token addresses to check balances for"
+        },
+        "returns": {
+          "result": "Array of effective balances (18 decimals) for each address across all sources"
+        }
+      },
+      "constructor": {
+        "params": {
+          "_vaultToken": "The address of the primary vault token (ERC4626 vault)",
+          "initialAdmin": "The address that will be granted the DEFAULT_ADMIN_ROLE"
+        }
+      },
+      "convertAssetsToShares(address,uint256)": {
+        "params": {
+          "assets": "The amount of assets to convert",
+          "vaultToken": "The vault token address"
+        },
+        "returns": {
+          "_0": "The equivalent amount of shares"
+        }
+      },
+      "convertSharesToAssets(address,uint256)": {
+        "params": {
+          "shares": "The amount of shares to convert",
+          "vaultToken": "The vault token address"
+        },
+        "returns": {
+          "_0": "The equivalent amount of underlying assets"
+        }
+      },
+      "getMappedToken(address)": {
+        "params": {
+          "externalToken": "The external token address"
+        },
+        "returns": {
+          "_0": "The mapped internal token address (address(0) if not mapped)"
+        }
+      },
+      "getRoleAdmin(bytes32)": {
+        "details": "Returns the admin role that controls `role`. See {grantRole} and {revokeRole}. To change a role's admin, use {_setRoleAdmin}."
+      },
+      "getTotalAssets(address)": {
+        "params": {
+          "vaultToken": "The vault token address"
+        },
+        "returns": {
+          "_0": "The total amount of underlying assets managed by the vault"
+        }
+      },
+      "getTotalSupply(address)": {
+        "params": {
+          "vaultToken": "The vault token address"
+        },
+        "returns": {
+          "_0": "The total supply of vault shares"
+        }
+      },
+      "getUnderlyingAsset(address)": {
+        "params": {
+          "vaultToken": "The vault token address"
+        },
+        "returns": {
+          "_0": "The underlying asset address"
+        }
+      },
+      "grantRole(bytes32,address)": {
+        "details": "Grants `role` to `account`. If `account` had not been already granted `role`, emits a {RoleGranted} event. Requirements: - the caller must have ``role``'s admin role. May emit a {RoleGranted} event."
+      },
+      "hasRole(bytes32,address)": {
+        "details": "Returns `true` if `account` has been granted `role`."
+      },
+      "isExternalToken(address)": {
+        "params": {
+          "token": "The token address to check"
+        },
+        "returns": {
+          "_0": "True if the token is mapped as an external source"
+        }
+      },
+      "mapExternalSource(address,address)": {
+        "params": {
+          "externalToken": "The address of the external token",
+          "internalToken": "The address of the corresponding internal token"
+        }
+      },
+      "removeExternalSource(address)": {
+        "params": {
+          "externalToken": "The address of the external token to remove"
+        }
+      },
+      "renounceRole(bytes32,address)": {
+        "details": "Revokes `role` from the calling account. Roles are often managed via {grantRole} and {revokeRole}: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced). If the calling account had been revoked `role`, emits a {RoleRevoked} event. Requirements: - the caller must be `callerConfirmation`. May emit a {RoleRevoked} event."
+      },
+      "revokeRole(bytes32,address)": {
+        "details": "Revokes `role` from `account`. If `account` had been granted `role`, emits a {RoleRevoked} event. Requirements: - the caller must have ``role``'s admin role. May emit a {RoleRevoked} event."
+      },
+      "supportsInterface(bytes4)": {
+        "details": "See {IERC165-supportsInterface}."
+      },
+      "tokenBalances(address,address[])": {
+        "params": {
+          "addresses": "Array of addresses to check balances for (up to 1000 addresses)",
+          "token": "The address of the token to check balances for"
+        },
+        "returns": {
+          "result": "Array of effective balances (18 decimals) corresponding to the addresses array"
+        }
+      },
+      "vaultToken()": {
+        "returns": {
+          "_0": "The vault token address"
+        }
+      }
+    },
+    "title": "ERC4626BalanceChecker",
+    "version": 1
+  },
+  "userdoc": {
+    "errors": {
+      "ExternalTokenNotMapped(address)": [
+        {
+          "notice": "Error thrown when trying to get balances for an external token that isn't mapped"
+        }
+      ],
+      "InvalidAddress(address)": [
+        {
+          "notice": "Error thrown when an invalid address is provided"
+        }
+      ],
+      "InvalidERC4626Token(address)": [
+        {
+          "notice": "Error thrown when a token is not a valid ERC4626 vault"
+        }
+      ],
+      "NoSourcesProvided()": [
+        {
+          "notice": "Error thrown when no sources are provided to batch functions"
+        }
+      ]
+    },
+    "kind": "user",
+    "methods": {
+      "MAX_ADDRESSES()": {
+        "notice": "Maximum number of addresses that can be processed in a single batch"
+      },
+      "VAULT_TOKEN()": {
+        "notice": "The primary vault token address (ERC4626 vault)"
+      },
+      "batchTokenBalances(address[],address[])": {
+        "notice": "Returns the effective balances for multiple addresses across multiple tokens"
+      },
+      "convertAssetsToShares(address,uint256)": {
+        "notice": "Convert underlying asset amount to vault shares"
+      },
+      "convertSharesToAssets(address,uint256)": {
+        "notice": "Convert vault shares to underlying asset amount"
+      },
+      "externalSourceToInternalToken(address)": {
+        "notice": "Mapping from external token to its corresponding internal token"
+      },
+      "getMappedToken(address)": {
+        "notice": "Gets the mapped internal token for an external token"
+      },
+      "getTotalAssets(address)": {
+        "notice": "Get the total assets managed by a vault"
+      },
+      "getTotalSupply(address)": {
+        "notice": "Get the total supply of vault shares"
+      },
+      "getUnderlyingAsset(address)": {
+        "notice": "Get the underlying asset address for a given vault token"
+      },
+      "isExternalToken(address)": {
+        "notice": "Checks if a token is mapped as an external source"
+      },
+      "mapExternalSource(address,address)": {
+        "notice": "Maps an external token to its corresponding internal token"
+      },
+      "removeExternalSource(address)": {
+        "notice": "Removes an external token mapping"
+      },
+      "tokenBalances(address,address[])": {
+        "notice": "Returns the effective balances for multiple addresses for a single token"
+      },
+      "vaultToken()": {
+        "notice": "Get the vault token address"
+      }
+    },
+    "notice": "Contract for checking balances of ERC4626 vault tokens",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 193,
+        "contract": "contracts/fxtl_balance_checkers/implementations/ERC4626BalanceChecker.sol:ERC4626BalanceChecker",
+        "label": "_roles",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_bytes32,t_struct(RoleData)188_storage)"
+      },
+      {
+        "astId": 32648,
+        "contract": "contracts/fxtl_balance_checkers/implementations/ERC4626BalanceChecker.sol:ERC4626BalanceChecker",
+        "label": "externalSourceToInternalToken",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_address,t_address)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_address,t_address)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_bytes32,t_struct(RoleData)188_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct AccessControl.RoleData)",
+        "numberOfBytes": "32",
+        "value": "t_struct(RoleData)188_storage"
+      },
+      "t_struct(RoleData)188_storage": {
+        "encoding": "inplace",
+        "label": "struct AccessControl.RoleData",
+        "members": [
+          {
+            "astId": 185,
+            "contract": "contracts/fxtl_balance_checkers/implementations/ERC4626BalanceChecker.sol:ERC4626BalanceChecker",
+            "label": "hasRole",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_bool)"
+          },
+          {
+            "astId": 187,
+            "contract": "contracts/fxtl_balance_checkers/implementations/ERC4626BalanceChecker.sol:ERC4626BalanceChecker",
+            "label": "adminRole",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_bytes32"
+          }
+        ],
+        "numberOfBytes": "64"
+      }
+    }
+  }
+}
