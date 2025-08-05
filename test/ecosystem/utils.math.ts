@@ -35,7 +35,7 @@ export function assertNumberEqualApproximately(
   expectedValue: number,
   tolerance: number = 1e-6,
 ): void {
-  const toleranceValue = Math.floor(expectedValue * tolerance);
+  const toleranceValue = Math.abs(expectedValue * tolerance);
 
   assert(
     value >= expectedValue - toleranceValue &&
