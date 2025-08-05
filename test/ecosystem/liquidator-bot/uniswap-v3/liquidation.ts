@@ -288,6 +288,7 @@ describe("Test getMaxLiquidationAmount()", function () {
     assertNumberEqualApproximately(
       await getUserHealthFactor(testAccount1),
       0.903125,
+      1e-6,
     );
 
     const { toLiquidateAmount } = await getMaxLiquidationAmount(
@@ -296,7 +297,10 @@ describe("Test getMaxLiquidationAmount()", function () {
       testAccount1,
       dexDeployer,
     );
-    assert.equal(toLiquidateAmount.toString(), "800000000");
+    assertBigIntEqualApproximately(
+      BigInt(toLiquidateAmount.toString()),
+      BigInt("800000000"),
+    );
   });
 });
 

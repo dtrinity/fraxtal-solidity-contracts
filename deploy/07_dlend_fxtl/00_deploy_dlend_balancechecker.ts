@@ -34,6 +34,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     [poolAddress],
     undefined,
     await hre.ethers.getSigner(lendingDeployer),
+    undefined,
+    "contracts/fxtl_balance_checkers/implementations/DLendBalanceChecker.sol:DLendBalanceChecker",
   );
 
   return true;
