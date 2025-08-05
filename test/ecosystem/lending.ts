@@ -412,7 +412,10 @@ describe("Test getUserReserveData()", function () {
     assert.equal(borrowReserveData.stableBorrowRate, 0n);
     // Liquidity rate can vary significantly based on utilization and market conditions
     // Just verify it's a positive rate indicating lending activity
-    assert(borrowReserveData.liquidityRate > 0n, "Liquidity rate should be positive after borrowing");
+    assert(
+      borrowReserveData.liquidityRate > 0n,
+      "Liquidity rate should be positive after borrowing",
+    );
     assert.equal(borrowReserveData.stableRateLastUpdated, 0n);
     assert.equal(borrowReserveData.usageAsCollateralEnabled, false);
 
