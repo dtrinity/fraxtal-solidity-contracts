@@ -8,8 +8,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { dusdDeployer: deployer } = await getNamedAccounts();
 
-  // sdUSD token address on Fraxtal mainnet
-  const SD_USD_TOKEN_ADDRESS = "0x58AcC2600835211Dcb5847c5Fa422791Fd492409";
+  // Fetch sdUSD token address from deployment artifacts
+  const sdUSDTokenDeployment = await deployments.get("DStakeToken_sdUSD");
+  const SD_USD_TOKEN_ADDRESS = sdUSDTokenDeployment.address;
 
   console.log(`Deploying ${SDUSD_BALANCE_CHECKER_ID} with admin: ${deployer}`);
   console.log(`Using sdUSD token address: ${SD_USD_TOKEN_ADDRESS}`);
@@ -36,6 +37,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 func.id = "deploy_sdusd_balance_checker_standalone";
 func.tags = ["sdUSDBalanceChecker", "standalone", "sdusd-balance-checker"];
-func.dependencies = []; // No dependencies needed
+func.dependencies = ["dStakeCore"]; // Ensure dSTAKE tokens are deployed first
 
 export default func;
