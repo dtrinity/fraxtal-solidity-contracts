@@ -288,6 +288,7 @@ describe("Test getMaxLiquidationAmount()", function () {
     assertNumberEqualApproximately(
       await getUserHealthFactor(testAccount1),
       0.903125,
+      1e-6,
     );
 
     const { toLiquidateAmount } = await getMaxLiquidationAmount(
