@@ -6,9 +6,10 @@ import {
   LENDING_CORE_VERSION,
   MARKET_NAME,
 } from "../../utils/lending/constants";
-import { POOL_ADDRESSES_PROVIDER_ID } from "../../utils/lending/deploy-ids";
-
-const NEW_DLEND_BALANCE_CHECKER_ID = "DLendBalanceChecker_New";
+import {
+  DLEND_BALANCE_CHECKER_ID,
+  POOL_ADDRESSES_PROVIDER_ID,
+} from "../../utils/lending/deploy-ids";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre;
@@ -27,11 +28,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     throw new Error("Pool address not set in PoolAddressesProvider");
   }
 
-  console.log(`Deploying new DLendBalanceChecker with pool: ${poolAddress}`);
-
   await deployContract(
     hre,
-    NEW_DLEND_BALANCE_CHECKER_ID,
+    DLEND_BALANCE_CHECKER_ID,
     [poolAddress],
     undefined,
     await hre.ethers.getSigner(lendingDeployer),
@@ -39,13 +38,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     "contracts/fxtl_balance_checkers/implementations/DLendBalanceChecker.sol:DLendBalanceChecker",
   );
 
-  console.log(`🥩 ${__filename.split("/").slice(-2).join("/")}: ✅`);
-
   return true;
 };
 
-func.id = `${NEW_DLEND_BALANCE_CHECKER_ID}:${MARKET_NAME}:${LENDING_CORE_VERSION}`;
-func.tags = ["DLendBalanceChecker", "new", "fxtl-balance-checkers"];
+func.id = `${DLEND_BALANCE_CHECKER_ID}:${MARKET_NAME}:${LENDING_CORE_VERSION}`;
+func.tags = ["dLendBalanceChecker", "fxtl"];
 func.dependencies = [POOL_ADDRESSES_PROVIDER_ID];
 
 export default func;
