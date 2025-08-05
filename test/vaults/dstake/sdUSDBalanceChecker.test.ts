@@ -76,7 +76,10 @@ describe("sdUSDBalanceChecker", () => {
     const SdUSDBalanceChecker = (await ethers.getContractFactory(
       "contracts/vaults/dstake/sdUSDBalanceChecker.sol:sdUSDBalanceChecker",
     )) as SdUSDBalanceCheckerFactory;
-    balanceChecker = await SdUSDBalanceChecker.deploy(_deployer.address);
+    balanceChecker = await SdUSDBalanceChecker.deploy(
+      _deployer.address,
+      await mockSdUSDToken.getAddress()
+    );
 
     // Map external token to sdUSD token
     await balanceChecker.mapExternalSource(
@@ -98,6 +101,8 @@ describe("sdUSDBalanceChecker", () => {
     it("should map SD_USD_TOKEN to itself", async () => {
       const sdUsdToken = await balanceChecker.SD_USD_TOKEN();
       expect(await balanceChecker.externalSourceToSdUSDToken(sdUsdToken)).to.equal(sdUsdToken);
+      // Verify the SD_USD_TOKEN is the mock sdUSD token we passed in
+      expect(sdUsdToken).to.equal(await mockSdUSDToken.getAddress());
     });
 
     it("should revert with zero admin address", async () => {
@@ -106,8 +111,18 @@ describe("sdUSDBalanceChecker", () => {
       )) as SdUSDBalanceCheckerFactory;
       
       await expect(
-        SdUSDBalanceChecker.deploy(ethers.ZeroAddress)
+        SdUSDBalanceChecker.deploy(ethers.ZeroAddress, await mockSdUSDToken.getAddress())
       ).to.be.revertedWith("INVALID_ADMIN_ADDRESS");
+    });
+
+    it("should revert with zero sdUSD token address", async () => {
+      const SdUSDBalanceChecker = (await ethers.getContractFactory(
+        "contracts/vaults/dstake/sdUSDBalanceChecker.sol:sdUSDBalanceChecker",
+      )) as SdUSDBalanceCheckerFactory;
+      
+      await expect(
+        SdUSDBalanceChecker.deploy(_deployer.address, ethers.ZeroAddress)
+      ).to.be.revertedWith("INVALID_SDUSD_TOKEN_ADDRESS");
     });
   });
 
@@ -386,13 +401,6 @@ describe("sdUSDBalanceChecker", () => {
       });
     });
 
-    it("should enforce address limit", async () => {
-      const addresses = Array(1001).fill(users[0].address);
-      
-      await expect(
-        balanceChecker.tokenBalances(await mockSdUSDToken.getAddress(), addresses)
-      ).to.be.revertedWith("TOO_MANY_ADDRESSES");
-    });
   });
 
   describe("batchTokenBalances", () => {
@@ -468,13 +476,6 @@ describe("sdUSDBalanceChecker", () => {
       ).to.be.revertedWith("NO_SOURCES_PROVIDED");
     });
 
-    it("should enforce address limit", async () => {
-      const addresses = Array(1001).fill(users[0].address);
-      
-      await expect(
-        balanceChecker.batchTokenBalances([await mockSdUSDToken.getAddress()], addresses)
-      ).to.be.revertedWith("TOO_MANY_ADDRESSES");
-    });
   });
 
   describe("utility functions", () => {

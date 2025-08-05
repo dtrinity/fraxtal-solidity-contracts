@@ -38,21 +38,25 @@ error InvalidERC4626Token(address token);
  *      unlike dLEND tokens since sdUSD represents direct vault shares.
  */
 contract sdUSDBalanceChecker is IBalanceChecker, AccessControl {
-    /// @notice The sdUSD token address (ERC4626 vault) on Fraxtal mainnet
-    address public constant SD_USD_TOKEN = 0x58AcC2600835211Dcb5847c5Fa422791Fd492409;
+    /// @notice The sdUSD token address (ERC4626 vault)
+    address public immutable SD_USD_TOKEN;
 
     /// @notice Mapping from external token to its corresponding sdUSD token
     mapping(address => address) public externalSourceToSdUSDToken;
 
     /**
      * @param initialAdmin The address that will be granted the DEFAULT_ADMIN_ROLE
+     * @param sdUSDToken The address of the sdUSD token (ERC4626 vault)
      */
-    constructor(address initialAdmin) {
+    constructor(address initialAdmin, address sdUSDToken) {
         require(initialAdmin != address(0), "INVALID_ADMIN_ADDRESS");
+        require(sdUSDToken != address(0), "INVALID_SDUSD_TOKEN_ADDRESS");
+        
+        SD_USD_TOKEN = sdUSDToken;
         _grantRole(DEFAULT_ADMIN_ROLE, initialAdmin);
         
         // Map the sdUSD token to itself for direct queries
-        externalSourceToSdUSDToken[SD_USD_TOKEN] = SD_USD_TOKEN;
+        externalSourceToSdUSDToken[sdUSDToken] = sdUSDToken;
     }
 
     /**
@@ -111,7 +115,6 @@ contract sdUSDBalanceChecker is IBalanceChecker, AccessControl {
         address token,
         address[] memory addresses
     ) external view override returns (uint256[] memory result) {
-        require(addresses.length <= 1000, "TOO_MANY_ADDRESSES");
         result = new uint256[](addresses.length);
 
         // Validate token and get necessary details
@@ -164,7 +167,6 @@ contract sdUSDBalanceChecker is IBalanceChecker, AccessControl {
         address[] memory addresses
     ) external view override returns (uint256[] memory result) {
         require(sources.length > 0, "NO_SOURCES_PROVIDED");
-        require(addresses.length <= 1000, "TOO_MANY_ADDRESSES");
 
         result = new uint256[](addresses.length);
 
