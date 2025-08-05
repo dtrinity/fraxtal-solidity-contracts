@@ -51,10 +51,10 @@ contract sdUSDBalanceChecker is IBalanceChecker, AccessControl {
     constructor(address initialAdmin, address sdUSDToken) {
         require(initialAdmin != address(0), "INVALID_ADMIN_ADDRESS");
         require(sdUSDToken != address(0), "INVALID_SDUSD_TOKEN_ADDRESS");
-        
+
         SD_USD_TOKEN = sdUSDToken;
         _grantRole(DEFAULT_ADMIN_ROLE, initialAdmin);
-        
+
         // Map the sdUSD token to itself for direct queries
         externalSourceToSdUSDToken[sdUSDToken] = sdUSDToken;
     }
@@ -94,7 +94,9 @@ contract sdUSDBalanceChecker is IBalanceChecker, AccessControl {
     {
         originalToken = token;
         address mappedSdUSDToken = externalSourceToSdUSDToken[token];
-        isExternalToken = mappedSdUSDToken != address(0);
+        isExternalToken =
+            mappedSdUSDToken != address(0) &&
+            mappedSdUSDToken != token;
         validToken = isExternalToken ? mappedSdUSDToken : token;
 
         try IERC4626(validToken).asset() returns (address asset) {
@@ -133,7 +135,7 @@ contract sdUSDBalanceChecker is IBalanceChecker, AccessControl {
         // Calculate balance for each address using ERC4626 conversion
         for (uint256 i = 0; i < addresses.length; i++) {
             uint256 balance;
-            
+
             if (isExternalToken) {
                 // For external tokens, get balance directly
                 balance = IERC20(originalToken).balanceOf(addresses[i]);
@@ -196,7 +198,9 @@ contract sdUSDBalanceChecker is IBalanceChecker, AccessControl {
      * @param sdUSDToken The sdUSD token address
      * @return The underlying asset address
      */
-    function getUnderlyingAsset(address sdUSDToken) external view returns (address) {
+    function getUnderlyingAsset(
+        address sdUSDToken
+    ) external view returns (address) {
         return IERC4626(sdUSDToken).asset();
     }
 

@@ -27,7 +27,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log("  - Address :", deployment.address);
   console.log("  - From    :", deployer);
   console.log("  - TxHash  :", deployment.transactionHash);
-  console.log("  - GasUsed :", deployment.receipt?.gasUsed?.toString() || "N/A");
+  console.log(
+    "  - GasUsed :",
+    deployment.receipt?.gasUsed?.toString() || "N/A",
+  );
   console.log("-----------------");
 
   console.log(`🥩 ${__filename.split("/").slice(-2).join("/")}: ✅`);

@@ -1,40 +1,20 @@
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { expect } from "chai";
-import { type BigNumberish, parseEther, parseUnits } from "ethers";
+import { parseEther, parseUnits } from "ethers";
 import { ethers } from "hardhat";
 
-import { TypedContractMethod } from "../../../typechain-types/common";
-// Contract types
-import type { SdUSDBalanceChecker } from "../../../typechain-types/contracts/vaults/dstake/SdUSDBalanceChecker";
 import type { TestnetERC20 } from "../../../typechain-types/contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20";
 import type { MockERC4626Token } from "../../../typechain-types/contracts/token/MockERC4626Token";
-// Contract factories
-import { SdUSDBalanceChecker__factory as SdUSDBalanceCheckerFactory } from "../../../typechain-types/factories/contracts/vaults/dstake/SdUSDBalanceChecker__factory";
+// Contract types
+import type { SdUSDBalanceChecker } from "../../../typechain-types/contracts/vaults/dstake/SdUSDBalanceChecker";
 import { TestnetERC20__factory as TestnetERC20Factory } from "../../../typechain-types/factories/contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20__factory";
 import { MockERC4626Token__factory as MockERC4626TokenFactory } from "../../../typechain-types/factories/contracts/token/MockERC4626Token__factory";
-
-// Add setters to mock contract types
-interface MockERC4626TokenWithSetters extends MockERC4626Token {
-  setTotalAssets: TypedContractMethod<
-    [totalAssets_: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-  setTotalSupply: TypedContractMethod<
-    [totalSupply_: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-  setBalance: TypedContractMethod<
-    [account: string, balance: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-}
+// Contract factories
+import { SdUSDBalanceChecker__factory as SdUSDBalanceCheckerFactory } from "../../../typechain-types/factories/contracts/vaults/dstake/SdUSDBalanceChecker__factory";
 
 describe("sdUSDBalanceChecker", () => {
   let balanceChecker: SdUSDBalanceChecker;
-  let mockSdUSDToken: MockERC4626TokenWithSetters;
+  let mockSdUSDToken: MockERC4626Token;
   let mockUnderlyingToken: TestnetERC20;
   let mockExternalToken: TestnetERC20;
   let _deployer: SignerWithAddress;
@@ -78,7 +58,7 @@ describe("sdUSDBalanceChecker", () => {
     )) as SdUSDBalanceCheckerFactory;
     balanceChecker = await SdUSDBalanceChecker.deploy(
       _deployer.address,
-      await mockSdUSDToken.getAddress()
+      await mockSdUSDToken.getAddress(),
     );
 
     // Map external token to sdUSD token
@@ -95,12 +75,16 @@ describe("sdUSDBalanceChecker", () => {
   describe("constructor", () => {
     it("should set admin role correctly", async () => {
       const DEFAULT_ADMIN_ROLE = await balanceChecker.DEFAULT_ADMIN_ROLE();
-      expect(await balanceChecker.hasRole(DEFAULT_ADMIN_ROLE, _deployer.address)).to.be.true;
+      expect(
+        await balanceChecker.hasRole(DEFAULT_ADMIN_ROLE, _deployer.address),
+      ).to.be.true;
     });
 
     it("should map SD_USD_TOKEN to itself", async () => {
       const sdUsdToken = await balanceChecker.SD_USD_TOKEN();
-      expect(await balanceChecker.externalSourceToSdUSDToken(sdUsdToken)).to.equal(sdUsdToken);
+      expect(
+        await balanceChecker.externalSourceToSdUSDToken(sdUsdToken),
+      ).to.equal(sdUsdToken);
       // Verify the SD_USD_TOKEN is the mock sdUSD token we passed in
       expect(sdUsdToken).to.equal(await mockSdUSDToken.getAddress());
     });
@@ -109,9 +93,12 @@ describe("sdUSDBalanceChecker", () => {
       const SdUSDBalanceChecker = (await ethers.getContractFactory(
         "contracts/vaults/dstake/sdUSDBalanceChecker.sol:sdUSDBalanceChecker",
       )) as SdUSDBalanceCheckerFactory;
-      
+
       await expect(
-        SdUSDBalanceChecker.deploy(ethers.ZeroAddress, await mockSdUSDToken.getAddress())
+        SdUSDBalanceChecker.deploy(
+          ethers.ZeroAddress,
+          await mockSdUSDToken.getAddress(),
+        ),
       ).to.be.revertedWith("INVALID_ADMIN_ADDRESS");
     });
 
@@ -119,18 +106,20 @@ describe("sdUSDBalanceChecker", () => {
       const SdUSDBalanceChecker = (await ethers.getContractFactory(
         "contracts/vaults/dstake/sdUSDBalanceChecker.sol:sdUSDBalanceChecker",
       )) as SdUSDBalanceCheckerFactory;
-      
+
       await expect(
-        SdUSDBalanceChecker.deploy(_deployer.address, ethers.ZeroAddress)
+        SdUSDBalanceChecker.deploy(_deployer.address, ethers.ZeroAddress),
       ).to.be.revertedWith("INVALID_SDUSD_TOKEN_ADDRESS");
     });
   });
 
   describe("mapExternalSource", () => {
     it("should allow admin to map external sources", async () => {
-      const newExternalToken = await (await ethers.getContractFactory(
-        "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
-      )).deploy("New External", "NEW", 18, _deployer.address);
+      const newExternalToken = await (
+        await ethers.getContractFactory(
+          "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
+        )
+      ).deploy("New External", "NEW", 18, _deployer.address);
 
       await balanceChecker.mapExternalSource(
         await newExternalToken.getAddress(),
@@ -138,16 +127,20 @@ describe("sdUSDBalanceChecker", () => {
       );
 
       expect(
-        await balanceChecker.externalSourceToSdUSDToken(await newExternalToken.getAddress())
+        await balanceChecker.externalSourceToSdUSDToken(
+          await newExternalToken.getAddress(),
+        ),
       ).to.equal(await mockSdUSDToken.getAddress());
     });
 
     it("should revert when non-admin tries to map", async () => {
       await expect(
-        balanceChecker.connect(users[0]).mapExternalSource(
-          await mockExternalToken.getAddress(),
-          await mockSdUSDToken.getAddress(),
-        )
+        balanceChecker
+          .connect(users[0])
+          .mapExternalSource(
+            await mockExternalToken.getAddress(),
+            await mockSdUSDToken.getAddress(),
+          ),
       ).to.be.reverted;
     });
 
@@ -156,7 +149,7 @@ describe("sdUSDBalanceChecker", () => {
         balanceChecker.mapExternalSource(
           await mockExternalToken.getAddress(),
           ethers.ZeroAddress,
-        )
+        ),
       ).to.be.revertedWith("INVALID_SDUSD_TOKEN_ADDRESS");
     });
   });
@@ -283,7 +276,9 @@ describe("sdUSDBalanceChecker", () => {
           6,
           _deployer.address,
         );
-        await (mockExternalToken6Dec.connect(_deployer) as any).setProtected(false);
+        await (mockExternalToken6Dec.connect(_deployer) as any).setProtected(
+          false,
+        );
 
         // Map the new token to sdUSD token
         await balanceChecker.mapExternalSource(
@@ -340,14 +335,18 @@ describe("sdUSDBalanceChecker", () => {
     describe("when handling different decimal configurations", () => {
       it("should handle sdUSD token with 18 decimals", async () => {
         // Deploy underlying token with 18 decimals
-        const mockUnderlying18Dec = await (await ethers.getContractFactory(
-          "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
-        )).deploy("Mock 18Dec", "M18", 18, _deployer.address);
-        
+        const mockUnderlying18Dec = await (
+          await ethers.getContractFactory(
+            "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
+          )
+        ).deploy("Mock 18Dec", "M18", 18, _deployer.address);
+
         // Deploy ERC4626 with 18 decimal underlying
-        const mockSdUSD18Dec = await (await ethers.getContractFactory(
-          "contracts/token/MockERC4626Token.sol:MockERC4626Token",
-        )).deploy(
+        const mockSdUSD18Dec = await (
+          await ethers.getContractFactory(
+            "contracts/token/MockERC4626Token.sol:MockERC4626Token",
+          )
+        ).deploy(
           await mockUnderlying18Dec.getAddress(),
           "Mock sdUSD 18Dec",
           "sdUSD18",
@@ -372,11 +371,13 @@ describe("sdUSDBalanceChecker", () => {
 
       it("should handle mixed decimal tokens in batch", async () => {
         // Create 18 decimal external token
-        const external18Dec = await (await ethers.getContractFactory(
-          "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
-        )).deploy("Ext18", "E18", 18, _deployer.address);
+        const external18Dec = await (
+          await ethers.getContractFactory(
+            "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
+          )
+        ).deploy("Ext18", "E18", 18, _deployer.address);
         await (external18Dec.connect(_deployer) as any).setProtected(false);
-        
+
         // Map to sdUSD token (6 decimals)
         await balanceChecker.mapExternalSource(
           await external18Dec.getAddress(),
@@ -384,8 +385,11 @@ describe("sdUSDBalanceChecker", () => {
         );
 
         // Setup balances
-        await external18Dec["mint(address,uint256)"](users[0].address, parseEther("100"));
-        
+        await external18Dec["mint(address,uint256)"](
+          users[0].address,
+          parseEther("100"),
+        );
+
         // Setup sdUSD token (6 decimals)
         await mockSdUSDToken.setBalance(users[0].address, parseUnits("50", 6));
         await mockSdUSDToken.setTotalSupply(parseUnits("1000", 6));
@@ -400,23 +404,22 @@ describe("sdUSDBalanceChecker", () => {
         expect(balances[0]).to.equal(parseEther("150"));
       });
     });
-
   });
 
   describe("batchTokenBalances", () => {
     it("should handle multiple sdUSD sources", async () => {
       // Deploy second sdUSD token
-      const mockUnderlying2 = await (await ethers.getContractFactory(
-        "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
-      )).deploy("Mock dUSD 2", "dUSD2", 6, _deployer.address);
+      const mockUnderlying2 = await (
+        await ethers.getContractFactory(
+          "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
+        )
+      ).deploy("Mock dUSD 2", "dUSD2", 6, _deployer.address);
 
-      const mockSdUSD2 = await (await ethers.getContractFactory(
-        "contracts/token/MockERC4626Token.sol:MockERC4626Token",
-      )).deploy(
-        await mockUnderlying2.getAddress(),
-        "Mock sdUSD 2",
-        "sdUSD2",
-      );
+      const mockSdUSD2 = await (
+        await ethers.getContractFactory(
+          "contracts/token/MockERC4626Token.sol:MockERC4626Token",
+        )
+      ).deploy(await mockUnderlying2.getAddress(), "Mock sdUSD 2", "sdUSD2");
 
       // Setup first sdUSD token: 100 shares -> 150 assets (1.5:1 ratio)
       await mockSdUSDToken.setBalance(users[0].address, parseUnits("100", 6));
@@ -443,7 +446,11 @@ describe("sdUSDBalanceChecker", () => {
       await mockSdUSDToken.setTotalAssets(parseUnits("1000", 6));
 
       const balances = await balanceChecker.batchTokenBalances(
-        [ethers.ZeroAddress, await mockSdUSDToken.getAddress(), ethers.ZeroAddress],
+        [
+          ethers.ZeroAddress,
+          await mockSdUSDToken.getAddress(),
+          ethers.ZeroAddress,
+        ],
         [users[0].address],
       );
 
@@ -453,9 +460,11 @@ describe("sdUSDBalanceChecker", () => {
 
     it("should skip invalid sources silently", async () => {
       // Deploy a non-ERC4626 token
-      const invalidToken = await (await ethers.getContractFactory(
-        "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
-      )).deploy("Invalid", "INV", 18, _deployer.address);
+      const invalidToken = await (
+        await ethers.getContractFactory(
+          "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
+        )
+      ).deploy("Invalid", "INV", 18, _deployer.address);
 
       await mockSdUSDToken.setBalance(users[0].address, parseUnits("100", 6));
       await mockSdUSDToken.setTotalSupply(parseUnits("1000", 6));
@@ -475,16 +484,17 @@ describe("sdUSDBalanceChecker", () => {
         balanceChecker.batchTokenBalances([], [users[0].address]),
       ).to.be.revertedWith("NO_SOURCES_PROVIDED");
     });
-
   });
 
   describe("utility functions", () => {
     describe("getUnderlyingAsset", () => {
       it("should return the underlying asset address", async () => {
         const underlyingAsset = await balanceChecker.getUnderlyingAsset(
-          await mockSdUSDToken.getAddress()
+          await mockSdUSDToken.getAddress(),
         );
-        expect(underlyingAsset).to.equal(await mockUnderlyingToken.getAddress());
+        expect(underlyingAsset).to.equal(
+          await mockUnderlyingToken.getAddress(),
+        );
       });
     });
 
@@ -495,7 +505,7 @@ describe("sdUSDBalanceChecker", () => {
 
         const assets = await balanceChecker.convertSharesToAssets(
           await mockSdUSDToken.getAddress(),
-          parseUnits("100", 6) // 100 shares
+          parseUnits("100", 6), // 100 shares
         );
 
         expect(assets).to.equal(parseUnits("150", 6)); // 150 assets
@@ -509,7 +519,7 @@ describe("sdUSDBalanceChecker", () => {
 
         const shares = await balanceChecker.convertAssetsToShares(
           await mockSdUSDToken.getAddress(),
-          parseUnits("150", 6) // 150 assets
+          parseUnits("150", 6), // 150 assets
         );
 
         expect(shares).to.equal(parseUnits("100", 6)); // 100 shares
