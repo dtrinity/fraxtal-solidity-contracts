@@ -1,5 +1,5 @@
-import { promises as fs } from "fs";
-import path from "path";
+const { promises: fs } = require("fs");
+const path = require("path");
 
 /**
  * Recursively adds @ts-nocheck to all TypeScript files in a directory
@@ -27,4 +27,7 @@ async function addNoCheck(dir) {
   );
 }
 
-await addNoCheck(path.resolve("typechain-types"));
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- Main execution function
+(async () => {
+  await addNoCheck(path.resolve("typechain-types"));
+})();
