@@ -8,18 +8,24 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { dusdDeployer: deployer } = await getNamedAccounts();
 
-  console.log(`Deploying ${ERC4626_BALANCE_CHECKER_ID} with admin: ${deployer}`);
+  console.log(
+    `Deploying ${ERC4626_BALANCE_CHECKER_ID} with admin: ${deployer}`,
+  );
 
   // For this generic deployment, we'll use a placeholder vault token address
   // In production, this should be replaced with the actual ERC4626 vault address
-  const PLACEHOLDER_VAULT_ADDRESS = "0x0000000000000000000000000000000000000001";
-  
+  const PLACEHOLDER_VAULT_ADDRESS =
+    "0x0000000000000000000000000000000000000001";
+
   console.log(`Using placeholder vault address: ${PLACEHOLDER_VAULT_ADDRESS}`);
-  console.log("⚠️  IMPORTANT: Update the vault address for production deployment!");
+  console.log(
+    "⚠️  IMPORTANT: Update the vault address for production deployment!",
+  );
 
   const deployment = await deploy(ERC4626_BALANCE_CHECKER_ID, {
     from: deployer,
-    contract: "contracts/fxtl_balance_checkers/implementations/ERC4626BalanceChecker.sol:ERC4626BalanceChecker",
+    contract:
+      "contracts/fxtl_balance_checkers/implementations/ERC4626BalanceChecker.sol:ERC4626BalanceChecker",
     args: [deployer, PLACEHOLDER_VAULT_ADDRESS], // initialAdmin and vaultToken parameters
     log: false, // We handle our own logging
   });

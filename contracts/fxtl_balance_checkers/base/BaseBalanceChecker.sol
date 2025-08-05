@@ -111,7 +111,9 @@ abstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {
      * @notice Validates that the addresses array is not too large
      * @param addresses The addresses array to validate
      */
-    function _validateAddressesLength(address[] memory addresses) internal pure {
+    function _validateAddressesLength(
+        address[] memory addresses
+    ) internal pure {
         require(addresses.length <= MAX_ADDRESSES, "TOO_MANY_ADDRESSES");
     }
 
@@ -201,7 +203,9 @@ abstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {
      * @param externalToken The external token address
      * @return The mapped internal token address (address(0) if not mapped)
      */
-    function getMappedToken(address externalToken) external view returns (address) {
+    function getMappedToken(
+        address externalToken
+    ) external view returns (address) {
         return externalSourceToInternalToken[externalToken];
     }
 

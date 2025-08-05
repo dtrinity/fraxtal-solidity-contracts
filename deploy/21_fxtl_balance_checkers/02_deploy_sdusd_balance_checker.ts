@@ -12,12 +12,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const sdUSDTokenDeployment = await deployments.get("DStakeToken_sdUSD");
   const SD_USD_TOKEN_ADDRESS = sdUSDTokenDeployment.address;
 
-  console.log(`Deploying ${NEW_SDUSD_BALANCE_CHECKER_ID} with admin: ${deployer}`);
+  console.log(
+    `Deploying ${NEW_SDUSD_BALANCE_CHECKER_ID} with admin: ${deployer}`,
+  );
   console.log(`Using sdUSD token address: ${SD_USD_TOKEN_ADDRESS}`);
 
   const deployment = await deploy(NEW_SDUSD_BALANCE_CHECKER_ID, {
     from: deployer,
-    contract: "contracts/fxtl_balance_checkers/implementations/ERC4626BalanceChecker.sol:ERC4626BalanceChecker",
+    contract:
+      "contracts/fxtl_balance_checkers/implementations/ERC4626BalanceChecker.sol:ERC4626BalanceChecker",
     args: [deployer, SD_USD_TOKEN_ADDRESS], // initialAdmin and vaultToken parameters
     log: false, // We handle our own logging
   });

@@ -55,6 +55,14 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
     }
 
     /**
+     * @notice Get the vault token address
+     * @return The vault token address
+     */
+    function vaultToken() external view returns (address) {
+        return VAULT_TOKEN;
+    }
+
+    /**
      * @dev Internal helper function to validate token and get necessary details
      * @param token The token address to validate
      * @return validToken The validated token address (vault token)
@@ -75,7 +83,9 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
     {
         originalToken = token;
         address mappedVaultToken = externalSourceToInternalToken[token];
-        isExternalToken = mappedVaultToken != address(0) && mappedVaultToken != token;
+        isExternalToken =
+            mappedVaultToken != address(0) &&
+            mappedVaultToken != token;
         validToken = isExternalToken ? mappedVaultToken : token;
 
         // Validate that the token is a valid ERC4626 vault
@@ -137,7 +147,9 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
      * @param vaultToken The vault token address
      * @return The underlying asset address
      */
-    function getUnderlyingAsset(address vaultToken) external view returns (address) {
+    function getUnderlyingAsset(
+        address vaultToken
+    ) external view returns (address) {
         return IERC4626(vaultToken).asset();
     }
 
@@ -172,7 +184,9 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
      * @param vaultToken The vault token address
      * @return The total amount of underlying assets managed by the vault
      */
-    function getTotalAssets(address vaultToken) external view returns (uint256) {
+    function getTotalAssets(
+        address vaultToken
+    ) external view returns (uint256) {
         return IERC4626(vaultToken).totalAssets();
     }
 
@@ -181,7 +195,9 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
      * @param vaultToken The vault token address
      * @return The total supply of vault shares
      */
-    function getTotalSupply(address vaultToken) external view returns (uint256) {
+    function getTotalSupply(
+        address vaultToken
+    ) external view returns (uint256) {
         return IERC20(vaultToken).totalSupply();
     }
 }

@@ -18,11 +18,8 @@
 pragma solidity ^0.8.20;
 
 import "../base/BaseBalanceChecker.sol";
-import "../../lending/core/interfaces/IAToken.sol";
-import "../../lending/core/interfaces/IVariableDebtToken.sol";
 import "../../lending/core/interfaces/IPool.sol";
 import "../../lending/core/protocol/libraries/types/DataTypes.sol";
-import {IERC20Detailed} from "../../lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 
 /// @notice Error thrown when a debt token is invalid or not found
 error InvalidDebtToken(address token);
@@ -76,9 +73,11 @@ contract DLendBalanceChecker is BaseBalanceChecker {
         isExternalToken = mappedDToken != address(0);
         validToken = isExternalToken ? mappedDToken : token;
 
-        // Validate that the token is a valid dToken
-        try IAToken(validToken).UNDERLYING_ASSET_ADDRESS() returns (address) {
-            // Token is valid dToken
+        // Simple validation - check if it's a contract with reserves in the pool
+        try POOL.getReserveData(validToken) returns (
+            DataTypes.ReserveData memory
+        ) {
+            // Valid token if it has reserve data
         } catch {
             if (isExternalToken) {
                 revert InvalidDToken(mappedDToken);
@@ -105,16 +104,20 @@ contract DLendBalanceChecker is BaseBalanceChecker {
             bool isExternalToken
         ) = _validateTokenAndGetDetails(token);
 
-        // Get underlying asset and debt token
-        address underlyingAsset = IAToken(validToken).UNDERLYING_ASSET_ADDRESS();
-        address debtToken = POOL.getReserveData(underlyingAsset).variableDebtTokenAddress;
-        
-        if (debtToken == address(0)) {
+        // For dLEND tokens, we need to find the underlying asset by checking pool reserve data
+        // Since we validated that validToken has reserve data, we can use it directly
+        DataTypes.ReserveData memory reserveData = POOL.getReserveData(
+            validToken
+        );
+        address aToken = reserveData.aTokenAddress;
+        address debtToken = reserveData.variableDebtTokenAddress;
+
+        if (aToken == address(0) || debtToken == address(0)) {
             revert InvalidDebtToken(validToken);
         }
 
-        // Get total supply and debt using unscaled values for ratio calculation
-        uint256 totalSupply = IAToken(validToken).totalSupply();
+        // Get total supply and debt using IERC20 interface
+        uint256 totalSupply = IERC20(aToken).totalSupply();
         if (totalSupply == 0) return 0;
 
         uint256 totalDebt = IERC20(debtToken).totalSupply();
@@ -128,15 +131,15 @@ contract DLendBalanceChecker is BaseBalanceChecker {
         // Get balance based on token type
         uint256 balance = isExternalToken
             ? IERC20(originalToken).balanceOf(user)
-            : IAToken(validToken).balanceOf(user);
+            : IERC20(aToken).balanceOf(user);
 
         // Apply utilization ratio
         uint256 effectiveBalance = (balance * ratio) / 1e18;
 
         // Get decimals for normalization
         uint256 decimals = isExternalToken
-            ? IERC20Detailed(originalToken).decimals()
-            : IERC20Detailed(validToken).decimals(); // All aTokens are also detailed
+            ? IERC20Metadata(originalToken).decimals()
+            : IERC20Metadata(aToken).decimals();
 
         // Normalize to 18 decimals
         return _normalizeToDecimals18(effectiveBalance, decimals);
@@ -144,41 +147,49 @@ contract DLendBalanceChecker is BaseBalanceChecker {
 
     /**
      * @notice Get the underlying asset address for a given dToken
-     * @param dToken The dToken address
-     * @return The underlying asset address
+     * @param underlyingAsset The underlying asset address
+     * @return The underlying asset address (same as input for dLEND)
      */
-    function getUnderlyingAsset(address dToken) external view returns (address) {
-        return IAToken(dToken).UNDERLYING_ASSET_ADDRESS();
+    function getUnderlyingAsset(
+        address underlyingAsset
+    ) external view returns (address) {
+        return underlyingAsset;
     }
 
     /**
-     * @notice Get the debt token address for a given dToken
-     * @param dToken The dToken address
+     * @notice Get the debt token address for a given underlying asset
+     * @param underlyingAsset The underlying asset address
      * @return The debt token address
      */
-    function getDebtToken(address dToken) external view returns (address) {
-        address underlyingAsset = IAToken(dToken).UNDERLYING_ASSET_ADDRESS();
+    function getDebtToken(
+        address underlyingAsset
+    ) external view returns (address) {
         return POOL.getReserveData(underlyingAsset).variableDebtTokenAddress;
     }
 
     /**
-     * @notice Get the utilization ratio for a given dToken
-     * @param dToken The dToken address
+     * @notice Get the utilization ratio for a given underlying asset
+     * @param underlyingAsset The underlying asset address
      * @return The utilization ratio (1e18 = 100%)
      */
-    function getUtilizationRatio(address dToken) external view returns (uint256) {
-        address underlyingAsset = IAToken(dToken).UNDERLYING_ASSET_ADDRESS();
-        address debtToken = POOL.getReserveData(underlyingAsset).variableDebtTokenAddress;
-        
-        if (debtToken == address(0)) {
-            revert InvalidDebtToken(dToken);
+    function getUtilizationRatio(
+        address underlyingAsset
+    ) external view returns (uint256) {
+        DataTypes.ReserveData memory reserveData = POOL.getReserveData(
+            underlyingAsset
+        );
+        address aToken = reserveData.aTokenAddress;
+        address debtToken = reserveData.variableDebtTokenAddress;
+
+        if (aToken == address(0) || debtToken == address(0)) {
+            revert InvalidDebtToken(underlyingAsset);
         }
 
-        uint256 totalSupply = IAToken(dToken).totalSupply();
+        uint256 totalSupply = IERC20(aToken).totalSupply();
         if (totalSupply == 0) return 0;
 
         uint256 totalDebt = IERC20(debtToken).totalSupply();
-        
+
         // In case we are fully maxed out or have accrued bad debt
         if (totalDebt >= totalSupply) return 1e18; // 100% utilization
 
@@ -186,12 +197,22 @@ contract DLendBalanceChecker is BaseBalanceChecker {
     }
 
     /**
-     * @notice Get the available ratio (portion not borrowed) for a given dToken
-     * @param dToken The dToken address
+     * @notice Get the available ratio (portion not borrowed) for a given underlying asset
+     * @param underlyingAsset The underlying asset address
      * @return The available ratio (1e18 = 100%)
      */
-    function getAvailableRatio(address dToken) external view returns (uint256) {
-        uint256 utilizationRatio = this.getUtilizationRatio(dToken);
+    function getAvailableRatio(
+        address underlyingAsset
+    ) external view returns (uint256) {
+        uint256 utilizationRatio = this.getUtilizationRatio(underlyingAsset);
         return 1e18 - utilizationRatio;
+    }
+
+    /**
+     * @notice Get the pool address
+     * @return The pool address
+     */
+    function pool() external view returns (address) {
+        return address(POOL);
     }
 }

@@ -6,9 +6,7 @@ import {
   LENDING_CORE_VERSION,
   MARKET_NAME,
 } from "../../utils/lending/constants";
-import {
-  POOL_ADDRESSES_PROVIDER_ID,
-} from "../../utils/lending/deploy-ids";
+import { POOL_ADDRESSES_PROVIDER_ID } from "../../utils/lending/deploy-ids";
 
 const NEW_DLEND_BALANCE_CHECKER_ID = "DLendBalanceChecker_New";
 
@@ -37,7 +35,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     [poolAddress],
     undefined,
     await hre.ethers.getSigner(lendingDeployer),
-    "contracts/fxtl_balance_checkers/implementations/DLendBalanceChecker.sol:DLendBalanceChecker"
+    undefined,
+    "contracts/fxtl_balance_checkers/implementations/DLendBalanceChecker.sol:DLendBalanceChecker",
   );
 
   console.log(`🥩 ${__filename.split("/").slice(-2).join("/")}: ✅`);
