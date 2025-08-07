@@ -20,7 +20,7 @@ This architecture provides a standardized way to check balances for various toke
   - Decimal normalization utilities (to 18 decimals)
   - Batch processing logic
   - Common error definitions
-  - Address validation and limits (max 1000 addresses per batch)
+  - Address validation helper (NO hard limit on number of addresses; unlimited by protocol design)
 
 ### 3. Implementation Layer
 - **`implementations/ERC4626BalanceChecker.sol`**: Generic ERC4626 vault balance checker
@@ -40,7 +40,7 @@ This architecture provides a standardized way to check balances for various toke
 
 ### 🛡️ **Security & Access Control**
 - Role-based access control for external token mappings
-- Address validation and reasonable limits
+- Address validation (no hard-coded limits)
 - Proper error handling with custom error types
 
 ### ⚡ **Gas Optimization**

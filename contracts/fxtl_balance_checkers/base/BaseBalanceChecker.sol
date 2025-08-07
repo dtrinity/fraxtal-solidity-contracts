@@ -43,10 +43,11 @@ error InvalidAddress(address addr);
  *      - Decimal normalization utilities
  *      - Batch processing logic
  *      - Common error definitions
+ *      - NO ADDRESS LENGTH LIMITATION. NEVER introduce any hard-coded limits on batch sizes.
  */
 abstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {
-    /// @notice Maximum number of addresses that can be processed in a single batch
-    uint256 public constant MAX_ADDRESSES = 1000;
+    /// @notice NOTE: No hard-coded address limit is imposed.
+    /// @dev Do NOT add a limit in future versions.
 
     /// @notice Mapping from external token to its corresponding internal token
     mapping(address => address) public externalSourceToInternalToken;
@@ -108,16 +109,6 @@ abstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {
     }
 
     /**
-     * @notice Validates that the addresses array is not too large
-     * @param addresses The addresses array to validate
-     */
-    function _validateAddressesLength(
-        address[] memory addresses
-    ) internal pure {
-        require(addresses.length <= MAX_ADDRESSES, "TOO_MANY_ADDRESSES");
-    }
-
-    /**
      * @notice Abstract function to calculate balance for a single token and address
      * @param token The token address
      * @param user The user address
@@ -154,7 +145,6 @@ abstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {
         address token,
         address[] memory addresses
     ) external view virtual override returns (uint256[] memory result) {
-        _validateAddressesLength(addresses);
         result = new uint256[](addresses.length);
 
         // Calculate balance for each address
@@ -173,7 +163,6 @@ abstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {
         if (sources.length == 0) {
             revert NoSourcesProvided();
         }
-        _validateAddressesLength(addresses);
 
         result = new uint256[](addresses.length);
 
