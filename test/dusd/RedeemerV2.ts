@@ -1,4 +1,4 @@
-import { assert, expect } from "chai";
+import { expect } from "chai";
 import hre, { getNamedAccounts } from "hardhat";
 import { Address } from "hardhat-deploy/types";
 
@@ -6,10 +6,9 @@ import {
   AmoManager,
   CollateralHolderVault,
   Issuer,
-  RedeemerV2,
   MintableERC20,
+  RedeemerV2,
 } from "../../typechain-types";
-import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
 import { TokenInfo } from "../../utils/token";
 import { getTokenContractForSymbol } from "../ecosystem/utils.token";
 import { standaloneMinimalFixture } from "./fixtures";
@@ -18,7 +17,7 @@ describe("RedeemerV2", () => {
   let redeemerV2Contract: RedeemerV2;
   let issuerContract: Issuer;
   let collateralVaultContract: CollateralHolderVault;
-  let amoManagerContract: AmoManager;
+  let _amoManagerContract: AmoManager;
   let fraxContract: MintableERC20;
   let fraxInfo: TokenInfo;
   let dusdContract: MintableERC20;
@@ -78,7 +77,7 @@ describe("RedeemerV2", () => {
       await hre.ethers.getSigner(dusdDeployer),
     );
 
-    amoManagerContract = await hre.ethers.getContractAt(
+    _amoManagerContract = await hre.ethers.getContractAt(
       "AmoManager",
       await issuerContract.amoManager(),
       await hre.ethers.getSigner(dusdDeployer),

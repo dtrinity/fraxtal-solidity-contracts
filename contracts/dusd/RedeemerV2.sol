@@ -248,9 +248,7 @@ contract RedeemerV2 is AccessControl, OracleAware, Pausable, ReentrancyGuard {
         uint256 collateralAmount
     ) internal {
         // Transfer dUSD from redeemer to this contract
-        if (
-            !dusd.transferFrom(redeemerAddress, address(this), dusdAmount)
-        ) {
+        if (!dusd.transferFrom(redeemerAddress, address(this), dusdAmount)) {
             revert DUsdTransferFailed();
         }
         // Burn the dUSD
@@ -266,8 +264,7 @@ contract RedeemerV2 is AccessControl, OracleAware, Pausable, ReentrancyGuard {
     function dusdAmountToBaseValue(
         uint256 dusdAmount
     ) public view returns (uint256) {
-        return
-            Math.mulDiv(dusdAmount, baseCurrencyUnit, 10 ** dusdDecimals);
+        return Math.mulDiv(dusdAmount, baseCurrencyUnit, 10 ** dusdDecimals);
     }
 
     /* Views */

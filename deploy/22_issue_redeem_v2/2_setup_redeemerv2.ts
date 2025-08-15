@@ -2,12 +2,12 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../config/config";
-import { ensureDefaultAdminExistsAndRevokeFrom } from "../../utils/hardhat/access_control";
 import {
   COLLATERAL_VAULT_CONTRACT_ID,
   REDEEMER_CONTRACT_ID,
   REDEEMER_V2_CONTRACT_ID,
 } from "../../utils/deploy-ids";
+import { ensureDefaultAdminExistsAndRevokeFrom } from "../../utils/hardhat/access_control";
 import { ORACLE_AGGREGATOR_ID } from "../../utils/oracle/deploy-ids";
 
 const ZERO_BYTES_32 =
@@ -20,6 +20,7 @@ const ZERO_BYTES_32 =
  * @param redeemerAddress Address of the RedeemerV2 contract
  * @param deployerAddress Address of the deployer
  * @param governanceMultisig Address of the governance multisig
+ * @param manualActions Array to store manual actions if automated operations fail
  */
 async function migrateRedeemerRolesIdempotent(
   hre: HardhatRuntimeEnvironment,
@@ -108,10 +109,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   const tokenAddress = config.dusd.address;
-  const initialFeeReceiver = config.dusd?.initialFeeReceiver || dusdDeployer;
+  const initialFeeReceiver =
+    config.dStables?.dUSD?.initialFeeReceiver || dusdDeployer;
   const initialRedemptionFeeBps =
-    config.dusd?.initialRedemptionFeeBps !== undefined
-      ? config.dusd.initialRedemptionFeeBps
+    config.dStables?.dUSD?.initialRedemptionFeeBps !== undefined
+      ? config.dStables.dUSD.initialRedemptionFeeBps
       : 0;
 
   const result = await deployments.deploy(REDEEMER_V2_CONTRACT_ID, {
@@ -219,7 +221,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   return true;
 };
 
-func.id = "2_setup_redeemerv2";
+func.id = "22_2_setup_redeemerv2";
 func.tags = ["setup-issuerv2", "setup-redeemerv2"];
 func.dependencies = [
   COLLATERAL_VAULT_CONTRACT_ID,

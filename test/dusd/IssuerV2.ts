@@ -8,7 +8,6 @@ import {
   IssuerV2,
   MintableERC20,
 } from "../../typechain-types";
-import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
 import { TokenInfo } from "../../utils/token";
 import { getTokenContractForSymbol } from "../ecosystem/utils.token";
 import { standaloneMinimalFixture } from "./fixtures";

@@ -3,14 +3,13 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../config/config";
-import { ensureDefaultAdminExistsAndRevokeFrom } from "../../utils/hardhat/access_control";
 import {
   AMO_MANAGER_ID,
   COLLATERAL_VAULT_CONTRACT_ID,
   ISSUER_CONTRACT_ID,
   ISSUER_V2_CONTRACT_ID,
-  REDEEMER_CONTRACT_ID,
 } from "../../utils/deploy-ids";
+import { ensureDefaultAdminExistsAndRevokeFrom } from "../../utils/hardhat/access_control";
 import { ORACLE_AGGREGATOR_ID } from "../../utils/oracle/deploy-ids";
 
 const ZERO_BYTES_32 =
@@ -23,6 +22,7 @@ const ZERO_BYTES_32 =
  * @param hre Hardhat runtime environment
  * @param stableAddress Address of the ERC20Stablecoin token
  * @param grantee Address that should be granted MINTER_ROLE
+ * @param manualActions Array to store manual actions if automated operations fail
  */
 async function ensureMinterRole(
   hre: HardhatRuntimeEnvironment,
@@ -62,6 +62,7 @@ async function ensureMinterRole(
  * @param issuerAddress Address of the IssuerV2 contract
  * @param deployerSigner Deployer signer currently holding roles
  * @param governanceMultisig Governance multisig address to receive roles
+ * @param manualActions Array to store manual actions if automated operations fail
  */
 async function migrateIssuerRolesIdempotent(
   hre: HardhatRuntimeEnvironment,
@@ -325,7 +326,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   return true;
 };
 
-func.id = "1_setup_issuerv2";
+func.id = "22_1_setup_issuerv2";
 func.tags = ["setup-issuerv2"];
 func.dependencies = [
   COLLATERAL_VAULT_CONTRACT_ID,
