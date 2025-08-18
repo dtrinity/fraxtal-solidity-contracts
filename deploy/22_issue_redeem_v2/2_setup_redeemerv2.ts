@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../config/config";
+import { dUSD_REDEEMER_WITH_FEES_CONTRACT_ID } from "../../typescript/deploy-ids";
 import {
   COLLATERAL_VAULT_CONTRACT_ID,
   REDEEMER_CONTRACT_ID,
@@ -162,31 +163,37 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         );
       }
     }
-    const oldRedeemerDeployment =
-      await deployments.getOrNull(REDEEMER_CONTRACT_ID);
+    // Revoke role from any legacy redeemer deployments (Redeemer and RedeemerWithFees)
+    const legacyRedeemerIds = [
+      REDEEMER_CONTRACT_ID,
+      dUSD_REDEEMER_WITH_FEES_CONTRACT_ID,
+    ];
 
-    if (
-      oldRedeemerDeployment &&
-      (await vaultContract.hasRole(
-        WITHDRAWER_ROLE,
-        oldRedeemerDeployment.address,
-      ))
-    ) {
-      try {
-        await vaultContract.revokeRole(
-          WITHDRAWER_ROLE,
-          oldRedeemerDeployment.address,
-        );
-        console.log(
-          `    ➖ Revoked COLLATERAL_WITHDRAWER_ROLE from old redeemer ${oldRedeemerDeployment.address}`,
-        );
-      } catch (e) {
-        console.log(
-          `    ⚠️ Could not revoke COLLATERAL_WITHDRAWER_ROLE from old redeemer: ${(e as Error).message}`,
-        );
-        manualActions.push(
-          `CollateralHolderVault (${vault}).revokeRole(COLLATERAL_WITHDRAWER_ROLE, ${oldRedeemerDeployment.address})`,
-        );
+    for (const legacyId of legacyRedeemerIds) {
+      const legacyDeployment = await deployments.getOrNull(legacyId);
+
+      if (
+        legacyDeployment &&
+        legacyDeployment.address.toLowerCase() !==
+          result.address.toLowerCase() &&
+        (await vaultContract.hasRole(WITHDRAWER_ROLE, legacyDeployment.address))
+      ) {
+        try {
+          await vaultContract.revokeRole(
+            WITHDRAWER_ROLE,
+            legacyDeployment.address,
+          );
+          console.log(
+            `    ➖ Revoked COLLATERAL_WITHDRAWER_ROLE from legacy ${legacyId} at ${legacyDeployment.address}`,
+          );
+        } catch (e) {
+          console.log(
+            `    ⚠️ Could not revoke COLLATERAL_WITHDRAWER_ROLE from legacy ${legacyId}: ${(e as Error).message}`,
+          );
+          manualActions.push(
+            `CollateralHolderVault (${vault}).revokeRole(COLLATERAL_WITHDRAWER_ROLE, ${legacyDeployment.address})`,
+          );
+        }
       }
     }
   } catch (e) {
