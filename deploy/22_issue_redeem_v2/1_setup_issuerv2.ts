@@ -10,6 +10,8 @@ import {
   ISSUER_V2_CONTRACT_ID,
 } from "../../utils/deploy-ids";
 import { ensureDefaultAdminExistsAndRevokeFrom } from "../../utils/hardhat/access_control";
+import { GovernanceExecutor } from "../../typescript/hardhat/governance";
+import { SafeTransactionData } from "../../typescript/safe/types";
 import { ORACLE_AGGREGATOR_ID } from "../../utils/oracle/deploy-ids";
 
 const ZERO_BYTES_32 =
@@ -24,12 +26,38 @@ const ZERO_BYTES_32 =
  * @param grantee Address that should be granted MINTER_ROLE
  * @param manualActions Array to store manual actions if automated operations fail
  */
+function createGrantRoleTransaction(
+  contractAddress: string,
+  role: string,
+  grantee: string,
+  contractInterface: any,
+): SafeTransactionData {
+  return {
+    to: contractAddress,
+    value: "0",
+    data: contractInterface.encodeFunctionData("grantRole", [role, grantee]),
+  };
+}
+
+function createRevokeRoleTransaction(
+  contractAddress: string,
+  role: string,
+  account: string,
+  contractInterface: any,
+): SafeTransactionData {
+  return {
+    to: contractAddress,
+    value: "0",
+    data: contractInterface.encodeFunctionData("revokeRole", [role, account]),
+  };
+}
+
 async function ensureMinterRole(
   hre: HardhatRuntimeEnvironment,
   stableAddress: string,
   grantee: string,
-  manualActions?: string[],
-): Promise<void> {
+  executor: GovernanceExecutor,
+): Promise<boolean> {
   const stable = await hre.ethers.getContractAt(
     "TokenSupplyManager",
     stableAddress,
@@ -37,20 +65,19 @@ async function ensureMinterRole(
   const MINTER_ROLE = await stable.MINTER_ROLE();
 
   if (!(await stable.hasRole(MINTER_ROLE, grantee))) {
-    try {
-      await stable.grantRole(MINTER_ROLE, grantee);
-      console.log(`    ➕ Granted MINTER_ROLE to ${grantee}`);
-    } catch (e) {
-      console.log(
-        `    ⚠️ Could not grant MINTER_ROLE to ${grantee}: ${(e as Error).message}`,
-      );
-      manualActions?.push(
-        `TokenSupplyManager (${stableAddress}).grantRole(MINTER_ROLE, ${grantee})`,
-      );
-    }
+    const complete = await executor.tryOrQueue(
+      async () => {
+        await stable.grantRole(MINTER_ROLE, grantee);
+        console.log(`    ➕ Granted MINTER_ROLE to ${grantee}`);
+      },
+      () => createGrantRoleTransaction(stableAddress, MINTER_ROLE, grantee, stable.interface),
+    );
+    return complete;
   } else {
     console.log(`    ✓ MINTER_ROLE already granted to ${grantee}`);
+    return true;
   }
+  return true;
 }
 
 /**
@@ -70,8 +97,8 @@ async function migrateIssuerRolesIdempotent(
   issuerAddress: string,
   deployerSigner: Signer,
   governanceMultisig: string,
-  manualActions?: string[],
-): Promise<void> {
+  executor: GovernanceExecutor,
+): Promise<boolean> {
   const issuer = await hre.ethers.getContractAt(
     "IssuerV2",
     issuerAddress,
@@ -92,19 +119,23 @@ async function migrateIssuerRolesIdempotent(
 
   console.log(`  📄 Migrating roles for ${issuerName} at ${issuerAddress}`);
 
+  let allComplete = true;
   for (const role of roles) {
     if (!(await issuer.hasRole(role.hash, governanceMultisig))) {
-      try {
-        await issuer.grantRole(role.hash, governanceMultisig);
-        console.log(`    ➕ Granted ${role.name} to ${governanceMultisig}`);
-      } catch (e) {
-        console.log(
-          `    ⚠️ Could not grant ${role.name} to ${governanceMultisig}: ${(e as Error).message}`,
-        );
-        manualActions?.push(
-          `${issuerName} (${issuerAddress}).grantRole(${role.name}, ${governanceMultisig})`,
-        );
-      }
+      const complete = await executor.tryOrQueue(
+        async () => {
+          await issuer.grantRole(role.hash, governanceMultisig);
+          console.log(`    ➕ Granted ${role.name} to ${governanceMultisig}`);
+        },
+        () =>
+          createGrantRoleTransaction(
+            issuerAddress,
+            role.hash,
+            governanceMultisig,
+            issuer.interface,
+          ),
+      );
+      if (!complete) allComplete = false;
     } else {
       console.log(
         `    ✓ ${role.name} already granted to ${governanceMultisig}`,
@@ -118,35 +149,37 @@ async function migrateIssuerRolesIdempotent(
   // Revoke roles from deployer to mirror realistic mainnet governance where deployer is not the governor
   for (const role of [AMO_MANAGER_ROLE, INCENTIVES_MANAGER_ROLE, PAUSER_ROLE]) {
     if (await issuer.hasRole(role, deployerAddress)) {
-      try {
-        await issuer.revokeRole(role, deployerAddress);
-        console.log(`    ➖ Revoked ${role} from deployer`);
-      } catch (e) {
-        console.log(
-          `    ⚠️ Could not revoke role ${role} from deployer: ${(e as Error).message}`,
-        );
-        const roleName =
-          role === AMO_MANAGER_ROLE
-            ? "AMO_MANAGER_ROLE"
-            : role === INCENTIVES_MANAGER_ROLE
-              ? "INCENTIVES_MANAGER_ROLE"
-              : "PAUSER_ROLE";
-        manualActions?.push(
-          `${issuerName} (${issuerAddress}).revokeRole(${roleName}, ${deployerAddress})`,
-        );
-      }
+      const complete = await executor.tryOrQueue(
+        async () => {
+          await issuer.revokeRole(role, deployerAddress);
+          console.log(`    ➖ Revoked ${role} from deployer`);
+        },
+        () =>
+          createRevokeRoleTransaction(
+            issuerAddress,
+            role,
+            deployerAddress,
+            issuer.interface,
+          ),
+      );
+      if (!complete) allComplete = false;
     }
   }
   // Safely migrate DEFAULT_ADMIN_ROLE away from deployer
-  await ensureDefaultAdminExistsAndRevokeFrom(
-    hre,
-    "IssuerV2",
-    issuerAddress,
-    governanceMultisig,
-    deployerAddress,
-    deployerSigner,
-    manualActions,
-  );
+  try {
+    await ensureDefaultAdminExistsAndRevokeFrom(
+      hre,
+      "IssuerV2",
+      issuerAddress,
+      governanceMultisig,
+      deployerAddress,
+      deployerSigner,
+    );
+  } catch (e) {
+    // In Safe mode, consider admin migration pending
+    allComplete = false;
+  }
+  return allComplete;
 }
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -154,7 +187,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { dusdDeployer } = await hre.getNamedAccounts();
   const deployerSigner = await ethers.getSigner(dusdDeployer);
   const config = await getConfig(hre);
-  const manualActions: string[] = [];
+  const executor = new GovernanceExecutor(hre, deployerSigner, config.safeConfig);
+  await executor.initialize();
 
   console.log(`\n=== Upgrading Issuer for dUSD ===`);
 
@@ -260,7 +294,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   // Grant MINTER_ROLE on the token to the new issuer (idempotent)
-  await ensureMinterRole(hre, tokenAddress, newIssuerAddress, manualActions);
+  const minterComplete = await ensureMinterRole(
+    hre,
+    tokenAddress,
+    newIssuerAddress,
+    executor,
+  );
 
   // Revoke MINTER_ROLE from the old issuer, but only after the new issuer has it
   try {
@@ -274,18 +313,23 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       oldDeployment.address.toLowerCase() !== newIssuerAddress.toLowerCase() &&
       (await stable.hasRole(MINTER_ROLE, oldDeployment.address))
     ) {
-      try {
-        await stable.revokeRole(MINTER_ROLE, oldDeployment.address);
-        console.log(
-          `    ➖ Revoked MINTER_ROLE from old issuer ${oldDeployment.address}`,
-        );
-      } catch (e) {
-        console.log(
-          `    ⚠️ Could not revoke MINTER_ROLE from old issuer: ${(e as Error).message}`,
-        );
-        manualActions.push(
-          `TokenSupplyManager (${tokenAddress}).revokeRole(MINTER_ROLE, ${oldDeployment.address})`,
-        );
+      const complete = await executor.tryOrQueue(
+        async () => {
+          await stable.revokeRole(MINTER_ROLE, oldDeployment.address);
+          console.log(
+            `    ➖ Revoked MINTER_ROLE from old issuer ${oldDeployment.address}`,
+          );
+        },
+        () =>
+          createRevokeRoleTransaction(
+            tokenAddress,
+            MINTER_ROLE,
+            oldDeployment.address,
+            stable.interface,
+          ),
+      );
+      if (!complete) {
+        // pending governance
       }
     } else {
       console.log(
@@ -296,19 +340,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log(
       `    ⚠️ Could not check/revoke MINTER_ROLE on old issuer: ${(e as Error).message}`,
     );
-    manualActions.push(
-      `TokenSupplyManager (${tokenAddress}).revokeRole(MINTER_ROLE, ${oldDeployment.address})`,
-    );
   }
 
   // Migrate roles to governance multisig (always idempotent)
-  await migrateIssuerRolesIdempotent(
+  const rolesComplete = await migrateIssuerRolesIdempotent(
     hre,
     ISSUER_V2_CONTRACT_ID,
     newIssuerAddress,
     deployerSigner,
     config.walletAddresses.governanceMultisig,
-    manualActions,
+    executor,
   );
 
   // Optional: keep old issuer operational until governance flips references
@@ -317,9 +358,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // Print manual actions, if any
-  if (manualActions.length > 0) {
-    console.log("\n⚠️  Manual actions required to finalize IssuerV2 setup:");
-    manualActions.forEach((a: string) => console.log(`   - ${a}`));
+  if (!(minterComplete && rolesComplete)) {
+    await executor.flush("Setup IssuerV2: governance operations");
+    console.log(
+      "\n⏳ Some operations require governance signatures to complete.",
+    );
+    console.log(
+      "   Re-run the script after the Safe batch is executed to finalize.",
+    );
+    console.log(`\n≻ ${__filename.split("/").slice(-2).join("/")}: pending governance ⏳`);
+    return false;
   }
 
   console.log(`\n≻ ${__filename.split("/").slice(-2).join("/")}: ✅`);

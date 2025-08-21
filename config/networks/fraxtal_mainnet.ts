@@ -157,7 +157,23 @@ export async function getConfig(
     `${ATOKEN_IMPL_ID}_dUSD`,
   );
 
+  // Safe configuration for governance multisig
+  const safeOwners = [
+    "0xDC672ba6e55B71b39FA5423D42B88E7aDF9d24A4",
+    "0x4B58fF1AAE6AdD7465A5584eBCaeb876ec8f21FD",
+    "0x9E0c8376940aBE845A89b7304147a95c72644f59",
+  ];
+  const safeThreshold = 2; // 2 of 3 multisig
+
   return {
+    // Safe configuration for governance multisig
+    safeConfig: {
+      safeAddress: "0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9", // governance multisig Safe
+      owners: safeOwners, // Optional: populate with actual owner addresses for verification
+      threshold: safeThreshold, // Expected threshold (will be verified at runtime)
+      chainId: 252, // Fraxtal mainnet chain ID
+      rpcUrl: "https://rpc.frax.com",
+    },
     walletAddresses: {
       governanceMultisig: "0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9", // Safe multisig
     },
