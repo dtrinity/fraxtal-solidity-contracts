@@ -27,3 +27,13 @@ export const UNIV3_AMO_VAULT_ID = "UniV3AmoVault";
  * The actual contract name is `CurveStableSwapNGAmoVault`
  */
 export const CURVE_STABLESWAPNG_AMO_VAULT_ID = "CurveStableSwapNGAmoVault";
+
+/**
+ * The actual contract name is `IssuerV2`
+ */
+export const ISSUER_V2_CONTRACT_ID = "IssuerV2";
+
+/**
+ * The actual contract name is `RedeemerV2`
+ */
+export const REDEEMER_V2_CONTRACT_ID = "RedeemerV2";

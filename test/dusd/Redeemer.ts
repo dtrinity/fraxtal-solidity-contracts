@@ -68,6 +68,12 @@ describe("Redeemer", () => {
       hre.ethers.parseUnits("1000", fraxInfo.decimals),
       fraxInfo.address,
     );
+
+    // Grant COLLATERAL_WITHDRAWER_ROLE to Redeemer so it can withdraw collateral
+    await collateralVaultContract.grantRole(
+      await collateralVaultContract.COLLATERAL_WITHDRAWER_ROLE(),
+      await redeemerContract.getAddress(),
+    );
   });
 
   describe("Permissioned redemption", () => {
