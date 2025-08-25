@@ -5,6 +5,7 @@ import { Address } from "hardhat-deploy/types";
 import {
   AmoManager,
   CollateralHolderVault,
+  ERC20StablecoinUpgradeable,
   IssuerV2,
   MintableERC20,
 } from "../../typechain-types";
@@ -18,7 +19,7 @@ describe("IssuerV2", () => {
   let amoManagerContract: AmoManager;
   let fraxContract: MintableERC20;
   let fraxInfo: TokenInfo;
-  let dusdContract: MintableERC20;
+  let dusdContract: ERC20StablecoinUpgradeable;
   let dusdInfo: TokenInfo;
   let dusdDeployer: Address;
   let testAccount1: Address;
@@ -38,26 +39,28 @@ describe("IssuerV2", () => {
     const { address: amoManagerAddress } =
       await hre.deployments.get("AmoManager");
 
-    ({ contract: dusdContract, tokenInfo: dusdInfo } =
-      await getTokenContractForSymbol(dusdDeployer, "dUSD"));
-
-    const issuerV2Deployment = await hre.deployments.deploy("IssuerV2", {
-      from: dusdDeployer,
-      args: [
-        collateralVaultAddress,
-        dusdInfo.address,
-        oracleAddress,
-        amoManagerAddress,
-      ],
-      contract: "IssuerV2",
-      autoMine: true,
-    });
-
-    issuerV2Contract = await hre.ethers.getContractAt(
-      "IssuerV2",
-      issuerV2Deployment.address,
+    const dusdDeployment = await hre.deployments.get("dUSD");
+    dusdContract = await hre.ethers.getContractAt(
+      "ERC20StablecoinUpgradeable",
+      dusdDeployment.address,
       await hre.ethers.getSigner(dusdDeployer),
     );
+    dusdInfo = await getTokenContractForSymbol(dusdDeployer, "dUSD").then(
+      (result) => result.tokenInfo,
+    );
+
+    // Deploy IssuerV2 using contract factory (like Sonic) to ensure constructor executes properly
+    const IssuerV2Factory = await hre.ethers.getContractFactory(
+      "IssuerV2",
+      await hre.ethers.getSigner(dusdDeployer),
+    );
+    issuerV2Contract = await IssuerV2Factory.deploy(
+      collateralVaultAddress,
+      dusdInfo.address,
+      oracleAddress,
+      amoManagerAddress,
+    );
+    await issuerV2Contract.waitForDeployment();
 
     collateralVaultContract = await hre.ethers.getContractAt(
       "CollateralHolderVault",
@@ -80,7 +83,7 @@ describe("IssuerV2", () => {
     // Grant MINTER_ROLE to IssuerV2
     await dusdContract.grantRole(
       await dusdContract.MINTER_ROLE(),
-      issuerV2Deployment.address,
+      await issuerV2Contract.getAddress(),
     );
 
     // Mint 1000 FRAX to testAccount1
@@ -153,7 +156,7 @@ describe("IssuerV2", () => {
         issuerV2Contract
           .connect(await hre.ethers.getSigner(testAccount1))
           .issue(collateralAmount, fraxInfo.address, minDUSD),
-      ).to.be.revertedWith("Pausable: paused");
+      ).to.be.revertedWithCustomError(issuerV2Contract, "EnforcedPause");
     });
 
     it("should revert when asset minting is paused", async function () {
@@ -218,19 +221,47 @@ describe("IssuerV2", () => {
 
   describe("Excess collateral issuance", () => {
     it("should allow issuing using excess collateral", async function () {
-      // First, create some excess collateral by issuing normally
-      const collateralAmount = hre.ethers.parseUnits("2000", fraxInfo.decimals);
-      const minDUSD = hre.ethers.parseUnits("1000", dusdInfo.decimals);
+      // Burn all existing dUSD tokens to start clean
+      const allNamedAccounts = await hre.getNamedAccounts();
+      const allAccounts = Object.values(allNamedAccounts);
+      
+      for (const account of allAccounts) {
+        const balance = await dusdContract.balanceOf(account);
+        if (balance > 0n) {
+          await dusdContract
+            .connect(await hre.ethers.getSigner(account))
+            .burn(balance);
+        }
+      }
+
+      // Deposit collateral to create excess (enough to cover remaining circulation)
+      const circulatingAfterBurn = await issuerV2Contract.circulatingDusd();
+      // Need at least circulatingAfterBurn + amount we want to mint
+      // dUSD has 6 decimals, FRAX has 18 decimals
+      // Convert dUSD value to FRAX amount (assuming 1:1 price)  
+      const neededCollateral = (circulatingAfterBurn + hre.ethers.parseUnits("500", dusdInfo.decimals)) * 10n ** BigInt(fraxInfo.decimals - dusdInfo.decimals);
+      const collateralAmount = neededCollateral + hre.ethers.parseUnits("1000", fraxInfo.decimals); // Add some buffer
+
+      // Mint enough FRAX for testAccount1
+      await fraxContract
+        .connect(await hre.ethers.getSigner(dusdDeployer))
+        .mint(testAccount1, collateralAmount);
 
       await fraxContract
         .connect(await hre.ethers.getSigner(testAccount1))
-        .approve(await issuerV2Contract.getAddress(), collateralAmount);
+        .approve(await collateralVaultContract.getAddress(), collateralAmount);
 
-      await issuerV2Contract
+      await collateralVaultContract
         .connect(await hre.ethers.getSigner(testAccount1))
-        .issue(collateralAmount, fraxInfo.address, minDUSD);
+        .deposit(collateralAmount, fraxInfo.address);
 
-      // Now issue using excess collateral
+      // Verify we have excess collateral
+      const collateralValueInDusd = await issuerV2Contract.collateralInDusd();
+      const circulatingDusd = await issuerV2Contract.circulatingDusd();
+      
+      expect(collateralValueInDusd).to.be.greaterThan(circulatingDusd);
+      
+      // Mint a reasonable amount using excess collateral
       const excessDusdAmount = hre.ethers.parseUnits("500", dusdInfo.decimals);
       const userBalanceBefore = await dusdContract.balanceOf(testAccount2);
 

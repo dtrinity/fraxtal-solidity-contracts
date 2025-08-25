@@ -59,7 +59,7 @@ async function ensureMinterRole(
   executor: GovernanceExecutor,
 ): Promise<boolean> {
   const stable = await hre.ethers.getContractAt(
-    "TokenSupplyManager",
+    "ERC20StablecoinUpgradeable",
     stableAddress,
   );
   const MINTER_ROLE = await stable.MINTER_ROLE();
@@ -266,9 +266,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             console.log(
               `    ⚠️ Could not disable minting for wstkscUSD: ${(e as Error).message}`,
             );
-            manualActions.push(
-              `IssuerV2 (${newIssuerAddress}).setAssetMintingPause(${wstkscUSDAddress}, true)`,
-            );
           }
         } else {
           console.log(
@@ -304,7 +301,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // Revoke MINTER_ROLE from the old issuer, but only after the new issuer has it
   try {
     const stable = await hre.ethers.getContractAt(
-      "TokenSupplyManager",
+      "ERC20StablecoinUpgradeable",
       tokenAddress,
     );
     const MINTER_ROLE = await stable.MINTER_ROLE();

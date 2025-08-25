@@ -9,6 +9,7 @@ import {
   MintableERC20,
   RedeemerV2,
 } from "../../typechain-types";
+import { ONE_HUNDRED_PERCENT_BPS } from "../../utils/constants";
 import { TokenInfo } from "../../utils/token";
 import { getTokenContractForSymbol } from "../ecosystem/utils.token";
 import { standaloneMinimalFixture } from "./fixtures";
@@ -141,7 +142,7 @@ describe("RedeemerV2", () => {
 
       // Fee should be approximately 1% of the total collateral
       const totalCollateral = fraxReceived + feeCollected;
-      const expectedFee = (totalCollateral * 100n) / 10000n; // 1%
+      const expectedFee = (totalCollateral * 100n) / BigInt(ONE_HUNDRED_PERCENT_BPS); // 1%
       expect(feeCollected).to.be.closeTo(expectedFee, expectedFee / 10n); // Within 10%
     });
 
@@ -174,7 +175,7 @@ describe("RedeemerV2", () => {
         redeemerV2Contract
           .connect(await hre.ethers.getSigner(testAccount1))
           .redeem(dusdAmount, fraxInfo.address, minNetCollateral),
-      ).to.be.revertedWith("Pausable: paused");
+      ).to.be.revertedWithCustomError(redeemerV2Contract, "EnforcedPause");
     });
 
     it("should revert when asset redemption is paused", async function () {
@@ -204,10 +205,11 @@ describe("RedeemerV2", () => {
       const minCollateral = hre.ethers.parseUnits("1000", fraxInfo.decimals);
 
       const userFraxBefore = await fraxContract.balanceOf(dusdDeployer);
-      const userDusdBefore = await dusdContract.balanceOf(dusdDeployer);
 
       // First, get some dUSD to the deployer
       await dusdContract.mint(dusdDeployer, dusdAmount);
+      const userDusdBefore = await dusdContract.balanceOf(dusdDeployer);
+      
       await dusdContract.approve(
         await redeemerV2Contract.getAddress(),
         dusdAmount,
