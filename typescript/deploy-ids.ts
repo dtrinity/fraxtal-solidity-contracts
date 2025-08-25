@@ -11,19 +11,6 @@ export const USD_REDSTONE_WRAPPER_WITH_THRESHOLDING_ID =
 export const USD_REDSTONE_COMPOSITE_WRAPPER_WITH_THRESHOLDING_ID =
   "USD_RedstoneChainlinkCompositeWrapperWithThresholding";
 
-// Pendle PT Oracles
-export const PENDLE_CHAINLINK_ORACLE_FACTORY_ID =
-  "PendleChainlinkOracleFactory";
-export const PENDLE_PT_AUSDC_DECIMAL_CONVERTER_ID =
-  "ChainlinkDecimalConverter_PT_aUSDC_14AUG2025";
-export const PENDLE_PT_WSTKSCUSD_DECIMAL_CONVERTER_ID =
-  "ChainlinkDecimalConverter_PT_wstkscUSD_18DEC2025";
-export const OS_TO_S_DECIMAL_CONVERTER_ID = "ChainlinkDecimalConverter_OS_to_S";
-export const WOS_TO_OS_DECIMAL_CONVERTER_ID =
-  "ChainlinkDecimalConverter_wOS_to_OS";
-
-// S Oracles removed for Fraxtal (dS token not supported)
-
 // dUSD
 export const dUSD_TOKEN_ID = "dUSD";
 export const dUSD_ISSUER_CONTRACT_ID = "dUSD_Issuer";
@@ -31,8 +18,6 @@ export const dUSD_REDEEMER_CONTRACT_ID = "dUSD_Redeemer";
 export const dUSD_COLLATERAL_VAULT_CONTRACT_ID = "dUSD_CollateralHolderVault";
 export const dUSD_AMO_MANAGER_ID = "dUSD_AmoManager";
 export const dUSD_HARD_PEG_ORACLE_WRAPPER_ID = "dUSD_HardPegOracleWrapper";
-
-// dS tokens removed for Fraxtal (dS token not supported)
 
 // dLEND
 export const TREASURY_PROXY_ID = "TreasuryProxy";
@@ -85,12 +70,6 @@ export const DLOOP_PERIPHERY_ODOS_INCREASE_LEVERAGE_ID =
   "DLoopIncreaseLeverageOdos";
 export const DLOOP_PERIPHERY_ODOS_SWAP_LOGIC_ID = "OdosSwapLogic";
 
-// Chainlink Oracle Converters
-export const CHAINLINK_DECIMAL_CONVERTER_WSTKSCUSD_ID =
-  "ChainlinkDecimalConverter_wstkscUSD";
-export const CHAINLINK_DECIMAL_CONVERTER_WSTKSCETH_ID =
-  "ChainlinkDecimalConverter_wstkscETH";
-
 // Wrapped dLEND ATokens
 export const DLEND_STATIC_A_TOKEN_FACTORY_ID = "dLend_StaticATokenFactory";
 export const DLEND_A_TOKEN_WRAPPER_PREFIX = "dLend_ATokenWrapper";
@@ -116,7 +95,6 @@ export const SDUSD_ROUTER_ID = `${DSTAKE_ROUTER_ID_PREFIX}_sdUSD`;
 export const WRAPPED_DLEND_CONVERSION_ADAPTER_ID_PREFIX =
   "WrappedDLendConversionAdapter";
 export const SDUSD_WRAPPED_DLEND_CONVERSION_ADAPTER_ID = `${WRAPPED_DLEND_CONVERSION_ADAPTER_ID_PREFIX}_sdUSD`;
-// SDS_WRAPPED_DLEND_CONVERSION_ADAPTER_ID removed for Fraxtal (dS token not supported)
 
 // dSTAKE reward manager IDs
 export const DSTAKE_REWARD_MANAGER_DLEND_ID_PREFIX = "DStakeRewardManagerDLend";
@@ -125,7 +103,6 @@ export const SDUSD_REWARD_MANAGER_ID = `${DSTAKE_REWARD_MANAGER_DLEND_ID_PREFIX}
 
 // RedeemerWithFees
 export const dUSD_REDEEMER_WITH_FEES_CONTRACT_ID = "dUSD_RedeemerWithFees";
-// DS_REDEEMER_WITH_FEES_CONTRACT_ID removed for Fraxtal (dS token not supported)
 
 // Vesting NFT
 export const ERC20_VESTING_NFT_ID = "ERC20VestingNFT";

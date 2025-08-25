@@ -142,7 +142,8 @@ describe("RedeemerV2", () => {
 
       // Fee should be approximately 1% of the total collateral
       const totalCollateral = fraxReceived + feeCollected;
-      const expectedFee = (totalCollateral * 100n) / BigInt(ONE_HUNDRED_PERCENT_BPS); // 1%
+      const expectedFee =
+        (totalCollateral * 100n) / BigInt(ONE_HUNDRED_PERCENT_BPS); // 1%
       expect(feeCollected).to.be.closeTo(expectedFee, expectedFee / 10n); // Within 10%
     });
 
@@ -209,7 +210,7 @@ describe("RedeemerV2", () => {
       // First, get some dUSD to the deployer
       await dusdContract.mint(dusdDeployer, dusdAmount);
       const userDusdBefore = await dusdContract.balanceOf(dusdDeployer);
-      
+
       await dusdContract.approve(
         await redeemerV2Contract.getAddress(),
         dusdAmount,

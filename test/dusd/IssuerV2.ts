@@ -224,9 +224,10 @@ describe("IssuerV2", () => {
       // Burn all existing dUSD tokens to start clean
       const allNamedAccounts = await hre.getNamedAccounts();
       const allAccounts = Object.values(allNamedAccounts);
-      
+
       for (const account of allAccounts) {
         const balance = await dusdContract.balanceOf(account);
+
         if (balance > 0n) {
           await dusdContract
             .connect(await hre.ethers.getSigner(account))
@@ -238,9 +239,13 @@ describe("IssuerV2", () => {
       const circulatingAfterBurn = await issuerV2Contract.circulatingDusd();
       // Need at least circulatingAfterBurn + amount we want to mint
       // dUSD has 6 decimals, FRAX has 18 decimals
-      // Convert dUSD value to FRAX amount (assuming 1:1 price)  
-      const neededCollateral = (circulatingAfterBurn + hre.ethers.parseUnits("500", dusdInfo.decimals)) * 10n ** BigInt(fraxInfo.decimals - dusdInfo.decimals);
-      const collateralAmount = neededCollateral + hre.ethers.parseUnits("1000", fraxInfo.decimals); // Add some buffer
+      // Convert dUSD value to FRAX amount (assuming 1:1 price)
+      const neededCollateral =
+        (circulatingAfterBurn +
+          hre.ethers.parseUnits("500", dusdInfo.decimals)) *
+        10n ** BigInt(fraxInfo.decimals - dusdInfo.decimals);
+      const collateralAmount =
+        neededCollateral + hre.ethers.parseUnits("1000", fraxInfo.decimals); // Add some buffer
 
       // Mint enough FRAX for testAccount1
       await fraxContract
@@ -258,9 +263,9 @@ describe("IssuerV2", () => {
       // Verify we have excess collateral
       const collateralValueInDusd = await issuerV2Contract.collateralInDusd();
       const circulatingDusd = await issuerV2Contract.circulatingDusd();
-      
+
       expect(collateralValueInDusd).to.be.greaterThan(circulatingDusd);
-      
+
       // Mint a reasonable amount using excess collateral
       const excessDusdAmount = hre.ethers.parseUnits("500", dusdInfo.decimals);
       const userBalanceBefore = await dusdContract.balanceOf(testAccount2);
