@@ -1,13 +1,6 @@
 {
     "editor.tabSize": 2,
     "editor.insertSpaces": true,
-    "eslint.enable": true,
-    "eslint.format.enable": true,
-    "eslint.codeActionsOnSave.mode": "all",
-    "eslint.useFlatConfig": true,
-    "jest.runMode": "on-demand",
-    "jest.rootPath": "./",
-    "jest.jestCommandLine": "yarn test-ts",
     "[json]": {
         "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
@@ -31,10 +24,6 @@
     "[makefile]": {
         "editor.insertSpaces": false,
         "editor.tabSize": 4
-    },
-    
-    "jest.nodeEnv": {
-        "AWS_PROFILE": "beta"
     },
     "[solidity]": {
         "editor.formatOnSave": true,
