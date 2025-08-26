@@ -253,6 +253,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   // Grant vault withdraw permission to new redeemer and revoke from old redeemer
+  let vaultOpsComplete = true;
   try {
     const vaultContract = await hre.ethers.getContractAt(
       "CollateralHolderVault",
@@ -277,10 +278,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             vaultContract.interface,
           ),
       );
-
-      if (!complete) {
-        // pending governance
-      }
+      if (!complete) vaultOpsComplete = false;
     }
     // Revoke role from any legacy redeemer deployments (Redeemer and RedeemerWithFees)
     const legacyRedeemerIds = [
@@ -315,10 +313,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
               vaultContract.interface,
             ),
         );
-
-        if (!complete) {
-          // pending governance
-        }
+        if (!complete) vaultOpsComplete = false;
       }
     }
   } catch (e) {
@@ -341,7 +336,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     executor,
   );
 
-  if (!rolesComplete) {
+  if (!(vaultOpsComplete && rolesComplete)) {
     await executor.flush("Setup RedeemerV2: governance operations");
     console.log(
       "\n⏳ Some operations require governance signatures to complete.",
