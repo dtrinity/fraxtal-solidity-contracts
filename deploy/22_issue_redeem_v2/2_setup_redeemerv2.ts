@@ -254,6 +254,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Grant vault withdraw permission to new redeemer and revoke from old redeemer
   let vaultOpsComplete = true;
+
   try {
     const vaultContract = await hre.ethers.getContractAt(
       "CollateralHolderVault",
