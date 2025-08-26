@@ -44,14 +44,22 @@ export class GovernanceExecutor {
     }
   }
 
-  /** Initialize Safe only if Safe mode is enabled */
+  /**
+   * Initialize Safe only if Safe mode is enabled
+   *
+   * @returns void when initialization completes
+   */
   async initialize(): Promise<void> {
     if (this.safeManager) {
       await this.safeManager.initialize();
     }
   }
 
-  /** Expose queued transactions (read-only) */
+  /**
+   * Expose queued transactions (read-only)
+   *
+   * @returns Readonly array of queued Safe transactions
+   */
   get queuedTransactions(): readonly SafeTransactionData[] {
     return this.transactions;
   }
@@ -60,6 +68,18 @@ export class GovernanceExecutor {
    * Attempt an on-chain call; on failure, queue a Safe transaction if enabled.
    * Returns whether the requirement is considered complete (true) or pending
    * governance/manual action (false).
+   *
+   * @param directCall
+   * @param safeTxBuilder
+   */
+  /**
+   * Attempt an on-chain call; on failure, queue a Safe transaction if enabled.
+   * Returns whether the requirement is considered complete (true) or pending
+   * governance/manual action (false).
+   *
+   * @param directCall Function that performs the direct on-chain call
+   * @param safeTxBuilder Optional builder to create a Safe transaction
+   * @returns True if complete, false if pending governance
    */
   async tryOrQueue<T>(
     directCall: () => Promise<T>,
@@ -85,6 +105,14 @@ export class GovernanceExecutor {
   /**
    * Flush queued transactions into a Safe batch (if any and in Safe mode).
    * Returns true if either not in Safe mode, or batch prepared successfully.
+   *
+   * @param description
+   */
+  /**
+   * Flush queued transactions into a Safe batch (if any and in Safe mode).
+   *
+   * @param description Human-readable description for the batch
+   * @returns True if not in Safe mode, or batch prepared successfully
    */
   async flush(description: string): Promise<boolean> {
     if (!this.useSafe || !this.safeManager || this.transactions.length === 0) {
@@ -100,5 +128,3 @@ export class GovernanceExecutor {
     return res.success;
   }
 }
-
-

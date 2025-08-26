@@ -47,6 +47,8 @@ export class SafeManager {
 
   /**
    * Initialize Safe Protocol Kit and optionally API Kit
+   *
+   * @returns void when initialization completes
    */
   async initialize(): Promise<void> {
     try {
@@ -95,6 +97,8 @@ export class SafeManager {
 
   /**
    * Verify that the Safe configuration matches on-chain state
+   *
+   * @returns void when verification completes
    */
   private async verifySafeConfiguration(): Promise<void> {
     if (!this.protocolKit) {
@@ -146,7 +150,8 @@ export class SafeManager {
   /**
    * Create a batch Safe transaction for multiple operations
    *
-   * @param batch - The batch of transactions to execute
+   * @param batch The batch of transactions to execute
+   * @returns Result of preparing the batch transaction (offline mode)
    */
   async createBatchTransaction(
     batch: SafeTransactionBatch,
@@ -201,7 +206,8 @@ export class SafeManager {
   /**
    * Simulate transaction to check if it would succeed
    *
-   * @param transactionData - The transaction data to simulate
+   * @param transactionData The transaction data to simulate
+   * @returns void when simulation completes
    */
   private async simulateTransaction(
     transactionData: SafeTransactionData,
@@ -237,6 +243,9 @@ export class SafeManager {
 
   /**
    * Get transaction status from stored deployment state
+   *
+   * @param safeTxHash Safe transaction hash
+   * @returns Status string of the transaction
    */
   async getTransactionStatus(
     safeTxHash: string,
@@ -264,6 +273,9 @@ export class SafeManager {
 
   /**
    * Check on-chain state to verify if a transaction requirement has been met
+   *
+   * @param checkFunction Asynchronous predicate returning true if requirement met
+   * @returns True if requirement met, false otherwise
    */
   async isRequirementMet(
     checkFunction: () => Promise<boolean>,
@@ -278,6 +290,11 @@ export class SafeManager {
 
   /**
    * Store pending transaction info in deployment artifacts
+   *
+   * @param safeTxHash Safe transaction hash
+   * @param transactionData Transaction data
+   * @param description Human-readable description
+   * @returns void when storage completes
    */
   private async storePendingTransaction(
     safeTxHash: string,
@@ -311,6 +328,11 @@ export class SafeManager {
 
   /**
    * Store completed transaction info in deployment artifacts
+   *
+   * @param safeTxHash Safe transaction hash
+   * @param transactionHash On-chain transaction hash
+   * @param description Human-readable description
+   * @returns void when storage completes
    */
   private async storeCompletedTransaction(
     safeTxHash: string,
@@ -349,6 +371,8 @@ export class SafeManager {
 
   /**
    * Get deployment state from artifacts
+   *
+   * @returns Parsed deployment state (or default empty state)
    */
   private async getDeploymentState(): Promise<SafeDeploymentState> {
     try {
@@ -376,6 +400,9 @@ export class SafeManager {
 
   /**
    * Save deployment state to artifacts
+   *
+   * @param state Deployment state to persist
+   * @returns void when save completes
    */
   private async saveDeploymentState(state: SafeDeploymentState): Promise<void> {
     try {
@@ -398,6 +425,11 @@ export class SafeManager {
 
   /**
    * Export a Transaction Builder JSON for importing in Safe UI
+   *
+   * @param transactions Transactions to include
+   * @param description Human-readable description for the batch
+   * @param safeTxHash Safe transaction hash (used for filename)
+   * @returns void when export completes
    */
   private async exportTransactionBuilderBatch(
     transactions: SafeTransactionData[],
@@ -430,12 +462,20 @@ export class SafeManager {
     }
   }
 
-  /** Get the Safe address */
+  /**
+   * Get the Safe address
+   *
+   * @returns Safe address string
+   */
   getSafeAddress(): string {
     return this.config.safeAddress;
   }
 
-  /** Get the Safe threshold */
+  /**
+   * Get the Safe threshold
+   *
+   * @returns Required signature threshold
+   */
   async getThreshold(): Promise<number> {
     if (!this.protocolKit) {
       throw new Error("Safe Manager not initialized. Call initialize() first.");
@@ -443,7 +483,11 @@ export class SafeManager {
     return await this.protocolKit.getThreshold();
   }
 
-  /** Get the Safe owners */
+  /**
+   * Get the Safe owners
+   *
+   * @returns Array of Safe owner addresses
+   */
   async getOwners(): Promise<string[]> {
     if (!this.protocolKit) {
       throw new Error("Safe Manager not initialized. Call initialize() first.");
@@ -451,7 +495,11 @@ export class SafeManager {
     return await this.protocolKit.getOwners();
   }
 
-  /** Check if Safe Manager is initialized */
+  /**
+   * Check if Safe Manager is initialized
+   *
+   * @returns True if initialized, false otherwise
+   */
   isInitialized(): boolean {
     return this.protocolKit !== undefined;
   }

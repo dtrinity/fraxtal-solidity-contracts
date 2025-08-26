@@ -3,6 +3,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../config/config";
+import { GovernanceExecutor } from "../../typescript/hardhat/governance";
+import { SafeTransactionData } from "../../typescript/safe/types";
 import {
   AMO_MANAGER_ID,
   COLLATERAL_VAULT_CONTRACT_ID,
@@ -10,21 +12,19 @@ import {
   ISSUER_V2_CONTRACT_ID,
 } from "../../utils/deploy-ids";
 import { ensureDefaultAdminExistsAndRevokeFrom } from "../../utils/hardhat/access_control";
-import { GovernanceExecutor } from "../../typescript/hardhat/governance";
-import { SafeTransactionData } from "../../typescript/safe/types";
 import { ORACLE_AGGREGATOR_ID } from "../../utils/oracle/deploy-ids";
 
 const ZERO_BYTES_32 =
   "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 /**
- * Ensure the given `grantee` holds MINTER_ROLE on the specified dUSD token.
- * Idempotent: grants the role only if it is not already present.
+ * Build Safe transaction data for AccessControl.grantRole.
  *
- * @param hre Hardhat runtime environment
- * @param stableAddress Address of the ERC20Stablecoin token
- * @param grantee Address that should be granted MINTER_ROLE
- * @param manualActions Array to store manual actions if automated operations fail
+ * @param contractAddress Contract address to call
+ * @param role Role identifier (bytes32) to grant
+ * @param grantee Address that should receive the role
+ * @param contractInterface Interface used to encode the function call
+ * @returns Safe transaction data for grantRole
  */
 function createGrantRoleTransaction(
   contractAddress: string,
@@ -39,6 +39,15 @@ function createGrantRoleTransaction(
   };
 }
 
+/**
+ * Build Safe transaction data for AccessControl.revokeRole.
+ *
+ * @param contractAddress Contract address to call
+ * @param role Role identifier (bytes32) to revoke
+ * @param account Account from which the role will be revoked
+ * @param contractInterface Interface used to encode the function call
+ * @returns Safe transaction data for revokeRole
+ */
 function createRevokeRoleTransaction(
   contractAddress: string,
   role: string,
@@ -52,12 +61,23 @@ function createRevokeRoleTransaction(
   };
 }
 
+/**
+ * Ensure the given `grantee` holds MINTER_ROLE on the specified dUSD token.
+ * Grants if missing, or queues a Safe transaction if in Safe mode.
+ *
+ * @param hre Hardhat runtime environment
+ * @param stableAddress Address of the dUSD token (AccessControl-enabled)
+ * @param grantee Address that should be granted MINTER_ROLE
+ * @param executor Governance executor helper for direct/queued execution
+ * @returns True if complete, false if pending governance
+ */
 async function ensureMinterRole(
   hre: HardhatRuntimeEnvironment,
   stableAddress: string,
   grantee: string,
   executor: GovernanceExecutor,
 ): Promise<boolean> {
+  // Attach to an AccessControl-enabled token (dUSD)
   const stable = await hre.ethers.getContractAt(
     "ERC20StablecoinUpgradeable",
     stableAddress,
@@ -70,7 +90,13 @@ async function ensureMinterRole(
         await stable.grantRole(MINTER_ROLE, grantee);
         console.log(`    ➕ Granted MINTER_ROLE to ${grantee}`);
       },
-      () => createGrantRoleTransaction(stableAddress, MINTER_ROLE, grantee, stable.interface),
+      () =>
+        createGrantRoleTransaction(
+          stableAddress,
+          MINTER_ROLE,
+          grantee,
+          stable.interface,
+        ),
     );
     return complete;
   } else {
@@ -85,11 +111,12 @@ async function ensureMinterRole(
  * Grants roles to governance first, then revokes them from the deployer.
  *
  * @param hre Hardhat runtime environment
- * @param issuerName Logical name/id of the issuer deployment
+ * @param issuerName Logical name/id used for logging
  * @param issuerAddress Address of the IssuerV2 contract
  * @param deployerSigner Deployer signer currently holding roles
  * @param governanceMultisig Governance multisig address to receive roles
- * @param manualActions Array to store manual actions if automated operations fail
+ * @param executor Governance executor helper for direct/queued execution
+ * @returns True if complete, false if pending governance
  */
 async function migrateIssuerRolesIdempotent(
   hre: HardhatRuntimeEnvironment,
@@ -120,6 +147,7 @@ async function migrateIssuerRolesIdempotent(
   console.log(`  📄 Migrating roles for ${issuerName} at ${issuerAddress}`);
 
   let allComplete = true;
+
   for (const role of roles) {
     if (!(await issuer.hasRole(role.hash, governanceMultisig))) {
       const complete = await executor.tryOrQueue(
@@ -165,6 +193,7 @@ async function migrateIssuerRolesIdempotent(
       if (!complete) allComplete = false;
     }
   }
+
   // Safely migrate DEFAULT_ADMIN_ROLE away from deployer
   try {
     await ensureDefaultAdminExistsAndRevokeFrom(
@@ -187,7 +216,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { dusdDeployer } = await hre.getNamedAccounts();
   const deployerSigner = await ethers.getSigner(dusdDeployer);
   const config = await getConfig(hre);
-  const executor = new GovernanceExecutor(hre, deployerSigner, config.safeConfig);
+  const executor = new GovernanceExecutor(
+    hre,
+    deployerSigner,
+    config.safeConfig,
+  );
   await executor.initialize();
 
   console.log(`\n=== Upgrading Issuer for dUSD ===`);
@@ -234,62 +267,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const newIssuerAddress = result.address;
 
-  // Preemptively disable minting for wstkscUSD on this issuer BEFORE granting MINTER_ROLE
-  // Do this only if the asset exists in config and is supported by the vault
-  try {
-    const wstkscUSDAddress = (config as any).tokenAddresses?.wstkscUSD as
-      | string
-      | undefined;
-
-    if (wstkscUSDAddress && wstkscUSDAddress !== "") {
-      const vaultContract = await hre.ethers.getContractAt(
-        "CollateralHolderVault",
-        collateralVaultAddress,
-      );
-
-      if (await vaultContract.isCollateralSupported(wstkscUSDAddress)) {
-        const issuer = await hre.ethers.getContractAt(
-          "IssuerV2",
-          newIssuerAddress,
-          deployerSigner,
-        );
-        const isEnabled: boolean =
-          await issuer.isAssetMintingEnabled(wstkscUSDAddress);
-
-        if (isEnabled) {
-          try {
-            await issuer.setAssetMintingPause(wstkscUSDAddress, true);
-            console.log(
-              `    ⛔ Disabled minting for wstkscUSD on issuer ${newIssuerAddress}`,
-            );
-          } catch (e) {
-            console.log(
-              `    ⚠️ Could not disable minting for wstkscUSD: ${(e as Error).message}`,
-            );
-          }
-        } else {
-          console.log(
-            `    ✓ Minting for wstkscUSD already disabled on issuer ${newIssuerAddress}`,
-          );
-        }
-      } else {
-        console.log(
-          `    ℹ️ wstkscUSD not supported by collateral vault ${collateralVaultAddress}; skipping issuer-level pause`,
-        );
-      }
-    } else {
-      console.log(
-        "    ℹ️ wstkscUSD address not present in config.tokenAddresses; skipping issuer-level pause",
-      );
-    }
-  } catch (e) {
-    console.log(
-      `    ⚠️ Could not pre-disable wstkscUSD minting: ${(e as Error).message}`,
-    );
-    // As a best-effort, add manual action to disable if applicable
-    // (We cannot know collateral support here without the successful call.)
-  }
-
   // Grant MINTER_ROLE on the token to the new issuer (idempotent)
   const minterComplete = await ensureMinterRole(
     hre,
@@ -325,6 +302,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             stable.interface,
           ),
       );
+
       if (!complete) {
         // pending governance
       }
@@ -363,7 +341,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log(
       "   Re-run the script after the Safe batch is executed to finalize.",
     );
-    console.log(`\n≻ ${__filename.split("/").slice(-2).join("/")}: pending governance ⏳`);
+    console.log(
+      `\n≻ ${__filename.split("/").slice(-2).join("/")}: pending governance ⏳`,
+    );
     return false;
   }
 

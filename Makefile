@@ -120,6 +120,9 @@ sync-laika:
 
 # Deploy smart contracts to a network
 
+deploy:
+	@yarn hardhat deploy
+
 deploy-mint.tokens:
 	@if [ "$(network)" = "" ]; then \
 		echo "Must provide 'network' argument"; \

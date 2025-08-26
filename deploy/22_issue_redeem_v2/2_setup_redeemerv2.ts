@@ -3,27 +3,27 @@ import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../config/config";
 import { dUSD_REDEEMER_WITH_FEES_CONTRACT_ID } from "../../typescript/deploy-ids";
+import { GovernanceExecutor } from "../../typescript/hardhat/governance";
+import { SafeTransactionData } from "../../typescript/safe/types";
 import {
   COLLATERAL_VAULT_CONTRACT_ID,
   REDEEMER_CONTRACT_ID,
   REDEEMER_V2_CONTRACT_ID,
 } from "../../utils/deploy-ids";
 import { ensureDefaultAdminExistsAndRevokeFrom } from "../../utils/hardhat/access_control";
-import { GovernanceExecutor } from "../../typescript/hardhat/governance";
-import { SafeTransactionData } from "../../typescript/safe/types";
 import { ORACLE_AGGREGATOR_ID } from "../../utils/oracle/deploy-ids";
 
 const ZERO_BYTES_32 =
   "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 /**
- * Migrate roles to governance multisig (always idempotent)
+ * Build Safe transaction data for AccessControl.grantRole.
  *
- * @param hre HardhatRuntimeEnvironment
- * @param redeemerAddress Address of the RedeemerV2 contract
- * @param deployerAddress Address of the deployer
- * @param governanceMultisig Address of the governance multisig
- * @param manualActions Array to store manual actions if automated operations fail
+ * @param contractAddress Contract address to call
+ * @param role Role identifier (bytes32) to grant
+ * @param grantee Address that should receive the role
+ * @param contractInterface Interface used to encode the function call
+ * @returns Safe transaction data for grantRole
  */
 function createGrantRoleTransaction(
   contractAddress: string,
@@ -38,6 +38,15 @@ function createGrantRoleTransaction(
   };
 }
 
+/**
+ * Build Safe transaction data for AccessControl.revokeRole.
+ *
+ * @param contractAddress Contract address to call
+ * @param role Role identifier (bytes32) to revoke
+ * @param account Account from which the role will be revoked
+ * @param contractInterface Interface used to encode the function call
+ * @returns Safe transaction data for revokeRole
+ */
 function createRevokeRoleTransaction(
   contractAddress: string,
   role: string,
@@ -51,6 +60,17 @@ function createRevokeRoleTransaction(
   };
 }
 
+/**
+ * Migrate RedeemerV2 roles to governance in a safe, idempotent sequence.
+ * Grants roles to governance first, then revokes them from the deployer.
+ *
+ * @param hre Hardhat runtime environment
+ * @param redeemerAddress Address of the RedeemerV2 contract
+ * @param deployerAddress Address of the deployer currently holding roles
+ * @param governanceMultisig Governance multisig address to receive roles
+ * @param executor Governance executor helper for direct/queued execution
+ * @returns True if complete, false if pending governance
+ */
 async function migrateRedeemerRolesIdempotent(
   hre: HardhatRuntimeEnvironment,
   redeemerAddress: string,
@@ -73,6 +93,7 @@ async function migrateRedeemerRolesIdempotent(
   ];
 
   let allComplete = true;
+
   for (const role of roles) {
     if (!(await redeemer.hasRole(role.hash, governanceMultisig))) {
       const complete = await executor.tryOrQueue(
@@ -115,6 +136,7 @@ async function migrateRedeemerRolesIdempotent(
       if (!complete) allComplete = false;
     }
   }
+
   // Safely migrate DEFAULT_ADMIN_ROLE away from deployer
   try {
     await ensureDefaultAdminExistsAndRevokeFrom(
@@ -179,6 +201,55 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log(`  ✓ ${REDEEMER_V2_CONTRACT_ID} already at ${result.address}`);
   }
 
+  // Configure per-collateral redemption fees before migrating roles
+  try {
+    const fees = config.dStables?.dUSD?.collateralRedemptionFees;
+
+    if (fees && Object.keys(fees).length > 0) {
+      const redeemer = await hre.ethers.getContractAt(
+        "RedeemerV2",
+        result.address,
+        await hre.ethers.getSigner(dusdDeployer),
+      );
+
+      for (const [asset, feeBps] of Object.entries(fees)) {
+        try {
+          const overridden = await (redeemer as any).isCollateralFeeOverridden(
+            asset,
+          );
+          const current = await (redeemer as any).collateralRedemptionFeeBps(
+            asset,
+          );
+          const desired = BigInt(feeBps as number);
+          const currentBps = BigInt(current.toString());
+
+          if (!overridden || currentBps !== desired) {
+            await redeemer.setCollateralRedemptionFee(asset, feeBps as number);
+            console.log(
+              `    ⚙️ Set fee override for ${asset} to ${feeBps as number}`,
+            );
+          } else {
+            console.log(
+              `    ✓ Fee override for ${asset} already ${currentBps}`,
+            );
+          }
+        } catch (e) {
+          console.log(
+            `    ⚠️ Could not set fee for ${asset}: ${(e as Error).message}`,
+          );
+        }
+      }
+    } else {
+      console.log(
+        "    ℹ️ No per-collateral fee overrides specified in config.",
+      );
+    }
+  } catch (e) {
+    console.log(
+      `    ⚠️ Per-collateral fee setup skipped: ${(e as Error).message}`,
+    );
+  }
+
   // Grant vault withdraw permission to new redeemer and revoke from old redeemer
   try {
     const vaultContract = await hre.ethers.getContractAt(
@@ -204,6 +275,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             vaultContract.interface,
           ),
       );
+
       if (!complete) {
         // pending governance
       }
@@ -241,6 +313,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
               vaultContract.interface,
             ),
         );
+
         if (!complete) {
           // pending governance
         }
@@ -285,7 +358,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 func.id = "22_2_setup_redeemerv2";
-func.tags = ["setup-issuerv2", "setup-redeemerv2"];
+func.tags = ["setup-redeemerv2"];
 func.dependencies = [
   COLLATERAL_VAULT_CONTRACT_ID,
   "dUSD",
