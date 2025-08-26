@@ -128,7 +128,7 @@ export async function deployTreasury(
       console.log(`  - GasUsed: ${treasuryImplReceipt?.gasUsed.toString()}`);
       console.log(`-----------------`);
     } catch (error) {
-      if (error.message.includes("Already initialized")) {
+      if (error instanceof Error && error.message.includes("Already initialized")) {
         console.log("  - Implementation already initialized");
         console.log(`-----------------`);
       } else {
@@ -164,7 +164,7 @@ export async function deployTreasury(
       console.log(`  - GasUsed: ${initProxyReceipt?.gasUsed.toString()}`);
       console.log(`-----------------`);
     } catch (error) {
-      if (error.message.includes("Already initialized") || error.message.includes("initialized")) {
+      if (error instanceof Error && (error.message.includes("Already initialized") || error.message.includes("initialized"))) {
         console.log("  - Proxy already initialized");
         console.log(`-----------------`);
       } else {

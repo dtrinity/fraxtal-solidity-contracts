@@ -63,7 +63,7 @@ export async function deployPoolAddressesProviderRegistry(
       console.log(`✅ ${REGISTRY_CONTRACT_NAME} ownership already transferred to: ${addressesProviderRegistryOwner.address}`);
     }
   } catch (error) {
-    console.log(`⚠️  Could not verify or transfer ownership: ${error.message}`);
+    console.log(`⚠️  Could not verify or transfer ownership: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   // Return true to indicate the success of the deployment

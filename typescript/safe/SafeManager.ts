@@ -164,12 +164,20 @@ export class SafeManager {
       console.log(`🔄 Creating Safe batch transaction: ${batch.description}`);
       console.log(`   Operations: ${batch.transactions.length}`);
 
-      // Simulate all transactions in the batch
+      // Best-effort simulation. Some operations may depend on earlier ops in the same batch
+      // (e.g., grant admin, then revoke from deployer). If a standalone simulation fails,
+      // continue and rely on Safe UI/on-chain execution ordering.
       for (let i = 0; i < batch.transactions.length; i++) {
         console.log(
           `   Simulating operation ${i + 1}/${batch.transactions.length}...`,
         );
-        await this.simulateTransaction(batch.transactions[i]);
+
+        try {
+          await this.simulateTransaction(batch.transactions[i]);
+        } catch (e) {
+          const message = e instanceof Error ? e.message : String(e);
+          console.warn(`   ⚠️ Simulation failed (continuing): ${message}`);
+        }
       }
 
       const safeTransaction = await this.protocolKit.createTransaction({
@@ -437,9 +445,14 @@ export class SafeManager {
     safeTxHash: string,
   ): Promise<void> {
     try {
-      const rootPath = this.hre.config.paths.root || process.cwd();
-      const filePath = `${rootPath}/safe-builder-batch-${safeTxHash}.json`;
+      const networkName = this.hre.network.name;
+      const deploymentPath = `${this.hre.config.paths.deployments}/${networkName}`;
       const fs = require("fs");
+
+      if (!fs.existsSync(deploymentPath)) {
+        fs.mkdirSync(deploymentPath, { recursive: true });
+      }
+      const filePath = `${deploymentPath}/safe-builder-batch-${safeTxHash}.json`;
       const builderJson = {
         version: "1.0",
         chainId: String(this.config.chainId),

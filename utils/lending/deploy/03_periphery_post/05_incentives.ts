@@ -230,7 +230,7 @@ export async function deployIncentives(
       console.log(`  ✅ EmissionManager ownership already transferred to: ${config.lending.incentivesEmissionManager}`);
     }
   } catch (error) {
-    console.log(`  ⚠️  Could not transfer EmissionManager ownership: ${error.message}`);
+    console.log(`  ⚠️  Could not transfer EmissionManager ownership: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   return true;

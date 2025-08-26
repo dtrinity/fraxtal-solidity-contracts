@@ -203,6 +203,8 @@ async function migrateIssuerRolesIdempotent(
       governanceMultisig,
       deployerAddress,
       deployerSigner,
+      undefined,
+      executor,
     );
   } catch (e) {
     // In Safe mode, consider admin migration pending

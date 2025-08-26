@@ -1,6 +1,7 @@
 import { Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
+import { isMainnetNetwork } from "../../utils/utils";
 import { SafeManager } from "../safe/SafeManager";
 import {
   SafeConfig,
@@ -34,10 +35,9 @@ export class GovernanceExecutor {
     this.signer = signer;
 
     const envForce = process.env.USE_SAFE?.toLowerCase() === "true";
-    const chainIdStr = String(hre.network.config.chainId ?? "");
-    const isFraxtal = chainIdStr === "252" || chainIdStr === "2522";
-
-    this.useSafe = Boolean(safeConfig) && (isFraxtal || envForce);
+    // Enable Safe queueing only on mainnet networks (by name), or when explicitly forced via env.
+    const isMainnet = isMainnetNetwork(hre.network.name);
+    this.useSafe = Boolean(safeConfig) && (isMainnet || envForce);
 
     if (this.useSafe && safeConfig) {
       this.safeManager = new SafeManager(hre, signer, { safeConfig });
@@ -92,11 +92,16 @@ export class GovernanceExecutor {
       if (this.useSafe && safeTxBuilder) {
         const tx = safeTxBuilder();
         this.transactions.push(tx);
+        // Keep logs concise when queueing governance ops
+        const message = error instanceof Error ? error.message : String(error);
+        console.log(
+          `   ➕ Queued governance operation for multisig (direct execution failed: ${message})`,
+        );
         return false;
       }
+      const message = error instanceof Error ? error.message : String(error);
       console.warn(
-        "Direct execution failed; marking requirement as pending:",
-        error,
+        `Direct execution failed; marking requirement as pending: ${message}`,
       );
       return false;
     }

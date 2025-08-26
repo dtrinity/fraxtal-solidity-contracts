@@ -99,32 +99,57 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const routerDeploymentName = `DStakeRouter_${instanceKey}`;
 
     // Check if deployment already exists to ensure idempotency
-    const existingDStakeDeployment = await deployments.getOrNull(DStakeTokenDeploymentName);
-    const existingCollateralVaultDeployment = await deployments.getOrNull(collateralVaultDeploymentName);
-    const existingRouterDeployment = await deployments.getOrNull(routerDeploymentName);
+    const existingDStakeDeployment = await deployments.getOrNull(
+      DStakeTokenDeploymentName,
+    );
+    const existingCollateralVaultDeployment = await deployments.getOrNull(
+      collateralVaultDeploymentName,
+    );
+    const existingRouterDeployment =
+      await deployments.getOrNull(routerDeploymentName);
 
-    if (existingDStakeDeployment && existingCollateralVaultDeployment && existingRouterDeployment) {
-      console.log(`✅ dStake instance '${instanceKey}' already deployed, skipping...`);
+    if (
+      existingDStakeDeployment &&
+      existingCollateralVaultDeployment &&
+      existingRouterDeployment
+    ) {
+      console.log(
+        `✅ dStake instance '${instanceKey}' already deployed, skipping...`,
+      );
       console.log(`  - DStakeToken: ${existingDStakeDeployment.address}`);
-      console.log(`  - CollateralVault: ${existingCollateralVaultDeployment.address}`);
+      console.log(
+        `  - CollateralVault: ${existingCollateralVaultDeployment.address}`,
+      );
       console.log(`  - Router: ${existingRouterDeployment.address}`);
       continue;
     }
 
     // If proxy admin exists, verify ownership before attempting proxy operations
-    const existingProxyAdmin = await deployments.getOrNull(proxyAdminDeploymentName);
+    const existingProxyAdmin = await deployments.getOrNull(
+      proxyAdminDeploymentName,
+    );
+
     if (existingProxyAdmin) {
       try {
-        const proxyAdmin = await ethers.getContractAt("DStakeProxyAdmin", existingProxyAdmin.address);
+        const proxyAdmin = await ethers.getContractAt(
+          "DStakeProxyAdmin",
+          existingProxyAdmin.address,
+        );
         const currentOwner = await proxyAdmin.owner();
-        
+
         if (currentOwner.toLowerCase() !== deployer.toLowerCase()) {
-          console.log(`⚠️  ProxyAdmin ownership transferred to ${currentOwner}, cannot re-deploy proxy`);
-          console.log(`   If you need to redeploy, please use --reset flag or transfer ownership back to ${deployer}`);
+          console.log(
+            `⚠️  ProxyAdmin ownership transferred to ${currentOwner}, cannot re-deploy proxy`,
+          );
+          console.log(
+            `   If you need to redeploy, please use --reset flag or transfer ownership back to ${deployer}`,
+          );
           continue;
         }
       } catch (error) {
-        console.log(`⚠️  Could not verify ProxyAdmin ownership: ${error.message}`);
+        console.log(
+          `⚠️  Could not verify ProxyAdmin ownership: ${error instanceof Error ? error.message : String(error)}`,
+        );
         console.log(`   Skipping deployment to avoid potential failures`);
         continue;
       }
@@ -133,6 +158,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log(`🚀 Deploying dStake instance '${instanceKey}'...`);
 
     let DStakeTokenDeployment;
+
     if (!existingDStakeDeployment) {
       DStakeTokenDeployment = await deploy(DStakeTokenDeploymentName, {
         from: deployer,
@@ -160,13 +186,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         },
         log: false,
       });
-      console.log(`  ✅ DStakeToken deployed: ${DStakeTokenDeployment.address}`);
+      console.log(
+        `  ✅ DStakeToken deployed: ${DStakeTokenDeployment.address}`,
+      );
     } else {
       DStakeTokenDeployment = existingDStakeDeployment;
-      console.log(`  ✅ DStakeToken already exists: ${DStakeTokenDeployment.address}`);
+      console.log(
+        `  ✅ DStakeToken already exists: ${DStakeTokenDeployment.address}`,
+      );
     }
 
     let collateralVaultDeployment;
+
     if (!existingCollateralVaultDeployment) {
       collateralVaultDeployment = await deploy(collateralVaultDeploymentName, {
         from: deployer,
@@ -174,22 +205,31 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         args: [DStakeTokenDeployment.address, instanceConfig.dStable],
         log: false,
       });
-      console.log(`  ✅ CollateralVault deployed: ${collateralVaultDeployment.address}`);
+      console.log(
+        `  ✅ CollateralVault deployed: ${collateralVaultDeployment.address}`,
+      );
     } else {
       collateralVaultDeployment = existingCollateralVaultDeployment;
-      console.log(`  ✅ CollateralVault already exists: ${collateralVaultDeployment.address}`);
+      console.log(
+        `  ✅ CollateralVault already exists: ${collateralVaultDeployment.address}`,
+      );
     }
 
     if (!existingRouterDeployment) {
       const routerDeployment = await deploy(routerDeploymentName, {
         from: deployer,
         contract: "DStakeRouterDLend",
-        args: [DStakeTokenDeployment.address, collateralVaultDeployment.address],
+        args: [
+          DStakeTokenDeployment.address,
+          collateralVaultDeployment.address,
+        ],
         log: false,
       });
       console.log(`  ✅ Router deployed: ${routerDeployment.address}`);
     } else {
-      console.log(`  ✅ Router already exists: ${existingRouterDeployment.address}`);
+      console.log(
+        `  ✅ Router already exists: ${existingRouterDeployment.address}`,
+      );
     }
 
     // NOTE: Governance permissions will be granted in the post-deployment
