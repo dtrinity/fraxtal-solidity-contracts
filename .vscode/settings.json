@@ -4,21 +4,25 @@
     "eslint.enable": true,
     "eslint.format.enable": true,
     "eslint.codeActionsOnSave.mode": "all",
-    "eslint.options": {
-        "configFile": "./.eslintrc.json"
-    },
+    "eslint.useFlatConfig": true,
     "jest.runMode": "on-demand",
     "jest.rootPath": "./",
     "jest.jestCommandLine": "yarn test-ts",
     "[json]": {
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
             "source.fixAll.eslint": "explicit"
         },
         "files.insertFinalNewline": true
     },
     "[typescript]": {
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
+        "editor.codeActionsOnSave": {
+            "source.fixAll.eslint": "explicit"
+        }
+    },
+    "[javascript]": {
+        "editor.formatOnSave": false,
         "editor.codeActionsOnSave": {
             "source.fixAll.eslint": "explicit"
         }
@@ -28,18 +32,13 @@
         "editor.insertSpaces": false,
         "editor.tabSize": 4
     },
-    "[json][typescript]": {
-        "editor.codeActionsOnSave": {
-            "source.fixAll.eslint": "explicit"
-        }
-    },
+    
     "jest.nodeEnv": {
         "AWS_PROFILE": "beta"
     },
     "[solidity]": {
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "NomicFoundation.hardhat-solidity"
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "solidity.formatter": "prettier",
     "makefile.configureOnOpen": false
 }

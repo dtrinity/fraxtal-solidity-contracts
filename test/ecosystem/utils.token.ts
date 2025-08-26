@@ -30,8 +30,14 @@ export async function getTokenContractForSymbol(
   const tokenaddress = tokenDeployment.address;
 
   const inputTokenInfo = await fetchTokenInfoFromAddress(tokenaddress);
+  // Use the appropriate ABI per token. dUSD is AccessControl-enabled (upgradeable).
+  const abiPath =
+    symbol === "dUSD"
+      ? "contracts/test/ERC20StablecoinUpgradeable.sol:ERC20StablecoinUpgradeable"
+      : "contracts/dex/universal_router/test/MintableERC20.sol:MintableERC20";
+
   const contract = (await ethers.getContractAt(
-    "contracts/dex/universal_router/test/MintableERC20.sol:MintableERC20",
+    abiPath,
     tokenaddress,
     signer,
   )) as unknown as MintableERC20;

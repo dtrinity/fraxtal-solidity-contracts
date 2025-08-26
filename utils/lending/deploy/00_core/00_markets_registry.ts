@@ -19,13 +19,23 @@ export async function deployPoolAddressesProviderRegistry(
   deployer: HardhatEthersSigner,
   addressesProviderRegistryOwner: HardhatEthersSigner,
 ): Promise<boolean> {
-  const poolAddressesProviderRegistryDeployedResult = await deployContract(
-    hre,
-    REGISTRY_CONTRACT_NAME,
-    [deployer.address],
-    undefined, // auto-filled gas limit
-    deployer,
-  );
+  // Check if deployment already exists to ensure idempotency
+  const existingRegistry = await hre.deployments.getOrNull(REGISTRY_CONTRACT_NAME);
+
+  let poolAddressesProviderRegistryDeployedResult;
+  if (existingRegistry) {
+    console.log(`✅ ${REGISTRY_CONTRACT_NAME} already deployed at: ${existingRegistry.address}`);
+    poolAddressesProviderRegistryDeployedResult = { address: existingRegistry.address };
+  } else {
+    poolAddressesProviderRegistryDeployedResult = await deployContract(
+      hre,
+      REGISTRY_CONTRACT_NAME,
+      [deployer.address],
+      undefined, // auto-filled gas limit
+      deployer,
+    );
+    console.log(`✅ ${REGISTRY_CONTRACT_NAME} deployed at: ${poolAddressesProviderRegistryDeployedResult.address}`);
+  }
 
   const registryInstance = await hre.ethers.getContractAt(
     REGISTRY_CONTRACT_NAME,
@@ -33,18 +43,28 @@ export async function deployPoolAddressesProviderRegistry(
     deployer,
   );
 
-  console.log(`------------------------`);
-  console.log(
-    `Transfer ownership of ${REGISTRY_CONTRACT_NAME} to ${addressesProviderRegistryOwner.address}`,
-  );
-  const response = await registryInstance.transferOwnership(
-    addressesProviderRegistryOwner,
-  );
-  const receipt = await response.wait();
-  console.log(`  - TxHash: ${receipt?.hash}`);
-  console.log(`  - From: ${receipt?.from}`);
-  console.log(`  - GasUsed: ${receipt?.gasUsed.toString()}`);
-  console.log(`------------------------`);
+  // Transfer ownership only if not already transferred
+  try {
+    const currentOwner = await registryInstance.owner();
+    if (currentOwner.toLowerCase() !== addressesProviderRegistryOwner.address.toLowerCase()) {
+      console.log(`------------------------`);
+      console.log(
+        `Transfer ownership of ${REGISTRY_CONTRACT_NAME} to ${addressesProviderRegistryOwner.address}`,
+      );
+      const response = await registryInstance.transferOwnership(
+        addressesProviderRegistryOwner,
+      );
+      const receipt = await response.wait();
+      console.log(`  - TxHash: ${receipt?.hash}`);
+      console.log(`  - From: ${receipt?.from}`);
+      console.log(`  - GasUsed: ${receipt?.gasUsed.toString()}`);
+      console.log(`------------------------`);
+    } else {
+      console.log(`✅ ${REGISTRY_CONTRACT_NAME} ownership already transferred to: ${addressesProviderRegistryOwner.address}`);
+    }
+  } catch (error) {
+    console.log(`⚠️  Could not verify or transfer ownership: ${error instanceof Error ? error.message : String(error)}`);
+  }
 
   // Return true to indicate the success of the deployment
   // It is to avoid running this script again (except using --reset flag)
