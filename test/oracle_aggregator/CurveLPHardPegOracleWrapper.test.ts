@@ -7,19 +7,23 @@ describe("CurveLPHardPegOracleWrapper", function () {
     const [owner, manager, user] = await ethers.getSigners();
 
     // Deploy mock tokens
-    const MockERC20 = await ethers.getContractFactory(
-      "contracts/test/MockERC20.sol:MockERC20",
+    const ERC20Test = await ethers.getContractFactory(
+      "contracts/test/ERC20Test.sol:ERC20Test",
     );
-    const usdc = await MockERC20.deploy("USDC", "USDC");
-    const dai = await MockERC20.deploy("DAI", "DAI");
+    const usdc = await ERC20Test.deploy("USDC", 6);
+    const dai = await ERC20Test.deploy("DAI", 18);
 
     // Deploy NG mock pool (exposes get_virtual_price, D_oracle, stored_rates, get_balances)
     const MockNG = await ethers.getContractFactory(
-      "contracts/test/curve/MockCurveStableNG.sol:MockCurveStableNG",
+      "contracts/test/curve/MockCurveStableNGForLP.sol:MockCurveStableNGForLP",
     );
-    const curvePool = await MockNG.deploy("Curve USDC-DAI LP", "crvUSDCDAI", 2);
+    const curvePool = (await MockNG.deploy(
+      "Curve USDC-DAI LP",
+      "crvUSDCDAI",
+      2,
+    )) as any;
 
-    // Setup pool coins
+    // Setup pool coins (mock will read ERC20 metadata decimals automatically)
     await curvePool.setCoin(0, await usdc.getAddress());
     await curvePool.setCoin(1, await dai.getAddress());
 

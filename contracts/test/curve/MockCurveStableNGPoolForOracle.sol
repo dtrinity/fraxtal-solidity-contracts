@@ -3,8 +3,8 @@
  *    _____     ______   ______     __     __   __     __     ______   __  __       *
  *   /\  __-.  /\__  _\ /\  == \   /\ \   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \      *
  *   \ \ \/\ \ \/_/\ \/ \ \  __<   \ \ \  \ \ \-.  \  \ \ \  \/_/\ \/ \ \____ \     *
- *    \ \____-    \ \_\  \ \_\ \_\  \ \_\  \ \_\\"\_\  \ \_\    \ \_\  \/\_____\    *
- *     \/____/     \/_/   \/_/ /_/   \/_/   \/_/ \/_/   \/_/     \/_/   \/_____/    *
+ *    \ \____-    \ \_\  \ \_\ \_\  \ \_\  \ \_"\_\  \ \_\    \ \_\  \/\_____\    *
+ *     \/____/     \/_/   \/_/ /_/   \/_/   \/_/ \/_/   \/_/     \/_/   \/_____ /    *
  *                                                                                  *
  * ————————————————————————————————— dtrinity.org ————————————————————————————————— *
  *                                                                                  *
@@ -19,7 +19,12 @@ pragma solidity 0.8.20;
 
 import "../../oracle_aggregator/wrapper/CurveOracleWrapper.sol";
 
-contract MockCurveStableNGPool {
+/**
+ * @title MockCurveStableNGPoolForOracle
+ * @notice NG pool mock exposing price index and quoting views used by price-oracle wrappers
+ * @dev Exposes: get_dy, price_oracle, stored_rates, coins, N_COINS; plus a decimals setter for tests
+ */
+contract MockCurveStableNGPoolForOracle {
     uint256 public expectedOutput;
     uint256 public constant N_COINS = 2;
     uint256 public decimals = 18;

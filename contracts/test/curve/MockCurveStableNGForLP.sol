@@ -3,8 +3,8 @@
  *    _____     ______   ______     __     __   __     __     ______   __  __       *
  *   /\  __-.  /\__  _\ /\  == \   /\ \   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \      *
  *   \ \ \/\ \ \/_/\ \/ \ \  __<   \ \ \  \ \ \-.  \  \ \ \  \/_/\ \/ \ \____ \     *
- *    \ \____-    \ \_\  \ \_\ \_\  \ \_\  \ \_\"\_\  \ \_\    \ \_\  \/\_____\    *
- *     \/____/     \/_/   \/_/ /_/   \/_/   \/_/ \/_/   \/_/     \/_/   \/_____/    *
+ *    \ \____-    \ \_\  \ \_\ \_\  \ \_\  \ \_"\_\  \ \_\    \ \_\  \/\_____\    *
+ *     \/____/     \/_/   \/_/ /_/   \/_/   \/_/ \/_/   \/_/     \/_/   \/_____ /    *
  *                                                                                  *
  * ————————————————————————————————— dtrinity.org ————————————————————————————————— *
  *                                                                                  *
@@ -17,9 +17,17 @@
 
 pragma solidity 0.8.20;
 
-contract MockCurveStableNG {
+import "@openzeppelin/contracts-5/token/ERC20/extensions/IERC20Metadata.sol";
+
+/**
+ * @title MockCurveStableNGForLP
+ * @notice Minimal NG-like pool mock exposing LP-facing oracle views used by LP wrappers
+ * @dev Exposes: get_virtual_price, D_oracle, stored_rates, get_balances, coins, N_COINS
+ */
+contract MockCurveStableNGForLP {
     uint256 public nCoins;
     address[] private _coins;
+    uint8[] private _coinDecimals;
 
     uint256 private _virtualPrice;
     uint256 private _dOracle;
@@ -33,12 +41,14 @@ contract MockCurveStableNG {
     ) {
         nCoins = _nCoins;
         _coins = new address[](_nCoins);
+        _coinDecimals = new uint8[](_nCoins);
         _virtualPrice = 1e18;
         _dOracle = 0;
         _storedRates = new uint256[](_nCoins);
         _balances = new uint256[](_nCoins);
         for (uint256 i; i < _nCoins; ) {
-            _storedRates[i] = 1e18;
+            _coinDecimals[i] = 18; // default to 18 decimals
+            _storedRates[i] = 1e18; // default rate assuming 18 decimals
             _balances[i] = 0;
             unchecked {
                 ++i;
@@ -63,6 +73,36 @@ contract MockCurveStableNG {
     function setCoin(uint256 i, address coin) external {
         require(i < nCoins, "i");
         _coins[i] = coin;
+        // Auto-detect decimals from ERC20 metadata and normalize stored rate
+        try IERC20Metadata(coin).decimals() returns (uint8 dec) {
+            require(dec <= 36, "dec");
+            _coinDecimals[i] = dec;
+            _storedRates[i] = 10 ** (36 - uint256(dec));
+        } catch {
+            revert("no metadata");
+        }
+    }
+
+    function setCoinDecimals(uint256 i, uint8 decimals_) external {
+        require(i < nCoins, "i");
+        require(decimals_ <= 36, "dec");
+        _coinDecimals[i] = decimals_;
+        // Normalize stored rate so that 1 whole coin contributes ~1e18 to xp
+        // xp[i] = balances[i] * rate[i] / 1e18
+        // For 1 whole coin (10^dec), set rate = 10^(36 - dec)
+        _storedRates[i] = 10 ** (36 - uint256(decimals_));
+    }
+
+    function setCoinWithDecimals(
+        uint256 i,
+        address coin,
+        uint8 decimals_
+    ) external {
+        require(i < nCoins, "i");
+        require(decimals_ <= 36, "dec");
+        _coins[i] = coin;
+        _coinDecimals[i] = decimals_;
+        _storedRates[i] = 10 ** (36 - uint256(decimals_));
     }
 
     // NG-like views used in wrappers
@@ -85,4 +125,3 @@ contract MockCurveStableNG {
         return nCoins;
     }
 }
-
