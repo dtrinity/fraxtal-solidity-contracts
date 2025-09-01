@@ -3,7 +3,7 @@
  *    _____     ______   ______     __     __   __     __     ______   __  __       *
  *   /\  __-.  /\__  _\ /\  == \   /\ \   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \      *
  *   \ \ \/\ \ \/_/\ \/ \ \  __<   \ \ \  \ \ \-.  \  \ \ \  \/_/\ \/ \ \____ \     *
- *    \ \____-    \ \_\  \ \_\ \_\  \ \_\  \ \_\\"\_\  \ \_\    \ \_\  \/\_____\    *
+ *    \ \____-    \ \_\  \ \_\ \_\  \ \_\  \ \_\"\_\  \ \_\    \ \_\  \/\_____\    *
  *     \/____/     \/_/   \/_/ /_/   \/_/   \/_/ \/_/   \/_/     \/_/   \/_____/    *
  *                                                                                  *
  * ————————————————————————————————— dtrinity.org ————————————————————————————————— *
@@ -17,34 +17,30 @@
 
 pragma solidity 0.8.20;
 
-import "../IOracleWrapper.sol";
 import "@openzeppelin/contracts-5/access/AccessControl.sol";
+import "../interface/curve/ICurveStableNG.sol";
 
 /**
- * @title ICurveLPOracleWrapper
- * @notice Interface for Curve LP token oracle wrapper
+ * @title CurveLPBaseWrapper
+ * @notice Shared base for Curve LP oracle wrappers
  */
-abstract contract ICurveLPOracleWrapper is IOracleWrapper, AccessControl {
-    /* Structs */
-    
-    struct LPConfig {
-        address pool;           // Curve pool address
-        address baseAsset;      // Base asset for pricing (e.g., USDC)
-        uint8 baseAssetIndex;   // Index of base asset in pool
-    }
-
+abstract contract CurveLPBaseWrapper is AccessControl {
     /* Core state */
 
     /// @notice Base currency unit (e.g. 1e8 if using Aave's oracle decimals)
-    uint256 public immutable BASE_CURRENCY_UNIT;
+    uint256 internal immutable baseCurrencyUnit;
 
+    /// @notice Curve math uses 1e18 fixed point
     uint256 public constant CURVE_BASE_CURRENCY_UNIT = 10 ** 18;
 
     /// @notice Base currency (address(0) for USD)
-    address public constant BASE_CURRENCY = address(0);
+    address internal constant BASE_CURRENCY_ADDR = address(0);
+
+    /* Roles */
+    bytes32 public constant ORACLE_MANAGER_ROLE =
+        keccak256("ORACLE_MANAGER_ROLE");
 
     /* Events */
-
     event LPConfigSet(
         address indexed lpToken,
         address indexed pool,
@@ -54,49 +50,52 @@ abstract contract ICurveLPOracleWrapper is IOracleWrapper, AccessControl {
     event LPConfigRemoved(address indexed lpToken);
 
     /* Errors */
-
     error LPTokenNotConfigured(address lpToken);
     error InvalidPool(address pool);
     error InvalidAddress();
     error NotStableSwapPool(address pool);
     error LPTokenMismatch(address lpToken, address pool);
     error BaseAssetNotInPool(address baseAsset, address pool);
-    error PriceIsZero(address lpToken);
+    error PriceIsZero(address asset);
 
-    /* Roles */
-
-    bytes32 public constant ORACLE_MANAGER_ROLE =
-        keccak256("ORACLE_MANAGER_ROLE");
+    /* Minimal config for wrappers */
+    struct LPConfig {
+        address pool;
+    }
 
     constructor(uint256 _baseCurrencyUnit) {
-        BASE_CURRENCY_UNIT = _baseCurrencyUnit;
+        baseCurrencyUnit = _baseCurrencyUnit;
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(ORACLE_MANAGER_ROLE, msg.sender);
     }
 
     /**
-     * @notice Set or update configuration for an LP token
-     * @param lpToken LP token address
-     * @param pool Curve pool address
-     * @param baseAsset Base asset to use for pricing
+     * @dev Verifies the pool exposes StableSwap-NG interfaces we rely upon
      */
-    function setLPConfig(
-        address lpToken,
-        address pool,
-        address baseAsset
-    ) external virtual;
+    function _verifyStableSwapNG(address pool) internal view {
+        if (pool == address(0)) revert InvalidAddress();
+        // Probe NG functions
+        try ICurveStableNG(pool).get_virtual_price() returns (
+            uint256
+        ) {} catch {
+            revert NotStableSwapPool(pool);
+        }
+        try ICurveStableNG(pool).D_oracle() returns (uint256) {} catch {
+            revert NotStableSwapPool(pool);
+        }
+        try ICurveStableNG(pool).stored_rates() returns (
+            uint256[] memory
+        ) {} catch {
+            revert NotStableSwapPool(pool);
+        }
+    }
 
-    /**
-     * @notice Remove configuration for an LP token
-     * @param lpToken LP token address
-     */
-    function removeLPConfig(address lpToken) external virtual;
+    // Expose IPriceOracleGetter-required functions
+    function BASE_CURRENCY() public pure virtual returns (address) {
+        return BASE_CURRENCY_ADDR;
+    }
 
-    function getPriceInfo(
-        address lpToken
-    ) public view virtual override returns (uint256 price, bool isAlive);
-
-    function getAssetPrice(
-        address lpToken
-    ) external view virtual override returns (uint256);
+    function BASE_CURRENCY_UNIT() public view virtual returns (uint256) {
+        return baseCurrencyUnit;
+    }
 }
