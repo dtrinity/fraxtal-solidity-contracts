@@ -17,36 +17,32 @@
 
 pragma solidity ^0.8.20;
 
-import {IOracleWrapper} from "../../oracle_aggregator/interface/IOracleWrapper.sol";
+import "./MockOracleAggregator.sol";
 
-contract MockOracleAggregator is IOracleWrapper {
-    address public immutable BASE_CURRENCY;
-    uint256 public immutable BASE_CURRENCY_UNIT;
+contract MockOracleAggregatorWithFailures is MockOracleAggregator {
+    mapping(address => bool) private _shouldFailGetAssetPrice;
+    mapping(address => bool) private _shouldFailGetPriceInfo;
 
-    mapping(address => uint256) public prices;
-    mapping(address => bool) public isAlive;
+    constructor(
+        address baseCurrency, 
+        uint256 baseCurrencyUnit
+    ) MockOracleAggregator(baseCurrency, baseCurrencyUnit) {}
 
-    constructor(address _baseCurrency, uint256 _baseCurrencyUnit) {
-        BASE_CURRENCY = _baseCurrency;
-        BASE_CURRENCY_UNIT = _baseCurrencyUnit;
+    function setShouldFailGetAssetPrice(address asset, bool shouldFail) external {
+        _shouldFailGetAssetPrice[asset] = shouldFail;
     }
 
-    function setAssetPrice(address _asset, uint256 _price) external {
-        if (_asset == BASE_CURRENCY) {
-            revert("Cannot set price for base currency");
-        }
-
-        prices[_asset] = _price;
-        isAlive[_asset] = true;
-    }
-
-    function setAssetAlive(address _asset, bool _isAlive) external {
-        isAlive[_asset] = _isAlive;
+    function setShouldFailGetPriceInfo(address asset, bool shouldFail) external {
+        _shouldFailGetPriceInfo[asset] = shouldFail;
     }
 
     function getAssetPrice(
         address _asset
-    ) external view virtual override returns (uint256) {
+    ) external view override returns (uint256) {
+        if (_shouldFailGetAssetPrice[_asset]) {
+            revert("Mock oracle aggregator failure");
+        }
+        
         if (_asset == BASE_CURRENCY) {
             return BASE_CURRENCY_UNIT;
         }
@@ -59,7 +55,11 @@ contract MockOracleAggregator is IOracleWrapper {
 
     function getPriceInfo(
         address _asset
-    ) external view virtual override returns (uint256 price, bool _isAlive) {
+    ) external view override returns (uint256 price, bool _isAlive) {
+        if (_shouldFailGetPriceInfo[_asset]) {
+            revert("Mock oracle aggregator failure");
+        }
+        
         if (_asset == BASE_CURRENCY) {
             return (BASE_CURRENCY_UNIT, true);
         }

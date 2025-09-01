@@ -29,11 +29,11 @@ contract MockCurveStableNGForLP {
     address[] private _coins;
     uint8[] private _coinDecimals;
 
-    uint256 private _virtualPrice;
-    uint256 private _dOracle;
-    uint256[] private _storedRates;
-    uint256[] private _balances;
-    uint256 private _totalSupply;
+    uint256 internal _virtualPrice;
+    uint256 internal _dOracle;
+    uint256[] internal _storedRates;
+    uint256[] internal _balances;
+    uint256 internal _totalSupply;
 
     constructor(
         string memory /*name*/,
@@ -108,16 +108,16 @@ contract MockCurveStableNGForLP {
     }
 
     // NG-like views used in wrappers
-    function get_virtual_price() external view returns (uint256) {
+    function get_virtual_price() external view virtual returns (uint256) {
         return _virtualPrice;
     }
-    function D_oracle() external view returns (uint256) {
+    function D_oracle() external view virtual returns (uint256) {
         return _dOracle;
     }
-    function stored_rates() external view returns (uint256[] memory) {
+    function stored_rates() external view virtual returns (uint256[] memory) {
         return _storedRates;
     }
-    function get_balances() external view returns (uint256[] memory) {
+    function get_balances() external view virtual returns (uint256[] memory) {
         return _balances;
     }
     function coins(uint256 i) external view returns (address) {
@@ -128,7 +128,7 @@ contract MockCurveStableNGForLP {
     }
     
     // ERC20-like interface for LP token (since pool == LP token in NG pools)
-    function totalSupply() external view returns (uint256) {
+    function totalSupply() external view virtual returns (uint256) {
         return _totalSupply;
     }
     
