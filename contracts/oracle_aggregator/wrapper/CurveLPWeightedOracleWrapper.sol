@@ -20,6 +20,7 @@ pragma solidity 0.8.20;
 import "../interface/curve/ICurveStableNG.sol";
 import "../interface/IOracleWrapper.sol";
 import "./CurveLPBaseWrapper.sol";
+import "@openzeppelin/contracts-5/token/ERC20/IERC20.sol";
 
 /**
  * @title CurveLPWeightedOracleWrapper
@@ -177,7 +178,17 @@ contract CurveLPWeightedOracleWrapper is IOracleWrapper, CurveLPBaseWrapper {
         address[] storage anchors = lpAnchorAssets[lpToken];
         if (anchors.length == 0) revert InvalidAddress(); // weighted wrapper requires anchors
 
-        uint256 virtualPrice = ICurveStableNG(config.pool).get_virtual_price();
+        // Use D_oracle() for smoothed, manipulation-resistant value
+        uint256 smoothedD = ICurveStableNG(config.pool).D_oracle();
+        uint256 totalSupply = IERC20(lpToken).totalSupply();
+        
+        // Calculate smoothed virtual price from D_oracle
+        // Virtual price = D / total_supply (both in 1e18 precision)
+        uint256 virtualPrice = totalSupply > 0 
+            ? (smoothedD * CURVE_RATE_PRECISION) / totalSupply 
+            : 0;
+
+        if (virtualPrice == 0) return (0, false);
 
         uint256[] memory balances = ICurveStableNG(config.pool).get_balances();
         uint256[] memory rates = ICurveStableNG(config.pool).stored_rates();

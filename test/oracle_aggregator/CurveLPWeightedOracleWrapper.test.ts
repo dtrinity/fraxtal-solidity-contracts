@@ -82,8 +82,10 @@ describe("CurveLPWeightedOracleWrapper", function () {
       ethers.parseUnits("0.99", 8),
     );
 
-    // set virtual price = 1.0
+    // set virtual price = 1.0 and D_oracle to match (D = virtual_price * totalSupply)
     await curvePool.setVirtualPrice(ethers.parseUnits("1", 18));
+    // totalSupply defaults to 1e18, so D_oracle should also be 1e18
+    await curvePool.setDOracle(ethers.parseUnits("1", 18));
 
     // Configure fully
     await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);

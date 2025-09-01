@@ -33,6 +33,7 @@ contract MockCurveStableNGForLP {
     uint256 private _dOracle;
     uint256[] private _storedRates;
     uint256[] private _balances;
+    uint256 private _totalSupply;
 
     constructor(
         string memory /*name*/,
@@ -46,6 +47,7 @@ contract MockCurveStableNGForLP {
         _dOracle = 0;
         _storedRates = new uint256[](_nCoins);
         _balances = new uint256[](_nCoins);
+        _totalSupply = 1e18; // Default 1 LP token
         for (uint256 i; i < _nCoins; ) {
             _coinDecimals[i] = 18; // default to 18 decimals
             _storedRates[i] = 1e18; // default rate assuming 18 decimals
@@ -123,5 +125,14 @@ contract MockCurveStableNGForLP {
     }
     function N_COINS() external view returns (uint256) {
         return nCoins;
+    }
+    
+    // ERC20-like interface for LP token (since pool == LP token in NG pools)
+    function totalSupply() external view returns (uint256) {
+        return _totalSupply;
+    }
+    
+    function setTotalSupply(uint256 supply) external {
+        _totalSupply = supply;
     }
 }
