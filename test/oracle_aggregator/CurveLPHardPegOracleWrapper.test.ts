@@ -1,8 +1,11 @@
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
 describe("CurveLPHardPegOracleWrapper", function () {
+  /**
+   *
+   */
   async function deployFixture() {
     const [owner, manager, user] = await ethers.getSigners();
 

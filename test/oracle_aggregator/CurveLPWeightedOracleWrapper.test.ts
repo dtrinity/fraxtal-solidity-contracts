@@ -1,8 +1,11 @@
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
 describe("CurveLPWeightedOracleWrapper", function () {
+  /**
+   *
+   */
   async function deployFixture() {
     const [owner, manager, user] = await ethers.getSigners();
 
@@ -118,8 +121,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set depeg prices: USDC = 0.95, DAI = 1.00
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("0.95", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("0.95", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Set equal balances and virtual price = 1.0
       await curvePool.setBalances([
@@ -127,7 +136,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
         ethers.parseUnits("1000", 18), // 1000 DAI
       ]);
       await curvePool.setVirtualPrice(ethers.parseUnits("1", 18));
-      
+
       // Set D_oracle to match scenario (D = virtual_price * totalSupply)
       // With equal balances, D_oracle should reflect the pool state
       await curvePool.setDOracle(ethers.parseUnits("1", 18));
@@ -136,7 +145,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       const [price, alive] = await wrapper.getPriceInfo(lpToken);
-      
+
       // With equal xp balances: weighted avg = (0.95 + 1.00)/2 = 0.975
       expect(alive).to.eq(true);
       expect(price).to.eq(ethers.parseUnits("0.975", 8));
@@ -150,8 +159,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set depeg prices: USDC = 0.95, DAI = 0.98
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("0.95", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("0.98", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("0.95", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("0.98", 8),
+      );
 
       // Set equal balances
       await curvePool.setBalances([
@@ -165,7 +180,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       const [price, alive] = await wrapper.getPriceInfo(lpToken);
-      
+
       // With equal xp balances: weighted avg = (0.95 + 0.98)/2 = 0.965
       expect(alive).to.eq(true);
       expect(price).to.eq(ethers.parseUnits("0.965", 8));
@@ -179,8 +194,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set extreme depeg: USDC = 0.10, DAI = 1.00
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("0.10", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("0.10", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Set equal balances
       await curvePool.setBalances([
@@ -194,7 +215,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       const [price, alive] = await wrapper.getPriceInfo(lpToken);
-      
+
       // Oracle should handle extreme depeg gracefully
       // With equal xp balances: weighted avg = (0.10 + 1.00)/2 = 0.55
       expect(alive).to.eq(true);
@@ -209,8 +230,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Start with depegged prices: USDC = 0.95, DAI = 0.98
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("0.95", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("0.98", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("0.95", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("0.98", 8),
+      );
 
       await curvePool.setBalances([
         ethers.parseUnits("1000", 6),
@@ -228,8 +255,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       expect(price).to.eq(ethers.parseUnits("0.965", 8)); // (0.95 + 0.98)/2
 
       // Prices recover to normal: USDC = 1.00, DAI = 1.00
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Check recovered state
       [price, alive] = await wrapper.getPriceInfo(lpToken);
@@ -245,8 +278,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set normal prices initially
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       await curvePool.setBalances([
         ethers.parseUnits("1000", 6),
@@ -280,8 +319,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set depeg: USDC = 0.95, DAI = 1.00
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("0.95", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("0.95", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Set unbalanced pool: more USDC than DAI (typical after depeg arbitrage)
       await curvePool.setBalances([
@@ -295,7 +340,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       const [price, alive] = await wrapper.getPriceInfo(lpToken);
-      
+
       // With unbalanced pool, the weighted average should be skewed towards USDC
       // USDC xp = 1500 * 1e30 / 1e18 = 1500 * 1e12
       // DAI xp = 500 * 1e18 * 1e18 / 1e18 = 500 * 1e18
@@ -313,8 +358,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set depeg prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("0.95", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("0.95", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       await curvePool.setBalances([
         ethers.parseUnits("1000", 6),
@@ -331,7 +382,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       const [price, alive] = await wrapper.getPriceInfo(lpToken);
-      
+
       // Oracle should use D_oracle (1.0) instead of inflated virtual_price (1.1)
       // Expected: (0.95 + 1.00)/2 * (1.0/1.0) = 0.975 * 1.0 = 0.975
       expect(alive).to.eq(true);
@@ -348,8 +399,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices: USDC = 1.00, DAI = 0.99
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("0.99", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -388,10 +445,10 @@ describe("CurveLPWeightedOracleWrapper", function () {
         ethers.parseUnits("2", 30), // 2x rate for USDC (2 * 10^30)
         ethers.parseUnits("0.5", 18), // 0.5x rate for DAI
       ]);
-      
+
       // Reset to balanced amounts
       await curvePool.setBalances([
-        ethers.parseUnits("1000", 6), // 1000 USDC  
+        ethers.parseUnits("1000", 6), // 1000 USDC
         ethers.parseUnits("1000", 18), // 1000 DAI
       ]);
 
@@ -411,8 +468,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set normal prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -423,7 +486,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
       await curvePool.setDOracle(ethers.parseUnits("1", 18));
 
       const [price, alive] = await wrapper.getPriceInfo(lpToken);
-      
+
       // Should return safely with price=0, alive=false when totalXp is 0
       expect(alive).to.eq(false);
       expect(price).to.eq(0);
@@ -437,8 +500,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("0.99", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -468,7 +537,10 @@ describe("CurveLPWeightedOracleWrapper", function () {
       // DAI dominates: weighted avg approaches 0.99
       expect(alive).to.eq(true);
       // Price should be close to DAI's price due to dominance
-      expect(price).to.be.closeTo(ethers.parseUnits("0.99", 8), ethers.parseUnits("0.001", 8));
+      expect(price).to.be.closeTo(
+        ethers.parseUnits("0.99", 8),
+        ethers.parseUnits("0.001", 8),
+      );
     });
 
     it("should handle different decimal tokens (USDC 6 decimals, DAI 18 decimals) and verify rate normalization works correctly", async function () {
@@ -479,8 +551,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully (coins already set with correct decimals in fixture)
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -501,7 +579,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
       await curvePool.setDOracle(ethers.parseUnits("1", 18));
 
       const [price, alive] = await wrapper.getPriceInfo(lpToken);
-      
+
       // Despite different decimal representations, both should contribute equally to xp
       // USDC xp = 1000 * 1e6 * 1e30 / 1e18 = 1000 * 1e18
       // DAI xp = 1000 * 1e18 * 1e18 / 1e18 = 1000 * 1e18
@@ -531,8 +609,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set normal prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -542,15 +626,15 @@ describe("CurveLPWeightedOracleWrapper", function () {
         ethers.parseUnits("1000", 6),
         ethers.parseUnits("1000", 18),
       ]);
-      
+
       // Set D_oracle to positive value
       await curvePool.setDOracle(ethers.parseUnits("1000", 18));
-      
+
       // But set totalSupply to 0 (edge case scenario)
       await curvePool.setTotalSupply(0);
 
       const [price, alive] = await wrapper.getPriceInfo(lpToken);
-      
+
       // When totalSupply is 0, virtualPrice calculation should result in 0
       // This should cause the function to return (0, false)
       expect(alive).to.eq(false);
@@ -565,8 +649,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set normal prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -577,12 +667,12 @@ describe("CurveLPWeightedOracleWrapper", function () {
         ethers.parseUnits("1000", 18),
       ]);
       await curvePool.setTotalSupply(ethers.parseUnits("1000", 18));
-      
+
       // Set D_oracle to 0 (edge case)
       await curvePool.setDOracle(0);
 
       const [price, alive] = await wrapper.getPriceInfo(lpToken);
-      
+
       // When D_oracle is 0, virtualPrice calculation should result in 0
       // This should cause the function to return (0, false)
       expect(alive).to.eq(false);
@@ -590,13 +680,18 @@ describe("CurveLPWeightedOracleWrapper", function () {
     });
 
     it("should handle single coin pool (N_COINS = 1) edge case", async function () {
-      const { manager, wrapper, oracleAggregator, usdc } = await loadFixture(deployFixture);
+      const { manager, wrapper, oracleAggregator, usdc } =
+        await loadFixture(deployFixture);
 
       // Deploy single coin mock pool
       const MockNG = await ethers.getContractFactory(
         "contracts/test/curve/MockCurveStableNGForLP.sol:MockCurveStableNGForLP",
       );
-      const singleCoinPool = await MockNG.deploy("Single USDC Pool", "sUSDC", 1);
+      const singleCoinPool = await MockNG.deploy(
+        "Single USDC Pool",
+        "sUSDC",
+        1,
+      );
 
       // Setup single coin
       await singleCoinPool.setCoin(0, await usdc.getAddress());
@@ -609,13 +704,16 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress()];
 
       // Set USDC price
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       const [price, alive] = await wrapper.getPriceInfo(lpToken);
-      
+
       // With single coin, weighted average should equal that coin's price
       expect(alive).to.eq(true);
       expect(price).to.eq(ethers.parseUnits("1.00", 8));
@@ -629,8 +727,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -640,18 +744,18 @@ describe("CurveLPWeightedOracleWrapper", function () {
         1, // 1 wei USDC
         1, // 1 wei DAI
       ]);
-      
+
       // Set very large custom rates to test precision
       await curvePool.setStoredRates([
         ethers.parseUnits("1", 35), // Very large rate for USDC
         ethers.parseUnits("1", 35), // Very large rate for DAI
       ]);
-      
+
       await curvePool.setVirtualPrice(ethers.parseUnits("1", 18));
       await curvePool.setDOracle(ethers.parseUnits("1", 18));
 
       const [price, alive] = await wrapper.getPriceInfo(lpToken);
-      
+
       // Should handle precision gracefully without reverting
       expect(alive).to.eq(true);
       expect(price).to.be.gt(0);
@@ -667,8 +771,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -678,7 +788,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
         ethers.parseUnits("1000", 6), // 1000 USDC
         ethers.parseUnits("1000", 18), // 1000 DAI
       ]);
-      
+
       // Set normal D_oracle (manipulation-resistant)
       await curvePool.setDOracle(ethers.parseUnits("2000", 18)); // Normal D reflecting pool size
       // Set inflated virtual_price due to flash loan manipulation
@@ -704,8 +814,9 @@ describe("CurveLPWeightedOracleWrapper", function () {
       // But D_oracle remains stable (EMA smoothing)
       await curvePool.setDOracle(ethers.parseUnits("2000", 18)); // Unchanged, resistant to manipulation
 
-      const [priceAfterManipulation, aliveAfterManipulation] = await wrapper.getPriceInfo(lpToken);
-      
+      const [priceAfterManipulation, aliveAfterManipulation] =
+        await wrapper.getPriceInfo(lpToken);
+
       // D_oracle-based price should remain stable despite balance manipulation
       // virtualPrice still = (2000e18 * 1e18) / 2000e18 = 1e18
       expect(aliveAfterManipulation).to.eq(true);
@@ -720,8 +831,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -736,14 +853,15 @@ describe("CurveLPWeightedOracleWrapper", function () {
       // Case 1: Normal state - D_oracle and virtual_price should be similar
       await curvePool.setDOracle(ethers.parseUnits("1000", 18)); // Normal D
       await curvePool.setVirtualPrice(ethers.parseUnits("1", 18)); // Normal virtual price
-      
+
       const virtualPriceFromPool = await curvePool.get_virtual_price();
       const dOracleFromPool = await curvePool.D_oracle();
       const totalSupply = await curvePool.totalSupply();
-      
+
       // Calculate what the oracle uses (D_oracle based virtual price)
-      const oracleVirtualPrice = (dOracleFromPool * ethers.parseUnits("1", 18)) / totalSupply;
-      
+      const oracleVirtualPrice =
+        (dOracleFromPool * ethers.parseUnits("1", 18)) / totalSupply;
+
       // They should be very close in normal state
       expect(virtualPriceFromPool).to.eq(ethers.parseUnits("1", 18));
       expect(oracleVirtualPrice).to.eq(ethers.parseUnits("1", 18));
@@ -758,7 +876,8 @@ describe("CurveLPWeightedOracleWrapper", function () {
 
       const manipulatedVirtualPrice = await curvePool.get_virtual_price();
       const stableDOracle = await curvePool.D_oracle();
-      const oracleVirtualPriceAfter = (stableDOracle * ethers.parseUnits("1", 18)) / totalSupply;
+      const oracleVirtualPriceAfter =
+        (stableDOracle * ethers.parseUnits("1", 18)) / totalSupply;
 
       // Show the difference
       expect(manipulatedVirtualPrice).to.eq(ethers.parseUnits("2", 18)); // Inflated
@@ -778,8 +897,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices: slight depeg to make attack more appealing
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("0.98", 8)); // DAI depegged
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("0.98", 8),
+      ); // DAI depegged
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -811,9 +936,10 @@ describe("CurveLPWeightedOracleWrapper", function () {
       await curvePool.setDOracle(ethers.parseUnits("1000", 18)); // Unchanged
 
       // Step 2: Check oracle during manipulation
-      const [manipulatedPrice, manipulatedAlive] = await wrapper.getPriceInfo(lpToken);
+      const [manipulatedPrice, manipulatedAlive] =
+        await wrapper.getPriceInfo(lpToken);
       expect(manipulatedAlive).to.eq(true);
-      
+
       // Despite imbalanced pool, D_oracle keeps virtual price stable
       // Oracle virtual price = (1000e18 * 1e18) / 1000e18 = 1e18
       // Now weighted by actual balances: USDC xp = 500, DAI xp = 2000
@@ -845,8 +971,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -860,7 +992,8 @@ describe("CurveLPWeightedOracleWrapper", function () {
       await curvePool.setDOracle(ethers.parseUnits("100", 18));
       await curvePool.setVirtualPrice(ethers.parseUnits("1", 18));
 
-      const [smallPoolPrice, smallPoolAlive] = await wrapper.getPriceInfo(lpToken);
+      const [smallPoolPrice, smallPoolAlive] =
+        await wrapper.getPriceInfo(lpToken);
       expect(smallPoolAlive).to.eq(true);
       expect(smallPoolPrice).to.eq(ethers.parseUnits("1.00", 8));
 
@@ -875,7 +1008,8 @@ describe("CurveLPWeightedOracleWrapper", function () {
       // But D_oracle smooths this out
       await curvePool.setDOracle(ethers.parseUnits("100000", 18)); // Proportional, no spike
 
-      const [largePoolPrice, largePoolAlive] = await wrapper.getPriceInfo(lpToken);
+      const [largePoolPrice, largePoolAlive] =
+        await wrapper.getPriceInfo(lpToken);
       expect(largePoolAlive).to.eq(true);
       // D_oracle prevents price spike: (100000e18 * 1e18) / 100000e18 = 1e18
       expect(largePoolPrice).to.eq(ethers.parseUnits("1.00", 8)); // No spike
@@ -891,7 +1025,8 @@ describe("CurveLPWeightedOracleWrapper", function () {
       // D_oracle remains stable
       await curvePool.setDOracle(ethers.parseUnits("10", 18)); // Proportional, stable
 
-      const [tinyPoolPrice, tinyPoolAlive] = await wrapper.getPriceInfo(lpToken);
+      const [tinyPoolPrice, tinyPoolAlive] =
+        await wrapper.getPriceInfo(lpToken);
       expect(tinyPoolAlive).to.eq(true);
       // D_oracle prevents price crash: (10e18 * 1e18) / 10e18 = 1e18
       expect(tinyPoolPrice).to.eq(ethers.parseUnits("1.00", 8)); // Stable
@@ -907,14 +1042,15 @@ describe("CurveLPWeightedOracleWrapper", function () {
       // D_oracle smooths this
       await curvePool.setDOracle(ethers.parseUnits("10000", 18)); // Stable EMA
 
-      const [asymmetricPrice, asymmetricAlive] = await wrapper.getPriceInfo(lpToken);
+      const [asymmetricPrice, asymmetricAlive] =
+        await wrapper.getPriceInfo(lpToken);
       expect(asymmetricAlive).to.eq(true);
       // Oracle price = (D_oracle/totalSupply) * weighted_avg
       // Virtual price from D_oracle = (10000e18 * 1e18) / 10000e18 = 1e18
       // Weighted avg = (1.00 * 50000 + 1.00 * 100) / 50100 ≈ 1.00
       expect(asymmetricPrice).to.be.closeTo(
         ethers.parseUnits("1.00", 8),
-        ethers.parseUnits("0.01", 8) // Allow small variance due to weighting
+        ethers.parseUnits("0.01", 8), // Allow small variance due to weighting
       );
     });
 
@@ -926,8 +1062,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -999,8 +1141,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -1018,7 +1166,8 @@ describe("CurveLPWeightedOracleWrapper", function () {
       let virtualPriceRaw = await curvePool.get_virtual_price();
       let dOracle = await curvePool.D_oracle();
       let totalSupply = await curvePool.totalSupply();
-      let virtualPriceFromDOracle = (dOracle * ethers.parseUnits("1", 18)) / totalSupply;
+      let virtualPriceFromDOracle =
+        (dOracle * ethers.parseUnits("1", 18)) / totalSupply;
 
       // Show massive difference
       expect(virtualPriceRaw).to.eq(ethers.parseUnits("10", 18)); // 10x inflated
@@ -1034,7 +1183,8 @@ describe("CurveLPWeightedOracleWrapper", function () {
 
       virtualPriceRaw = await curvePool.get_virtual_price();
       dOracle = await curvePool.D_oracle();
-      virtualPriceFromDOracle = (dOracle * ethers.parseUnits("1", 18)) / totalSupply;
+      virtualPriceFromDOracle =
+        (dOracle * ethers.parseUnits("1", 18)) / totalSupply;
 
       expect(virtualPriceRaw).to.eq(ethers.parseUnits("0.1", 18)); // 90% crash
       expect(virtualPriceFromDOracle).to.eq(ethers.parseUnits("0.9", 18)); // Only 10% drop
@@ -1044,8 +1194,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       expect(price2).to.eq(ethers.parseUnits("0.90", 8)); // Protected from crash
 
       // Extreme manipulation scenario 3: Asymmetric with different asset prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("2.00", 8)); // USDC 2x
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("0.50", 8)); // DAI 0.5x
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("2.00", 8),
+      ); // USDC 2x
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("0.50", 8),
+      ); // DAI 0.5x
 
       // Unbalanced pool to amplify manipulation effect
       await curvePool.setBalances([
@@ -1056,19 +1212,21 @@ describe("CurveLPWeightedOracleWrapper", function () {
       await curvePool.setVirtualPrice(ethers.parseUnits("5", 18)); // 5x inflated
       await curvePool.setDOracle(ethers.parseUnits("1200", 18)); // D_oracle modest increase
 
-      virtualPriceFromDOracle = (ethers.parseUnits("1200", 18) * ethers.parseUnits("1", 18)) / totalSupply;
+      virtualPriceFromDOracle =
+        (ethers.parseUnits("1200", 18) * ethers.parseUnits("1", 18)) /
+        totalSupply;
       expect(virtualPriceFromDOracle).to.eq(ethers.parseUnits("1.2", 18)); // 1.2x vs 5x inflation
 
       const [price3, alive3] = await wrapper.getPriceInfo(lpToken);
       expect(alive3).to.eq(true);
-      
+
       // Weighted avg with unbalanced pool and different prices:
       // USDC xp = 100, DAI xp = 3000, total = 3100
       // Weighted = (2.00 * 100 + 0.50 * 3000) / 3100 = (200 + 1500) / 3100 = 0.548
       // Final price = 1.2 * 0.548 = 0.658
       expect(price3).to.be.closeTo(
         ethers.parseUnits("0.658", 8),
-        ethers.parseUnits("0.001", 8)
+        ethers.parseUnits("0.001", 8),
       );
 
       // Without D_oracle protection, this would have been 5x * 0.548 = 2.74!
@@ -1084,8 +1242,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set underlying asset prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -1119,7 +1283,8 @@ describe("CurveLPWeightedOracleWrapper", function () {
         ethers.parseUnits("1", 18), // DAI normal rate
       ]);
 
-      const [highYieldPrice, highYieldAlive] = await wrapper.getPriceInfo(lpToken);
+      const [highYieldPrice, highYieldAlive] =
+        await wrapper.getPriceInfo(lpToken);
 
       // USDC xp = 1000 * 2.5 = 2500, DAI xp = 1000 * 1 = 1000
       // Weighted avg = (1.00 * 2500 + 1.00 * 1000) / (2500 + 1000) = 3500 / 3500 = 1.00
@@ -1132,7 +1297,8 @@ describe("CurveLPWeightedOracleWrapper", function () {
         ethers.parseUnits("1.1", 18), // DAI vault: 1.1x (gains)
       ]);
 
-      const [declinedPrice, declinedAlive] = await wrapper.getPriceInfo(lpToken);
+      const [declinedPrice, declinedAlive] =
+        await wrapper.getPriceInfo(lpToken);
 
       // USDC xp = 1000 * 0.7 = 700, DAI xp = 1000 * 1.1 = 1100
       // Weighted avg = (1.00 * 700 + 1.00 * 1100) / (700 + 1100) = 1800 / 1800 = 1.00
@@ -1148,8 +1314,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set base asset prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -1188,8 +1360,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       expect(price).to.eq(ethers.parseUnits("1.00", 8));
 
       // Scenario 3: Extreme oracle rate changes with price depegs
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("0.95", 8)); // USDC depeg
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.05", 8)); // DAI premium
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("0.95", 8),
+      ); // USDC depeg
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.05", 8),
+      ); // DAI premium
 
       await curvePool.setStoredRates([
         ethers.parseUnits("3.0", 30), // Very high oracle rate
@@ -1201,7 +1379,10 @@ describe("CurveLPWeightedOracleWrapper", function () {
       // USDC xp = 1000 * 3.0 = 3000, DAI xp = 1000 * 0.3 = 300
       // Weighted avg = (0.95 * 3000 + 1.05 * 300) / (3000 + 300) = (2850 + 315) / 3300 = 0.959
       expect(alive).to.eq(true);
-      expect(price).to.be.closeTo(ethers.parseUnits("0.959", 8), ethers.parseUnits("0.001", 8));
+      expect(price).to.be.closeTo(
+        ethers.parseUnits("0.959", 8),
+        ethers.parseUnits("0.001", 8),
+      );
     });
 
     it("should handle rate precision edge cases (very high and very low rates)", async function () {
@@ -1212,8 +1393,14 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8));
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -1244,7 +1431,10 @@ describe("CurveLPWeightedOracleWrapper", function () {
       [price, alive] = await wrapper.getPriceInfo(lpToken);
       expect(alive).to.eq(true);
       // With extremely low USDC rate, price should be heavily weighted towards DAI
-      expect(price).to.be.closeTo(ethers.parseUnits("1.00", 8), ethers.parseUnits("0.01", 8));
+      expect(price).to.be.closeTo(
+        ethers.parseUnits("1.00", 8),
+        ethers.parseUnits("0.01", 8),
+      );
 
       // Test case 3: Mixed extreme rates
       await curvePool.setStoredRates([
@@ -1289,10 +1479,13 @@ describe("CurveLPWeightedOracleWrapper", function () {
     });
 
     it("should handle 3+ coin pools and ensure weighted calculation works for N coins", async function () {
-      const { manager, wrapper, oracleAggregator } = await loadFixture(deployFixture);
+      const { manager, wrapper, oracleAggregator } =
+        await loadFixture(deployFixture);
 
       // Create additional test tokens
-      const ERC20Test = await ethers.getContractFactory("contracts/test/ERC20Test.sol:ERC20Test");
+      const ERC20Test = await ethers.getContractFactory(
+        "contracts/test/ERC20Test.sol:ERC20Test",
+      );
       const usdc = await ERC20Test.deploy("USDC", 6);
       const dai = await ERC20Test.deploy("DAI", 18);
       const usdt = await ERC20Test.deploy("USDT", 6);
@@ -1319,10 +1512,22 @@ describe("CurveLPWeightedOracleWrapper", function () {
       ];
 
       // Set different prices for each asset
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("1.00", 8)); // USDC
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("0.99", 8)); // DAI
-      await oracleAggregator.setAssetPrice(anchors[2], ethers.parseUnits("1.01", 8)); // USDT
-      await oracleAggregator.setAssetPrice(anchors[3], ethers.parseUnits("0.98", 8)); // FRAX
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("1.00", 8),
+      ); // USDC
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("0.99", 8),
+      ); // DAI
+      await oracleAggregator.setAssetPrice(
+        anchors[2],
+        ethers.parseUnits("1.01", 8),
+      ); // USDT
+      await oracleAggregator.setAssetPrice(
+        anchors[3],
+        ethers.parseUnits("0.98", 8),
+      ); // FRAX
 
       // Configure fully
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -1380,7 +1585,10 @@ describe("CurveLPWeightedOracleWrapper", function () {
       // Weighted avg = (1.00*2400 + 0.99*450 + 1.01*1650 + 0.98*800) / 5300
       // = (2400 + 445.5 + 1666.5 + 784) / 5300 = 5296 / 5300 ≈ 0.9992
       expect(alive).to.eq(true);
-      expect(price).to.be.closeTo(ethers.parseUnits("0.9992", 8), ethers.parseUnits("0.0001", 8));
+      expect(price).to.be.closeTo(
+        ethers.parseUnits("0.9992", 8),
+        ethers.parseUnits("0.0001", 8),
+      );
 
       // Test scenario 3: 5-coin pool for even more coins
       const fiveCoinPool = await MockNG.deploy("5Pool LP", "5POOL", 5);
@@ -1396,10 +1604,15 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const fiveCoinAnchors = [...anchors, await weth.getAddress()];
 
       // Set WETH price
-      await oracleAggregator.setAssetPrice(await weth.getAddress(), ethers.parseUnits("2000", 8)); // WETH at $2000
+      await oracleAggregator.setAssetPrice(
+        await weth.getAddress(),
+        ethers.parseUnits("2000", 8),
+      ); // WETH at $2000
 
       // Configure fully
-      await wrapper.connect(manager).setLPFullConfig(fiveCoinLpToken, fiveCoinLpToken, fiveCoinAnchors);
+      await wrapper
+        .connect(manager)
+        .setLPFullConfig(fiveCoinLpToken, fiveCoinLpToken, fiveCoinAnchors);
 
       await fiveCoinPool.setBalances([
         ethers.parseUnits("1000", 6), // USDC
@@ -1420,21 +1633,28 @@ describe("CurveLPWeightedOracleWrapper", function () {
       await fiveCoinPool.setVirtualPrice(ethers.parseUnits("1", 18));
       await fiveCoinPool.setDOracle(ethers.parseUnits("1", 18));
 
-      const [fiveCoinPrice, fiveCoinAlive] = await wrapper.getPriceInfo(fiveCoinLpToken);
+      const [fiveCoinPrice, fiveCoinAlive] =
+        await wrapper.getPriceInfo(fiveCoinLpToken);
 
       // All stablecoins have xp=1000, WETH has xp=1
       // Total xp = 4001
       // Weighted = (1.00*1000 + 0.99*1000 + 1.01*1000 + 0.98*1000 + 2000*1) / 4001
       // = (1000 + 990 + 1010 + 980 + 2000) / 4001 = 5980 / 4001 ≈ 1.494
       expect(fiveCoinAlive).to.eq(true);
-      expect(fiveCoinPrice).to.be.closeTo(ethers.parseUnits("1.494", 8), ethers.parseUnits("0.001", 8));
+      expect(fiveCoinPrice).to.be.closeTo(
+        ethers.parseUnits("1.494", 8),
+        ethers.parseUnits("0.001", 8),
+      );
     });
 
     it("should handle rate array shorter than expected (defensive coding test)", async function () {
-      const { manager, wrapper, oracleAggregator } = await loadFixture(deployFixture);
+      const { manager, wrapper, oracleAggregator } =
+        await loadFixture(deployFixture);
 
       // Create tokens
-      const ERC20Test = await ethers.getContractFactory("contracts/test/ERC20Test.sol:ERC20Test");
+      const ERC20Test = await ethers.getContractFactory(
+        "contracts/test/ERC20Test.sol:ERC20Test",
+      );
       const usdc = await ERC20Test.deploy("USDC", 6);
       const dai = await ERC20Test.deploy("DAI", 18);
 
@@ -1454,10 +1674,19 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const singleCoinAnchors = [await usdc.getAddress()];
 
       // Set prices
-      await oracleAggregator.setAssetPrice(singleCoinAnchors[0], ethers.parseUnits("1.00", 8));
+      await oracleAggregator.setAssetPrice(
+        singleCoinAnchors[0],
+        ethers.parseUnits("1.00", 8),
+      );
 
       // Configure fully
-      await wrapper.connect(manager).setLPFullConfig(singleCoinLpToken, singleCoinLpToken, singleCoinAnchors);
+      await wrapper
+        .connect(manager)
+        .setLPFullConfig(
+          singleCoinLpToken,
+          singleCoinLpToken,
+          singleCoinAnchors,
+        );
 
       // Test case 1: Normal operation with proper rate array length
       await singleCoinPool.setStoredRates([
@@ -1465,7 +1694,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
       ]);
 
       let [price, alive] = await wrapper.getPriceInfo(singleCoinLpToken);
-      
+
       // Should work normally with correct array length
       expect(alive).to.eq(true);
       expect(price).to.eq(ethers.parseUnits("1.00", 8));
@@ -1479,8 +1708,13 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const twoCoinLpToken = await twoCoinPool.getAddress();
       const twoCoinAnchors = [await usdc.getAddress(), await dai.getAddress()];
 
-      await oracleAggregator.setAssetPrice(twoCoinAnchors[1], ethers.parseUnits("1.00", 8));
-      await wrapper.connect(manager).setLPFullConfig(twoCoinLpToken, twoCoinLpToken, twoCoinAnchors);
+      await oracleAggregator.setAssetPrice(
+        twoCoinAnchors[1],
+        ethers.parseUnits("1.00", 8),
+      );
+      await wrapper
+        .connect(manager)
+        .setLPFullConfig(twoCoinLpToken, twoCoinLpToken, twoCoinAnchors);
 
       // Set normal balances
       await twoCoinPool.setBalances([
@@ -1497,7 +1731,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
       ]);
 
       [price, alive] = await wrapper.getPriceInfo(twoCoinLpToken);
-      
+
       // Should use both rates correctly
       // USDC xp = 1000 * 1.2 = 1200, DAI xp = 1000 * 0.9 = 900
       // Weighted avg = (1.00 * 1200 + 1.00 * 900) / (1200 + 900) = 1.00
@@ -1511,7 +1745,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
       ]);
 
       [price, alive] = await wrapper.getPriceInfo(twoCoinLpToken);
-      
+
       // Should handle extreme values gracefully without reverting
       expect(alive).to.eq(true);
       expect(price).to.be.gt(0);
@@ -1519,21 +1753,24 @@ describe("CurveLPWeightedOracleWrapper", function () {
       // Test case 5: Test precision with different rate magnitudes
       await twoCoinPool.setStoredRates([
         ethers.parseUnits("1", 50), // Extremely high precision
-        ethers.parseUnits("1", 5),  // Very low precision
+        ethers.parseUnits("1", 5), // Very low precision
       ]);
 
       [price, alive] = await wrapper.getPriceInfo(twoCoinLpToken);
-      
+
       // Should handle different rate precisions without overflow/underflow
       expect(alive).to.eq(true);
       expect(price).to.be.gt(0);
     });
 
     it("should handle metapool scenarios (coin[1] is another LP token)", async function () {
-      const { manager, wrapper, oracleAggregator } = await loadFixture(deployFixture);
+      const { manager, wrapper, oracleAggregator } =
+        await loadFixture(deployFixture);
 
       // Create tokens
-      const ERC20Test = await ethers.getContractFactory("contracts/test/ERC20Test.sol:ERC20Test");
+      const ERC20Test = await ethers.getContractFactory(
+        "contracts/test/ERC20Test.sol:ERC20Test",
+      );
       const frax = await ERC20Test.deploy("FRAX", 18);
       const threepoolLp = await ERC20Test.deploy("3CRV", 18); // Represents 3pool LP token
 
@@ -1551,11 +1788,19 @@ describe("CurveLPWeightedOracleWrapper", function () {
       const anchors = [await frax.getAddress(), await threepoolLp.getAddress()];
 
       // Set prices: FRAX = $0.99, 3CRV LP = $1.02 (slightly above $1 due to yield)
-      await oracleAggregator.setAssetPrice(anchors[0], ethers.parseUnits("0.99", 8)); // FRAX
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.02", 8)); // 3CRV LP
+      await oracleAggregator.setAssetPrice(
+        anchors[0],
+        ethers.parseUnits("0.99", 8),
+      ); // FRAX
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.02", 8),
+      ); // 3CRV LP
 
       // Configure fully
-      await wrapper.connect(manager).setLPFullConfig(metapoolLpToken, metapoolLpToken, anchors);
+      await wrapper
+        .connect(manager)
+        .setLPFullConfig(metapoolLpToken, metapoolLpToken, anchors);
 
       // Test scenario 1: Balanced metapool
       await metapool.setBalances([
@@ -1579,7 +1824,10 @@ describe("CurveLPWeightedOracleWrapper", function () {
       // Total xp = 2050
       // Weighted avg = (0.99 * 1000 + 1.02 * 1050) / 2050 = (990 + 1071) / 2050 = 1.005
       expect(alive).to.eq(true);
-      expect(price).to.be.closeTo(ethers.parseUnits("1.005", 8), ethers.parseUnits("0.001", 8));
+      expect(price).to.be.closeTo(
+        ethers.parseUnits("1.005", 8),
+        ethers.parseUnits("0.001", 8),
+      );
 
       // Test scenario 2: Imbalanced metapool (more LP tokens than direct stablecoin)
       await metapool.setBalances([
@@ -1600,21 +1848,33 @@ describe("CurveLPWeightedOracleWrapper", function () {
       // Total xp = 2660
       // Weighted avg = (0.99 * 500 + 1.02 * 2160) / 2660 = (495 + 2203.2) / 2660 = 1.014
       expect(alive).to.eq(true);
-      expect(price).to.be.closeTo(ethers.parseUnits("1.014", 8), ethers.parseUnits("0.001", 8));
+      expect(price).to.be.closeTo(
+        ethers.parseUnits("1.014", 8),
+        ethers.parseUnits("0.001", 8),
+      );
 
       // Test scenario 3: LP token depeg scenario (3pool experiencing issues)
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("0.95", 8)); // 3CRV depeg to $0.95
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("0.95", 8),
+      ); // 3CRV depeg to $0.95
 
       [price, alive] = await wrapper.getPriceInfo(metapoolLpToken);
 
       // FRAX xp = 500, 3CRV xp = 2160 (same as before)
       // Weighted avg = (0.99 * 500 + 0.95 * 2160) / 2660 = (495 + 2052) / 2660 = 0.957
       expect(alive).to.eq(true);
-      expect(price).to.be.closeTo(ethers.parseUnits("0.957", 8), ethers.parseUnits("0.001", 8));
+      expect(price).to.be.closeTo(
+        ethers.parseUnits("0.957", 8),
+        ethers.parseUnits("0.001", 8),
+      );
 
       // Test scenario 4: LP token with very high exchange rate (high-yield underlying)
-      await oracleAggregator.setAssetPrice(anchors[1], ethers.parseUnits("1.02", 8)); // Back to normal
-      
+      await oracleAggregator.setAssetPrice(
+        anchors[1],
+        ethers.parseUnits("1.02", 8),
+      ); // Back to normal
+
       await metapool.setStoredRates([
         ethers.parseUnits("1", 18), // FRAX 1:1
         ethers.parseUnits("2.0", 18), // 3CRV LP with very high internal rate (2x)
@@ -1627,7 +1887,10 @@ describe("CurveLPWeightedOracleWrapper", function () {
       // Total xp = 4500
       // Weighted avg = (0.99 * 500 + 1.02 * 4000) / 4500 = (495 + 4080) / 4500 = 1.017
       expect(alive).to.eq(true);
-      expect(price).to.be.closeTo(ethers.parseUnits("1.017", 8), ethers.parseUnits("0.001", 8));
+      expect(price).to.be.closeTo(
+        ethers.parseUnits("1.017", 8),
+        ethers.parseUnits("0.001", 8),
+      );
 
       // Test scenario 5: Edge case - LP token rate below 1 (underlying pool in losses)
       await metapool.setStoredRates([
@@ -1642,14 +1905,20 @@ describe("CurveLPWeightedOracleWrapper", function () {
       // Total xp = 1900
       // Weighted avg = (0.99 * 500 + 1.02 * 1400) / 1900 = (495 + 1428) / 1900 = 1.012
       expect(alive).to.eq(true);
-      expect(price).to.be.closeTo(ethers.parseUnits("1.012", 8), ethers.parseUnits("0.001", 8));
+      expect(price).to.be.closeTo(
+        ethers.parseUnits("1.012", 8),
+        ethers.parseUnits("0.001", 8),
+      );
     });
   });
 
   describe("Access control and configuration security", function () {
+    /**
+     *
+     */
     async function deploySecurityFixture() {
       const fixture = await deployFixture();
-      
+
       // Deploy enhanced mocks for failure testing
       const MockNGWithFailures = await ethers.getContractFactory(
         "contracts/test/curve/MockCurveStableNGForLPWithFailures.sol:MockCurveStableNGForLPWithFailures",
@@ -1659,7 +1928,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
         "crvUSDCDAI_F",
         2,
       );
-      
+
       const MockOracleWithFailures = await ethers.getContractFactory(
         "MockOracleAggregatorWithFailures",
       );
@@ -1676,54 +1945,68 @@ describe("CurveLPWeightedOracleWrapper", function () {
     }
 
     it("should reject unauthorized configuration attempts", async function () {
-      const { user, curvePool, wrapper, usdc, dai } = await loadFixture(deploySecurityFixture);
+      const { user, curvePool, wrapper, usdc, dai } = await loadFixture(
+        deploySecurityFixture,
+      );
 
       const lpToken = await curvePool.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // User without ORACLE_MANAGER_ROLE should not be able to configure
       await expect(
-        wrapper.connect(user).setLPFullConfig(lpToken, lpToken, anchors)
-      ).to.be.revertedWithCustomError(wrapper, "AccessControlUnauthorizedAccount");
+        wrapper.connect(user).setLPFullConfig(lpToken, lpToken, anchors),
+      ).to.be.revertedWithCustomError(
+        wrapper,
+        "AccessControlUnauthorizedAccount",
+      );
     });
 
     it("should reject configuration with zero addresses", async function () {
-      const { manager, curvePool, wrapper, usdc, dai } = await loadFixture(deploySecurityFixture);
+      const { manager, curvePool, wrapper, usdc, dai } = await loadFixture(
+        deploySecurityFixture,
+      );
 
       const lpToken = await curvePool.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Test zero lpToken
       await expect(
-        wrapper.connect(manager).setLPFullConfig(ethers.ZeroAddress, lpToken, anchors)
+        wrapper
+          .connect(manager)
+          .setLPFullConfig(ethers.ZeroAddress, lpToken, anchors),
       ).to.be.revertedWithCustomError(wrapper, "InvalidAddress");
 
       // Test zero pool
       await expect(
-        wrapper.connect(manager).setLPFullConfig(lpToken, ethers.ZeroAddress, anchors)
+        wrapper
+          .connect(manager)
+          .setLPFullConfig(lpToken, ethers.ZeroAddress, anchors),
       ).to.be.revertedWithCustomError(wrapper, "InvalidAddress");
 
       // Test zero anchor
       const badAnchors = [ethers.ZeroAddress, await dai.getAddress()];
       await expect(
-        wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, badAnchors)
+        wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, badAnchors),
       ).to.be.revertedWithCustomError(wrapper, "InvalidAddress");
     });
 
     it("should reject configuration with mismatched array lengths", async function () {
-      const { manager, curvePool, wrapper, usdc } = await loadFixture(deploySecurityFixture);
+      const { manager, curvePool, wrapper, usdc } = await loadFixture(
+        deploySecurityFixture,
+      );
 
       const lpToken = await curvePool.getAddress();
       // Pool has 2 coins but providing only 1 anchor
       const badAnchors = [await usdc.getAddress()];
 
       await expect(
-        wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, badAnchors)
+        wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, badAnchors),
       ).to.be.revertedWithCustomError(wrapper, "InvalidAddress");
     });
 
     it("should reject configuration when anchor prices are not alive", async function () {
-      const { manager, curvePool, wrapper, oracleAggregator, usdc, dai } = await loadFixture(deploySecurityFixture);
+      const { manager, curvePool, wrapper, oracleAggregator, usdc, dai } =
+        await loadFixture(deploySecurityFixture);
 
       const lpToken = await curvePool.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
@@ -1732,19 +2015,26 @@ describe("CurveLPWeightedOracleWrapper", function () {
       await oracleAggregator.setAssetAlive(await dai.getAddress(), false);
 
       await expect(
-        wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors)
+        wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors),
       ).to.be.revertedWithCustomError(wrapper, "PriceIsZero");
     });
 
     it("should handle removing and reconfiguring LP tokens", async function () {
-      const { manager, curvePool, wrapper, usdc, dai, oracleAggregator } = await loadFixture(deploySecurityFixture);
+      const { manager, curvePool, wrapper, usdc, dai, oracleAggregator } =
+        await loadFixture(deploySecurityFixture);
 
       const lpToken = await curvePool.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices
-      await oracleAggregator.setAssetPrice(await usdc.getAddress(), ethers.parseUnits("1", 8));
-      await oracleAggregator.setAssetPrice(await dai.getAddress(), ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        await usdc.getAddress(),
+        ethers.parseUnits("1", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        await dai.getAddress(),
+        ethers.parseUnits("0.99", 8),
+      );
 
       // Set virtual price and D_oracle for calculations to work
       await curvePool.setVirtualPrice(ethers.parseUnits("1", 18));
@@ -1752,14 +2042,16 @@ describe("CurveLPWeightedOracleWrapper", function () {
 
       // Initial configuration
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
-      
+
       // Should be able to get price
       const [price1, alive1] = await wrapper.getPriceInfo(lpToken);
       expect(alive1).to.be.true;
 
       // Remove configuration by setting new config with different anchors
       const newAnchors = [await dai.getAddress(), await usdc.getAddress()]; // Swapped order
-      await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, newAnchors);
+      await wrapper
+        .connect(manager)
+        .setLPFullConfig(lpToken, lpToken, newAnchors);
 
       // Should still work with new configuration
       const [price2, alive2] = await wrapper.getPriceInfo(lpToken);
@@ -1768,33 +2060,54 @@ describe("CurveLPWeightedOracleWrapper", function () {
     });
 
     it("should enforce role-based access for anchor asset updates", async function () {
-      const { owner, user, manager, curvePool, wrapper, usdc, dai, oracleAggregator } = await loadFixture(deploySecurityFixture);
+      const {
+        owner,
+        user,
+        manager,
+        curvePool,
+        wrapper,
+        usdc,
+        dai,
+        oracleAggregator,
+      } = await loadFixture(deploySecurityFixture);
 
       const lpToken = await curvePool.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices and configure
-      await oracleAggregator.setAssetPrice(await usdc.getAddress(), ethers.parseUnits("1", 8));
-      await oracleAggregator.setAssetPrice(await dai.getAddress(), ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        await usdc.getAddress(),
+        ethers.parseUnits("1", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        await dai.getAddress(),
+        ethers.parseUnits("0.99", 8),
+      );
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       // User without role should not be able to update anchor assets
       const newAnchors = [await dai.getAddress(), await usdc.getAddress()];
       await expect(
-        wrapper.connect(user).setLPAnchorAssets(lpToken, newAnchors)
-      ).to.be.revertedWithCustomError(wrapper, "AccessControlUnauthorizedAccount");
+        wrapper.connect(user).setLPAnchorAssets(lpToken, newAnchors),
+      ).to.be.revertedWithCustomError(
+        wrapper,
+        "AccessControlUnauthorizedAccount",
+      );
 
       // Manager should be able to update
       await expect(
-        wrapper.connect(manager).setLPAnchorAssets(lpToken, newAnchors)
+        wrapper.connect(manager).setLPAnchorAssets(lpToken, newAnchors),
       ).to.not.be.reverted;
     });
   });
 
   describe("External dependency failures", function () {
+    /**
+     *
+     */
     async function deployFailureFixture() {
       const fixture = await deployFixture();
-      
+
       // Deploy enhanced mocks for failure testing
       const MockNGWithFailures = await ethers.getContractFactory(
         "contracts/test/curve/MockCurveStableNGForLPWithFailures.sol:MockCurveStableNGForLPWithFailures",
@@ -1835,8 +2148,12 @@ describe("CurveLPWeightedOracleWrapper", function () {
       );
 
       // Grant manager role
-      const ORACLE_MANAGER_ROLE = await wrapperWithFailures.ORACLE_MANAGER_ROLE();
-      await wrapperWithFailures.grantRole(ORACLE_MANAGER_ROLE, fixture.manager.address);
+      const ORACLE_MANAGER_ROLE =
+        await wrapperWithFailures.ORACLE_MANAGER_ROLE();
+      await wrapperWithFailures.grantRole(
+        ORACLE_MANAGER_ROLE,
+        fixture.manager.address,
+      );
 
       return {
         ...fixture,
@@ -1847,14 +2164,27 @@ describe("CurveLPWeightedOracleWrapper", function () {
     }
 
     it("should handle D_oracle() reverts gracefully", async function () {
-      const { manager, curvePoolWithFailures, wrapper, usdc, dai, oracleAggregator } = await loadFixture(deployFailureFixture);
+      const {
+        manager,
+        curvePoolWithFailures,
+        wrapper,
+        usdc,
+        dai,
+        oracleAggregator,
+      } = await loadFixture(deployFailureFixture);
 
       const lpToken = await curvePoolWithFailures.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices
-      await oracleAggregator.setAssetPrice(await usdc.getAddress(), ethers.parseUnits("1", 8));
-      await oracleAggregator.setAssetPrice(await dai.getAddress(), ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        await usdc.getAddress(),
+        ethers.parseUnits("1", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        await dai.getAddress(),
+        ethers.parseUnits("0.99", 8),
+      );
 
       // Configure LP
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -1864,72 +2194,132 @@ describe("CurveLPWeightedOracleWrapper", function () {
 
       // SECURITY ISSUE: Oracle does not handle external dependency failures gracefully
       // Currently reverts instead of returning (0, false)
-      await expect(wrapper.getPriceInfo(lpToken)).to.be.revertedWith("Mock D_oracle failure");
+      await expect(wrapper.getPriceInfo(lpToken)).to.be.revertedWith(
+        "Mock D_oracle failure",
+      );
     });
 
     it("should handle get_balances() reverts gracefully", async function () {
-      const { manager, curvePoolWithFailures, wrapper, usdc, dai, oracleAggregator } = await loadFixture(deployFailureFixture);
+      const {
+        manager,
+        curvePoolWithFailures,
+        wrapper,
+        usdc,
+        dai,
+        oracleAggregator,
+      } = await loadFixture(deployFailureFixture);
 
       const lpToken = await curvePoolWithFailures.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices and configure
-      await oracleAggregator.setAssetPrice(await usdc.getAddress(), ethers.parseUnits("1", 8));
-      await oracleAggregator.setAssetPrice(await dai.getAddress(), ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        await usdc.getAddress(),
+        ethers.parseUnits("1", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        await dai.getAddress(),
+        ethers.parseUnits("0.99", 8),
+      );
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       // Make get_balances fail
       await curvePoolWithFailures.setShouldFailGetBalances(true);
 
       // SECURITY ISSUE: Oracle does not handle external dependency failures gracefully
-      await expect(wrapper.getPriceInfo(lpToken)).to.be.revertedWith("Mock get_balances failure");
+      await expect(wrapper.getPriceInfo(lpToken)).to.be.revertedWith(
+        "Mock get_balances failure",
+      );
     });
 
     it("should handle stored_rates() reverts gracefully", async function () {
-      const { manager, curvePoolWithFailures, wrapper, usdc, dai, oracleAggregator } = await loadFixture(deployFailureFixture);
+      const {
+        manager,
+        curvePoolWithFailures,
+        wrapper,
+        usdc,
+        dai,
+        oracleAggregator,
+      } = await loadFixture(deployFailureFixture);
 
       const lpToken = await curvePoolWithFailures.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices and configure
-      await oracleAggregator.setAssetPrice(await usdc.getAddress(), ethers.parseUnits("1", 8));
-      await oracleAggregator.setAssetPrice(await dai.getAddress(), ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        await usdc.getAddress(),
+        ethers.parseUnits("1", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        await dai.getAddress(),
+        ethers.parseUnits("0.99", 8),
+      );
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       // Make stored_rates fail
       await curvePoolWithFailures.setShouldFailStoredRates(true);
 
       // SECURITY ISSUE: Oracle does not handle external dependency failures gracefully
-      await expect(wrapper.getPriceInfo(lpToken)).to.be.revertedWith("Mock stored_rates failure");
+      await expect(wrapper.getPriceInfo(lpToken)).to.be.revertedWith(
+        "Mock stored_rates failure",
+      );
     });
 
     it("should handle totalSupply() reverts gracefully", async function () {
-      const { manager, curvePoolWithFailures, wrapper, usdc, dai, oracleAggregator } = await loadFixture(deployFailureFixture);
+      const {
+        manager,
+        curvePoolWithFailures,
+        wrapper,
+        usdc,
+        dai,
+        oracleAggregator,
+      } = await loadFixture(deployFailureFixture);
 
       const lpToken = await curvePoolWithFailures.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices and configure
-      await oracleAggregator.setAssetPrice(await usdc.getAddress(), ethers.parseUnits("1", 8));
-      await oracleAggregator.setAssetPrice(await dai.getAddress(), ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        await usdc.getAddress(),
+        ethers.parseUnits("1", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        await dai.getAddress(),
+        ethers.parseUnits("0.99", 8),
+      );
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       // Make totalSupply fail
       await curvePoolWithFailures.setShouldFailTotalSupply(true);
 
       // SECURITY ISSUE: Oracle does not handle external dependency failures gracefully
-      await expect(wrapper.getPriceInfo(lpToken)).to.be.revertedWith("Mock totalSupply failure");
+      await expect(wrapper.getPriceInfo(lpToken)).to.be.revertedWith(
+        "Mock totalSupply failure",
+      );
     });
 
     it("should handle stored_rates() returning wrong length array", async function () {
-      const { manager, curvePoolWithFailures, wrapper, usdc, dai, oracleAggregator } = await loadFixture(deployFailureFixture);
+      const {
+        manager,
+        curvePoolWithFailures,
+        wrapper,
+        usdc,
+        dai,
+        oracleAggregator,
+      } = await loadFixture(deployFailureFixture);
 
       const lpToken = await curvePoolWithFailures.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices and configure
-      await oracleAggregator.setAssetPrice(await usdc.getAddress(), ethers.parseUnits("1", 8));
-      await oracleAggregator.setAssetPrice(await dai.getAddress(), ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        await usdc.getAddress(),
+        ethers.parseUnits("1", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        await dai.getAddress(),
+        ethers.parseUnits("0.99", 8),
+      );
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       // Make stored_rates return wrong length array (3 instead of 2)
@@ -1944,34 +2334,67 @@ describe("CurveLPWeightedOracleWrapper", function () {
     });
 
     it("should handle oracle aggregator reverts gracefully", async function () {
-      const { manager, curvePoolWithFailures, wrapperWithFailures, oracleWithFailures, usdc, dai } = await loadFixture(deployFailureFixture);
+      const {
+        manager,
+        curvePoolWithFailures,
+        wrapperWithFailures,
+        oracleWithFailures,
+        usdc,
+        dai,
+      } = await loadFixture(deployFailureFixture);
 
       const lpToken = await curvePoolWithFailures.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices first
-      await oracleWithFailures.setAssetPrice(await usdc.getAddress(), ethers.parseUnits("1", 8));
-      await oracleWithFailures.setAssetPrice(await dai.getAddress(), ethers.parseUnits("0.99", 8));
+      await oracleWithFailures.setAssetPrice(
+        await usdc.getAddress(),
+        ethers.parseUnits("1", 8),
+      );
+      await oracleWithFailures.setAssetPrice(
+        await dai.getAddress(),
+        ethers.parseUnits("0.99", 8),
+      );
 
       // Configure LP
-      await wrapperWithFailures.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
+      await wrapperWithFailures
+        .connect(manager)
+        .setLPFullConfig(lpToken, lpToken, anchors);
 
       // Make oracle fail for one of the anchors
-      await oracleWithFailures.setShouldFailGetPriceInfo(await usdc.getAddress(), true);
+      await oracleWithFailures.setShouldFailGetPriceInfo(
+        await usdc.getAddress(),
+        true,
+      );
 
       // SECURITY ISSUE: Oracle does not handle external dependency failures gracefully
-      await expect(wrapperWithFailures.getPriceInfo(lpToken)).to.be.revertedWith("Mock oracle aggregator failure");
+      await expect(
+        wrapperWithFailures.getPriceInfo(lpToken),
+      ).to.be.revertedWith("Mock oracle aggregator failure");
     });
 
     it("should handle virtual_price() reverts gracefully", async function () {
-      const { manager, curvePoolWithFailures, wrapper, usdc, dai, oracleAggregator } = await loadFixture(deployFailureFixture);
+      const {
+        manager,
+        curvePoolWithFailures,
+        wrapper,
+        usdc,
+        dai,
+        oracleAggregator,
+      } = await loadFixture(deployFailureFixture);
 
       const lpToken = await curvePoolWithFailures.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices and configure
-      await oracleAggregator.setAssetPrice(await usdc.getAddress(), ethers.parseUnits("1", 8));
-      await oracleAggregator.setAssetPrice(await dai.getAddress(), ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        await usdc.getAddress(),
+        ethers.parseUnits("1", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        await dai.getAddress(),
+        ethers.parseUnits("0.99", 8),
+      );
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       // Make virtual_price fail
@@ -1986,15 +2409,18 @@ describe("CurveLPWeightedOracleWrapper", function () {
   });
 
   describe("Cross-pool manipulation scenarios", function () {
+    /**
+     *
+     */
     async function deployManipulationFixture() {
       const fixture = await deployFixture();
-      
+
       // Create a second pool for manipulation testing
       const MockNG2 = await ethers.getContractFactory(
         "contracts/test/curve/MockCurveStableNGForLP.sol:MockCurveStableNGForLP",
       );
       const secondPool = await MockNG2.deploy("Second Pool", "POOL2", 2);
-      
+
       await secondPool.setCoin(0, await fixture.usdc.getAddress());
       await secondPool.setCoin(1, await fixture.dai.getAddress());
 
@@ -2005,14 +2431,28 @@ describe("CurveLPWeightedOracleWrapper", function () {
     }
 
     it("should be resistant to cross-pool balance manipulation", async function () {
-      const { manager, curvePool, secondPool, wrapper, oracleAggregator, usdc, dai } = await loadFixture(deployManipulationFixture);
+      const {
+        manager,
+        curvePool,
+        secondPool,
+        wrapper,
+        oracleAggregator,
+        usdc,
+        dai,
+      } = await loadFixture(deployManipulationFixture);
 
       const lpToken = await curvePool.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set initial prices and balances
-      await oracleAggregator.setAssetPrice(await usdc.getAddress(), ethers.parseUnits("1", 8));
-      await oracleAggregator.setAssetPrice(await dai.getAddress(), ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        await usdc.getAddress(),
+        ethers.parseUnits("1", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        await dai.getAddress(),
+        ethers.parseUnits("0.99", 8),
+      );
 
       // Configure main pool
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
@@ -2038,14 +2478,21 @@ describe("CurveLPWeightedOracleWrapper", function () {
     });
 
     it("should handle rapid state changes during oracle reads", async function () {
-      const { manager, curvePool, wrapper, oracleAggregator, usdc, dai } = await loadFixture(deployManipulationFixture);
+      const { manager, curvePool, wrapper, oracleAggregator, usdc, dai } =
+        await loadFixture(deployManipulationFixture);
 
       const lpToken = await curvePool.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices and configure
-      await oracleAggregator.setAssetPrice(await usdc.getAddress(), ethers.parseUnits("1", 8));
-      await oracleAggregator.setAssetPrice(await dai.getAddress(), ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        await usdc.getAddress(),
+        ethers.parseUnits("1", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        await dai.getAddress(),
+        ethers.parseUnits("0.99", 8),
+      );
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       // Initial balanced state
@@ -2058,7 +2505,7 @@ describe("CurveLPWeightedOracleWrapper", function () {
 
       // Simulate rapid state changes (like during a sandwich attack)
       const prices = [];
-      
+
       // Change 1: Imbalanced pool (attacker drains USDC)
       await curvePool.setBalances([
         ethers.parseUnits("100", 6),
@@ -2089,14 +2536,21 @@ describe("CurveLPWeightedOracleWrapper", function () {
     });
 
     it("should detect and handle inconsistent pool state", async function () {
-      const { manager, curvePool, wrapper, oracleAggregator, usdc, dai } = await loadFixture(deployManipulationFixture);
+      const { manager, curvePool, wrapper, oracleAggregator, usdc, dai } =
+        await loadFixture(deployManipulationFixture);
 
       const lpToken = await curvePool.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices and configure
-      await oracleAggregator.setAssetPrice(await usdc.getAddress(), ethers.parseUnits("1", 8));
-      await oracleAggregator.setAssetPrice(await dai.getAddress(), ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        await usdc.getAddress(),
+        ethers.parseUnits("1", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        await dai.getAddress(),
+        ethers.parseUnits("0.99", 8),
+      );
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       // Create inconsistent state: high virtual price but low D_oracle
@@ -2105,16 +2559,16 @@ describe("CurveLPWeightedOracleWrapper", function () {
         ethers.parseUnits("1000", 18),
       ]);
       await curvePool.setVirtualPrice(ethers.parseUnits("2", 18)); // High virtual price
-      await curvePool.setDOracle(ethers.parseUnits("500", 18));    // Low D_oracle (inconsistent)
+      await curvePool.setDOracle(ethers.parseUnits("500", 18)); // Low D_oracle (inconsistent)
       await curvePool.setTotalSupply(ethers.parseUnits("1000", 18));
 
       // Oracle should handle inconsistency gracefully
       const [price, alive] = await wrapper.getPriceInfo(lpToken);
-      
+
       // Should either return a sensible price or mark as not alive, but not revert
       expect(typeof price).to.equal("bigint");
       expect(typeof alive).to.equal("boolean");
-      
+
       if (alive) {
         expect(price).to.be.gt(0);
       } else {
@@ -2123,14 +2577,21 @@ describe("CurveLPWeightedOracleWrapper", function () {
     });
 
     it("should handle zero total supply gracefully", async function () {
-      const { manager, curvePool, wrapper, oracleAggregator, usdc, dai } = await loadFixture(deployManipulationFixture);
+      const { manager, curvePool, wrapper, oracleAggregator, usdc, dai } =
+        await loadFixture(deployManipulationFixture);
 
       const lpToken = await curvePool.getAddress();
       const anchors = [await usdc.getAddress(), await dai.getAddress()];
 
       // Set prices and configure
-      await oracleAggregator.setAssetPrice(await usdc.getAddress(), ethers.parseUnits("1", 8));
-      await oracleAggregator.setAssetPrice(await dai.getAddress(), ethers.parseUnits("0.99", 8));
+      await oracleAggregator.setAssetPrice(
+        await usdc.getAddress(),
+        ethers.parseUnits("1", 8),
+      );
+      await oracleAggregator.setAssetPrice(
+        await dai.getAddress(),
+        ethers.parseUnits("0.99", 8),
+      );
       await wrapper.connect(manager).setLPFullConfig(lpToken, lpToken, anchors);
 
       // Set zero total supply (edge case)

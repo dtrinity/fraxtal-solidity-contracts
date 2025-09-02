@@ -23,3 +23,8 @@ export const API3_ORACLE_WRAPPER_ID = "API3Wrapper";
  */
 export const CURVE_API3_COMPOSITE_WRAPPER_WITH_THRESHOLDING_ID =
   "CurveAPI3CompositeWrapperWithThresholding";
+
+/**
+ * The actual contract name is `CurveLPWeightedOracleWrapper`
+ */
+export const CURVE_LP_WEIGHTED_ORACLE_WRAPPER_ID = "CurveLPWeightedOracleWrapper";
