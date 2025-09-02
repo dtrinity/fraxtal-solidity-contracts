@@ -5,7 +5,7 @@ import { Address } from "hardhat-deploy/types";
 import {
   CurveAPI3CompositeWrapperWithThresholding,
   MockAPI3Oracle,
-  MockCurveStableNGPool,
+  MockCurveStableNGPoolForOracle,
 } from "../../typechain-types";
 import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
 import { API3_PRICE_DECIMALS } from "../../utils/oracle_aggregator/constants";
@@ -14,7 +14,7 @@ import { curveOracleFixture } from "./fixtures";
 
 describe("CurveAPI3CompositeWrapperWithThresholding", () => {
   let wrapper: CurveAPI3CompositeWrapperWithThresholding;
-  let mockPool: MockCurveStableNGPool;
+  let mockPool: MockCurveStableNGPoolForOracle;
   let mockAPI3OracleUSDCContract: MockAPI3Oracle;
   let usdcInfo: TokenInfo;
   let cusdcInfo: TokenInfo;
@@ -39,7 +39,7 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
     );
 
     mockPool = await hre.ethers.getContractAt(
-      "MockCurveStableNGPool",
+      "MockCurveStableNGPoolForOracle",
       mockPoolAddress,
       await hre.ethers.getSigner(dusdDeployer),
     );

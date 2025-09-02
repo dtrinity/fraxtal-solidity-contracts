@@ -311,12 +311,12 @@ export const curveOracleFixture = deployments.createFixture(
     // Deploy mock pool
     const { address: mockPoolAddress } = await deployContract(
       hre,
-      "MockCurveStableNGPool",
+      "MockCurveStableNGPoolForOracle",
       [],
       undefined,
       deployer,
       undefined,
-      "MockCurveStableNGPool",
+      "MockCurveStableNGPoolForOracle",
     );
 
     // Deploy Curve wrapper
@@ -332,7 +332,7 @@ export const curveOracleFixture = deployments.createFixture(
 
     // Set up mock pool with USDC and cUSDC
     const mockPool = await hre.ethers.getContractAt(
-      "MockCurveStableNGPool",
+      "MockCurveStableNGPoolForOracle",
       mockPoolAddress,
       deployer,
     );
