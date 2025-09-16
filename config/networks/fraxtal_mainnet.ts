@@ -363,7 +363,7 @@ export async function getConfig(
           },
           [TOKEN_INFO.scrvUSD.address]: {
             feedAsset: TOKEN_INFO.scrvUSD.address,
-            proxy1: "0x029c150a79526bEE6D3Db1b10C07C4CfA6b12485", // scrvUSD/USD dTrinity OEV
+            proxy1: "0x029c150a79526bEE6D3Db1b10C07C4CfA6b12485", // scrvUSD/crvUSD dTrinity OEV
             proxy2: "0x21234f61bFc55a586D7c28CC1776da35f9936246", // crvUSD/USD (generic, not dTrinity OEV)
             // Don't allow scrvUSD to go above $1
             lowerThresholdInBase1: 0n,
