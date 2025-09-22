@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-2.0-or-later
 /* ———————————————————————————————————————————————————————————————————————————————— *
  *    _____     ______   ______     __     __   __     __     ______   __  __       *
  *   /\  __-.  /\__  _\ /\  == \   /\ \   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \      *
@@ -15,67 +15,58 @@
  * dTRINITY Protocol: https://github.com/dtrinity                                   *
  * ———————————————————————————————————————————————————————————————————————————————— */
 
-pragma solidity 0.8.20;
+pragma solidity ^0.8.20;
 
-import "../../oracle_aggregator/wrapper/CurveOracleWrapper.sol";
+import "./MockOracleAggregator.sol";
 
-contract MockCurveStableNGPool {
-    uint256 public expectedOutput;
-    uint256 public constant N_COINS = 2;
-    uint256 public decimals = 18;
+contract MockOracleAggregatorWithFailures is MockOracleAggregator {
+    mapping(address => bool) private _shouldFailGetAssetPrice;
+    mapping(address => bool) private _shouldFailGetPriceInfo;
 
-    uint256[] private _storedRates;
-    mapping(uint256 => uint256) private _priceOracles;
+    constructor(
+        address baseCurrency, 
+        uint256 baseCurrencyUnit
+    ) MockOracleAggregator(baseCurrency, baseCurrencyUnit) {}
 
-    address[2] private _coins;
-
-    constructor() {
-        // Initialize stored rates array with default values
-        _storedRates = new uint256[](2);
-        _storedRates[0] = 1e18; // Default 1.0
-        _storedRates[1] = 1e18; // Default 1.0
+    function setShouldFailGetAssetPrice(address asset, bool shouldFail) external {
+        _shouldFailGetAssetPrice[asset] = shouldFail;
     }
 
-    function setExpectedOutput(uint256 _expectedOutput) external {
-        expectedOutput = _expectedOutput;
+    function setShouldFailGetPriceInfo(address asset, bool shouldFail) external {
+        _shouldFailGetPriceInfo[asset] = shouldFail;
     }
 
-    function setCoin(uint256 index, address coin) external {
-        require(index < N_COINS, "Invalid index");
-        _coins[index] = coin;
+    function getAssetPrice(
+        address _asset
+    ) external view override returns (uint256) {
+        if (_shouldFailGetAssetPrice[_asset]) {
+            revert("Mock oracle aggregator failure");
+        }
+        
+        if (_asset == BASE_CURRENCY) {
+            return BASE_CURRENCY_UNIT;
+        }
+
+        uint256 _price = prices[_asset];
+        require(isAlive[_asset], "Price feed is not alive");
+
+        return _price;
     }
 
-    function coins(uint256 index) external view returns (address) {
-        require(index < N_COINS, "Invalid index");
-        return _coins[index];
-    }
+    function getPriceInfo(
+        address _asset
+    ) external view override returns (uint256 price, bool _isAlive) {
+        if (_shouldFailGetPriceInfo[_asset]) {
+            revert("Mock oracle aggregator failure");
+        }
+        
+        if (_asset == BASE_CURRENCY) {
+            return (BASE_CURRENCY_UNIT, true);
+        }
 
-    function get_dy(
-        int128 /* i */,
-        int128 /* j */,
-        uint256 /* dx */
-    ) external view returns (uint256) {
-        return expectedOutput;
-    }
+        price = prices[_asset];
+        _isAlive = isAlive[_asset];
 
-    function setDecimals(uint256 _decimals) external {
-        decimals = _decimals;
-    }
-
-    function price_oracle(uint256 index) external view returns (uint256) {
-        return _priceOracles[index];
-    }
-
-    function stored_rates() external view returns (uint256[] memory) {
-        return _storedRates;
-    }
-
-    function setPriceOracle(uint256 index, uint256 price) external {
-        _priceOracles[index] = price;
-    }
-
-    function setStoredRates(uint256[] calldata rates) external {
-        require(rates.length == N_COINS, "Invalid rates length");
-        _storedRates = rates;
+        return (price, _isAlive);
     }
 }

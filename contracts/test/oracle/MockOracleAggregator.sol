@@ -46,7 +46,7 @@ contract MockOracleAggregator is IOracleWrapper {
 
     function getAssetPrice(
         address _asset
-    ) external view override returns (uint256) {
+    ) external view virtual override returns (uint256) {
         if (_asset == BASE_CURRENCY) {
             return BASE_CURRENCY_UNIT;
         }
@@ -59,7 +59,7 @@ contract MockOracleAggregator is IOracleWrapper {
 
     function getPriceInfo(
         address _asset
-    ) external view override returns (uint256 price, bool _isAlive) {
+    ) external view virtual override returns (uint256 price, bool _isAlive) {
         if (_asset == BASE_CURRENCY) {
             return (BASE_CURRENCY_UNIT, true);
         }
