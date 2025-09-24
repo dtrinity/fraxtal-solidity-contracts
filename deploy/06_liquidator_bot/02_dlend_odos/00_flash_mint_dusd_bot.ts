@@ -24,18 +24,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     return false;
   }
 
-  const { address: lendingPoolAddressesProviderAddress } =
-    await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
+  const { address: lendingPoolAddressesProviderAddress } = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
 
   // Get the AToken of the quote token
   // - The flash minter is the ERC20 token contract of the quote token which supports flash minting
-  const { aTokenAddress } = await getReserveTokensAddressesFromAddress(
-    config.liquidatorBotOdos.flashMinter,
-  );
+  const { aTokenAddress } = await getReserveTokensAddressesFromAddress(config.liquidatorBotOdos.flashMinter);
 
-  const addressProviderDeployedResult = await hre.deployments.get(
-    POOL_ADDRESSES_PROVIDER_ID,
-  );
+  const addressProviderDeployedResult = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
   const addressProviderContract = await hre.ethers.getContractAt(
     "PoolAddressesProvider",
     addressProviderDeployedResult.address,
@@ -62,9 +57,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // Set the proxy contract
-  const flashMintLiquidatorBotDeployedResult = await hre.deployments.get(
-    FLASH_MINT_LIQUIDATOR_ODOS_ID,
-  );
+  const flashMintLiquidatorBotDeployedResult = await hre.deployments.get(FLASH_MINT_LIQUIDATOR_ODOS_ID);
   const flashMintLiquidatorBotContract = await hre.ethers.getContractAt(
     "FlashMintLiquidatorAaveBorrowRepayOdos",
     flashMintLiquidatorBotDeployedResult.address,
@@ -73,13 +66,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Set proxy contracts if they exist in config
   if (config.liquidatorBotOdos?.proxyContractMap) {
-    for (const [token, proxyContract] of Object.entries(
-      config.liquidatorBotOdos.proxyContractMap,
-    )) {
-      await flashMintLiquidatorBotContract.setProxyContract(
-        token,
-        proxyContract,
-      );
+    for (const [token, proxyContract] of Object.entries(config.liquidatorBotOdos.proxyContractMap)) {
+      await flashMintLiquidatorBotContract.setProxyContract(token, proxyContract);
     }
   }
 

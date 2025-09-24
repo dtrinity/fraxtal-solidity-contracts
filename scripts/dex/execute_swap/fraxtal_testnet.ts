@@ -7,13 +7,7 @@ import { executeSwap } from "./utils";
  * Add liquidity to the DEX pools on the Fraxtal testnet
  */
 async function main(): Promise<void> {
-  await executeSwap(
-    FeeAmount.MEDIUM,
-    TOKEN_INFO.wfrxETH.address,
-    TOKEN_INFO.dUSD.address,
-    0.000001,
-    60,
-  );
+  await executeSwap(FeeAmount.MEDIUM, TOKEN_INFO.wfrxETH.address, TOKEN_INFO.dUSD.address, 0.000001, 60);
 }
 
 main()

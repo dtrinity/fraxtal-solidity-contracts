@@ -84,9 +84,7 @@ abstract contract AmoVault is CollateralVault, IRecoverable, ReentrancyGuard {
      * @param _newAmoManager The address of the new AmoManager
      * @dev Only callable by an account with the DEFAULT_ADMIN_ROLE
      */
-    function setAmoManager(
-        address _newAmoManager
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setAmoManager(address _newAmoManager) external onlyRole(DEFAULT_ADMIN_ROLE) {
         if (_newAmoManager == address(0)) revert InvalidAmoManager();
 
         // Reset allowance for old AMO manager
@@ -107,11 +105,7 @@ abstract contract AmoVault is CollateralVault, IRecoverable, ReentrancyGuard {
      * @param to The address to send the tokens to
      * @param amount The amount of tokens to recover
      */
-    function recoverERC20(
-        address token,
-        address to,
-        uint256 amount
-    ) external onlyRole(RECOVERER_ROLE) nonReentrant {
+    function recoverERC20(address token, address to, uint256 amount) external onlyRole(RECOVERER_ROLE) nonReentrant {
         if (token == address(dusd) || isCollateralSupported(token)) {
             revert CannotRecoverVaultToken(token);
         }
@@ -123,10 +117,7 @@ abstract contract AmoVault is CollateralVault, IRecoverable, ReentrancyGuard {
      * @param to The address to send the ETH to
      * @param amount The amount of ETH to recover
      */
-    function recoverETH(
-        address to,
-        uint256 amount
-    ) external onlyRole(RECOVERER_ROLE) {
+    function recoverETH(address to, uint256 amount) external onlyRole(RECOVERER_ROLE) {
         payable(to).sendValue(amount);
     }
 

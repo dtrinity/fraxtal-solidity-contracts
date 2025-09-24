@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.0;
 
-import {ERC20} from "../../dependencies/openzeppelin/contracts/ERC20.sol";
-import {IERC20WithPermit} from "../../interfaces/IERC20WithPermit.sol";
+import { ERC20 } from "../../dependencies/openzeppelin/contracts/ERC20.sol";
+import { IERC20WithPermit } from "../../interfaces/IERC20WithPermit.sol";
 
 /**
  * @title ERC20Mintable
@@ -27,34 +27,20 @@ import {IERC20WithPermit} from "../../interfaces/IERC20WithPermit.sol";
 contract MintableERC20 is IERC20WithPermit, ERC20 {
     bytes public constant EIP712_REVISION = bytes("1");
     bytes32 internal constant EIP712_DOMAIN =
-        keccak256(
-            "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-        );
+        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
     bytes32 public constant PERMIT_TYPEHASH =
-        keccak256(
-            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
-        );
+        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
     // Map of address nonces (address => nonce)
     mapping(address => uint256) internal _nonces;
 
     bytes32 public DOMAIN_SEPARATOR;
 
-    constructor(
-        string memory name,
-        string memory symbol,
-        uint8 decimals
-    ) ERC20(name, symbol) {
+    constructor(string memory name, string memory symbol, uint8 decimals) ERC20(name, symbol) {
         uint256 chainId = block.chainid;
 
         DOMAIN_SEPARATOR = keccak256(
-            abi.encode(
-                EIP712_DOMAIN,
-                keccak256(bytes(name)),
-                keccak256(EIP712_REVISION),
-                chainId,
-                address(this)
-            )
+            abi.encode(EIP712_DOMAIN, keccak256(bytes(name)), keccak256(EIP712_REVISION), chainId, address(this))
         );
         _setupDecimals(decimals);
     }
@@ -77,16 +63,7 @@ contract MintableERC20 is IERC20WithPermit, ERC20 {
             abi.encodePacked(
                 "\x19\x01",
                 DOMAIN_SEPARATOR,
-                keccak256(
-                    abi.encode(
-                        PERMIT_TYPEHASH,
-                        owner,
-                        spender,
-                        value,
-                        currentValidNonce,
-                        deadline
-                    )
-                )
+                keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, currentValidNonce, deadline))
             )
         );
         require(owner == ecrecover(digest, v, r, s), "INVALID_SIGNATURE");

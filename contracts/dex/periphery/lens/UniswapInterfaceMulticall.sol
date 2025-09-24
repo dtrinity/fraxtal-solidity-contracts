@@ -32,11 +32,7 @@ contract UniswapInterfaceMulticall {
         bytes returnData;
     }
 
-    function getCurrentBlockTimestamp()
-        public
-        view
-        returns (uint256 timestamp)
-    {
+    function getCurrentBlockTimestamp() public view returns (uint256 timestamp) {
         timestamp = block.timestamp;
     }
 
@@ -44,9 +40,7 @@ contract UniswapInterfaceMulticall {
         balance = addr.balance;
     }
 
-    function multicall(
-        Call[] memory calls
-    ) public returns (uint256 blockNumber, Result[] memory returnData) {
+    function multicall(Call[] memory calls) public returns (uint256 blockNumber, Result[] memory returnData) {
         blockNumber = block.number;
         returnData = new Result[](calls.length);
         for (uint256 i = 0; i < calls.length; i++) {
@@ -56,9 +50,7 @@ contract UniswapInterfaceMulticall {
                 calls[i].callData
             );
             uint256 gasLeftBefore = gasleft();
-            (bool success, bytes memory ret) = target.call{gas: gasLimit}(
-                callData
-            );
+            (bool success, bytes memory ret) = target.call{ gas: gasLimit }(callData);
             uint256 gasUsed = gasLeftBefore - gasleft();
             returnData[i] = Result(success, gasUsed, ret);
         }

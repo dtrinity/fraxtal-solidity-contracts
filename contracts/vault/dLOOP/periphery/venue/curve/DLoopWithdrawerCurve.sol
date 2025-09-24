@@ -17,9 +17,9 @@
 
 pragma solidity 0.8.20;
 
-import {DLoopWithdrawerBase, ERC20, IERC3156FlashLender} from "../../DLoopWithdrawerBase.sol";
-import {CurveSwapLogic, CurveHelper, ICurveRouterNgPoolsOnlyV1} from "./CurveSwapLogic.sol";
-import {Constants} from "contracts/shared/Constants.sol";
+import { DLoopWithdrawerBase, ERC20, IERC3156FlashLender } from "../../DLoopWithdrawerBase.sol";
+import { CurveSwapLogic, CurveHelper, ICurveRouterNgPoolsOnlyV1 } from "./CurveSwapLogic.sol";
+import { Constants } from "contracts/shared/Constants.sol";
 
 /**
  * @title DLoopWithdrawerCurve
@@ -31,8 +31,7 @@ contract DLoopWithdrawerCurve is DLoopWithdrawerBase {
     uint256 public maxSlippageSurplusSwapBps;
 
     // Storage variables
-    mapping(string => CurveHelper.CurveSwapExtraParams)
-        public defaultSwapParams;
+    mapping(string => CurveHelper.CurveSwapExtraParams) public defaultSwapParams;
     mapping(string => bool) public isSwapParamsSet;
 
     /**
@@ -44,8 +43,7 @@ contract DLoopWithdrawerCurve is DLoopWithdrawerBase {
     constructor(
         IERC3156FlashLender _flashLender,
         ICurveRouterNgPoolsOnlyV1 _curveRouter,
-        CurveSwapLogic.CurveSwapExtraParamsDefaultConfig[]
-            memory _defaultSwapParamsList
+        CurveSwapLogic.CurveSwapExtraParamsDefaultConfig[] memory _defaultSwapParamsList
     ) DLoopWithdrawerBase(_flashLender) {
         // Assign immutable variables
         curveRouter = _curveRouter;
@@ -54,11 +52,7 @@ contract DLoopWithdrawerCurve is DLoopWithdrawerBase {
         maxSlippageSurplusSwapBps = 20 * Constants.ONE_PERCENT_BPS; // 20% slippage surplus swap
 
         // Initialize default swap parameters
-        CurveSwapLogic.initializeDefaultSwapParams(
-            _defaultSwapParamsList,
-            defaultSwapParams,
-            isSwapParamsSet
-        );
+        CurveSwapLogic.initializeDefaultSwapParams(_defaultSwapParamsList, defaultSwapParams, isSwapParamsSet);
     }
 
     /**
@@ -94,13 +88,8 @@ contract DLoopWithdrawerCurve is DLoopWithdrawerBase {
      * @param _swapExtraParamsConfig The swap extra params config
      */
     function setSwapExtraParams(
-        CurveSwapLogic.CurveSwapExtraParamsDefaultConfig
-            memory _swapExtraParamsConfig
+        CurveSwapLogic.CurveSwapExtraParamsDefaultConfig memory _swapExtraParamsConfig
     ) external onlyOwner {
-        CurveSwapLogic.setSwapExtraParams(
-            _swapExtraParamsConfig,
-            defaultSwapParams,
-            isSwapParamsSet
-        );
+        CurveSwapLogic.setSwapExtraParams(_swapExtraParamsConfig, defaultSwapParams, isSwapParamsSet);
     }
 }

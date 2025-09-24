@@ -33,12 +33,6 @@ contract OdosSwapper {
         bytes calldata swapData
     ) external {
         ERC20(inputToken).safeTransferFrom(msg.sender, address(this), maxIn);
-        OdosSwapUtils.excuteSwapOperation(
-            router,
-            inputToken,
-            maxIn,
-            exactOut,
-            swapData
-        );
+        OdosSwapUtils.excuteSwapOperation(router, inputToken, maxIn, exactOut, swapData);
     }
 }

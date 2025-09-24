@@ -24,9 +24,7 @@ contract Base64Test {
         return Base64.encode(data);
     }
 
-    function getGasCostOfEncode(
-        bytes memory data
-    ) external view returns (uint256) {
+    function getGasCostOfEncode(bytes memory data) external view returns (uint256) {
         uint256 gasBefore = gasleft();
         Base64.encode(data);
         return gasBefore - gasleft();

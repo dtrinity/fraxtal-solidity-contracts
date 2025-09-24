@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.10;
 
-import {IAaveOracle} from "contracts/lending/core/interfaces/IAaveOracle.sol";
-import {ITransferStrategyBase} from "../interfaces/ITransferStrategyBase.sol";
+import { IAaveOracle } from "contracts/lending/core/interfaces/IAaveOracle.sol";
+import { ITransferStrategyBase } from "../interfaces/ITransferStrategyBase.sol";
 
 library RewardsDataTypes {
     struct RewardsConfigInput {

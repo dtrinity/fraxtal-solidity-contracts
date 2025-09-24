@@ -21,8 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const config = await getConfig(hre);
 
-  const { address: curveCompositeWrapperWithThresholdingAddress } =
-    await hre.deployments.get("CurveAPI3CompositeWrapperWithThresholding");
+  const { address: curveCompositeWrapperWithThresholdingAddress } = await hre.deployments.get("CurveAPI3CompositeWrapperWithThresholding");
   const curveCompositeWrapper = await hre.ethers.getContractAt(
     "CurveAPI3CompositeWrapperWithThresholding",
     curveCompositeWrapperWithThresholdingAddress,
@@ -34,10 +33,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // -----------------------------------------------------------------------------
 
   const oracleManagerRole = await curveCompositeWrapper.ORACLE_MANAGER_ROLE();
-  const hasPermission = await curveCompositeWrapper.hasRole(
-    oracleManagerRole,
-    deployer.address,
-  );
+  const hasPermission = await curveCompositeWrapper.hasRole(oracleManagerRole, deployer.address);
 
   if (!hasPermission) {
     throw new Error(
@@ -46,24 +42,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
   }
 
-  const curveAddresses = symbolsToAddresses(
-    configureAssetsByOracleType.curveApi3CompositeOracles,
-    TOKEN_INFO,
-  );
+  const curveAddresses = symbolsToAddresses(configureAssetsByOracleType.curveApi3CompositeOracles, TOKEN_INFO);
   const curveCompositeFeeds = Object.fromEntries(
-    Object.entries(
-      config.oracleAggregator.curveOracleAssets.curveApi3CompositeOracles,
-    ).filter(([key]) => curveAddresses.includes(key)),
+    Object.entries(config.oracleAggregator.curveOracleAssets.curveApi3CompositeOracles).filter(([key]) => curveAddresses.includes(key)),
   );
 
-  for (const [assetAddress, feedConfig] of Object.entries(
-    curveCompositeFeeds,
-  )) {
+  for (const [assetAddress, feedConfig] of Object.entries(curveCompositeFeeds)) {
     await curveCompositeWrapper.setAssetConfig(assetAddress, feedConfig.pool);
-    console.log(
-      `Set Curve pool config for asset ${assetAddress}:`,
-      `\n  - Pool: ${feedConfig.pool}`,
-    );
+    console.log(`Set Curve pool config for asset ${assetAddress}:`, `\n  - Pool: ${feedConfig.pool}`);
 
     await curveCompositeWrapper.setCompositeFeed(
       assetAddress,
@@ -88,12 +74,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   return true;
 };
 
-func.tags = [
-  "oracle-wrapper",
-  "api3-oracle-wrapper",
-  "curve-oracle-wrapper",
-  "fxb-2026",
-];
+func.tags = ["oracle-wrapper", "api3-oracle-wrapper", "curve-oracle-wrapper", "fxb-2026"];
 func.dependencies = [];
 func.id = "DeployCurveOracleWrapperFXB20261231";
 

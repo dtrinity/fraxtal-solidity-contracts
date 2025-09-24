@@ -21,54 +21,24 @@ interface ICurveStableNG {
 
     function get_balances() external view returns (uint256[] memory);
 
-    function get_dx(
-        int128 i,
-        int128 j,
-        uint256 dy
-    ) external view returns (uint256);
+    function get_dx(int128 i, int128 j, uint256 dy) external view returns (uint256);
 
-    function get_dy(
-        int128 i,
-        int128 j,
-        uint256 dx
-    ) external view returns (uint256);
+    function get_dy(int128 i, int128 j, uint256 dx) external view returns (uint256);
 
-    function calc_token_amount(
-        uint256[] memory amounts,
-        bool is_deposit
-    ) external view returns (uint256);
+    function calc_token_amount(uint256[] memory amounts, bool is_deposit) external view returns (uint256);
 
-    function calc_withdraw_one_coin(
-        uint256 burn_amount,
-        int128 i
-    ) external view returns (uint256);
+    function calc_withdraw_one_coin(uint256 burn_amount, int128 i) external view returns (uint256);
 
     function D_oracle() external view returns (uint256);
 
     function dynamic_fee(int128 i, int128 j) external view returns (uint256);
 
     // State changing functions
-    function exchange(
-        int128 i,
-        int128 j,
-        uint256 dx,
-        uint256 min_dy
-    ) external returns (uint256);
+    function exchange(int128 i, int128 j, uint256 dx, uint256 min_dy) external returns (uint256);
 
-    function exchange(
-        int128 i,
-        int128 j,
-        uint256 dx,
-        uint256 min_dy,
-        address receiver
-    ) external returns (uint256);
+    function exchange(int128 i, int128 j, uint256 dx, uint256 min_dy, address receiver) external returns (uint256);
 
-    function exchange_received(
-        int128 i,
-        int128 j,
-        uint256 dx,
-        uint256 min_dy
-    ) external returns (uint256);
+    function exchange_received(int128 i, int128 j, uint256 dx, uint256 min_dy) external returns (uint256);
 
     function exchange_received(
         int128 i,
@@ -79,10 +49,7 @@ interface ICurveStableNG {
     ) external returns (uint256);
 
     // Liquidity functions
-    function add_liquidity(
-        uint256[] memory amounts,
-        uint256 min_mint_amount
-    ) external returns (uint256);
+    function add_liquidity(uint256[] memory amounts, uint256 min_mint_amount) external returns (uint256);
 
     function add_liquidity(
         uint256[] memory amounts,
@@ -90,10 +57,7 @@ interface ICurveStableNG {
         address receiver
     ) external returns (uint256);
 
-    function remove_liquidity(
-        uint256 burn_amount,
-        uint256[] memory min_amounts
-    ) external returns (uint256[] memory);
+    function remove_liquidity(uint256 burn_amount, uint256[] memory min_amounts) external returns (uint256[] memory);
 
     function remove_liquidity(
         uint256 burn_amount,
@@ -108,11 +72,7 @@ interface ICurveStableNG {
         bool claim_admin_fees
     ) external returns (uint256[] memory);
 
-    function remove_liquidity_one_coin(
-        uint256 burn_amount,
-        int128 i,
-        uint256 min_received
-    ) external returns (uint256);
+    function remove_liquidity_one_coin(uint256 burn_amount, int128 i, uint256 min_received) external returns (uint256);
 
     function remove_liquidity_one_coin(
         uint256 burn_amount,
@@ -121,10 +81,7 @@ interface ICurveStableNG {
         address receiver
     ) external returns (uint256);
 
-    function remove_liquidity_imbalance(
-        uint256[] memory amounts,
-        uint256 max_burn_amount
-    ) external returns (uint256);
+    function remove_liquidity_imbalance(uint256[] memory amounts, uint256 max_burn_amount) external returns (uint256);
 
     function remove_liquidity_imbalance(
         uint256[] memory amounts,
@@ -137,10 +94,7 @@ interface ICurveStableNG {
 
     function stop_ramp_A() external;
 
-    function set_new_fee(
-        uint256 new_fee,
-        uint256 new_offpeg_fee_multiplier
-    ) external;
+    function set_new_fee(uint256 new_fee, uint256 new_offpeg_fee_multiplier) external;
 
     function set_ma_exp_time(uint256 ma_exp_time, uint256 D_ma_time) external;
 
@@ -149,11 +103,7 @@ interface ICurveStableNG {
     // ERC20 functions
     function transfer(address to, uint256 value) external returns (bool);
 
-    function transferFrom(
-        address from,
-        address to,
-        uint256 value
-    ) external returns (bool);
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
 
     function approve(address spender, uint256 value) external returns (bool);
 
@@ -173,10 +123,7 @@ interface ICurveStableNG {
 
     function balanceOf(address account) external view returns (uint256);
 
-    function allowance(
-        address owner,
-        address spender
-    ) external view returns (uint256);
+    function allowance(address owner, address spender) external view returns (uint256);
 
     function nonces(address owner) external view returns (uint256);
 

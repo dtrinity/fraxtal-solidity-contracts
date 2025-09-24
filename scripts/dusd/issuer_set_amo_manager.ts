@@ -20,11 +20,7 @@ async function main(): Promise<void> {
 
   // Get the deployed Issuer contract
   const issuerDeployment = await hre.deployments.get(ISSUER_CONTRACT_ID);
-  const issuer = await ethers.getContractAt(
-    ISSUER_CONTRACT_ID,
-    issuerDeployment.address,
-    await ethers.getSigner(dusdDeployer),
-  );
+  const issuer = await ethers.getContractAt(ISSUER_CONTRACT_ID, issuerDeployment.address, await ethers.getSigner(dusdDeployer));
   console.log("Issuer contract at:", issuerDeployment.address);
 
   // Get current AMO manager

@@ -11,9 +11,7 @@ import { dUSD_REDEEMER_WITH_FEES_CONTRACT_ID } from "../../typescript/deploy-ids
  * @param hre - Hardhat runtime environment
  * @returns Promise<boolean> - True if role transfer was successful
  */
-const func: DeployFunction = async function (
-  hre: HardhatRuntimeEnvironment,
-): Promise<boolean> {
+const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment): Promise<boolean> {
   const { dusdDeployer: deployer } = await hre.getNamedAccounts();
   const { get } = hre.deployments;
   const config = await getConfig(hre);
@@ -22,9 +20,7 @@ const func: DeployFunction = async function (
   const governanceAddress = config.walletAddresses?.governanceMultisig;
 
   if (!governanceAddress) {
-    console.log(
-      "⚠️  Skipping role transfer - no governance address configured",
-    );
+    console.log("⚠️  Skipping role transfer - no governance address configured");
     return true;
   }
 
@@ -33,9 +29,7 @@ const func: DeployFunction = async function (
 
   try {
     // Transfer roles for dUSD RedeemerWithFees
-    const dUSDRedeemerWithFeesDeployment = await get(
-      dUSD_REDEEMER_WITH_FEES_CONTRACT_ID,
-    );
+    const dUSDRedeemerWithFeesDeployment = await get(dUSD_REDEEMER_WITH_FEES_CONTRACT_ID);
     const dUSDRedeemerWithFees = await hre.ethers.getContractAt(
       "RedeemerWithFees",
       dUSDRedeemerWithFeesDeployment.address,
@@ -43,32 +37,19 @@ const func: DeployFunction = async function (
     );
 
     const DEFAULT_ADMIN_ROLE = await dUSDRedeemerWithFees.DEFAULT_ADMIN_ROLE();
-    const REDEMPTION_MANAGER_ROLE =
-      await dUSDRedeemerWithFees.REDEMPTION_MANAGER_ROLE();
+    const REDEMPTION_MANAGER_ROLE = await dUSDRedeemerWithFees.REDEMPTION_MANAGER_ROLE();
 
     console.log("\n📋 dUSD RedeemerWithFees role transfer:");
 
     // Check current roles
-    const deployerHasAdminRole = await dUSDRedeemerWithFees.hasRole(
-      DEFAULT_ADMIN_ROLE,
-      deployer,
-    );
-    const governanceHasAdminRole = await dUSDRedeemerWithFees.hasRole(
-      DEFAULT_ADMIN_ROLE,
-      governanceAddress,
-    );
-    const governanceHasRedemptionRole = await dUSDRedeemerWithFees.hasRole(
-      REDEMPTION_MANAGER_ROLE,
-      governanceAddress,
-    );
+    const deployerHasAdminRole = await dUSDRedeemerWithFees.hasRole(DEFAULT_ADMIN_ROLE, deployer);
+    const governanceHasAdminRole = await dUSDRedeemerWithFees.hasRole(DEFAULT_ADMIN_ROLE, governanceAddress);
+    const governanceHasRedemptionRole = await dUSDRedeemerWithFees.hasRole(REDEMPTION_MANAGER_ROLE, governanceAddress);
 
     // Grant roles to governance if needed
     if (!governanceHasAdminRole) {
       console.log("  Granting DEFAULT_ADMIN_ROLE to governance...");
-      const tx1 = await dUSDRedeemerWithFees.grantRole(
-        DEFAULT_ADMIN_ROLE,
-        governanceAddress,
-      );
+      const tx1 = await dUSDRedeemerWithFees.grantRole(DEFAULT_ADMIN_ROLE, governanceAddress);
       await tx1.wait();
       console.log("  ✅ DEFAULT_ADMIN_ROLE granted");
     } else {
@@ -77,10 +58,7 @@ const func: DeployFunction = async function (
 
     if (!governanceHasRedemptionRole) {
       console.log("  Granting REDEMPTION_MANAGER_ROLE to governance...");
-      const tx2 = await dUSDRedeemerWithFees.grantRole(
-        REDEMPTION_MANAGER_ROLE,
-        governanceAddress,
-      );
+      const tx2 = await dUSDRedeemerWithFees.grantRole(REDEMPTION_MANAGER_ROLE, governanceAddress);
       await tx2.wait();
       console.log("  ✅ REDEMPTION_MANAGER_ROLE granted");
     } else {
@@ -90,10 +68,7 @@ const func: DeployFunction = async function (
     // Renounce deployer's admin role if governance has it
     if (deployerHasAdminRole && governanceHasAdminRole) {
       console.log("  Renouncing deployer's DEFAULT_ADMIN_ROLE...");
-      const tx3 = await dUSDRedeemerWithFees.renounceRole(
-        DEFAULT_ADMIN_ROLE,
-        deployer,
-      );
+      const tx3 = await dUSDRedeemerWithFees.renounceRole(DEFAULT_ADMIN_ROLE, deployer);
       await tx3.wait();
       console.log("  ✅ Deployer's DEFAULT_ADMIN_ROLE renounced");
     }

@@ -25,10 +25,7 @@ import "@openzeppelin/contracts-5/token/ERC20/extensions/ERC20FlashMint.sol";
 contract ERC20Test is ERC20, Ownable, ERC20FlashMint {
     uint8 private _decimals;
 
-    constructor(
-        string memory symbol_,
-        uint8 decimals_
-    ) ERC20(symbol_, symbol_) Ownable(msg.sender) {
+    constructor(string memory symbol_, uint8 decimals_) ERC20(symbol_, symbol_) Ownable(msg.sender) {
         _decimals = decimals_;
     }
 

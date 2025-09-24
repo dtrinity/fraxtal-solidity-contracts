@@ -17,16 +17,16 @@
 
 pragma solidity ^0.8.10;
 
-import {DataTypes} from "contracts/lending/core/protocol/libraries/types/DataTypes.sol";
-import {FlashLoanSimpleReceiverBase} from "contracts/lending/core/flashloan/base/FlashLoanSimpleReceiverBase.sol";
-import {GPv2SafeERC20} from "contracts/lending/core/dependencies/gnosis/contracts/GPv2SafeERC20.sol";
-import {IERC20} from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
-import {IERC20Detailed} from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
-import {IERC20WithPermit} from "contracts/lending/core/interfaces/IERC20WithPermit.sol";
-import {IPoolAddressesProvider} from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
-import {IPriceOracleGetter} from "contracts/lending/core/interfaces/IPriceOracleGetter.sol";
-import {SafeMath} from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeMath.sol";
-import {Ownable} from "contracts/lending/core/dependencies/openzeppelin/contracts/Ownable.sol";
+import { DataTypes } from "contracts/lending/core/protocol/libraries/types/DataTypes.sol";
+import { FlashLoanSimpleReceiverBase } from "contracts/lending/core/flashloan/base/FlashLoanSimpleReceiverBase.sol";
+import { GPv2SafeERC20 } from "contracts/lending/core/dependencies/gnosis/contracts/GPv2SafeERC20.sol";
+import { IERC20 } from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
+import { IERC20Detailed } from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import { IERC20WithPermit } from "contracts/lending/core/interfaces/IERC20WithPermit.sol";
+import { IPoolAddressesProvider } from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
+import { IPriceOracleGetter } from "contracts/lending/core/interfaces/IPriceOracleGetter.sol";
+import { SafeMath } from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeMath.sol";
+import { Ownable } from "contracts/lending/core/dependencies/openzeppelin/contracts/Ownable.sol";
 
 /**
  * @title BaseDSwapAdapter
@@ -51,22 +51,10 @@ abstract contract BaseDSwapAdapter is FlashLoanSimpleReceiverBase, Ownable {
 
     IPriceOracleGetter public immutable ORACLE;
 
-    event Swapped(
-        address indexed fromAsset,
-        address indexed toAsset,
-        uint256 fromAmount,
-        uint256 receivedAmount
-    );
-    event Bought(
-        address indexed fromAsset,
-        address indexed toAsset,
-        uint256 amountSold,
-        uint256 receivedAmount
-    );
+    event Swapped(address indexed fromAsset, address indexed toAsset, uint256 fromAmount, uint256 receivedAmount);
+    event Bought(address indexed fromAsset, address indexed toAsset, uint256 amountSold, uint256 receivedAmount);
 
-    constructor(
-        IPoolAddressesProvider addressesProvider
-    ) FlashLoanSimpleReceiverBase(addressesProvider) {
+    constructor(IPoolAddressesProvider addressesProvider) FlashLoanSimpleReceiverBase(addressesProvider) {
         ORACLE = IPriceOracleGetter(addressesProvider.getPriceOracle());
     }
 
@@ -94,9 +82,7 @@ abstract contract BaseDSwapAdapter is FlashLoanSimpleReceiverBase, Ownable {
      * @dev Get the aToken associated to the asset
      * @return address of the aToken
      */
-    function _getReserveData(
-        address asset
-    ) internal view returns (DataTypes.ReserveData memory) {
+    function _getReserveData(address asset) internal view returns (DataTypes.ReserveData memory) {
         return POOL.getReserveData(asset);
     }
 
@@ -106,16 +92,8 @@ abstract contract BaseDSwapAdapter is FlashLoanSimpleReceiverBase, Ownable {
         uint256 amount,
         PermitSignature memory permitSignature
     ) internal {
-        IERC20WithPermit reserveAToken = IERC20WithPermit(
-            _getReserveData(address(reserve)).aTokenAddress
-        );
-        _pullATokenAndWithdraw(
-            reserve,
-            reserveAToken,
-            user,
-            amount,
-            permitSignature
-        );
+        IERC20WithPermit reserveAToken = IERC20WithPermit(_getReserveData(address(reserve)).aTokenAddress);
+        _pullATokenAndWithdraw(reserve, reserveAToken, user, amount, permitSignature);
     }
 
     /**
@@ -150,10 +128,7 @@ abstract contract BaseDSwapAdapter is FlashLoanSimpleReceiverBase, Ownable {
         reserveAToken.safeTransferFrom(user, address(this), amount);
 
         // withdraw reserve
-        require(
-            POOL.withdraw(reserve, amount, address(this)) == amount,
-            "UNEXPECTED_AMOUNT_WITHDRAWN"
-        );
+        require(POOL.withdraw(reserve, amount, address(this)) == amount, "UNEXPECTED_AMOUNT_WITHDRAWN");
     }
 
     /**

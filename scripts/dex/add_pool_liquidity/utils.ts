@@ -23,37 +23,22 @@ export async function addLiquidityToPools(
 ): Promise<void> {
   const { dexDeployer, dexLiquidityAdder } = await hre.getNamedAccounts();
 
-  const { address: factoryAddress } = await hre.deployments.get(
-    UNISWAP_V3_FACTORY_ID,
-  );
+  const { address: factoryAddress } = await hre.deployments.get(UNISWAP_V3_FACTORY_ID);
 
   // Get pool address
-  const factoryContract = await hre.ethers.getContractAt(
-    "UniswapV3Factory",
-    factoryAddress,
-    await hre.ethers.getSigner(dexDeployer),
-  );
+  const factoryContract = await hre.ethers.getContractAt("UniswapV3Factory", factoryAddress, await hre.ethers.getSigner(dexDeployer));
 
   const liquidityAdder = await hre.ethers.getSigner(dexLiquidityAdder);
 
   for (const config of configs) {
-    const poolAddress = await factoryContract.getPool(
-      config.token0Address,
-      config.token1Address,
-      config.fee,
-    );
+    const poolAddress = await factoryContract.getPool(config.token0Address, config.token1Address, config.fee);
 
     const token0Info = await fetchTokenInfo(hre, config.token0Address);
     const token1Info = await fetchTokenInfo(hre, config.token1Address);
 
-    const { contract: token0Contract } = await getTokenContractForAddress(
-      dexLiquidityAdder,
-      token0Info.address,
-    );
+    const { contract: token0Contract } = await getTokenContractForAddress(dexLiquidityAdder, token0Info.address);
 
-    const token0BalanceRaw = Number(
-      await token0Contract.balanceOf(dexLiquidityAdder),
-    );
+    const token0BalanceRaw = Number(await token0Contract.balanceOf(dexLiquidityAdder));
     const token0Balance = token0BalanceRaw / 10 ** token0Info.decimals;
 
     if (token0Balance < config.inputToken0Amount) {

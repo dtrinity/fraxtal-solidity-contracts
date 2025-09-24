@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.10;
 
-import {IBaseOdosAdapter} from "./IBaseOdosAdapter.sol";
+import { IBaseOdosAdapter } from "./IBaseOdosAdapter.sol";
 
 /**
  * @title IOdosLiquiditySwapAdapter

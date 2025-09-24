@@ -17,45 +17,23 @@ describe("MockStaticOracleWrapper usage examples", function () {
 
     await standardUniswapV3DEXLBPLiquidityWithMockOracleFixture();
 
-    const { tokenInfo: collateralTokenInfo } = await getTokenContractForSymbol(
-      dexDeployer,
-      collateralTokenSymbol,
-    );
+    const { tokenInfo: collateralTokenInfo } = await getTokenContractForSymbol(dexDeployer, collateralTokenSymbol);
 
-    const mockStaticOracleWrapperContract =
-      await getMockStaticOracleWrapperContract();
+    const mockStaticOracleWrapperContract = await getMockStaticOracleWrapperContract();
 
     // As the price is not set, it should revert
-    await chai
-      .expect(
-        mockStaticOracleWrapperContract.getAssetPrice(
-          collateralTokenInfo.address,
-        ),
-      )
-      .to.be.revertedWith("No price available");
+    await chai.expect(mockStaticOracleWrapperContract.getAssetPrice(collateralTokenInfo.address)).to.be.revertedWith("No price available");
 
     // Set the price of the collateralToken
-    await mockStaticOracleWrapperContract.setAssetPrice(
-      collateralTokenInfo.address,
-      ethers.parseUnits("1.1111", priceDecimals),
-    );
+    await mockStaticOracleWrapperContract.setAssetPrice(collateralTokenInfo.address, ethers.parseUnits("1.1111", priceDecimals));
 
     // Make sure the price is set correctly (via AaveOracle, not the mock one)
-    assert.equal(
-      await getOraclePrice(testAccount1, collateralTokenInfo.address),
-      hre.ethers.parseUnits("1.1111", priceDecimals),
-    );
+    assert.equal(await getOraclePrice(testAccount1, collateralTokenInfo.address), hre.ethers.parseUnits("1.1111", priceDecimals));
 
     // Set the price again to make sure the price is set correctly
-    await mockStaticOracleWrapperContract.setAssetPrice(
-      collateralTokenInfo.address,
-      ethers.parseUnits("1.2222", priceDecimals),
-    );
+    await mockStaticOracleWrapperContract.setAssetPrice(collateralTokenInfo.address, ethers.parseUnits("1.2222", priceDecimals));
 
     // Make sure the price is set correctly (via AaveOracle, not the mock one)
-    assert.equal(
-      await getOraclePrice(testAccount1, collateralTokenInfo.address),
-      hre.ethers.parseUnits("1.2222", priceDecimals),
-    );
+    assert.equal(await getOraclePrice(testAccount1, collateralTokenInfo.address), hre.ethers.parseUnits("1.2222", priceDecimals));
   });
 });

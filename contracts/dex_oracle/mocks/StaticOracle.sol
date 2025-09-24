@@ -33,9 +33,7 @@ contract StaticOracleMock is StaticOracle {
         _knownFeeTiers.push(_feeTier);
     }
 
-    function getCardinalityForTimePeriod(
-        uint32 _period
-    ) external view returns (uint16 _cardinality) {
+    function getCardinalityForTimePeriod(uint32 _period) external view returns (uint16 _cardinality) {
         return _getCardinalityForTimePeriod(_period);
     }
 
@@ -61,15 +59,7 @@ contract StaticOracleMock is StaticOracle {
         uint32 _period,
         uint32 _offset
     ) external view returns (uint256 _quoteAmount) {
-        return
-            _quote(
-                _baseAmount,
-                _baseToken,
-                _quoteToken,
-                _pools,
-                _period,
-                _offset
-            );
+        return _quote(_baseAmount, _baseToken, _quoteToken, _pools, _period, _offset);
     }
 
     function getQueryablePoolsForTiers(
@@ -82,9 +72,7 @@ contract StaticOracleMock is StaticOracle {
 
     address[] internal _poolsForTiersReturn;
 
-    function setPoolForTiersReturn(
-        address[] memory __poolsForTiersReturn
-    ) external {
+    function setPoolForTiersReturn(address[] memory __poolsForTiersReturn) external {
         _poolsForTiersReturn = __poolsForTiersReturn;
     }
 

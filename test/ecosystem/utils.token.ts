@@ -36,11 +36,7 @@ export async function getTokenContractForSymbol(
       ? "contracts/test/ERC20StablecoinUpgradeable.sol:ERC20StablecoinUpgradeable"
       : "contracts/dex/universal_router/test/MintableERC20.sol:MintableERC20";
 
-  const contract = (await ethers.getContractAt(
-    abiPath,
-    tokenaddress,
-    signer,
-  )) as unknown as MintableERC20;
+  const contract = (await ethers.getContractAt(abiPath, tokenaddress, signer)) as unknown as MintableERC20;
 
   return {
     contract: contract,
@@ -55,28 +51,15 @@ export async function getTokenContractForSymbol(
  * @param symbol Corresponding reserve token symbol
  * @returns The token contract in AToken type
  */
-export async function getATokenForSymbol(
-  callerAddress: string,
-  symbol: string,
-): Promise<AToken> {
+export async function getATokenForSymbol(callerAddress: string, symbol: string): Promise<AToken> {
   const signer = await ethers.getSigner(callerAddress);
   const reservesAddresses = await getReserveTokenAddresses(hre);
   const dataProvider = await deployments.get(POOL_DATA_PROVIDER_ID);
-  const dataProviderContract = await hre.ethers.getContractAt(
-    "AaveProtocolDataProvider",
-    dataProvider.address,
-  );
+  const dataProviderContract = await hre.ethers.getContractAt("AaveProtocolDataProvider", dataProvider.address);
 
-  const { aTokenAddress } =
-    await dataProviderContract.getReserveTokensAddresses(
-      reservesAddresses[symbol],
-    );
+  const { aTokenAddress } = await dataProviderContract.getReserveTokensAddresses(reservesAddresses[symbol]);
 
-  const contract = (await ethers.getContractAt(
-    "AToken",
-    aTokenAddress,
-    signer,
-  )) as unknown as AToken;
+  const contract = (await ethers.getContractAt("AToken", aTokenAddress, signer)) as unknown as AToken;
   return contract;
 }
 
@@ -94,17 +77,9 @@ export async function transferTokenToAccount(
   tokenSymbol: string,
   amount: number,
 ): Promise<void> {
-  const { tokenInfo } = await getTokenContractForSymbol(
-    senderAddress,
-    tokenSymbol,
-  );
+  const { tokenInfo } = await getTokenContractForSymbol(senderAddress, tokenSymbol);
 
-  await transferTokenToAccountFromAddress(
-    senderAddress,
-    receiverAddress,
-    tokenInfo.address,
-    amount,
-  );
+  await transferTokenToAccountFromAddress(senderAddress, receiverAddress, tokenInfo.address, amount);
 }
 
 /**
@@ -121,15 +96,9 @@ export async function transferTokenToAccountFromAddress(
   tokenAddress: string,
   amount: number,
 ): Promise<void> {
-  const { contract, tokenInfo } = await getTokenContractForAddress(
-    senderAddress,
-    tokenAddress,
-  );
+  const { contract, tokenInfo } = await getTokenContractForAddress(senderAddress, tokenAddress);
 
-  const parsedAmount = hre.ethers.parseUnits(
-    amount.toString(),
-    tokenInfo.decimals,
-  );
+  const parsedAmount = hre.ethers.parseUnits(amount.toString(), tokenInfo.decimals);
   await contract.transfer(receiverAddress, parsedAmount);
 }
 
@@ -140,14 +109,8 @@ export async function transferTokenToAccountFromAddress(
  * @param tokenSymbol - The symbol of the token
  * @returns The balance of the token in its decimal form
  */
-export async function getTokenBalance(
-  accountAddress: string,
-  tokenSymbol: string,
-): Promise<bigint> {
-  const { tokenInfo } = await getTokenContractForSymbol(
-    accountAddress,
-    tokenSymbol,
-  );
+export async function getTokenBalance(accountAddress: string, tokenSymbol: string): Promise<bigint> {
+  const { tokenInfo } = await getTokenContractForSymbol(accountAddress, tokenSymbol);
   return getTokenBalanceFromAddress(accountAddress, tokenInfo.address);
 }
 
@@ -158,14 +121,8 @@ export async function getTokenBalance(
  * @param tokenAddress - The address of the token
  * @returns - The balance of the token in its decimal form
  */
-export async function getTokenBalanceFromAddress(
-  accountAddress: string,
-  tokenAddress: string,
-): Promise<bigint> {
-  const { contract } = await getTokenContractForAddress(
-    accountAddress,
-    tokenAddress,
-  );
+export async function getTokenBalanceFromAddress(accountAddress: string, tokenAddress: string): Promise<bigint> {
+  const { contract } = await getTokenContractForAddress(accountAddress, tokenAddress);
   return contract.balanceOf(accountAddress);
 }
 
@@ -176,16 +133,10 @@ export async function getTokenBalanceFromAddress(
  * @param tokenSymbol - The symbol of the token
  * @returns - The amount of the token in its decimal form
  */
-export async function getTokenAmount(
-  amountString: string,
-  tokenSymbol: string,
-): Promise<bigint> {
+export async function getTokenAmount(amountString: string, tokenSymbol: string): Promise<bigint> {
   // Use getTokenAmountFromAddress
   const { dexDeployer } = await hre.getNamedAccounts();
-  const { tokenInfo } = await getTokenContractForSymbol(
-    dexDeployer,
-    tokenSymbol,
-  );
+  const { tokenInfo } = await getTokenContractForSymbol(dexDeployer, tokenSymbol);
   return getTokenAmountFromAddress(amountString, tokenInfo.address);
 }
 
@@ -196,10 +147,7 @@ export async function getTokenAmount(
  * @param tokenAddress - The address of the token
  * @returns - The amount of the token in its decimal form
  */
-export async function getTokenAmountFromAddress(
-  amountString: string,
-  tokenAddress: string,
-): Promise<bigint> {
+export async function getTokenAmountFromAddress(amountString: string, tokenAddress: string): Promise<bigint> {
   const tokenInfo = await fetchTokenInfoFromAddress(tokenAddress);
   return ethers.parseUnits(amountString, tokenInfo.decimals);
 }
@@ -212,18 +160,10 @@ export async function getTokenAmountFromAddress(
  * @param symbol - The symbol of the token
  * @param amount - The amount of the token to approve
  */
-export async function approveTokenBySymbol(
-  ownerAddress: string,
-  spenderAddress: string,
-  symbol: string,
-  amount: number,
-): Promise<void> {
+export async function approveTokenBySymbol(ownerAddress: string, spenderAddress: string, symbol: string, amount: number): Promise<void> {
   await (
     await getTokenContractForSymbol(ownerAddress, symbol)
-  ).contract.approve(
-    spenderAddress,
-    await getTokenAmount(amount.toString(), symbol),
-  );
+  ).contract.approve(spenderAddress, await getTokenAmount(amount.toString(), symbol));
 }
 
 /**
@@ -263,10 +203,7 @@ export async function approveTokenByAddressRaw(
   amountRaw: bigint,
 ): Promise<void> {
   const contract = await hre.ethers.getContractAt(
-    [
-      "function approve(address spender, uint256 amount) external",
-      "function symbol() external view returns (string)",
-    ],
+    ["function approve(address spender, uint256 amount) external", "function symbol() external view returns (string)"],
     tokenAddress,
     await hre.ethers.getSigner(ownerAddress),
   );
@@ -289,12 +226,7 @@ export async function assertTokenBalance(
   tolerance: number = 1e-6,
 ): Promise<void> {
   const { tokenInfo } = await getTokenContractForSymbol(ownerAddress, symbol);
-  await assertTokenBalanceFromAddress(
-    ownerAddress,
-    tokenInfo.address,
-    expectedAmount,
-    tolerance,
-  );
+  await assertTokenBalanceFromAddress(ownerAddress, tokenInfo.address, expectedAmount, tolerance);
 }
 
 /**
@@ -311,17 +243,10 @@ export async function assertTokenBalanceFromAddress(
   expectedAmount: number,
   tolerance: number = 1e-6,
 ): Promise<void> {
-  const { contract, tokenInfo } = await getTokenContractForAddress(
-    ownerAddress,
-    tokenAddress,
-  );
+  const { contract, tokenInfo } = await getTokenContractForAddress(ownerAddress, tokenAddress);
   const balance = await contract.balanceOf(ownerAddress);
   const actualBalance = Number(ethers.formatUnits(balance, tokenInfo.decimals));
-  assert.approximately(
-    actualBalance,
-    expectedAmount,
-    tolerance * expectedAmount,
-  );
+  assert.approximately(actualBalance, expectedAmount, tolerance * expectedAmount);
 }
 
 /**
@@ -339,12 +264,7 @@ export async function assertTokenBalanceBigInt(
   tolerance: number = 1e-6,
 ): Promise<void> {
   const { tokenInfo } = await getTokenContractForSymbol(ownerAddress, symbol);
-  await assertTokenBalanceBigIntFromAddress(
-    ownerAddress,
-    tokenInfo.address,
-    expectedTokenAmount,
-    tolerance,
-  );
+  await assertTokenBalanceBigIntFromAddress(ownerAddress, tokenInfo.address, expectedTokenAmount, tolerance);
 }
 
 /**
@@ -361,19 +281,13 @@ export async function assertTokenBalanceBigIntFromAddress(
   expectedTokenAmount: bigint,
   tolerance: number = 1e-6,
 ): Promise<void> {
-  const { contract } = await getTokenContractForAddress(
-    ownerAddress,
-    tokenAddress,
-  );
+  const { contract } = await getTokenContractForAddress(ownerAddress, tokenAddress);
   const actualBalance = await contract.balanceOf(ownerAddress);
 
-  const toleranceBigInt = BigInt(
-    Math.floor(Number(expectedTokenAmount) * tolerance),
-  );
+  const toleranceBigInt = BigInt(Math.floor(Number(expectedTokenAmount) * tolerance));
 
   assert(
-    actualBalance >= expectedTokenAmount - toleranceBigInt &&
-      actualBalance <= expectedTokenAmount + toleranceBigInt,
+    actualBalance >= expectedTokenAmount - toleranceBigInt && actualBalance <= expectedTokenAmount + toleranceBigInt,
     `Token balance for ${tokenAddress} is not within tolerance. Expected: ${expectedTokenAmount}, Actual: ${actualBalance}`,
   );
 }
@@ -385,20 +299,9 @@ export async function assertTokenBalanceBigIntFromAddress(
  * @param tokenSymbol - The symbol of the token
  * @param amount - The amount of the token to transfer
  */
-export async function fillUpAccountBalance(
-  receiverAddress: string,
-  tokenSymbol: string,
-  amount: number,
-): Promise<void> {
-  const { tokenInfo } = await getTokenContractForSymbol(
-    receiverAddress,
-    tokenSymbol,
-  );
-  await fillUpAccountBalanceFromAddress(
-    receiverAddress,
-    tokenInfo.address,
-    amount,
-  );
+export async function fillUpAccountBalance(receiverAddress: string, tokenSymbol: string, amount: number): Promise<void> {
+  const { tokenInfo } = await getTokenContractForSymbol(receiverAddress, tokenSymbol);
+  await fillUpAccountBalanceFromAddress(receiverAddress, tokenInfo.address, amount);
 }
 
 /**
@@ -408,20 +311,10 @@ export async function fillUpAccountBalance(
  * @param tokenAddress - The address of the token
  * @param amount - The amount of the token to transfer
  */
-export async function fillUpAccountBalanceFromAddress(
-  receiverAddress: string,
-  tokenAddress: string,
-  amount: number,
-): Promise<void> {
+export async function fillUpAccountBalanceFromAddress(receiverAddress: string, tokenAddress: string, amount: number): Promise<void> {
   const { dexDeployer } = await hre.getNamedAccounts();
-  const { contract } = await getTokenContractForAddress(
-    dexDeployer,
-    tokenAddress,
-  );
-  contract.transfer(
-    receiverAddress,
-    await getTokenAmountFromAddress(amount.toString(), tokenAddress),
-  );
+  const { contract } = await getTokenContractForAddress(dexDeployer, tokenAddress);
+  contract.transfer(receiverAddress, await getTokenAmountFromAddress(amount.toString(), tokenAddress));
 }
 
 /**
@@ -439,16 +332,9 @@ export async function fillUpAccountBalanceFromAddressWithWhale(
   tokenAddress: string,
   amount: number,
 ): Promise<void> {
-  const contract = await ethers.getContractAt(
-    "@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20",
-    tokenAddress,
-    whaleSigner,
-  );
+  const contract = await ethers.getContractAt("@openzeppelin/contracts/token/ERC20/IERC20.sol:IERC20", tokenAddress, whaleSigner);
 
-  await contract.transfer(
-    receiverAddress,
-    await getTokenAmountFromAddress(amount.toString(), tokenAddress),
-  );
+  await contract.transfer(receiverAddress, await getTokenAmountFromAddress(amount.toString(), tokenAddress));
 }
 
 /**
@@ -487,9 +373,6 @@ export async function mintERC4626Token(
     await underlyingTokenContract.approve(vaultTokenAddress, ethers.MaxUint256);
 
     // Mint will be done by getting some underlying asset from the caller and send the shares to the receiver
-    await vaultTokenContract.mint(
-      await getTokenAmountFromAddress(amount.toString(), vaultTokenAddress),
-      receiverAddress,
-    );
+    await vaultTokenContract.mint(await getTokenAmountFromAddress(amount.toString(), vaultTokenAddress), receiverAddress);
   }
 }

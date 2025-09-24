@@ -31,9 +31,6 @@ library TransferHelper {
         (bool success, bytes memory data) = token.call(
             abi.encodeWithSelector(IERC20Minimal.transfer.selector, to, value)
         );
-        require(
-            success && (data.length == 0 || abi.decode(data, (bool))),
-            "TF"
-        );
+        require(success && (data.length == 0 || abi.decode(data, (bool))), "TF");
     }
 }

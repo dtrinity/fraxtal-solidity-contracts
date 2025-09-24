@@ -17,8 +17,7 @@ async function main(): Promise<void> {
   // await flashMintLiquidatorBotContract.setSlippageTolerance(500);
 
   console.log("Setting slippage tolerance for FlashLoanLiquidatorBot");
-  const { contract: flashLoanliquidatorBotContract } =
-    await getFlashLoanLiquidatorBot(liquidatorBotDeployer);
+  const { contract: flashLoanliquidatorBotContract } = await getFlashLoanLiquidatorBot(liquidatorBotDeployer);
   const res = await flashLoanliquidatorBotContract.setSlippageTolerance(500); // 5% in bps
   await res.wait();
 }

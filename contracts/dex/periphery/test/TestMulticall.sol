@@ -30,11 +30,8 @@ contract TestMulticall is Multicall {
         uint256 b;
     }
 
-    function functionThatReturnsTuple(
-        uint256 a,
-        uint256 b
-    ) external pure returns (Tuple memory tuple) {
-        tuple = Tuple({b: a, a: b});
+    function functionThatReturnsTuple(uint256 a, uint256 b) external pure returns (Tuple memory tuple) {
+        tuple = Tuple({ b: a, a: b });
     }
 
     uint256 public paid;

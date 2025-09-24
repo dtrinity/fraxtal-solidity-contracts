@@ -35,16 +35,7 @@ contract MockAmoVault is AmoVault {
         address _collateralWithdrawer,
         address _recoverer,
         IPriceOracleGetter _oracle
-    )
-        AmoVault(
-            _dusd,
-            _amoManager,
-            _admin,
-            _collateralWithdrawer,
-            _recoverer,
-            _oracle
-        )
-    {}
+    ) AmoVault(_dusd, _amoManager, _admin, _collateralWithdrawer, _recoverer, _oracle) {}
 
     // Override totalCollateralValue to return the sum of all simulated values
     function totalCollateralValue() public view override returns (uint256) {

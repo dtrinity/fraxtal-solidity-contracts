@@ -24,10 +24,7 @@ import {
   withdrawWithApprovalFromDLoop,
 } from "./utils.dloop";
 import { assertUserLendingSupplyAndDebtBalance } from "./utils.lbp";
-import {
-  assertTokenBalanceFromAddress,
-  fillUpAccountBalanceFromAddressWithWhale,
-} from "./utils.token";
+import { assertTokenBalanceFromAddress, fillUpAccountBalanceFromAddressWithWhale } from "./utils.token";
 
 describe("DLoopVaultCurve via DLoopVaultBase", () => {
   // Skip this test suite as it's not needed for the new vaults
@@ -60,21 +57,10 @@ describe("DLoopVaultCurve via DLoopVaultBase", () => {
 
     ({ testAccount1 } = await getNamedAccounts());
 
-    dLoopVaultContract = await getDLoopVaultCurveContractFromAddress(
-      hre,
-      underlyingToken.address,
-      targetLeverageBps,
-      testAccount1,
-    );
+    dLoopVaultContract = await getDLoopVaultCurveContractFromAddress(hre, underlyingToken.address, targetLeverageBps, testAccount1);
 
-    ({ tokenInfo: underlyingTokenInfo } = await getTokenContractForAddress(
-      testAccount1,
-      underlyingToken.address,
-    ));
-    ({ tokenInfo: dusdInfo } = await getTokenContractForAddress(
-      testAccount1,
-      config.dLoopCurve.dUSDAddress,
-    ));
+    ({ tokenInfo: underlyingTokenInfo } = await getTokenContractForAddress(testAccount1, underlyingToken.address));
+    ({ tokenInfo: dusdInfo } = await getTokenContractForAddress(testAccount1, config.dLoopCurve.dUSDAddress));
 
     // Fill up account balances
     await fillUpAccountBalanceFromAddressWithWhale(
@@ -97,14 +83,8 @@ describe("DLoopVaultCurve via DLoopVaultBase", () => {
   describe("Base information", () => {
     it("should have correct base information", async function () {
       assert.equal(await dLoopVaultContract.getDUSDAddress(), dusdInfo.address);
-      assert.equal(
-        await dLoopVaultContract.getUnderlyingAssetAddress(),
-        underlyingTokenInfo.address,
-      );
-      assert.equal(
-        await dLoopVaultContract.TARGET_LEVERAGE_BPS(),
-        BigInt(targetLeverageBps),
-      );
+      assert.equal(await dLoopVaultContract.getUnderlyingAssetAddress(), underlyingTokenInfo.address);
+      assert.equal(await dLoopVaultContract.TARGET_LEVERAGE_BPS(), BigInt(targetLeverageBps));
     });
   });
 
@@ -117,74 +97,33 @@ describe("DLoopVaultCurve via DLoopVaultBase", () => {
       const dLoopVaultAddress = await dLoopVaultContract.getAddress();
 
       // Check initial state
-      await assertUserLendingSupplyAndDebtBalance(
-        dLoopVaultAddress,
-        underlyingTokenInfo.address,
-        0,
-        dusdInfo.address,
-        0,
-      );
+      await assertUserLendingSupplyAndDebtBalance(dLoopVaultAddress, underlyingTokenInfo.address, 0, dusdInfo.address, 0);
       await assertCurrentLeverageBps(dLoopVaultContract, 0n);
       await assertCheckIsTooImbalanced(dLoopVaultContract, false);
       await assertTotalAssetAndSupply(dLoopVaultContract, 0, 0);
       await assertSharesBalance(testAccount1, dLoopVaultAddress, 0);
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingToken.address,
-        1000,
-      );
+      await assertTokenBalanceFromAddress(testAccount1, underlyingToken.address, 1000);
 
       // Deposit
-      await depositWithApprovalToDLoopFromTokenAddress(
-        dLoopVaultContract,
-        underlyingToken.address,
-        testAccount1,
-        depositAmount,
-      );
+      await depositWithApprovalToDLoopFromTokenAddress(dLoopVaultContract, underlyingToken.address, testAccount1, depositAmount);
 
       // Check post-deposit state
       await assertTotalAssetAndSupply(dLoopVaultContract, 97.5390096, 100);
       await assertCurrentLeverageBps(dLoopVaultContract, 3075692n);
       await assertCheckIsTooImbalanced(dLoopVaultContract, false);
       await assertSharesBalance(testAccount1, dLoopVaultAddress, 100);
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingToken.address,
-        900,
-      );
-      await assertUserLendingSupplyAndDebtBalance(
-        dLoopVaultAddress,
-        underlyingTokenInfo.address,
-        300,
-        dusdInfo.address,
-        253.076238,
-      );
+      await assertTokenBalanceFromAddress(testAccount1, underlyingToken.address, 900);
+      await assertUserLendingSupplyAndDebtBalance(dLoopVaultAddress, underlyingTokenInfo.address, 300, dusdInfo.address, 253.076238);
 
       // Withdraw
-      await withdrawWithApprovalFromDLoop(
-        dLoopVaultContract,
-        testAccount1,
-        withdrawAmount,
-      );
+      await withdrawWithApprovalFromDLoop(dLoopVaultContract, testAccount1, withdrawAmount);
 
       // Check post-withdraw state
-      await assertTotalAssetAndSupply(
-        dLoopVaultContract,
-        83.085998264,
-        89.74769167637724,
-      );
+      await assertTotalAssetAndSupply(dLoopVaultContract, 83.085998264, 89.74769167637724);
       await assertCurrentLeverageBps(dLoopVaultContract, 3075692n);
       await assertCheckIsTooImbalanced(dLoopVaultContract, false);
-      await assertSharesBalance(
-        testAccount1,
-        dLoopVaultAddress,
-        89.74769167637724,
-      );
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingToken.address,
-        914.2715117735172,
-      );
+      await assertSharesBalance(testAccount1, dLoopVaultAddress, 89.74769167637724);
+      await assertTokenBalanceFromAddress(testAccount1, underlyingToken.address, 914.2715117735172);
       await assertUserLendingSupplyAndDebtBalance(
         dLoopVaultAddress,
         underlyingTokenInfo.address,
@@ -194,51 +133,23 @@ describe("DLoopVaultCurve via DLoopVaultBase", () => {
       );
 
       // Withdraw again
-      await withdrawWithApprovalFromDLoop(
-        dLoopVaultContract,
-        testAccount1,
-        withdrawAmount * 2,
-      );
+      await withdrawWithApprovalFromDLoop(dLoopVaultContract, testAccount1, withdrawAmount * 2);
       await assertCurrentLeverageBps(dLoopVaultContract, 3075692n);
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingToken.address,
-        942.7559312622745,
-      );
+      await assertTokenBalanceFromAddress(testAccount1, underlyingToken.address, 942.7559312622745);
 
       // Withdraw again
-      await withdrawWithApprovalFromDLoop(
-        dLoopVaultContract,
-        testAccount1,
-        withdrawAmount * 2,
-      );
+      await withdrawWithApprovalFromDLoop(dLoopVaultContract, testAccount1, withdrawAmount * 2);
       await assertCurrentLeverageBps(dLoopVaultContract, 3075693n);
 
       // Withdraw again
-      await withdrawWithApprovalFromDLoop(
-        dLoopVaultContract,
-        testAccount1,
-        withdrawAmount,
-      );
+      await withdrawWithApprovalFromDLoop(dLoopVaultContract, testAccount1, withdrawAmount);
       await assertCurrentLeverageBps(dLoopVaultContract, 3075695n);
 
-      await assertTotalAssetAndSupply(
-        dLoopVaultContract,
-        10.82094856,
-        25.980029718331988,
-      );
+      await assertTotalAssetAndSupply(dLoopVaultContract, 10.82094856, 25.980029718331988);
       await assertCurrentLeverageBps(dLoopVaultContract, 3075695n);
       await assertCheckIsTooImbalanced(dLoopVaultContract, false);
-      await assertSharesBalance(
-        testAccount1,
-        dLoopVaultAddress,
-        25.980029718331988,
-      );
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingToken.address,
-        985.3357586284171,
-      );
+      await assertSharesBalance(testAccount1, dLoopVaultAddress, 25.980029718331988);
+      await assertTokenBalanceFromAddress(testAccount1, underlyingToken.address, 985.3357586284171);
       await assertUserLendingSupplyAndDebtBalance(
         dLoopVaultAddress,
         underlyingTokenInfo.address,
@@ -248,17 +159,9 @@ describe("DLoopVaultCurve via DLoopVaultBase", () => {
       );
 
       // Withdraw again
-      await withdrawWithApprovalFromDLoop(
-        dLoopVaultContract,
-        testAccount1,
-        withdrawAmount / 1.1,
-      );
+      await withdrawWithApprovalFromDLoop(dLoopVaultContract, testAccount1, withdrawAmount / 1.1);
       await assertCurrentLeverageBps(dLoopVaultContract, 3075696n);
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingToken.address,
-        994.773964054766,
-      );
+      await assertTokenBalanceFromAddress(testAccount1, underlyingToken.address, 994.773964054766);
     });
   });
 
@@ -269,60 +172,31 @@ describe("DLoopVaultCurve via DLoopVaultBase", () => {
       const dLoopVaultAddress = await dLoopVaultContract.getAddress();
 
       // Check initial state
-      await assertUserLendingSupplyAndDebtBalance(
-        dLoopVaultAddress,
-        underlyingTokenInfo.address,
-        0,
-        dusdInfo.address,
-        0,
-      );
+      await assertUserLendingSupplyAndDebtBalance(dLoopVaultAddress, underlyingTokenInfo.address, 0, dusdInfo.address, 0);
       await assertCurrentLeverageBps(dLoopVaultContract, 0n);
       await assertCheckIsTooImbalanced(dLoopVaultContract, false);
       await assertTotalAssetAndSupply(dLoopVaultContract, 0, 0);
 
       // Mint
-      await mintWithApprovalToDLoopFromTokenAddress(
-        dLoopVaultContract,
-        underlyingToken.address,
-        testAccount1,
-        mintShares,
-      );
+      await mintWithApprovalToDLoopFromTokenAddress(dLoopVaultContract, underlyingToken.address, testAccount1, mintShares);
 
       // Check post-mint state
       await assertTotalAssetAndSupply(dLoopVaultContract, 97.5390096, 100);
       await assertCurrentLeverageBps(dLoopVaultContract, 3075692n);
       await assertCheckIsTooImbalanced(dLoopVaultContract, false);
       await assertSharesBalance(testAccount1, dLoopVaultAddress, 100);
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingToken.address,
-        900,
-      );
-      await assertUserLendingSupplyAndDebtBalance(
-        dLoopVaultAddress,
-        underlyingTokenInfo.address,
-        300,
-        dusdInfo.address,
-        253.076238,
-      );
+      await assertTokenBalanceFromAddress(testAccount1, underlyingToken.address, 900);
+      await assertUserLendingSupplyAndDebtBalance(dLoopVaultAddress, underlyingTokenInfo.address, 300, dusdInfo.address, 253.076238);
 
       // Redeem
-      await redeemWithApprovalFromDLoop(
-        dLoopVaultContract,
-        testAccount1,
-        redeemShares,
-      );
+      await redeemWithApprovalFromDLoop(dLoopVaultContract, testAccount1, redeemShares);
 
       // Check post-redeem state
       await assertTotalAssetAndSupply(dLoopVaultContract, 76.569553736, 90);
       await assertCurrentLeverageBps(dLoopVaultContract, 3261986n);
       await assertCheckIsTooImbalanced(dLoopVaultContract, false);
       await assertSharesBalance(testAccount1, dLoopVaultAddress, 90);
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingToken.address,
-        920.792657296688980502,
-      );
+      await assertTokenBalanceFromAddress(testAccount1, underlyingToken.address, 920.792657296688980502);
       await assertUserLendingSupplyAndDebtBalance(
         dLoopVaultAddress,
         underlyingTokenInfo.address,
@@ -332,29 +206,15 @@ describe("DLoopVaultCurve via DLoopVaultBase", () => {
       );
 
       // Redeem all
-      await redeemWithApprovalFromDLoop(
-        dLoopVaultContract,
-        testAccount1,
-        mintShares - redeemShares,
-      );
+      await redeemWithApprovalFromDLoop(dLoopVaultContract, testAccount1, mintShares - redeemShares);
 
       // Check final state
       await assertTotalAssetAndSupply(dLoopVaultContract, 0, 0);
       await assertCurrentLeverageBps(dLoopVaultContract, 0n);
       await assertCheckIsTooImbalanced(dLoopVaultContract, false);
       await assertSharesBalance(testAccount1, dLoopVaultAddress, 0);
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingToken.address,
-        995.934727053528,
-      );
-      await assertUserLendingSupplyAndDebtBalance(
-        dLoopVaultAddress,
-        underlyingTokenInfo.address,
-        0,
-        dusdInfo.address,
-        0,
-      );
+      await assertTokenBalanceFromAddress(testAccount1, underlyingToken.address, 995.934727053528);
+      await assertUserLendingSupplyAndDebtBalance(dLoopVaultAddress, underlyingTokenInfo.address, 0, dusdInfo.address, 0);
     });
   });
 
@@ -370,12 +230,7 @@ describe("DLoopVaultCurve via DLoopVaultBase", () => {
       const dLoopVaultAddress = await dLoopVaultContract.getAddress();
 
       // Initial deposit
-      await depositWithApprovalToDLoopFromTokenAddress(
-        dLoopVaultContract,
-        underlyingToken.address,
-        testAccount1,
-        depositAmount,
-      );
+      await depositWithApprovalToDLoopFromTokenAddress(dLoopVaultContract, underlyingToken.address, testAccount1, depositAmount);
 
       // Decrease oracle price
       await setMockStaticOracleWrapperPrice(underlyingTokenInfo.address, 1.0);
@@ -386,38 +241,20 @@ describe("DLoopVaultCurve via DLoopVaultBase", () => {
 
       // Attempt deposit and redeem when imbalanced
       await expect(
-        depositWithApprovalToDLoopFromTokenAddress(
-          dLoopVaultContract,
-          underlyingToken.address,
-          testAccount1,
-          depositAmount,
-        ),
+        depositWithApprovalToDLoopFromTokenAddress(dLoopVaultContract, underlyingToken.address, testAccount1, depositAmount),
       ).to.be.revertedWithCustomError(dLoopVaultContract, "TooImbalanced");
-      await expect(
-        redeemWithApprovalFromDLoop(dLoopVaultContract, testAccount1, 10),
-      ).to.be.revertedWithCustomError(dLoopVaultContract, "TooImbalanced");
+      await expect(redeemWithApprovalFromDLoop(dLoopVaultContract, testAccount1, 10)).to.be.revertedWithCustomError(
+        dLoopVaultContract,
+        "TooImbalanced",
+      );
 
       // Decrease leverage
-      await decreaseLeverageWithApprovalFromTokenAddress(
-        dLoopVaultContract,
-        testAccount1,
-        config.dLoopCurve.dUSDAddress,
-        10,
-        1.05,
-      );
+      await decreaseLeverageWithApprovalFromTokenAddress(dLoopVaultContract, testAccount1, config.dLoopCurve.dUSDAddress, 10, 1.05);
 
       // Check post-decrease state
       await assertSharesBalance(testAccount1, dLoopVaultAddress, 100);
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingToken.address,
-        910.2,
-      );
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        config.dLoopCurve.dUSDAddress,
-        990.0,
-      );
+      await assertTokenBalanceFromAddress(testAccount1, underlyingToken.address, 910.2);
+      await assertTokenBalanceFromAddress(testAccount1, config.dLoopCurve.dUSDAddress, 990.0);
       await assertTotalAssetAndSupply(dLoopVaultContract, 46.723762, 100);
       await assertCurrentLeverageBps(dLoopVaultContract, 6202411n);
 
@@ -429,31 +266,13 @@ describe("DLoopVaultCurve via DLoopVaultBase", () => {
       await assertCheckIsTooImbalanced(dLoopVaultContract, true);
 
       // Increase leverage
-      await increaseLeverageWithApprovalFromTokenAddress(
-        dLoopVaultContract,
-        testAccount1,
-        underlyingToken.address,
-        20,
-        1.05,
-      );
+      await increaseLeverageWithApprovalFromTokenAddress(dLoopVaultContract, testAccount1, underlyingToken.address, 20, 1.05);
 
       // Check post-increase state
       await assertSharesBalance(testAccount1, dLoopVaultAddress, 100);
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingToken.address,
-        890.2,
-      );
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        config.dLoopCurve.dUSDAddress,
-        1047.12,
-      );
-      await assertTotalAssetAndSupply(
-        dLoopVaultContract,
-        202.587057857142857142,
-        100,
-      );
+      await assertTokenBalanceFromAddress(testAccount1, underlyingToken.address, 890.2);
+      await assertTokenBalanceFromAddress(testAccount1, config.dLoopCurve.dUSDAddress, 1047.12);
+      await assertTotalAssetAndSupply(dLoopVaultContract, 202.587057857142857142, 100);
       await assertCurrentLeverageBps(dLoopVaultContract, 1529219n);
     });
   });

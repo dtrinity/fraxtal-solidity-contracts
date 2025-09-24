@@ -10,12 +10,8 @@ import { API3_PRICE_DECIMALS } from "../../utils/oracle_aggregator/constants";
  * @param api3ServerV1Address Arbitrary address, not needed for anything except deployment
  * @returns Promise that resolves to the deployed MockAPI3OracleAlwaysAlive contract
  */
-async function deployMockAPI3Oracle(
-  api3ServerV1Address: string,
-): Promise<MockAPI3OracleAlwaysAlive> {
-  const MockAPI3Oracle = await ethers.getContractFactory(
-    "MockAPI3OracleAlwaysAlive",
-  );
+async function deployMockAPI3Oracle(api3ServerV1Address: string): Promise<MockAPI3OracleAlwaysAlive> {
+  const MockAPI3Oracle = await ethers.getContractFactory("MockAPI3OracleAlwaysAlive");
   const mockOracle = await MockAPI3Oracle.deploy(api3ServerV1Address);
   await mockOracle.waitForDeployment();
   return mockOracle;
@@ -29,10 +25,7 @@ async function deployMockAPI3Oracle(
  * @param price The price to set
  * @returns Promise that resolves when the mock price is set
  */
-async function setMockPrice(
-  mockOracle: MockAPI3OracleAlwaysAlive,
-  price: number,
-): Promise<void> {
+async function setMockPrice(mockOracle: MockAPI3OracleAlwaysAlive, price: number): Promise<void> {
   const scaledPrice = ethers.parseUnits(price.toString(), API3_PRICE_DECIMALS);
   await mockOracle.setMock(scaledPrice);
 }
@@ -85,10 +78,7 @@ async function main(): Promise<void> {
   for (const asset of assets) {
     // Deploy MockAPI3Oracle
     const mockOracle = await deployMockAPI3Oracle(mockAPI3ServerV1Address);
-    console.log(
-      `MockAPI3Oracle for ${asset.symbol} deployed to:`,
-      await mockOracle.getAddress(),
-    );
+    console.log(`MockAPI3Oracle for ${asset.symbol} deployed to:`, await mockOracle.getAddress());
 
     // Set mock price
     await setMockPrice(mockOracle, asset.price);

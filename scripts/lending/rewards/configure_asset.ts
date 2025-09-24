@@ -2,10 +2,7 @@ import BigNumber from "bignumber.js";
 import { ethers } from "ethers";
 import hre from "hardhat";
 
-import {
-  AssetUpdateData,
-  configureAssets,
-} from "../../../utils/lending/rewards";
+import { AssetUpdateData, configureAssets } from "../../../utils/lending/rewards";
 
 const main = async (): Promise<void> => {
   const inputJsonPath = process.env.dataFile;
@@ -23,15 +20,11 @@ const main = async (): Promise<void> => {
 
   const updateData: AssetUpdateData[] = parsedData.map((data: any) => {
     if (!ethers.isAddress(data.asset) || !ethers.isAddress(data.reward)) {
-      throw new Error(
-        `Invalid address format for asset or reward: ${data.asset}, ${data.reward}`,
-      );
+      throw new Error(`Invalid address format for asset or reward: ${data.asset}, ${data.reward}`);
     }
 
     if (isNaN(data.distributionEnd) || isNaN(data.emissionPerSecond)) {
-      throw new Error(
-        `Invalid number format for distributionEnd or emissionPerSecond: ${data.distributionEnd}, ${data.emissionPerSecond}`,
-      );
+      throw new Error(`Invalid number format for distributionEnd or emissionPerSecond: ${data.distributionEnd}, ${data.emissionPerSecond}`);
     }
     return {
       asset: data.asset,

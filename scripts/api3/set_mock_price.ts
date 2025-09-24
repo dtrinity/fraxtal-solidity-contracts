@@ -10,15 +10,9 @@ import { API3_PRICE_DECIMALS } from "../../utils/oracle_aggregator/constants";
  * @param price The price to set
  * @returns Promise that resolves when the mock price is set
  */
-async function setMockPrice(
-  mockOracleAddress: string,
-  price: number,
-): Promise<void> {
+async function setMockPrice(mockOracleAddress: string, price: number): Promise<void> {
   // Get the contract instance
-  const mockOracle = (await ethers.getContractAt(
-    "MockAPI3OracleAlwaysAlive",
-    mockOracleAddress,
-  )) as MockAPI3OracleAlwaysAlive;
+  const mockOracle = (await ethers.getContractAt("MockAPI3OracleAlwaysAlive", mockOracleAddress)) as MockAPI3OracleAlwaysAlive;
 
   // Scale the price to match API3 decimals
   const scaledPrice = ethers.parseUnits(price.toString(), API3_PRICE_DECIMALS);

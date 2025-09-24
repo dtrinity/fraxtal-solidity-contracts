@@ -20,10 +20,7 @@ pragma solidity ^0.8.20;
 import "../token/TokenSupplyManager.sol";
 
 contract TokenSupplyManagerHarness is TokenSupplyManager {
-    constructor(
-        IERC20Stablecoin collateral,
-        IERC20Stablecoin receipt
-    ) TokenSupplyManager(collateral, receipt) {}
+    constructor(IERC20Stablecoin collateral, IERC20Stablecoin receipt) TokenSupplyManager(collateral, receipt) {}
 
     function testConvertAmountBetweenDecimals(
         uint256 amount,

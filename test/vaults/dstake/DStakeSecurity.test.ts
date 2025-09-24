@@ -31,23 +31,15 @@ describe("DStake Security", () => {
       const minDeposit = parseUnits("0.000001", DUSD_DECIMALS); // 1 wei in 6-decimal terms
 
       try {
-        await fixture.dStakeToken
-          .connect(attackerSigner)
-          .deposit(minDeposit, attacker);
+        await fixture.dStakeToken.connect(attackerSigner).deposit(minDeposit, attacker);
         const attackerShares = await fixture.dStakeToken.balanceOf(attacker);
 
-        console.log(
-          `Attacker deposited ${formatUnits(minDeposit, DUSD_DECIMALS)} dUSD`,
-        );
-        console.log(
-          `Attacker received ${formatUnits(attackerShares, DUSD_DECIMALS)} shares`,
-        );
+        console.log(`Attacker deposited ${formatUnits(minDeposit, DUSD_DECIMALS)} dUSD`);
+        console.log(`Attacker received ${formatUnits(attackerShares, DUSD_DECIMALS)} shares`);
 
         // If shares are zero, the vault may be vulnerable or have minimum deposit requirements
         if (attackerShares === 0n) {
-          console.log(
-            "Vault rejected minimal deposit - likely has minimum deposit protection",
-          );
+          console.log("Vault rejected minimal deposit - likely has minimum deposit protection");
           return; // This is good - vault is protected
         }
 
@@ -58,27 +50,17 @@ describe("DStake Security", () => {
           // In a real attack, attacker would transfer directly to vault
           // This might not work if vault doesn't accept direct transfers
           const vaultAddress = await fixture.dStakeToken.getAddress();
-          await fixture.dUSD
-            .connect(attackerSigner)
-            .transfer(vaultAddress, inflationAmount);
+          await fixture.dUSD.connect(attackerSigner).transfer(vaultAddress, inflationAmount);
 
-          console.log(
-            "WARNING: Vault accepts direct transfers - potential vulnerability",
-          );
+          console.log("WARNING: Vault accepts direct transfers - potential vulnerability");
 
           // Step 3: Victim tries to deposit
           const victimDeposit = parseUnits("1000", DUSD_DECIMALS); // 1000 dUSD
-          await fixture.dStakeToken
-            .connect(victimSigner)
-            .deposit(victimDeposit, victim);
+          await fixture.dStakeToken.connect(victimSigner).deposit(victimDeposit, victim);
           const victimShares = await fixture.dStakeToken.balanceOf(victim);
 
-          console.log(
-            `Victim deposited ${formatUnits(victimDeposit, DUSD_DECIMALS)} dUSD`,
-          );
-          console.log(
-            `Victim received ${formatUnits(victimShares, DUSD_DECIMALS)} shares`,
-          );
+          console.log(`Victim deposited ${formatUnits(victimDeposit, DUSD_DECIMALS)} dUSD`);
+          console.log(`Victim received ${formatUnits(victimShares, DUSD_DECIMALS)} shares`);
 
           // Victim should receive proportional shares
           expect(victimShares).to.be.greaterThan(0n);
@@ -87,21 +69,15 @@ describe("DStake Security", () => {
           const totalShares = await fixture.dStakeToken.totalSupply();
           const victimProportion = (victimShares * 10000n) / totalShares; // in basis points
 
-          console.log(
-            `Victim owns ${Number(victimProportion) / 100}% of shares`,
-          );
+          console.log(`Victim owns ${Number(victimProportion) / 100}% of shares`);
 
           // Victim should own significant portion given their large deposit
           expect(victimProportion).to.be.greaterThan(50n); // At least 0.5%
         } catch (transferError) {
-          console.log(
-            "Direct transfer to vault failed - this is good for security",
-          );
+          console.log("Direct transfer to vault failed - this is good for security");
         }
       } catch (error) {
-        console.log(
-          "Minimal deposit rejected - vault likely has minimum deposit requirements",
-        );
+        console.log("Minimal deposit rejected - vault likely has minimum deposit requirements");
         expect(error).to.exist;
       }
     });
@@ -119,25 +95,18 @@ describe("DStake Security", () => {
       ];
 
       for (const amount of testAmounts) {
-        console.log(
-          `Testing first deposit of ${formatUnits(amount, DUSD_DECIMALS)} dUSD`,
-        );
+        console.log(`Testing first deposit of ${formatUnits(amount, DUSD_DECIMALS)} dUSD`);
 
         try {
           // Get expected shares before deposit
-          const expectedShares =
-            await fixture.dStakeToken.previewDeposit(amount);
-          console.log(
-            `Expected shares: ${formatUnits(expectedShares, DUSD_DECIMALS)}`,
-          );
+          const expectedShares = await fixture.dStakeToken.previewDeposit(amount);
+          console.log(`Expected shares: ${formatUnits(expectedShares, DUSD_DECIMALS)}`);
 
           if (expectedShares === 0n) {
             console.log("Vault would give zero shares - testing rejection...");
 
             try {
-              await fixture.dStakeToken
-                .connect(userSigner)
-                .deposit(amount, user);
+              await fixture.dStakeToken.connect(userSigner).deposit(amount, user);
               // If this succeeds but shares were zero, it's problematic
               const actualShares = await fixture.dStakeToken.balanceOf(user);
               expect(actualShares).to.be.greaterThan(0n);
@@ -153,16 +122,11 @@ describe("DStake Security", () => {
 
             // Clear balance for next test
             if (actualShares > 0n) {
-              await fixture.dStakeToken
-                .connect(userSigner)
-                .redeem(actualShares, user, user);
+              await fixture.dStakeToken.connect(userSigner).redeem(actualShares, user, user);
             }
           }
         } catch (error) {
-          console.log(
-            `Deposit of ${formatUnits(amount, DUSD_DECIMALS)} dUSD rejected:`,
-            error.message.substring(0, 100),
-          );
+          console.log(`Deposit of ${formatUnits(amount, DUSD_DECIMALS)} dUSD rejected:`, error.message.substring(0, 100));
         }
 
         console.log("---");
@@ -184,9 +148,7 @@ describe("DStake Security", () => {
       ];
 
       for (const amount of testAmounts) {
-        console.log(
-          `\nTesting rounding for ${formatUnits(amount, DUSD_DECIMALS)} dUSD`,
-        );
+        console.log(`\nTesting rounding for ${formatUnits(amount, DUSD_DECIMALS)} dUSD`);
 
         try {
           // Test deposit and immediate withdrawal
@@ -197,15 +159,10 @@ describe("DStake Security", () => {
 
           if (shares > 0n) {
             // Withdraw and check for rounding errors
-            const previewWithdraw =
-              await fixture.dStakeToken.previewRedeem(shares);
-            console.log(
-              `Preview withdraw: ${formatUnits(previewWithdraw, DUSD_DECIMALS)} dUSD`,
-            );
+            const previewWithdraw = await fixture.dStakeToken.previewRedeem(shares);
+            console.log(`Preview withdraw: ${formatUnits(previewWithdraw, DUSD_DECIMALS)} dUSD`);
 
-            await fixture.dStakeToken
-              .connect(userSigner)
-              .redeem(shares, user, user);
+            await fixture.dStakeToken.connect(userSigner).redeem(shares, user, user);
 
             // Check that we don't lose significant amounts to rounding
             // (Some loss is expected due to withdrawal fees)
@@ -216,16 +173,11 @@ describe("DStake Security", () => {
 
             expect(previewWithdraw).to.be.closeTo(expectedNet, tolerance);
 
-            console.log(
-              `Expected net after fees: ${formatUnits(expectedNet, DUSD_DECIMALS)} dUSD`,
-            );
+            console.log(`Expected net after fees: ${formatUnits(expectedNet, DUSD_DECIMALS)} dUSD`);
             console.log(`Fee: ${formatUnits(expectedFee, DUSD_DECIMALS)} dUSD`);
           }
         } catch (error) {
-          console.log(
-            `Amount ${formatUnits(amount, DUSD_DECIMALS)} dUSD failed:`,
-            error.message.substring(0, 100),
-          );
+          console.log(`Amount ${formatUnits(amount, DUSD_DECIMALS)} dUSD failed:`, error.message.substring(0, 100));
         }
       }
     });
@@ -241,19 +193,13 @@ describe("DStake Security", () => {
       await fixture.mintDUSD(user, "2000000"); // 2M dUSD
 
       // Approve large amount
-      await fixture.dUSD
-        .connect(userSigner)
-        .approve(await fixture.dStakeToken.getAddress(), largeAmount);
+      await fixture.dUSD.connect(userSigner).approve(await fixture.dStakeToken.getAddress(), largeAmount);
 
       try {
-        console.log(
-          `Testing large deposit: ${formatUnits(largeAmount, DUSD_DECIMALS)} dUSD`,
-        );
+        console.log(`Testing large deposit: ${formatUnits(largeAmount, DUSD_DECIMALS)} dUSD`);
 
         const initialBalance = await fixture.dUSD.balanceOf(user);
-        await fixture.dStakeToken
-          .connect(userSigner)
-          .deposit(largeAmount, user);
+        await fixture.dStakeToken.connect(userSigner).deposit(largeAmount, user);
         const finalBalance = await fixture.dUSD.balanceOf(user);
         const shares = await fixture.dStakeToken.balanceOf(user);
 
@@ -261,19 +207,14 @@ describe("DStake Security", () => {
         expect(initialBalance - finalBalance).to.equal(largeAmount);
         expect(shares).to.be.greaterThan(0n);
 
-        console.log(
-          `Received ${formatUnits(shares, DUSD_DECIMALS)} shares for large deposit`,
-        );
+        console.log(`Received ${formatUnits(shares, DUSD_DECIMALS)} shares for large deposit`);
 
         // Test large withdrawal
         const withdrawAmount = largeAmount / 2n; // Withdraw half
-        const _sharesCost =
-          await fixture.dStakeToken.previewWithdraw(withdrawAmount);
+        const _sharesCost = await fixture.dStakeToken.previewWithdraw(withdrawAmount);
 
         const beforeWithdrawBalance = await fixture.dUSD.balanceOf(user);
-        await fixture.dStakeToken
-          .connect(userSigner)
-          .withdraw(withdrawAmount, user, user);
+        await fixture.dStakeToken.connect(userSigner).withdraw(withdrawAmount, user, user);
         const afterWithdrawBalance = await fixture.dUSD.balanceOf(user);
 
         // Account for withdrawal fees
@@ -282,9 +223,7 @@ describe("DStake Security", () => {
         const expectedFee = calculateFeeAmount(withdrawAmount, feeRate);
         const expectedNet = withdrawAmount - expectedFee;
 
-        console.log(
-          `Withdrew ${formatUnits(actualWithdrawn, DUSD_DECIMALS)} dUSD (net after fees)`,
-        );
+        console.log(`Withdrew ${formatUnits(actualWithdrawn, DUSD_DECIMALS)} dUSD (net after fees)`);
         console.log(`Expected ${formatUnits(expectedNet, DUSD_DECIMALS)} dUSD`);
 
         // Allow small tolerance for rounding
@@ -309,16 +248,12 @@ describe("DStake Security", () => {
       console.log("Testing basic reentrancy protection...");
 
       // Make a normal deposit
-      await fixture.dStakeToken
-        .connect(userSigner)
-        .deposit(depositAmount, user);
+      await fixture.dStakeToken.connect(userSigner).deposit(depositAmount, user);
       const _shares = await fixture.dStakeToken.balanceOf(user);
 
       // Try to call deposit during withdrawal (this would be done in a malicious contract)
       // For now, just verify that normal operations complete successfully
-      await fixture.dStakeToken
-        .connect(userSigner)
-        .withdraw(depositAmount / 2n, user, user);
+      await fixture.dStakeToken.connect(userSigner).withdraw(depositAmount / 2n, user, user);
 
       const remainingShares = await fixture.dStakeToken.balanceOf(user);
       expect(remainingShares).to.be.lessThan(_shares);
@@ -336,9 +271,7 @@ describe("DStake Security", () => {
 
       // Test fee setting protection
       try {
-        await fixture.dStakeToken
-          .connect(unauthorizedSigner)
-          .setWithdrawalFee(500n);
+        await fixture.dStakeToken.connect(unauthorizedSigner).setWithdrawalFee(500n);
         console.log("WARNING: Unauthorized user could set fees!");
         expect.fail("Access control failed");
       } catch (error) {
@@ -349,10 +282,7 @@ describe("DStake Security", () => {
       // Test other privileged functions if they exist
       try {
         const pauserRole = await fixture.dStakeToken.PAUSER_ROLE();
-        const hasPauser = await fixture.dStakeToken.hasRole(
-          pauserRole,
-          unauthorizedUser,
-        );
+        const hasPauser = await fixture.dStakeToken.hasRole(pauserRole, unauthorizedUser);
 
         if (!hasPauser) {
           // Try to pause (should fail)
@@ -375,14 +305,8 @@ describe("DStake Security", () => {
       // Check current role holders
       console.log("Checking role assignments...");
 
-      const deployerHasAdmin = await fixture.dStakeToken.hasRole(
-        adminRole,
-        fixture.accounts.dusdDeployer,
-      );
-      const deployerHasFeeManager = await fixture.dStakeToken.hasRole(
-        feeManagerRole,
-        fixture.accounts.dusdDeployer,
-      );
+      const deployerHasAdmin = await fixture.dStakeToken.hasRole(adminRole, fixture.accounts.dusdDeployer);
+      const deployerHasFeeManager = await fixture.dStakeToken.hasRole(feeManagerRole, fixture.accounts.dusdDeployer);
 
       console.log(`Deployer has admin: ${deployerHasAdmin}`);
       console.log(`Deployer has fee manager: ${deployerHasFeeManager}`);
@@ -403,9 +327,7 @@ describe("DStake Security", () => {
       const depositAmount = parseUnits("1000", DUSD_DECIMALS);
 
       // Deposit
-      await fixture.dStakeToken
-        .connect(userSigner)
-        .deposit(depositAmount, user);
+      await fixture.dStakeToken.connect(userSigner).deposit(depositAmount, user);
       const _shares = await fixture.dStakeToken.balanceOf(user);
 
       // Check fee reasonableness
@@ -422,9 +344,7 @@ describe("DStake Security", () => {
       // Fee should be less than 10% of withdrawal
       expect(expectedFee).to.be.lessThan(withdrawAmount / 10n);
 
-      console.log(
-        `Fee on ${formatUnits(withdrawAmount, DUSD_DECIMALS)} dUSD withdrawal: ${formatUnits(expectedFee, DUSD_DECIMALS)} dUSD`,
-      );
+      console.log(`Fee on ${formatUnits(withdrawAmount, DUSD_DECIMALS)} dUSD withdrawal: ${formatUnits(expectedFee, DUSD_DECIMALS)} dUSD`);
     });
 
     it("should maintain correct exchange rates", async () => {
@@ -436,12 +356,8 @@ describe("DStake Security", () => {
       const depositAmount = parseUnits("1000", DUSD_DECIMALS);
 
       // Both users deposit same amount
-      await fixture.dStakeToken
-        .connect(user1Signer)
-        .deposit(depositAmount, user1);
-      await fixture.dStakeToken
-        .connect(user2Signer)
-        .deposit(depositAmount, user2);
+      await fixture.dStakeToken.connect(user1Signer).deposit(depositAmount, user1);
+      await fixture.dStakeToken.connect(user2Signer).deposit(depositAmount, user2);
 
       const shares1 = await fixture.dStakeToken.balanceOf(user1);
       const shares2 = await fixture.dStakeToken.balanceOf(user2);
@@ -460,12 +376,8 @@ describe("DStake Security", () => {
       const assetTolerance = parseUnits("1", DUSD_DECIMALS); // 1 dUSD tolerance
       expect(assets2).to.be.closeTo(assets1, assetTolerance);
 
-      console.log(
-        `User1 asset value: ${formatUnits(assets1, DUSD_DECIMALS)} dUSD`,
-      );
-      console.log(
-        `User2 asset value: ${formatUnits(assets2, DUSD_DECIMALS)} dUSD`,
-      );
+      console.log(`User1 asset value: ${formatUnits(assets1, DUSD_DECIMALS)} dUSD`);
+      console.log(`User2 asset value: ${formatUnits(assets2, DUSD_DECIMALS)} dUSD`);
     });
   });
 });

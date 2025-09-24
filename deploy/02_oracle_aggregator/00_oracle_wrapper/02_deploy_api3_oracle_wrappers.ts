@@ -10,8 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const deployer = await hre.ethers.getSigner(dusdDeployer);
 
   const config = await getConfig(hre);
-  const baseCurrencyUnit =
-    BigInt(10) ** BigInt(config.oracleAggregator.priceDecimals);
+  const baseCurrencyUnit = BigInt(10) ** BigInt(config.oracleAggregator.priceDecimals);
 
   // Deploy API3Wrapper for plain oracle feeds
   const api3WrapperDeployment = await deployContract(
@@ -24,26 +23,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     "API3Wrapper",
   );
 
-  const api3Wrapper = await hre.ethers.getContractAt(
-    API3_ORACLE_WRAPPER_ID,
-    api3WrapperDeployment.address,
-  );
+  const api3Wrapper = await hre.ethers.getContractAt(API3_ORACLE_WRAPPER_ID, api3WrapperDeployment.address);
 
   // Set proxies for plain oracle feeds
-  const plainFeeds =
-    config.oracleAggregator.api3OracleAssets.plainApi3OracleWrappers || {};
+  const plainFeeds = config.oracleAggregator.api3OracleAssets.plainApi3OracleWrappers || {};
 
   for (const [assetAddress, proxyAddress] of Object.entries(plainFeeds)) {
     await api3Wrapper.setProxy(assetAddress, proxyAddress);
-    console.log(
-      `Set plain API3 proxy for asset ${assetAddress} to ${proxyAddress}`,
-    );
+    console.log(`Set plain API3 proxy for asset ${assetAddress} to ${proxyAddress}`);
   }
 
   // Deploy API3CompositeWrapperWithThresholding for composite feeds
-  const compositeFeeds =
-    config.oracleAggregator.api3OracleAssets
-      .compositeApi3OracleWrappersWithThresholding || {};
+  const compositeFeeds = config.oracleAggregator.api3OracleAssets.compositeApi3OracleWrappersWithThresholding || {};
 
   const api3CompositeWrapperDeployment = await deployContract(
     hre,

@@ -42,9 +42,7 @@ async function main(): Promise<void> {
     console.log(`Removing deployment file for ${deploymentName}`);
     fs.unlinkSync(deploymentPath);
   } else {
-    console.log(
-      `Deployment file for ${deploymentName} does not exist, skipping`,
-    );
+    console.log(`Deployment file for ${deploymentName} does not exist, skipping`);
   }
 }
 

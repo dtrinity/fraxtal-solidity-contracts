@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IERC20, IERC20Metadata, ERC20} from "@openzeppelin/contracts-5/token/ERC20/ERC20.sol";
-import {SafeERC20} from "@openzeppelin/contracts-5/token/ERC20/utils/SafeERC20.sol";
-import {IERC4626} from "@openzeppelin/contracts-5/interfaces/IERC4626.sol";
-import {Math} from "@openzeppelin/contracts-5/utils/math/Math.sol";
-import {ERC4626} from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
+import { IERC20, IERC20Metadata, ERC20 } from "@openzeppelin/contracts-5/token/ERC20/ERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts-5/token/ERC20/utils/SafeERC20.sol";
+import { IERC4626 } from "@openzeppelin/contracts-5/interfaces/IERC4626.sol";
+import { Math } from "@openzeppelin/contracts-5/utils/math/Math.sol";
+import { ERC4626 } from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
 
 /**
  * @title MockERC4626Token
@@ -37,12 +37,7 @@ contract MockERC4626Token is ERC4626 {
      * @dev Hook that is called before any deposit/mint.
      * Override this to add custom logic for deposits.
      */
-    function _deposit(
-        address caller,
-        address receiver,
-        uint256 assets,
-        uint256 shares
-    ) internal virtual override {
+    function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual override {
         super._deposit(caller, receiver, assets, shares);
     }
 
@@ -102,9 +97,7 @@ contract MockERC4626Token is ERC4626 {
     /**
      * @dev Override balanceOf to use test values when set
      */
-    function balanceOf(
-        address account
-    ) public view virtual override(ERC20, IERC20) returns (uint256) {
+    function balanceOf(address account) public view virtual override(ERC20, IERC20) returns (uint256) {
         if (_useTestValues) {
             return _testBalances[account];
         }
@@ -114,13 +107,7 @@ contract MockERC4626Token is ERC4626 {
     /**
      * @dev Override totalSupply to use test values when set
      */
-    function totalSupply()
-        public
-        view
-        virtual
-        override(ERC20, IERC20)
-        returns (uint256)
-    {
+    function totalSupply() public view virtual override(ERC20, IERC20) returns (uint256) {
         if (_useTestValues) {
             return _testTotalSupply;
         }
@@ -140,9 +127,7 @@ contract MockERC4626Token is ERC4626 {
     /**
      * @dev Override convertToAssets to use test values when set
      */
-    function convertToAssets(
-        uint256 shares
-    ) public view virtual override returns (uint256) {
+    function convertToAssets(uint256 shares) public view virtual override returns (uint256) {
         if (_useTestValues) {
             // Manual calculation using test values: assets = shares * totalAssets / totalSupply
             uint256 supply = _testTotalSupply;
@@ -158,16 +143,11 @@ contract MockERC4626Token is ERC4626 {
     /**
      * @dev Override convertToShares to use test values when set
      */
-    function convertToShares(
-        uint256 assets
-    ) public view virtual override returns (uint256) {
+    function convertToShares(uint256 assets) public view virtual override returns (uint256) {
         if (_useTestValues) {
             // Manual calculation using test values: shares = assets * totalSupply / totalAssets
             uint256 totalAssets_ = _testTotalAssets;
-            return
-                totalAssets_ == 0
-                    ? 0
-                    : (assets * _testTotalSupply) / totalAssets_;
+            return totalAssets_ == 0 ? 0 : (assets * _testTotalSupply) / totalAssets_;
         }
         return super.convertToShares(assets);
     }

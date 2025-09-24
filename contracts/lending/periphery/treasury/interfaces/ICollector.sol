@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.10;
 
-import {IERC20} from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
+import { IERC20 } from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
 
 /**
  * @title ICollector

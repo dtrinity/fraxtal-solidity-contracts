@@ -19,11 +19,9 @@ pragma solidity 0.8.20;
 
 import "../../dex/periphery/interfaces/ISwapRouter.sol";
 import "./FlashMintLiquidatorAaveBase.sol";
-import {Constants} from "../../shared/Constants.sol";
+import { Constants } from "../../shared/Constants.sol";
 
-abstract contract FlashMintLiquidatorAaveBorrowRepayBase is
-    FlashMintLiquidatorAaveBase
-{
+abstract contract FlashMintLiquidatorAaveBorrowRepayBase is FlashMintLiquidatorAaveBase {
     using SafeTransferLib for ERC20;
     using PercentageMath for uint256;
 
@@ -40,28 +38,16 @@ abstract contract FlashMintLiquidatorAaveBorrowRepayBase is
         ILendingPool _liquidateLender,
         IAToken _aDUSD,
         uint256 _slippageTolerance
-    )
-        FlashMintLiquidatorAaveBase(
-            _flashMinter,
-            _liquidateLender,
-            _addressesProvider,
-            _aDUSD
-        )
-    {
+    ) FlashMintLiquidatorAaveBase(_flashMinter, _liquidateLender, _addressesProvider, _aDUSD) {
         slippageTolerance = _slippageTolerance;
         emit SlippageToleranceSet(_slippageTolerance);
     }
 
-    function setProxyContract(
-        address _collateralUnderlying,
-        address _proxyContract
-    ) external onlyOwner {
+    function setProxyContract(address _collateralUnderlying, address _proxyContract) external onlyOwner {
         proxyContractMap[_collateralUnderlying] = _proxyContract;
     }
 
-    function getProxyContract(
-        address _collateralUnderlying
-    ) public view returns (address) {
+    function getProxyContract(address _collateralUnderlying) public view returns (address) {
         address proxyContract = proxyContractMap[_collateralUnderlying];
         if (proxyContract != address(0)) {
             return proxyContract;
@@ -70,8 +56,7 @@ abstract contract FlashMintLiquidatorAaveBorrowRepayBase is
     }
 
     function setSlippageTolerance(uint256 _newTolerance) external onlyOwner {
-        if (_newTolerance > Constants.ONE_HUNDRED_PERCENT_BPS)
-            revert InvalidSlippageTolerance(_newTolerance);
+        if (_newTolerance > Constants.ONE_HUNDRED_PERCENT_BPS) revert InvalidSlippageTolerance(_newTolerance);
 
         slippageTolerance = _newTolerance;
         emit SlippageToleranceSet(_newTolerance);
@@ -99,10 +84,7 @@ abstract contract FlashMintLiquidatorAaveBorrowRepayBase is
 
         uint256 seized;
         address actualCollateralToken;
-        if (
-            liquidateParams.borrowedUnderlying.balanceOf(address(this)) >=
-            _repayAmount
-        )
+        if (liquidateParams.borrowedUnderlying.balanceOf(address(this)) >= _repayAmount)
             // we can liquidate without flash loan by using the contract balance
             seized = _liquidateInternal(liquidateParams);
         else {
@@ -120,8 +102,7 @@ abstract contract FlashMintLiquidatorAaveBorrowRepayBase is
             (seized, actualCollateralToken) = _liquidateWithFlashLoan(params);
         }
 
-        if (!_stakeTokens)
-            ERC20(actualCollateralToken).safeTransfer(msg.sender, seized);
+        if (!_stakeTokens) ERC20(actualCollateralToken).safeTransfer(msg.sender, seized);
     }
 
     /// @dev ERC-3156 Flash loan callback
@@ -140,9 +121,7 @@ abstract contract FlashMintLiquidatorAaveBorrowRepayBase is
         return FLASHLOAN_CALLBACK;
     }
 
-    function _flashLoanInternal(
-        FlashLoanParams memory _flashLoanParams
-    ) internal {
+    function _flashLoanInternal(FlashLoanParams memory _flashLoanParams) internal {
         if (_flashLoanParams.borrowedUnderlying != address(dusd)) {
             revert NotSupportingNonDUSD(
                 _flashLoanParams.borrowedUnderlying,
@@ -162,45 +141,29 @@ abstract contract FlashMintLiquidatorAaveBorrowRepayBase is
         );
         uint256 seized = _liquidateInternal(liquidateParams);
 
-        if (
-            _flashLoanParams.borrowedUnderlying !=
-            _flashLoanParams.collateralUnderlying
-        ) {
-            (
-                address actualCollateralToken,
-                address proxyContract
-            ) = getActualCollateralToken(
-                    _flashLoanParams.collateralUnderlying,
-                    _flashLoanParams.isUnstakeCollateralToken
-                );
+        if (_flashLoanParams.borrowedUnderlying != _flashLoanParams.collateralUnderlying) {
+            (address actualCollateralToken, address proxyContract) = getActualCollateralToken(
+                _flashLoanParams.collateralUnderlying,
+                _flashLoanParams.isUnstakeCollateralToken
+            );
             uint256 actualCollateralAmount = seized;
             // If isUnstakeCollateralToken is true, we need to unstake the collateral to its underlying token
             if (_flashLoanParams.isUnstakeCollateralToken) {
                 // Approve to burn the shares
-                ERC20(_flashLoanParams.collateralUnderlying).approve(
-                    proxyContract,
-                    actualCollateralAmount
-                );
+                ERC20(_flashLoanParams.collateralUnderlying).approve(proxyContract, actualCollateralAmount);
 
-                actualCollateralAmount = redeemERC4626Token(
-                    proxyContract,
-                    actualCollateralAmount,
-                    address(this)
-                );
+                actualCollateralAmount = redeemERC4626Token(proxyContract, actualCollateralAmount, address(this));
             }
 
             // need a swap
             // we use aave oracle
-            IPriceOracleGetter oracle = IPriceOracleGetter(
-                addressesProvider.getPriceOracle()
-            );
+            IPriceOracleGetter oracle = IPriceOracleGetter(addressesProvider.getPriceOracle());
             uint256 maxIn = (((actualCollateralAmount *
                 10 ** ERC20(actualCollateralToken).decimals() *
                 oracle.getAssetPrice(_flashLoanParams.borrowedUnderlying)) /
                 oracle.getAssetPrice(actualCollateralToken) /
                 10 ** liquidateParams.borrowedUnderlying.decimals()) *
-                (Constants.ONE_HUNDRED_PERCENT_BPS + slippageTolerance)) /
-                Constants.ONE_HUNDRED_PERCENT_BPS;
+                (Constants.ONE_HUNDRED_PERCENT_BPS + slippageTolerance)) / Constants.ONE_HUNDRED_PERCENT_BPS;
 
             _swapExactOutput(
                 actualCollateralToken,
@@ -224,12 +187,7 @@ abstract contract FlashMintLiquidatorAaveBorrowRepayBase is
     function getActualCollateralToken(
         address _collateralUnderlying,
         bool _isUnstakeCollateralToken
-    )
-        public
-        view
-        override
-        returns (address actualCollateralToken_, address proxyContract_)
-    {
+    ) public view override returns (address actualCollateralToken_, address proxyContract_) {
         if (_isUnstakeCollateralToken) {
             proxyContract_ = getProxyContract(_collateralUnderlying);
             actualCollateralToken_ = ERC4626(proxyContract_).asset();

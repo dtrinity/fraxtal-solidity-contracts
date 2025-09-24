@@ -9,11 +9,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getConfig } from "../../config/config";
 import { MintConfig } from "../../config/types";
 import { deployContract, DeployContractResult } from "../../utils/deploy";
-import {
-  checkPoolData,
-  deployAndInitializePool,
-  DeployAndInitializePoolResult,
-} from "../../utils/dex/pool";
+import { checkPoolData, deployAndInitializePool, DeployAndInitializePoolResult } from "../../utils/dex/pool";
 import { DeployTestTokenResult, deployTokensDefault } from "../../utils/token";
 
 describe("Testing DEX", function () {
@@ -42,12 +38,8 @@ describe("Testing DEX", function () {
       chai.assert.typeOf(deployedTokenResult.Tokens.SFRXETH.address, "string");
       chai.assert.isNotEmpty(deployedTokenResult.Tokens.SFRXETH.address);
 
-      chai
-        .expect(deployedTokenResult.Account.Owner.address)
-        .to.equal(dexDeployer);
-      chai
-        .expect(deployedTokenResult.Account.ToAddresses)
-        .deep.eq([testTokenOwner1, dexDeployer]);
+      chai.expect(deployedTokenResult.Account.Owner.address).to.equal(dexDeployer);
+      chai.expect(deployedTokenResult.Account.ToAddresses).deep.eq([testTokenOwner1, dexDeployer]);
     });
   });
 });
@@ -127,19 +119,8 @@ async function deployDEX(hre: HardhatRuntimeEnvironment): Promise<void> {
   const factory = await deployFactory(hre, deployer);
   await deployRouter(hre, deployer, factory.address, weth9.address);
   const nftDescriptorLibrary = await deployNFTDescriptorLibrary(hre, deployer);
-  const positionDescriptor = await deployPositionDescriptor(
-    hre,
-    deployer,
-    nftDescriptorLibrary.address,
-    weth9.address,
-  );
-  await deployNonfungiblePositionManager(
-    hre,
-    deployer,
-    factory.address,
-    weth9.address,
-    positionDescriptor.address,
-  );
+  const positionDescriptor = await deployPositionDescriptor(hre, deployer, nftDescriptorLibrary.address, weth9.address);
+  await deployNonfungiblePositionManager(hre, deployer, factory.address, weth9.address, positionDescriptor.address);
 }
 
 /**
@@ -149,10 +130,7 @@ async function deployDEX(hre: HardhatRuntimeEnvironment): Promise<void> {
  * @param contractOwner - The owner wallet's signer
  * @returns The deployment result
  */
-async function deployWETH9(
-  hre: HardhatRuntimeEnvironment,
-  contractOwner: HardhatEthersSigner,
-): Promise<DeployContractResult> {
+async function deployWETH9(hre: HardhatRuntimeEnvironment, contractOwner: HardhatEthersSigner): Promise<DeployContractResult> {
   // The WETH9 will be automatically found in contracts/dependencies/WETH9.sol
   return deployContract(
     hre,
@@ -170,10 +148,7 @@ async function deployWETH9(
  * @param contractOwner - The owner wallet's signer
  * @returns The deployment result
  */
-async function deployFactory(
-  hre: HardhatRuntimeEnvironment,
-  contractOwner: HardhatEthersSigner,
-): Promise<DeployContractResult> {
+async function deployFactory(hre: HardhatRuntimeEnvironment, contractOwner: HardhatEthersSigner): Promise<DeployContractResult> {
   // The UniswapV3Factory will be automatically found in contracts/dex/core/UniswapV3Factory.sol
   return deployContract(
     hre,

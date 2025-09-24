@@ -17,17 +17,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Check factory deployment
   console.log("\n📦 StaticATokenFactory:");
-  const factoryDeployment = await deployments.getOrNull(
-    STATIC_ATOKEN_FACTORY_ID,
-  );
+  const factoryDeployment = await deployments.getOrNull(STATIC_ATOKEN_FACTORY_ID);
 
   if (factoryDeployment) {
     console.log(`  ✅ Deployed at: ${factoryDeployment.address}`);
 
-    const factory = await hre.ethers.getContractAt(
-      "StaticATokenFactory",
-      factoryDeployment.address,
-    );
+    const factory = await hre.ethers.getContractAt("StaticATokenFactory", factoryDeployment.address);
 
     const pool = await factory.POOL();
     console.log(`  📍 Pool: ${pool}`);
@@ -58,20 +53,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       console.log(`    ✅ Deployed at: ${deployment.address}`);
 
       try {
-        const wrapperContract = await hre.ethers.getContractAt(
-          "StaticATokenLM",
-          deployment.address,
-        );
+        const wrapperContract = await hre.ethers.getContractAt("StaticATokenLM", deployment.address);
 
-        const [
-          name,
-          symbol,
-          decimals,
-          aToken,
-          underlying,
-          pool,
-          rewardsController,
-        ] = await Promise.all([
+        const [name, symbol, decimals, aToken, underlying, pool, rewardsController] = await Promise.all([
           wrapperContract.name(),
           wrapperContract.symbol(),
           wrapperContract.decimals(),
@@ -91,30 +75,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
         // Check if it's registered in factory
         if (factoryDeployment && wrapper.underlyingAddress) {
-          const factory = await hre.ethers.getContractAt(
-            "StaticATokenFactory",
-            factoryDeployment.address,
-          );
-          const registeredWrapper = await factory.getStaticAToken(
-            wrapper.underlyingAddress,
-          );
+          const factory = await hre.ethers.getContractAt("StaticATokenFactory", factoryDeployment.address);
+          const registeredWrapper = await factory.getStaticAToken(wrapper.underlyingAddress);
 
           if (registeredWrapper === deployment.address) {
             console.log(`    ✅ Registered in factory`);
           } else if (registeredWrapper === hre.ethers.ZeroAddress) {
             console.log(`    ❌ Not registered in factory`);
           } else {
-            console.log(
-              `    ⚠️  Factory has different wrapper: ${registeredWrapper}`,
-            );
+            console.log(`    ⚠️  Factory has different wrapper: ${registeredWrapper}`);
           }
         }
 
         // Check total supply
         const totalSupply = await wrapperContract.totalSupply();
-        console.log(
-          `    💎 Total Supply: ${hre.ethers.formatUnits(totalSupply, decimals)}`,
-        );
+        console.log(`    💎 Total Supply: ${hre.ethers.formatUnits(totalSupply, decimals)}`);
       } catch (error) {
         console.log(`    ⚠️  Error reading contract data: ${error}`);
       }

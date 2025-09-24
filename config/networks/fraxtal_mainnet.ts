@@ -9,10 +9,7 @@ import {
   SDUSD_REWARD_MANAGER_ID,
   SDUSD_WRAPPED_DLEND_CONVERSION_ADAPTER_ID,
 } from "../../typescript/deploy-ids";
-import {
-  AAVE_ORACLE_USD_DECIMALS,
-  ONE_PERCENT_BPS,
-} from "../../utils/constants";
+import { AAVE_ORACLE_USD_DECIMALS, ONE_PERCENT_BPS } from "../../utils/constants";
 import {
   rateStrategyDUSD,
   rateStrategyHighLiquidityStable,
@@ -125,37 +122,24 @@ export const TOKEN_INFO = {
  * @param _hre - Hardhat Runtime Environment
  * @returns The configuration for the network
  */
-export async function getConfig(
-  _hre: HardhatRuntimeEnvironment,
-): Promise<Config> {
+export async function getConfig(_hre: HardhatRuntimeEnvironment): Promise<Config> {
   // Fetch deployed dSTAKE token for sdUSD (may be undefined prior to deployment)
-  const _sdUSDDeployment = await _hre.deployments.getOrNull(
-    SDUSD_DSTAKE_TOKEN_ID,
-  );
+  const _sdUSDDeployment = await _hre.deployments.getOrNull(SDUSD_DSTAKE_TOKEN_ID);
 
   // Fetch deployed StaticATokenLM wrapper for dUSD
-  const dUSDStaticATokenDeployment = await _hre.deployments.getOrNull(
-    dUSD_A_TOKEN_WRAPPER_ID,
-  );
+  const dUSDStaticATokenDeployment = await _hre.deployments.getOrNull(dUSD_A_TOKEN_WRAPPER_ID);
 
   // Fetch deployed conversion adapter for sdUSD
-  const conversionAdapterDeployment = await _hre.deployments.getOrNull(
-    SDUSD_WRAPPED_DLEND_CONVERSION_ADAPTER_ID,
-  );
+  const conversionAdapterDeployment = await _hre.deployments.getOrNull(SDUSD_WRAPPED_DLEND_CONVERSION_ADAPTER_ID);
 
   // Fetch deployed reward manager for sdUSD
-  const _rewardManagerDeployment = await _hre.deployments.getOrNull(
-    SDUSD_REWARD_MANAGER_ID,
-  );
+  const _rewardManagerDeployment = await _hre.deployments.getOrNull(SDUSD_REWARD_MANAGER_ID);
 
   // Fetch dLEND deployments for reward manager config
-  const rewardsControllerDeployment =
-    await _hre.deployments.getOrNull(INCENTIVES_PROXY_ID);
+  const rewardsControllerDeployment = await _hre.deployments.getOrNull(INCENTIVES_PROXY_ID);
 
   // Get the dUSD aToken deployment by constructing its ID
-  const dUSDATokenDeployment = await _hre.deployments.getOrNull(
-    `${ATOKEN_IMPL_ID}_dUSD`,
-  );
+  const dUSDATokenDeployment = await _hre.deployments.getOrNull(`${ATOKEN_IMPL_ID}_dUSD`);
 
   // Safe configuration for governance multisig
   const safeOwners = [
@@ -248,8 +232,7 @@ export async function getConfig(
         rateStrategyDUSD,
       ],
       // ref: https://docs.redstone.finance/docs/smart-contract-devs/price-feeds
-      chainlinkEthUsdAggregatorProxy:
-        "0x89e60b56efD70a1D4FBBaE947bC33cae41e37A72", // Redstone
+      chainlinkEthUsdAggregatorProxy: "0x89e60b56efD70a1D4FBBaE947bC33cae41e37A72", // Redstone
       incentivesVault: "0x674679896A8Efd4b0BCF59F5503A3d6807172791", // Safe on Fraxtal
       incentivesEmissionManager: "0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9", // Gov Admin
     },
@@ -279,8 +262,7 @@ export async function getConfig(
       dexOracleAssets: {},
       api3OracleAssets: {
         plainApi3OracleWrappers: {
-          [TOKEN_INFO.wfrxETH.address]:
-            "0xC93Da088b0c78dE892f523db0eECb051Cb628991", // ETH/USD dTrinity OEV
+          [TOKEN_INFO.wfrxETH.address]: "0xC93Da088b0c78dE892f523db0eECb051Cb628991", // ETH/USD dTrinity OEV
         },
         api3OracleWrappersWithThresholding: {
           [TOKEN_INFO.frxUSD.address]: {
@@ -380,14 +362,10 @@ export async function getConfig(
             compositeAPI3Feed: {
               api3Asset: TOKEN_INFO.frxUSD.address,
               api3Proxy: "0x4d66E060d24A1bb2983da9781f017258A439CBBb", // frxUSD/USD dTrinity OEV
-              api3LowerThresholdInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-              api3FixedPriceInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-              curveLowerThresholdInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-              curveFixedPriceInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              api3LowerThresholdInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              api3FixedPriceInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveLowerThresholdInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveFixedPriceInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
             },
           },
           [TOKEN_INFO.FXB20251231.address]: {
@@ -395,14 +373,10 @@ export async function getConfig(
             compositeAPI3Feed: {
               api3Asset: TOKEN_INFO.frxUSD.address,
               api3Proxy: "0x4d66E060d24A1bb2983da9781f017258A439CBBb", // frxUSD/USD dTrinity OEV
-              api3LowerThresholdInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-              api3FixedPriceInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-              curveLowerThresholdInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-              curveFixedPriceInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              api3LowerThresholdInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              api3FixedPriceInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveLowerThresholdInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveFixedPriceInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
             },
           },
           [TOKEN_INFO.FXB20551231.address]: {
@@ -410,14 +384,10 @@ export async function getConfig(
             compositeAPI3Feed: {
               api3Asset: TOKEN_INFO.frxUSD.address,
               api3Proxy: "0x4d66E060d24A1bb2983da9781f017258A439CBBb", // frxUSD/USD dTrinity OEV
-              api3LowerThresholdInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-              api3FixedPriceInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-              curveLowerThresholdInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-              curveFixedPriceInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              api3LowerThresholdInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              api3FixedPriceInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveLowerThresholdInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveFixedPriceInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
             },
           },
           [TOKEN_INFO.FXB20261231.address]: {
@@ -425,14 +395,10 @@ export async function getConfig(
             compositeAPI3Feed: {
               api3Asset: TOKEN_INFO.frxUSD.address,
               api3Proxy: "0x4d66E060d24A1bb2983da9781f017258A439CBBb", // frxUSD/USD dTrinity OEV
-              api3LowerThresholdInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-              api3FixedPriceInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-              curveLowerThresholdInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
-              curveFixedPriceInBase:
-                1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              api3LowerThresholdInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              api3FixedPriceInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveLowerThresholdInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
+              curveFixedPriceInBase: 1n * 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS),
             },
           },
         },
@@ -468,9 +434,7 @@ export async function getConfig(
         collateralVault: "DStakeCollateralVault_sdUSD",
         collateralExchangers: ["0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9"], // governance multisig
         dLendRewardManager:
-          dUSDStaticATokenDeployment &&
-          dUSDATokenDeployment &&
-          rewardsControllerDeployment
+          dUSDStaticATokenDeployment && dUSDATokenDeployment && rewardsControllerDeployment
             ? {
                 managedVaultAsset: dUSDStaticATokenDeployment.address, // StaticATokenLM wrapper
                 dLendAssetToClaimFor: dUSDATokenDeployment.address, // dLEND aToken for dUSD
@@ -478,9 +442,7 @@ export async function getConfig(
                 treasury: "0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9", // governance multisig
                 maxTreasuryFeeBps: 20 * ONE_PERCENT_BPS, // 20%
                 initialTreasuryFeeBps: 0 * ONE_PERCENT_BPS, // 0%
-                initialExchangeThreshold: ethers
-                  .parseUnits("100", 6)
-                  .toString(), // 100 dUSD (6 decimals)
+                initialExchangeThreshold: ethers.parseUnits("100", 6).toString(), // 100 dUSD (6 decimals)
               }
             : undefined,
       },

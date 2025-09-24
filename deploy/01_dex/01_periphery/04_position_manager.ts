@@ -21,9 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Skip deployment if dex config is not populated
   if (!config.dex) {
-    console.log(
-      "Skipping Position Manager deployment - dex config not populated",
-    );
+    console.log("Skipping Position Manager deployment - dex config not populated");
     return false;
   }
 
@@ -31,13 +29,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const weth9Address = await getWETH9Address(hre);
 
-  const { address: factoryAddress } = await hre.deployments.get(
-    UNISWAP_V3_FACTORY_ID,
-  );
+  const { address: factoryAddress } = await hre.deployments.get(UNISWAP_V3_FACTORY_ID);
 
-  const { address: positionDescriptorAddress } = await hre.deployments.get(
-    NONFUNGIBLE_TOKEN_POSITION_DESCRIPTOR_ID,
-  );
+  const { address: positionDescriptorAddress } = await hre.deployments.get(NONFUNGIBLE_TOKEN_POSITION_DESCRIPTOR_ID);
 
   // The NonfungiblePositionManager will be automatically found in contracts/dex/periphery/NonfungiblePositionManager.sol
   await deployContract(

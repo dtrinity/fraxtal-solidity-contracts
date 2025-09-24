@@ -27,12 +27,8 @@ async function main() {
   console.log("decimals:", decimals);
   console.log("totalSupply:", (await sdUSD.totalSupply()).toString());
   console.log("totalAssets():", (await sdUSD.totalAssets()).toString());
-  console.log(
-    `convertToAssets(1):             ${(await sdUSD.convertToAssets(oneShare)).toString()}`,
-  );
-  console.log(
-    `convertToAssets(1 * 10^dec):    ${(await sdUSD.convertToAssets(oneShareUnits)).toString()}`,
-  );
+  console.log(`convertToAssets(1):             ${(await sdUSD.convertToAssets(oneShare)).toString()}`);
+  console.log(`convertToAssets(1 * 10^dec):    ${(await sdUSD.convertToAssets(oneShareUnits)).toString()}`);
 
   // ----------------------------------------------------------------------
   // Collateral vault wiring
@@ -44,19 +40,13 @@ async function main() {
   console.log("DStakeToken.router():           ", routerAddress);
   console.log("DStakeToken.collateralVault():  ", collateralVaultAddress);
 
-  const collateralVault = await ethers.getContractAt(
-    "DStakeCollateralVault",
-    collateralVaultAddress,
-  );
+  const collateralVault = await ethers.getContractAt("DStakeCollateralVault", collateralVaultAddress);
   const router = await ethers.getContractAt("DStakeRouterDLend", routerAddress);
 
   // Check role & router stored inside the vault
   const vaultRouterStored = await collateralVault.router();
   const ROUTER_ROLE = await collateralVault.ROUTER_ROLE();
-  const hasRouterRole = await collateralVault.hasRole(
-    ROUTER_ROLE,
-    routerAddress,
-  );
+  const hasRouterRole = await collateralVault.hasRole(ROUTER_ROLE, routerAddress);
 
   console.log("\n=== CollateralVault ===");
   console.log("router():", vaultRouterStored);
@@ -69,23 +59,15 @@ async function main() {
   // Print details per supported asset
   console.log("\n=== Asset breakdown ===");
   for (const asset of supported) {
-    const erc20 = await ethers.getContractAt(
-      "@openzeppelin/contracts-5/token/ERC20/extensions/IERC20Metadata.sol:IERC20Metadata",
-      asset,
-    );
+    const erc20 = await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/extensions/IERC20Metadata.sol:IERC20Metadata", asset);
     const symbol = await erc20.symbol();
     const balance = await erc20.balanceOf(collateralVaultAddress);
     const adapterAddress = await router.vaultAssetToAdapter(asset);
-    console.log(
-      `Asset ${symbol} (${asset}) -> balance ${balance.toString()} | adapter ${adapterAddress}`,
-    );
+    console.log(`Asset ${symbol} (${asset}) -> balance ${balance.toString()} | adapter ${adapterAddress}`);
 
     if (adapterAddress !== ethers.ZeroAddress) {
       try {
-        const adapter = await ethers.getContractAt(
-          "IDStableConversionAdapter",
-          adapterAddress,
-        );
+        const adapter = await ethers.getContractAt("IDStableConversionAdapter", adapterAddress);
         const value = await adapter.assetValueInDStable(asset, balance);
         console.log(`   ↳ adapter.assetValueInDStable(): ${value.toString()}`);
       } catch (e) {

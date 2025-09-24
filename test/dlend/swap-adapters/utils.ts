@@ -15,20 +15,8 @@ export const buildDSwapLiquiditySwapParams = (
   s: string | Buffer,
 ): string => {
   return ethers.AbiCoder.defaultAbiCoder().encode(
-    [
-      "address",
-      "uint256",
-      "uint256",
-      "uint24",
-      "tuple(uint256,uint256,uint8,bytes32,bytes32)",
-    ],
-    [
-      assetToSwapTo,
-      minAmountToReceive,
-      swapAllBalanceOffset,
-      swapPoolFee,
-      [permitAmount, deadline, v, r, s],
-    ],
+    ["address", "uint256", "uint256", "uint24", "tuple(uint256,uint256,uint8,bytes32,bytes32)"],
+    [assetToSwapTo, minAmountToReceive, swapAllBalanceOffset, swapPoolFee, [permitAmount, deadline, v, r, s]],
   );
 };
 
@@ -90,28 +78,8 @@ export const buildLiquiditySwapParams = (
   useEthPath: boolean[],
 ): string => {
   return ethers.AbiCoder.defaultAbiCoder().encode(
-    [
-      "address[]",
-      "uint256[]",
-      "bool[]",
-      "uint256[]",
-      "uint256[]",
-      "uint8[]",
-      "bytes32[]",
-      "bytes32[]",
-      "bool[]",
-    ],
-    [
-      assetToSwapToList,
-      minAmountsToReceive,
-      swapAllBalances,
-      permitAmounts,
-      deadlines,
-      v,
-      r,
-      s,
-      useEthPath,
-    ],
+    ["address[]", "uint256[]", "bool[]", "uint256[]", "uint256[]", "uint8[]", "bytes32[]", "bytes32[]", "bool[]"],
+    [assetToSwapToList, minAmountsToReceive, swapAllBalances, permitAmounts, deadlines, v, r, s, useEthPath],
   );
 };
 
@@ -128,29 +96,12 @@ export const buildDSwapRepayParams = (
   s: string | Buffer,
 ): string => {
   return ethers.AbiCoder.defaultAbiCoder().encode(
-    [
-      "address",
-      "uint256",
-      "uint256",
-      "uint256",
-      "bytes",
-      "tuple(uint256,uint256,uint8,bytes32,bytes32)",
-    ],
-    [
-      collateralAsset,
-      collateralAmount,
-      buyAllBalanceOffset,
-      debtRateMode,
-      swapPoolFee,
-      [permitAmount, deadline, v, r, s],
-    ],
+    ["address", "uint256", "uint256", "uint256", "bytes", "tuple(uint256,uint256,uint8,bytes32,bytes32)"],
+    [collateralAsset, collateralAmount, buyAllBalanceOffset, debtRateMode, swapPoolFee, [permitAmount, deadline, v, r, s]],
   );
 };
 
-export const parseUnitsFromToken = async (
-  tokenAddress: tEthereumAddress,
-  amount: string,
-): Promise<bigint> => {
+export const parseUnitsFromToken = async (tokenAddress: tEthereumAddress, amount: string): Promise<bigint> => {
   const artifact = await hre.deployments.getArtifact(
     "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol:IERC20Detailed",
   );
@@ -161,6 +112,4 @@ export const parseUnitsFromToken = async (
   return hre.ethers.parseUnits(amount, decimals);
 };
 
-export const waitForTx = async (
-  tx: ContractTransactionResponse,
-): Promise<ethers.ContractTransactionReceipt | null> => await tx.wait(1);
+export const waitForTx = async (tx: ContractTransactionResponse): Promise<ethers.ContractTransactionReceipt | null> => await tx.wait(1);

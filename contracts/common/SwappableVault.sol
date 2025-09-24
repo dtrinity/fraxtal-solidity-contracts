@@ -17,7 +17,7 @@
 
 pragma solidity 0.8.20;
 
-import {ERC20} from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
+import { ERC20 } from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
 
 /**
  * @title SwappableVault
@@ -26,22 +26,10 @@ import {ERC20} from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.so
  *      - The wrapper function _swapExactOutput has some sanity checks
  */
 abstract contract SwappableVault {
-    error SpentInputTokenAmountGreaterThanAmountInMaximum(
-        uint256 spentInputTokenAmount,
-        uint256 amountInMaximum
-    );
-    error ReceivedOutputTokenAmountNotEqualAmountOut(
-        uint256 receivedOutputTokenAmount,
-        uint256 amountOut
-    );
-    error OutputTokenBalanceNotIncreasedAfterSwap(
-        uint256 outputTokenBalanceBefore,
-        uint256 outputTokenBalanceAfter
-    );
-    error SpentInputTokenAmountNotEqualReturnedAmountIn(
-        uint256 spentInputTokenAmount,
-        uint256 returnedAmountIn
-    );
+    error SpentInputTokenAmountGreaterThanAmountInMaximum(uint256 spentInputTokenAmount, uint256 amountInMaximum);
+    error ReceivedOutputTokenAmountNotEqualAmountOut(uint256 receivedOutputTokenAmount, uint256 amountOut);
+    error OutputTokenBalanceNotIncreasedAfterSwap(uint256 outputTokenBalanceBefore, uint256 outputTokenBalanceAfter);
+    error SpentInputTokenAmountNotEqualReturnedAmountIn(uint256 spentInputTokenAmount, uint256 returnedAmountIn);
 
     /* Virtual functions */
 
@@ -107,19 +95,12 @@ abstract contract SwappableVault {
 
         // Make sure the spent input token amount is not greater than the amount in maximum
         if (inputTokenBalanceAfter < inputTokenBalanceBefore) {
-            uint256 spentInputTokenAmount = inputTokenBalanceBefore -
-                inputTokenBalanceAfter;
+            uint256 spentInputTokenAmount = inputTokenBalanceBefore - inputTokenBalanceAfter;
             if (spentInputTokenAmount > amountInMaximum) {
-                revert SpentInputTokenAmountGreaterThanAmountInMaximum(
-                    spentInputTokenAmount,
-                    amountInMaximum
-                );
+                revert SpentInputTokenAmountGreaterThanAmountInMaximum(spentInputTokenAmount, amountInMaximum);
             }
             if (spentInputTokenAmount != amountIn) {
-                revert SpentInputTokenAmountNotEqualReturnedAmountIn(
-                    spentInputTokenAmount,
-                    amountIn
-                );
+                revert SpentInputTokenAmountNotEqualReturnedAmountIn(spentInputTokenAmount, amountIn);
             }
         }
         // Do not need to check the input token balance decreased after the swap
@@ -127,19 +108,12 @@ abstract contract SwappableVault {
 
         // Make sure the received output token amount is exactly the amount out
         if (outputTokenBalanceAfter > outputTokenBalanceBefore) {
-            uint256 receivedOutputTokenAmount = outputTokenBalanceAfter -
-                outputTokenBalanceBefore;
+            uint256 receivedOutputTokenAmount = outputTokenBalanceAfter - outputTokenBalanceBefore;
             if (receivedOutputTokenAmount != amountOut) {
-                revert ReceivedOutputTokenAmountNotEqualAmountOut(
-                    receivedOutputTokenAmount,
-                    amountOut
-                );
+                revert ReceivedOutputTokenAmountNotEqualAmountOut(receivedOutputTokenAmount, amountOut);
             }
         } else {
-            revert OutputTokenBalanceNotIncreasedAfterSwap(
-                outputTokenBalanceBefore,
-                outputTokenBalanceAfter
-            );
+            revert OutputTokenBalanceNotIncreasedAfterSwap(outputTokenBalanceBefore, outputTokenBalanceAfter);
         }
 
         return amountIn;

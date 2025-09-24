@@ -17,11 +17,11 @@
 
 pragma solidity 0.8.20;
 
-import {IPriceOracleGetter} from "./interface/IPriceOracleGetter.sol";
-import {IPool as ILendingPool, DataTypes} from "./interface/IPool.sol";
-import {IPoolAddressesProvider} from "./interface/IPoolAddressesProvider.sol";
-import {ERC20} from "@openzeppelin/contracts-5/token/ERC20/ERC20.sol";
-import {DLoopCoreBase} from "../../DLoopCoreBase.sol";
+import { IPriceOracleGetter } from "./interface/IPriceOracleGetter.sol";
+import { IPool as ILendingPool, DataTypes } from "./interface/IPool.sol";
+import { IPoolAddressesProvider } from "./interface/IPoolAddressesProvider.sol";
+import { ERC20 } from "@openzeppelin/contracts-5/token/ERC20/ERC20.sol";
+import { DLoopCoreBase } from "../../DLoopCoreBase.sol";
 
 /**
  * @title DLoopCoreDLend
@@ -81,10 +81,7 @@ contract DLoopCoreDLend is DLoopCoreBase {
         (address baseCurrency, ) = _getBaseAssetAddressAndSymbol();
 
         if (getLendingOracle().BASE_CURRENCY() != baseCurrency) {
-            revert InvalidBaseCurrency(
-                getLendingOracle().BASE_CURRENCY(),
-                baseCurrency
-            );
+            revert InvalidBaseCurrency(getLendingOracle().BASE_CURRENCY(), baseCurrency);
         }
     }
 
@@ -93,9 +90,7 @@ contract DLoopCoreDLend is DLoopCoreBase {
      * @param asset Address of the asset
      * @return uint256 Price of the asset
      */
-    function getAssetPriceFromOracle(
-        address asset
-    ) public view override returns (uint256) {
+    function getAssetPriceFromOracle(address asset) public view override returns (uint256) {
         return getLendingOracle().getAssetPrice(asset);
     }
 
@@ -105,18 +100,11 @@ contract DLoopCoreDLend is DLoopCoreBase {
      * @param amount Amount of tokens to supply
      * @param onBehalfOf Address to supply on behalf of
      */
-    function _supplyToPool(
-        address token,
-        uint256 amount,
-        address onBehalfOf
-    ) internal override {
+    function _supplyToPool(address token, uint256 amount, address onBehalfOf) internal override {
         ILendingPool lendingPool = getLendingPool();
 
         // Approve the lending pool to spend the token
-        require(
-            ERC20(token).approve(address(lendingPool), amount),
-            "approve failed for lending pool in supply"
-        );
+        require(ERC20(token).approve(address(lendingPool), amount), "approve failed for lending pool in supply");
 
         // Supply the token to the lending pool
         lendingPool.supply(token, amount, onBehalfOf, 0);
@@ -128,18 +116,8 @@ contract DLoopCoreDLend is DLoopCoreBase {
      * @param amount Amount of tokens to borrow
      * @param onBehalfOf Address to borrow on behalf of
      */
-    function _borrowFromPool(
-        address token,
-        uint256 amount,
-        address onBehalfOf
-    ) internal override {
-        getLendingPool().borrow(
-            token,
-            amount,
-            VARIABLE_LENDING_INTERST_RATE_MODE,
-            0,
-            onBehalfOf
-        );
+    function _borrowFromPool(address token, uint256 amount, address onBehalfOf) internal override {
+        getLendingPool().borrow(token, amount, VARIABLE_LENDING_INTERST_RATE_MODE, 0, onBehalfOf);
     }
 
     /**
@@ -148,26 +126,14 @@ contract DLoopCoreDLend is DLoopCoreBase {
      * @param amount Amount of tokens to repay
      * @param onBehalfOf Address to repay on behalf of
      */
-    function _repayDebt(
-        address token,
-        uint256 amount,
-        address onBehalfOf
-    ) internal override {
+    function _repayDebt(address token, uint256 amount, address onBehalfOf) internal override {
         ILendingPool lendingPool = getLendingPool();
 
         // Approve the lending pool to spend the token
-        require(
-            ERC20(token).approve(address(lendingPool), amount),
-            "approve failed for lending pool in repay"
-        );
+        require(ERC20(token).approve(address(lendingPool), amount), "approve failed for lending pool in repay");
 
         // Repay the debt
-        lendingPool.repay(
-            token,
-            amount,
-            VARIABLE_LENDING_INTERST_RATE_MODE,
-            onBehalfOf
-        );
+        lendingPool.repay(token, amount, VARIABLE_LENDING_INTERST_RATE_MODE, onBehalfOf);
     }
 
     /**
@@ -176,11 +142,7 @@ contract DLoopCoreDLend is DLoopCoreBase {
      * @param amount Amount of tokens to withdraw
      * @param onBehalfOf Address to withdraw on behalf of
      */
-    function _withdrawFromPool(
-        address token,
-        uint256 amount,
-        address onBehalfOf
-    ) internal override {
+    function _withdrawFromPool(address token, uint256 amount, address onBehalfOf) internal override {
         getLendingPool().withdraw(token, amount, onBehalfOf);
     }
 
@@ -189,12 +151,7 @@ contract DLoopCoreDLend is DLoopCoreBase {
      * @return address Base asset address
      * @return string Base asset symbol
      */
-    function _getBaseAssetAddressAndSymbol()
-        internal
-        pure
-        override
-        returns (address, string memory)
-    {
+    function _getBaseAssetAddressAndSymbol() internal pure override returns (address, string memory) {
         // In dLEND, the base asset is USD
         return (address(0), "USD");
     }
@@ -207,14 +164,8 @@ contract DLoopCoreDLend is DLoopCoreBase {
      */
     function _getTotalCollateralAndDebtOfUserInBase(
         address user
-    )
-        internal
-        view
-        override
-        returns (uint256 totalCollateralBase, uint256 totalDebtBase)
-    {
-        (totalCollateralBase, totalDebtBase, , , , ) = getLendingPool()
-            .getUserAccountData(user);
+    ) internal view override returns (uint256 totalCollateralBase, uint256 totalDebtBase) {
+        (totalCollateralBase, totalDebtBase, , , , ) = getLendingPool().getUserAccountData(user);
         return (totalCollateralBase, totalDebtBase);
     }
 
@@ -225,8 +176,7 @@ contract DLoopCoreDLend is DLoopCoreBase {
      * @return IPriceOracleGetter The lending oracle interface
      */
     function getLendingOracle() public view returns (IPriceOracleGetter) {
-        return
-            IPriceOracleGetter(lendingPoolAddressesProvider.getPriceOracle());
+        return IPriceOracleGetter(lendingPoolAddressesProvider.getPriceOracle());
     }
 
     /**
@@ -258,9 +208,7 @@ contract DLoopCoreDLend is DLoopCoreBase {
      * @param tokenAddress The address of the token
      * @return DataTypes.ReserveData The reserve data
      */
-    function _getReserveData(
-        address tokenAddress
-    ) internal view returns (DataTypes.ReserveData memory) {
+    function _getReserveData(address tokenAddress) internal view returns (DataTypes.ReserveData memory) {
         return getLendingPool().getReserveData(tokenAddress);
     }
 
@@ -269,9 +217,7 @@ contract DLoopCoreDLend is DLoopCoreBase {
      * @param tokenAddress The address of the token
      * @return address The DToken address
      */
-    function _getDTokenAddress(
-        address tokenAddress
-    ) internal view returns (address) {
+    function _getDTokenAddress(address tokenAddress) internal view returns (address) {
         return _getReserveData(tokenAddress).aTokenAddress;
     }
 
@@ -280,9 +226,7 @@ contract DLoopCoreDLend is DLoopCoreBase {
      * @param tokenAddress The address of the token
      * @return uint256 The DToken balance of the vault
      */
-    function getDTokenBalance(
-        address tokenAddress
-    ) public view returns (uint256) {
+    function getDTokenBalance(address tokenAddress) public view returns (uint256) {
         return ERC20(_getDTokenAddress(tokenAddress)).balanceOf(address(this));
     }
 }

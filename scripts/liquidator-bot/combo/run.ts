@@ -10,11 +10,7 @@ import { printLog } from "../../../utils/liquidator-bot/shared/log";
  * @param waitSecondsBetweenTrials - The number of seconds to wait between each trial
  * @returns true if the Odos bot succeeds, false otherwise
  */
-async function runOdosTrials(
-  index: number,
-  maxOdosFailureCount: number,
-  waitSecondsBetweenTrials: number,
-): Promise<boolean> {
+async function runOdosTrials(index: number, maxOdosFailureCount: number, waitSecondsBetweenTrials: number): Promise<boolean> {
   for (let i = 0; i < maxOdosFailureCount; i++) {
     printLog(index, `Running Odos trial ${i + 1}`);
 
@@ -24,13 +20,8 @@ async function runOdosTrials(
     } catch (error: any) {
       printLog(index, `Odos trial ${i + 1} failed`);
       console.error(error);
-      printLog(
-        index,
-        `Waiting for ${waitSecondsBetweenTrials} seconds before retrying the Odos bot`,
-      );
-      await new Promise((resolve) =>
-        setTimeout(resolve, waitSecondsBetweenTrials * 1000),
-      );
+      printLog(index, `Waiting for ${waitSecondsBetweenTrials} seconds before retrying the Odos bot`);
+      await new Promise((resolve) => setTimeout(resolve, waitSecondsBetweenTrials * 1000));
     }
   }
   return false;
@@ -44,11 +35,7 @@ async function runOdosTrials(
  * @param waitSecondsBetweenTrials - The number of seconds to wait between each trial
  * @returns true if the Curve bot succeeds, false otherwise
  */
-async function runCurveTrial(
-  index: number,
-  maxCurveFailureCount: number,
-  waitSecondsBetweenTrials: number,
-): Promise<boolean> {
+async function runCurveTrial(index: number, maxCurveFailureCount: number, waitSecondsBetweenTrials: number): Promise<boolean> {
   for (let i = 0; i < maxCurveFailureCount; i++) {
     printLog(index, `Running Curve trial ${i + 1}`);
 
@@ -58,13 +45,8 @@ async function runCurveTrial(
     } catch (error: any) {
       printLog(index, `Curve trial ${i + 1} failed`);
       console.error(error);
-      printLog(
-        index,
-        `Waiting for ${waitSecondsBetweenTrials} seconds before retrying the Curve bot`,
-      );
-      await new Promise((resolve) =>
-        setTimeout(resolve, waitSecondsBetweenTrials * 1000),
-      );
+      printLog(index, `Waiting for ${waitSecondsBetweenTrials} seconds before retrying the Curve bot`);
+      await new Promise((resolve) => setTimeout(resolve, waitSecondsBetweenTrials * 1000));
     }
   }
   return false;
@@ -95,10 +77,7 @@ async function main(): Promise<void> {
       console.error(error);
     }
 
-    printLog(
-      index,
-      `Waiting for 5 seconds before running the combo liquidator bot again`,
-    );
+    printLog(index, `Waiting for 5 seconds before running the combo liquidator bot again`);
     // Wait for 5 seconds before running the bot again
     await new Promise((resolve) => setTimeout(resolve, 5000));
     index++;

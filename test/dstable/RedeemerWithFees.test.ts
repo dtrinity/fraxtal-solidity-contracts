@@ -2,21 +2,13 @@ import { expect } from "chai";
 import { formatUnits, parseUnits, ZeroAddress } from "ethers";
 import hre, { deployments } from "hardhat";
 
-import {
-  ERC20StablecoinUpgradeable,
-  MockOracleAggregator,
-  RedeemerWithFees,
-} from "../../typechain-types";
+import { ERC20StablecoinUpgradeable, MockOracleAggregator, RedeemerWithFees } from "../../typechain-types";
 import { dUSD_REDEEMER_WITH_FEES_CONTRACT_ID } from "../../typescript/deploy-ids";
 import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
 import { ORACLE_AGGREGATOR_ID } from "../../utils/oracle/deploy-ids";
 import { deployTestTokens } from "../../utils/token";
 import { getTokenContractForSymbol } from "../ecosystem/utils.token";
-import {
-  calculateFeeAmount,
-  DUSD_DECIMALS,
-  ORACLE_DECIMALS,
-} from "../utils/decimal-utils";
+import { calculateFeeAmount, DUSD_DECIMALS, ORACLE_DECIMALS } from "../utils/decimal-utils";
 
 describe("RedeemerWithFees", () => {
   let redeemer: RedeemerWithFees;
@@ -26,106 +18,96 @@ describe("RedeemerWithFees", () => {
   let usdc: any;
   let accounts: any;
 
-  const createRedeemerFixture = deployments.createFixture(
-    async ({ deployments, getNamedAccounts }) => {
-      await deployments.fixture(); // Start fresh
-      await deployments.fixture(["dusd"]); // Deploy dUSD ecosystem
+  const createRedeemerFixture = deployments.createFixture(async ({ deployments, getNamedAccounts }) => {
+    await deployments.fixture(); // Start fresh
+    await deployments.fixture(["dusd"]); // Deploy dUSD ecosystem
 
-      const { dusdDeployer, testAccount1, testAccount2 } =
-        await getNamedAccounts();
+    const { dusdDeployer, testAccount1, testAccount2 } = await getNamedAccounts();
 
-      // Deploy test collateral tokens
-      await deployTestTokens(
-        hre,
-        {
-          FRAX: [
-            {
-              amount: 1e8,
-              toAddress: dusdDeployer,
-            },
-            {
-              amount: 1e6,
-              toAddress: testAccount1,
-            },
-          ],
-          USDC: [
-            {
-              amount: 1e8,
-              toAddress: dusdDeployer,
-            },
-            {
-              amount: 1e6,
-              toAddress: testAccount1,
-            },
-          ],
-        },
-        await hre.ethers.getSigner(dusdDeployer),
-      );
+    // Deploy test collateral tokens
+    await deployTestTokens(
+      hre,
+      {
+        FRAX: [
+          {
+            amount: 1e8,
+            toAddress: dusdDeployer,
+          },
+          {
+            amount: 1e6,
+            toAddress: testAccount1,
+          },
+        ],
+        USDC: [
+          {
+            amount: 1e8,
+            toAddress: dusdDeployer,
+          },
+          {
+            amount: 1e6,
+            toAddress: testAccount1,
+          },
+        ],
+      },
+      await hre.ethers.getSigner(dusdDeployer),
+    );
 
-      // Get deployed contracts
-      const redeemerDeployment = await deployments.get(
-        dUSD_REDEEMER_WITH_FEES_CONTRACT_ID,
-      );
-      const oracleDeployment = await deployments.get(ORACLE_AGGREGATOR_ID);
+    // Get deployed contracts
+    const redeemerDeployment = await deployments.get(dUSD_REDEEMER_WITH_FEES_CONTRACT_ID);
+    const oracleDeployment = await deployments.get(ORACLE_AGGREGATOR_ID);
 
-      const redeemer = (await hre.ethers.getContractAt(
-        "RedeemerWithFees",
-        redeemerDeployment.address,
-        await hre.ethers.getSigner(dusdDeployer),
-      )) as RedeemerWithFees;
+    const redeemer = (await hre.ethers.getContractAt(
+      "RedeemerWithFees",
+      redeemerDeployment.address,
+      await hre.ethers.getSigner(dusdDeployer),
+    )) as RedeemerWithFees;
 
-      const oracleAggregator = await hre.ethers.getContractAt(
-        "OracleAggregator",
-        oracleDeployment.address,
-        await hre.ethers.getSigner(dusdDeployer),
-      );
+    const oracleAggregator = await hre.ethers.getContractAt(
+      "OracleAggregator",
+      oracleDeployment.address,
+      await hre.ethers.getSigner(dusdDeployer),
+    );
 
-      // Get token contracts
-      const { contract: dUSD } = await getTokenContractForSymbol(
-        dusdDeployer,
-        "dUSD",
-      );
-      const { contract: frax, tokenInfo: fraxInfo } =
-        await getTokenContractForSymbol(dusdDeployer, "FRAX");
-      const { contract: usdc, tokenInfo: usdcInfo } =
-        await getTokenContractForSymbol(dusdDeployer, "USDC");
+    // Get token contracts
+    const { contract: dUSD } = await getTokenContractForSymbol(dusdDeployer, "dUSD");
+    const { contract: frax, tokenInfo: fraxInfo } = await getTokenContractForSymbol(dusdDeployer, "FRAX");
+    const { contract: usdc, tokenInfo: usdcInfo } = await getTokenContractForSymbol(dusdDeployer, "USDC");
 
-      // Set up mock oracle for testing
-      const mockOracleAggregator = await hre.ethers.deployContract(
-        "MockOracleAggregator",
-        [ZeroAddress, BigInt(10) ** BigInt(AAVE_ORACLE_USD_DECIMALS)],
-        await hre.ethers.getSigner(dusdDeployer),
-      );
+    // Set up mock oracle for testing
+    const mockOracleAggregator = await hre.ethers.deployContract(
+      "MockOracleAggregator",
+      [ZeroAddress, BigInt(10) ** BigInt(AAVE_ORACLE_USD_DECIMALS)],
+      await hre.ethers.getSigner(dusdDeployer),
+    );
 
-      const mockOracle = mockOracleAggregator as MockOracleAggregator;
+    const mockOracle = mockOracleAggregator as MockOracleAggregator;
 
-      // Set oracle prices (8-decimal oracle prices)
-      await mockOracle.setAssetPrice(
-        await dUSD.getAddress(),
-        parseUnits("1", ORACLE_DECIMALS), // $1.00 for dUSD
-      );
-      await mockOracle.setAssetPrice(
-        fraxInfo.address,
-        parseUnits("1", ORACLE_DECIMALS), // $1.00 for FRAX
-      );
-      await mockOracle.setAssetPrice(
-        usdcInfo.address,
-        parseUnits("1", ORACLE_DECIMALS), // $1.00 for USDC
-      );
+    // Set oracle prices (8-decimal oracle prices)
+    await mockOracle.setAssetPrice(
+      await dUSD.getAddress(),
+      parseUnits("1", ORACLE_DECIMALS), // $1.00 for dUSD
+    );
+    await mockOracle.setAssetPrice(
+      fraxInfo.address,
+      parseUnits("1", ORACLE_DECIMALS), // $1.00 for FRAX
+    );
+    await mockOracle.setAssetPrice(
+      usdcInfo.address,
+      parseUnits("1", ORACLE_DECIMALS), // $1.00 for USDC
+    );
 
-      return {
-        redeemer,
-        oracleAggregator,
-        mockOracle,
-        dUSD,
-        frax,
-        usdc,
-        fraxInfo,
-        usdcInfo,
-        accounts: { dusdDeployer, testAccount1, testAccount2 },
-      };
-    },
-  );
+    return {
+      redeemer,
+      oracleAggregator,
+      mockOracle,
+      dUSD,
+      frax,
+      usdc,
+      fraxInfo,
+      usdcInfo,
+      accounts: { dusdDeployer, testAccount1, testAccount2 },
+    };
+  });
 
   beforeEach(async () => {
     const fixture = await createRedeemerFixture();
@@ -145,29 +127,20 @@ describe("RedeemerWithFees", () => {
       try {
         // Check if deployer has admin role
         const adminRole = await redeemer.DEFAULT_ADMIN_ROLE();
-        const hasAdminRole = await redeemer.hasRole(
-          adminRole,
-          accounts.dusdDeployer,
-        );
+        const hasAdminRole = await redeemer.hasRole(adminRole, accounts.dusdDeployer);
 
         if (hasAdminRole) {
           // Set default fee
-          await redeemer
-            .connect(deployerSigner)
-            .setDefaultRedemptionFee(newDefaultFee);
+          await redeemer.connect(deployerSigner).setDefaultRedemptionFee(newDefaultFee);
           const updatedFee = await redeemer.defaultRedemptionFeeBps();
           expect(updatedFee).to.equal(newDefaultFee);
 
           console.log(`Default fee set to ${Number(newDefaultFee) / 100}%`);
         } else {
-          console.log(
-            "Deployer doesn't have admin role - testing access control",
-          );
+          console.log("Deployer doesn't have admin role - testing access control");
 
           try {
-            await redeemer
-              .connect(deployerSigner)
-              .setDefaultRedemptionFee(newDefaultFee);
+            await redeemer.connect(deployerSigner).setDefaultRedemptionFee(newDefaultFee);
             expect.fail("Should have reverted due to lack of permissions");
           } catch (error) {
             expect(error.message).to.include("AccessControl");
@@ -186,18 +159,12 @@ describe("RedeemerWithFees", () => {
 
       try {
         const adminRole = await redeemer.DEFAULT_ADMIN_ROLE();
-        const hasAdminRole = await redeemer.hasRole(
-          adminRole,
-          accounts.dusdDeployer,
-        );
+        const hasAdminRole = await redeemer.hasRole(adminRole, accounts.dusdDeployer);
 
         if (hasAdminRole) {
           // Set specific fee for FRAX
-          await redeemer
-            .connect(deployerSigner)
-            .setCollateralRedemptionFee(fraxAddress, specificFee);
-          const updatedFee =
-            await redeemer.collateralRedemptionFeeBps(fraxAddress);
+          await redeemer.connect(deployerSigner).setCollateralRedemptionFee(fraxAddress, specificFee);
+          const updatedFee = await redeemer.collateralRedemptionFeeBps(fraxAddress);
           expect(updatedFee).to.equal(specificFee);
 
           console.log(`FRAX specific fee set to ${Number(specificFee) / 100}%`);
@@ -205,16 +172,13 @@ describe("RedeemerWithFees", () => {
           // Other collaterals should use default fee
           const usdcAddress = await usdc.getAddress();
           const defaultFee = await redeemer.defaultRedemptionFeeBps();
-          const usdcFee =
-            await redeemer.collateralRedemptionFeeBps(usdcAddress);
+          const usdcFee = await redeemer.collateralRedemptionFeeBps(usdcAddress);
           // USDC has no specific fee set, so it should return 0 and use default
           expect(usdcFee).to.equal(0);
 
           console.log(`USDC uses default fee: ${Number(defaultFee) / 100}%`);
         } else {
-          console.log(
-            "Admin role required for fee setting - this is expected in production",
-          );
+          console.log("Admin role required for fee setting - this is expected in production");
         }
       } catch (error) {
         console.log("Specific fee setting test completed with constraints");
@@ -227,26 +191,19 @@ describe("RedeemerWithFees", () => {
 
       try {
         const adminRole = await redeemer.DEFAULT_ADMIN_ROLE();
-        const hasAdminRole = await redeemer.hasRole(
-          adminRole,
-          accounts.dusdDeployer,
-        );
+        const hasAdminRole = await redeemer.hasRole(adminRole, accounts.dusdDeployer);
 
         if (hasAdminRole) {
           // Try to set unreasonable fee
           try {
-            await redeemer
-              .connect(deployerSigner)
-              .setDefaultRedemptionFee(unreasonableFee);
+            await redeemer.connect(deployerSigner).setDefaultRedemptionFee(unreasonableFee);
 
             // If it succeeds, check if there's a maximum
             const actualFee = await redeemer.defaultRedemptionFeeBps();
             const maxReasonableFee = 1000n; // 10%
 
             if (actualFee > maxReasonableFee) {
-              console.log(
-                `WARNING: High fee allowed: ${Number(actualFee) / 100}%`,
-              );
+              console.log(`WARNING: High fee allowed: ${Number(actualFee) / 100}%`);
             } else {
               console.log("Fee setting has reasonable limits");
             }
@@ -267,9 +224,7 @@ describe("RedeemerWithFees", () => {
       const userSigner = await hre.ethers.getSigner(user);
       const redeemAmount = parseUnits("1000", DUSD_DECIMALS); // 1000 dUSD
 
-      console.log(
-        `Testing redemption of ${formatUnits(redeemAmount, DUSD_DECIMALS)} dUSD`,
-      );
+      console.log(`Testing redemption of ${formatUnits(redeemAmount, DUSD_DECIMALS)} dUSD`);
 
       // First, user needs dUSD to redeem
       // Mint some dUSD to the user (in real scenario, they would have minted it through issuer)
@@ -291,14 +246,10 @@ describe("RedeemerWithFees", () => {
         const userDUSDBalance = await dusdContract.balanceOf(user);
         expect(userDUSDBalance).to.be.greaterThanOrEqual(redeemAmount);
 
-        console.log(
-          `User has ${formatUnits(userDUSDBalance, DUSD_DECIMALS)} dUSD`,
-        );
+        console.log(`User has ${formatUnits(userDUSDBalance, DUSD_DECIMALS)} dUSD`);
 
         // Approve redeemer to spend dUSD
-        await dusdContract
-          .connect(userSigner)
-          .approve(await redeemer.getAddress(), redeemAmount);
+        await dusdContract.connect(userSigner).approve(await redeemer.getAddress(), redeemAmount);
 
         // Get initial FRAX balance
         const initialFraxBalance = await frax.balanceOf(user);
@@ -308,15 +259,11 @@ describe("RedeemerWithFees", () => {
         const feeRate = await redeemer.collateralRedemptionFeeBps(fraxAddress);
         const expectedFee = calculateFeeAmount(redeemAmount, feeRate);
 
-        console.log(
-          `Expected fee: ${formatUnits(expectedFee, DUSD_DECIMALS)} dUSD (${Number(feeRate) / 100}%)`,
-        );
+        console.log(`Expected fee: ${formatUnits(expectedFee, DUSD_DECIMALS)} dUSD (${Number(feeRate) / 100}%)`);
 
         try {
           // Attempt redemption
-          const tx = await redeemer
-            .connect(userSigner)
-            .redeem(redeemAmount, fraxAddress, user);
+          const tx = await redeemer.connect(userSigner).redeem(redeemAmount, fraxAddress, user);
           await tx.wait();
 
           // Check balances after redemption
@@ -334,22 +281,14 @@ describe("RedeemerWithFees", () => {
 
           // The amount of FRAX received should account for fees and oracle pricing
           // Since both dUSD and FRAX are $1 and have different decimals, we need to convert
-          const expectedFraxGross = parseUnits(
-            formatUnits(redeemAmount, DUSD_DECIMALS),
-            18,
-          );
-          const expectedFeeInFrax = parseUnits(
-            formatUnits(expectedFee, DUSD_DECIMALS),
-            18,
-          );
+          const expectedFraxGross = parseUnits(formatUnits(redeemAmount, DUSD_DECIMALS), 18);
+          const expectedFeeInFrax = parseUnits(formatUnits(expectedFee, DUSD_DECIMALS), 18);
           const expectedFraxNet = expectedFraxGross - expectedFeeInFrax;
 
           const tolerance = parseUnits("1", 18); // 1 FRAX tolerance
           expect(fraxReceived).to.be.closeTo(expectedFraxNet, tolerance);
         } catch (redemptionError) {
-          console.log(
-            "Redemption failed - this might be due to missing collateral in the system",
-          );
+          console.log("Redemption failed - this might be due to missing collateral in the system");
           console.log("Error:", redemptionError.message.substring(0, 200));
 
           // This is acceptable in test environment if collateral vault is empty
@@ -370,26 +309,18 @@ describe("RedeemerWithFees", () => {
       const retrievedPrice = await oracle.getAssetPrice(fraxAddress);
       expect(retrievedPrice).to.equal(testPrice);
 
-      console.log(
-        `Set FRAX price to $${formatUnits(testPrice, ORACLE_DECIMALS)}`,
-      );
+      console.log(`Set FRAX price to $${formatUnits(testPrice, ORACLE_DECIMALS)}`);
 
       // Test redemption calculation with different price
       const redeemAmount = parseUnits("100", DUSD_DECIMALS); // 100 dUSD
 
       // With $1.50 FRAX price, 100 dUSD should get ~66.67 FRAX before fees
-      const expectedFraxBeforeFees =
-        (redeemAmount * parseUnits("1", ORACLE_DECIMALS)) / testPrice;
+      const expectedFraxBeforeFees = (redeemAmount * parseUnits("1", ORACLE_DECIMALS)) / testPrice;
 
       // Convert to 18-decimal FRAX amount
-      const expectedFraxAmount = parseUnits(
-        formatUnits(expectedFraxBeforeFees, DUSD_DECIMALS),
-        18,
-      );
+      const expectedFraxAmount = parseUnits(formatUnits(expectedFraxBeforeFees, DUSD_DECIMALS), 18);
 
-      console.log(
-        `100 dUSD should get ~${formatUnits(expectedFraxAmount, 18)} FRAX at $1.50 price`,
-      );
+      console.log(`100 dUSD should get ~${formatUnits(expectedFraxAmount, 18)} FRAX at $1.50 price`);
 
       // This calculation should be approximately correct
       expect(expectedFraxAmount).to.be.greaterThan(0);
@@ -430,9 +361,7 @@ describe("RedeemerWithFees", () => {
 
       // Test setting default fee without permission
       try {
-        await redeemer
-          .connect(unauthorizedSigner)
-          .setDefaultRedemptionFee(100n);
+        await redeemer.connect(unauthorizedSigner).setDefaultRedemptionFee(100n);
         expect.fail("Unauthorized user should not be able to set default fee");
       } catch (error) {
         expect(error.message).to.include("AccessControlUnauthorizedAccount");
@@ -442,9 +371,7 @@ describe("RedeemerWithFees", () => {
       // Test setting specific fee without permission
       try {
         const fraxAddress = await frax.getAddress();
-        await redeemer
-          .connect(unauthorizedSigner)
-          .setCollateralRedemptionFee(fraxAddress, 100n);
+        await redeemer.connect(unauthorizedSigner).setCollateralRedemptionFee(fraxAddress, 100n);
         expect.fail("Unauthorized user should not be able to set specific fee");
       } catch (error) {
         expect(error.message).to.include("AccessControlUnauthorizedAccount");
@@ -456,10 +383,7 @@ describe("RedeemerWithFees", () => {
       const adminRole = await redeemer.DEFAULT_ADMIN_ROLE();
 
       // Check role assignments
-      const deployerHasAdmin = await redeemer.hasRole(
-        adminRole,
-        accounts.dusdDeployer,
-      );
+      const deployerHasAdmin = await redeemer.hasRole(adminRole, accounts.dusdDeployer);
 
       console.log(`Deployer has admin role: ${deployerHasAdmin}`);
 
@@ -489,9 +413,7 @@ describe("RedeemerWithFees", () => {
       const redeemAmount = parseUnits("100", DUSD_DECIMALS);
 
       try {
-        await redeemer
-          .connect(userSigner)
-          .redeem(redeemAmount, ZeroAddress, user);
+        await redeemer.connect(userSigner).redeem(redeemAmount, ZeroAddress, user);
         expect.fail("Invalid collateral address should be rejected");
       } catch (error) {
         console.log("Invalid collateral address properly rejected");
@@ -506,14 +428,10 @@ describe("RedeemerWithFees", () => {
       const redeemAmount = parseUnits("1000", DUSD_DECIMALS);
 
       // Approve first (even though balance is insufficient)
-      await dUSD
-        .connect(userSigner)
-        .approve(await redeemer.getAddress(), redeemAmount);
+      await dUSD.connect(userSigner).approve(await redeemer.getAddress(), redeemAmount);
 
       try {
-        await redeemer
-          .connect(userSigner)
-          .redeem(redeemAmount, fraxAddress, _user);
+        await redeemer.connect(userSigner).redeem(redeemAmount, fraxAddress, _user);
         expect.fail("Insufficient balance should be rejected");
       } catch (error) {
         console.log("Insufficient balance properly rejected");
@@ -555,9 +473,7 @@ describe("RedeemerWithFees", () => {
         feeRate = await redeemer.defaultRedemptionFeeBps();
       }
 
-      console.log(
-        `Testing fee calculations with ${Number(feeRate) / 100}% fee rate`,
-      );
+      console.log(`Testing fee calculations with ${Number(feeRate) / 100}% fee rate`);
 
       for (const amount of testAmounts) {
         const expectedFee = calculateFeeAmount(amount, feeRate);

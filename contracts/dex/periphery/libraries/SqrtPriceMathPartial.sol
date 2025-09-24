@@ -39,8 +39,7 @@ library SqrtPriceMathPartial {
         uint128 liquidity,
         bool roundUp
     ) internal pure returns (uint256 amount0) {
-        if (sqrtRatioAX96 > sqrtRatioBX96)
-            (sqrtRatioAX96, sqrtRatioBX96) = (sqrtRatioBX96, sqrtRatioAX96);
+        if (sqrtRatioAX96 > sqrtRatioBX96) (sqrtRatioAX96, sqrtRatioBX96) = (sqrtRatioBX96, sqrtRatioAX96);
 
         uint256 numerator1 = uint256(liquidity) << FixedPoint96.RESOLUTION;
         uint256 numerator2 = sqrtRatioBX96 - sqrtRatioAX96;
@@ -50,15 +49,10 @@ library SqrtPriceMathPartial {
         return
             roundUp
                 ? UnsafeMath.divRoundingUp(
-                    FullMath.mulDivRoundingUp(
-                        numerator1,
-                        numerator2,
-                        sqrtRatioBX96
-                    ),
+                    FullMath.mulDivRoundingUp(numerator1, numerator2, sqrtRatioBX96),
                     sqrtRatioAX96
                 )
-                : FullMath.mulDiv(numerator1, numerator2, sqrtRatioBX96) /
-                    sqrtRatioAX96;
+                : FullMath.mulDiv(numerator1, numerator2, sqrtRatioBX96) / sqrtRatioAX96;
     }
 
     /// @notice Gets the amount1 delta between two prices
@@ -74,20 +68,11 @@ library SqrtPriceMathPartial {
         uint128 liquidity,
         bool roundUp
     ) internal pure returns (uint256 amount1) {
-        if (sqrtRatioAX96 > sqrtRatioBX96)
-            (sqrtRatioAX96, sqrtRatioBX96) = (sqrtRatioBX96, sqrtRatioAX96);
+        if (sqrtRatioAX96 > sqrtRatioBX96) (sqrtRatioAX96, sqrtRatioBX96) = (sqrtRatioBX96, sqrtRatioAX96);
 
         return
             roundUp
-                ? FullMath.mulDivRoundingUp(
-                    liquidity,
-                    sqrtRatioBX96 - sqrtRatioAX96,
-                    FixedPoint96.Q96
-                )
-                : FullMath.mulDiv(
-                    liquidity,
-                    sqrtRatioBX96 - sqrtRatioAX96,
-                    FixedPoint96.Q96
-                );
+                ? FullMath.mulDivRoundingUp(liquidity, sqrtRatioBX96 - sqrtRatioAX96, FixedPoint96.Q96)
+                : FullMath.mulDiv(liquidity, sqrtRatioBX96 - sqrtRatioAX96, FixedPoint96.Q96);
     }
 }

@@ -17,12 +17,12 @@
 
 pragma solidity ^0.8.10;
 
-import {AggregatorInterface} from "../dependencies/chainlink/AggregatorInterface.sol";
-import {Errors} from "../protocol/libraries/helpers/Errors.sol";
-import {IACLManager} from "../interfaces/IACLManager.sol";
-import {IPoolAddressesProvider} from "../interfaces/IPoolAddressesProvider.sol";
-import {IPriceOracleGetter} from "../interfaces/IPriceOracleGetter.sol";
-import {IAaveOracle} from "../interfaces/IAaveOracle.sol";
+import { AggregatorInterface } from "../dependencies/chainlink/AggregatorInterface.sol";
+import { Errors } from "../protocol/libraries/helpers/Errors.sol";
+import { IACLManager } from "../interfaces/IACLManager.sol";
+import { IPoolAddressesProvider } from "../interfaces/IPoolAddressesProvider.sol";
+import { IPriceOracleGetter } from "../interfaces/IPriceOracleGetter.sol";
+import { IAaveOracle } from "../interfaces/IAaveOracle.sol";
 import "@openzeppelin/contracts-5/utils/Strings.sol";
 
 /**
@@ -86,9 +86,7 @@ contract AaveOracle is IAaveOracle {
     }
 
     /// @inheritdoc IAaveOracle
-    function setFallbackOracle(
-        address fallbackOracle
-    ) external override onlyAssetListingOrPoolAdmins {
+    function setFallbackOracle(address fallbackOracle) external override onlyAssetListingOrPoolAdmins {
         _setFallbackOracle(fallbackOracle);
     }
 
@@ -97,14 +95,8 @@ contract AaveOracle is IAaveOracle {
      * @param assets The addresses of the assets
      * @param sources The address of the source of each asset
      */
-    function _setAssetsSources(
-        address[] memory assets,
-        address[] memory sources
-    ) internal {
-        require(
-            assets.length == sources.length,
-            Errors.INCONSISTENT_PARAMS_LENGTH
-        );
+    function _setAssetsSources(address[] memory assets, address[] memory sources) internal {
+        require(assets.length == sources.length, Errors.INCONSISTENT_PARAMS_LENGTH);
         for (uint256 i = 0; i < assets.length; i++) {
             assetsSources[assets[i]] = AggregatorInterface(sources[i]);
             emit AssetSourceUpdated(assets[i], sources[i]);
@@ -132,9 +124,7 @@ contract AaveOracle is IAaveOracle {
     }
 
     /// @inheritdoc IPriceOracleGetter
-    function getAssetPrice(
-        address asset
-    ) public view override returns (uint256) {
+    function getAssetPrice(address asset) public view override returns (uint256) {
         AggregatorInterface source = assetsSources[asset];
 
         if (asset == BASE_CURRENCY) {
@@ -152,9 +142,7 @@ contract AaveOracle is IAaveOracle {
     }
 
     /// @inheritdoc IAaveOracle
-    function getAssetsPrices(
-        address[] calldata assets
-    ) external view override returns (uint256[] memory) {
+    function getAssetsPrices(address[] calldata assets) external view override returns (uint256[] memory) {
         uint256[] memory prices = new uint256[](assets.length);
         for (uint256 i = 0; i < assets.length; i++) {
             prices[i] = getAssetPrice(assets[i]);
@@ -163,9 +151,7 @@ contract AaveOracle is IAaveOracle {
     }
 
     /// @inheritdoc IAaveOracle
-    function getSourceOfAsset(
-        address asset
-    ) external view override returns (address) {
+    function getSourceOfAsset(address asset) external view override returns (address) {
         AggregatorInterface source = assetsSources[asset];
         if (address(source) == address(0)) {
             return address(_fallbackOracle);
@@ -179,12 +165,9 @@ contract AaveOracle is IAaveOracle {
     }
 
     function _onlyAssetListingOrPoolAdmins() internal view {
-        IACLManager aclManager = IACLManager(
-            ADDRESSES_PROVIDER.getACLManager()
-        );
+        IACLManager aclManager = IACLManager(ADDRESSES_PROVIDER.getACLManager());
         require(
-            aclManager.isAssetListingAdmin(msg.sender) ||
-                aclManager.isPoolAdmin(msg.sender),
+            aclManager.isAssetListingAdmin(msg.sender) || aclManager.isPoolAdmin(msg.sender),
             Errors.CALLER_NOT_ASSET_LISTING_OR_POOL_ADMIN
         );
     }

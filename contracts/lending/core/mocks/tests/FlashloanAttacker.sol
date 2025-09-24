@@ -17,15 +17,15 @@
 
 pragma solidity ^0.8.0;
 
-import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
-import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
-import {GPv2SafeERC20} from "../../dependencies/gnosis/contracts/GPv2SafeERC20.sol";
-import {SafeMath} from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
-import {IPoolAddressesProvider} from "../../interfaces/IPoolAddressesProvider.sol";
-import {FlashLoanSimpleReceiverBase} from "../../flashloan/base/FlashLoanSimpleReceiverBase.sol";
-import {MintableERC20} from "../tokens/MintableERC20.sol";
-import {IPool} from "../../interfaces/IPool.sol";
-import {DataTypes} from "../../protocol/libraries/types/DataTypes.sol";
+import { SafeMath } from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
+import { IERC20 } from "../../dependencies/openzeppelin/contracts/IERC20.sol";
+import { GPv2SafeERC20 } from "../../dependencies/gnosis/contracts/GPv2SafeERC20.sol";
+import { SafeMath } from "../../dependencies/openzeppelin/contracts/SafeMath.sol";
+import { IPoolAddressesProvider } from "../../interfaces/IPoolAddressesProvider.sol";
+import { FlashLoanSimpleReceiverBase } from "../../flashloan/base/FlashLoanSimpleReceiverBase.sol";
+import { MintableERC20 } from "../tokens/MintableERC20.sol";
+import { IPool } from "../../interfaces/IPool.sol";
+import { DataTypes } from "../../protocol/libraries/types/DataTypes.sol";
 
 contract FlashloanAttacker is FlashLoanSimpleReceiverBase {
     using GPv2SafeERC20 for IERC20;
@@ -34,9 +34,7 @@ contract FlashloanAttacker is FlashLoanSimpleReceiverBase {
     IPoolAddressesProvider internal _provider;
     IPool internal _pool;
 
-    constructor(
-        IPoolAddressesProvider provider
-    ) FlashLoanSimpleReceiverBase(provider) {
+    constructor(IPoolAddressesProvider provider) FlashLoanSimpleReceiverBase(provider) {
         _pool = IPool(provider.getPool());
     }
 

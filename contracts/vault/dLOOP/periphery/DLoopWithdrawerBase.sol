@@ -17,13 +17,13 @@
 
 pragma solidity 0.8.20;
 
-import {Ownable} from "@openzeppelin/contracts-5/access/Ownable.sol";
-import {ERC20, SafeERC20} from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
-import {Constants} from "contracts/shared/Constants.sol";
+import { Ownable } from "@openzeppelin/contracts-5/access/Ownable.sol";
+import { ERC20, SafeERC20 } from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
+import { Constants } from "contracts/shared/Constants.sol";
 
-import {IERC3156FlashBorrower} from "./interface/flashloan/IERC3156FlashBorrower.sol";
-import {IERC3156FlashLender} from "./interface/flashloan/IERC3156FlashLender.sol";
-import {DLoopCoreBase} from "../core/DLoopCoreBase.sol";
+import { IERC3156FlashBorrower } from "./interface/flashloan/IERC3156FlashBorrower.sol";
+import { IERC3156FlashLender } from "./interface/flashloan/IERC3156FlashLender.sol";
+import { DLoopCoreBase } from "../core/DLoopCoreBase.sol";
 
 /**
  * @title DLoopWithdrawerBase
@@ -34,8 +34,7 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
 
     /* Constants */
 
-    bytes32 public constant FLASHLOAN_CALLBACK =
-        keccak256("ERC3156FlashBorrower.onFlashLoan");
+    bytes32 public constant FLASHLOAN_CALLBACK = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     /* Core state */
 
@@ -46,15 +45,9 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
     error UnknownLender(address msgSender, address flashLender);
     error UnknownInitiator(address initiator, address thisContract);
     error UnknownToken(address token, address dStable);
-    error SharesNotDecreasedAfterFlashLoan(
-        uint256 sharesBeforeWithdraw,
-        uint256 sharesAfterWithdraw
-    );
+    error SharesNotDecreasedAfterFlashLoan(uint256 sharesBeforeWithdraw, uint256 sharesAfterWithdraw);
     error InsufficientOutput(uint256 received, uint256 expected);
-    error UnexpectedIncreaseInDStable(
-        uint256 dStableBalanceBefore,
-        uint256 dStableBalanceAfter
-    );
+    error UnexpectedIncreaseInDStable(uint256 dStableBalanceBefore, uint256 dStableBalanceAfter);
     error UnexpectedDecreaseInUnderlyingAsset(
         uint256 underlyingAssetBalanceBefore,
         uint256 underlyingAssetBalanceAfter
@@ -109,10 +102,7 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
      * @param receiver Address to receive the rescued tokens
      */
     function rescueToken(address token, address receiver) public onlyOwner {
-        ERC20(token).safeTransfer(
-            receiver,
-            ERC20(token).balanceOf(address(this))
-        );
+        ERC20(token).safeTransfer(receiver, ERC20(token).balanceOf(address(this)));
     }
 
     /* Withdraw */
@@ -150,8 +140,7 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
         uint256 finalAssetsRequired = dLoopCore.convertToAssets(shares);
 
         // Calculate the leveraged amount to remove from lending
-        uint256 assetsToRemoveFromLending = (finalAssetsRequired *
-            dLoopCore.TARGET_LEVERAGE_BPS()) /
+        uint256 assetsToRemoveFromLending = (finalAssetsRequired * dLoopCore.TARGET_LEVERAGE_BPS()) /
             Constants.ONE_HUNDRED_PERCENT_BPS;
 
         // Prepare flash loan parameters
@@ -176,8 +165,7 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
         require(
             dStable.approve(
                 address(flashLender),
-                maxFlashLoanAmount +
-                    flashLender.flashFee(address(dStable), maxFlashLoanAmount)
+                maxFlashLoanAmount + flashLender.flashFee(address(dStable), maxFlashLoanAmount)
             ),
             "approve failed for flash lender in redeem"
         );
@@ -189,10 +177,7 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
         uint256 sharesAfterWithdraw = dLoopCore.balanceOf(owner);
 
         if (sharesAfterWithdraw >= sharesBeforeWithdraw) {
-            revert SharesNotDecreasedAfterFlashLoan(
-                sharesBeforeWithdraw,
-                sharesAfterWithdraw
-            );
+            revert SharesNotDecreasedAfterFlashLoan(sharesBeforeWithdraw, sharesAfterWithdraw);
         }
 
         // Calculate actual assets withdrawn
@@ -224,15 +209,7 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
         shares = dLoopCore.convertToShares(assets);
 
         // Call redeem with the calculated shares
-        redeem(
-            shares,
-            receiver,
-            owner,
-            slippageTolerance,
-            minReceiveAmount,
-            underlyingToDStableSwapData,
-            dLoopCore
-        );
+        redeem(shares, receiver, owner, slippageTolerance, minReceiveAmount, underlyingToDStableSwapData, dLoopCore);
 
         return shares;
     }
@@ -253,10 +230,8 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
         uint256, // fee (flash loan fee)
         bytes calldata data
     ) public returns (bytes32) {
-        if (msg.sender != address(flashLender))
-            revert UnknownLender(msg.sender, address(flashLender));
-        if (initiator != address(this))
-            revert UnknownInitiator(initiator, address(this));
+        if (msg.sender != address(flashLender)) revert UnknownLender(msg.sender, address(flashLender));
+        if (initiator != address(this)) revert UnknownInitiator(initiator, address(this));
 
         // Decode the flash loan parameters
         FlashLoanParams memory flashLoanParams = _decodeDataToParams(data);
@@ -266,13 +241,10 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
         ERC20 underlyingAsset = dLoopCore.underlyingAsset();
         ERC20 dStable = dLoopCore.dStable();
 
-        if (token != address(dStable))
-            revert UnknownToken(token, address(dStable));
+        if (token != address(dStable)) revert UnknownToken(token, address(dStable));
 
         // Track the underlying asset and dStable balance before any operations
-        uint256 underlyingAssetBalanceBefore = underlyingAsset.balanceOf(
-            address(this)
-        );
+        uint256 underlyingAssetBalanceBefore = underlyingAsset.balanceOf(address(this));
         uint256 dStableBalanceBefore = dStable.balanceOf(address(this));
 
         // Execute the core withdrawal (this will burn the shares)
@@ -283,40 +255,27 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
         );
 
         // Track the underlying asset and dStable balance after withdrawal
-        uint256 underlyingAssetBalanceAfter = underlyingAsset.balanceOf(
-            address(this)
-        );
+        uint256 underlyingAssetBalanceAfter = underlyingAsset.balanceOf(address(this));
         uint256 dStableBalanceAfter = dStable.balanceOf(address(this));
 
         if (dStableBalanceAfter > dStableBalanceBefore) {
-            revert UnexpectedIncreaseInDStable(
-                dStableBalanceBefore,
-                dStableBalanceAfter
-            );
+            revert UnexpectedIncreaseInDStable(dStableBalanceBefore, dStableBalanceAfter);
         }
 
         if (underlyingAssetBalanceAfter < underlyingAssetBalanceBefore) {
-            revert UnexpectedDecreaseInUnderlyingAsset(
-                underlyingAssetBalanceBefore,
-                underlyingAssetBalanceAfter
-            );
+            revert UnexpectedDecreaseInUnderlyingAsset(underlyingAssetBalanceBefore, underlyingAssetBalanceAfter);
         }
 
         // Instead of getting the returned amount from redeem() as the withdrawn amount
         // we need to calculate the withdrawn amount based on the balance changes
         // to avoid the case when the lending pool has some issues
         // and return the wrong amount
-        uint256 withdrawnAssets = underlyingAssetBalanceAfter -
-            underlyingAssetBalanceBefore;
-        uint256 dStableRepaymentAmount = dStableBalanceAfter -
-            dStableBalanceBefore;
+        uint256 withdrawnAssets = underlyingAssetBalanceAfter - underlyingAssetBalanceBefore;
+        uint256 dStableRepaymentAmount = dStableBalanceAfter - dStableBalanceBefore;
 
         // Slippage protection
         if (withdrawnAssets < flashLoanParams.minReceiveAmount) {
-            revert InsufficientOutput(
-                withdrawnAssets,
-                flashLoanParams.minReceiveAmount
-            );
+            revert InsufficientOutput(withdrawnAssets, flashLoanParams.minReceiveAmount);
         }
 
         // Transfer underlying assets to the receiver
@@ -324,17 +283,12 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
 
         // Use some of the withdrawn assets to swap back to dStable to repay the flash loan
         uint256 estimatedInputAmount = (dStableRepaymentAmount *
-            (
-                (dLoopCore.getAssetPriceFromOracle(address(dStable)) *
-                    (10 ** underlyingAsset.decimals()))
-            )) /
-            (dLoopCore.getAssetPriceFromOracle(address(underlyingAsset)) *
-                (10 ** dStable.decimals()));
+            ((dLoopCore.getAssetPriceFromOracle(address(dStable)) * (10 ** underlyingAsset.decimals())))) /
+            (dLoopCore.getAssetPriceFromOracle(address(underlyingAsset)) * (10 ** dStable.decimals()));
 
         // Calculate the max input amount with slippage tolerance
         uint256 maxIn = (estimatedInputAmount *
-            (Constants.ONE_HUNDRED_PERCENT_BPS +
-                flashLoanParams.slippageTolerance)) /
+            (Constants.ONE_HUNDRED_PERCENT_BPS + flashLoanParams.slippageTolerance)) /
             Constants.ONE_HUNDRED_PERCENT_BPS;
         require(maxIn > 0, "maxIn is not positive");
 
@@ -357,9 +311,7 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
      * @param _flashLoanParams Flash loan parameters
      * @return data Encoded data
      */
-    function _encodeParamsToData(
-        FlashLoanParams memory _flashLoanParams
-    ) internal pure returns (bytes memory data) {
+    function _encodeParamsToData(FlashLoanParams memory _flashLoanParams) internal pure returns (bytes memory data) {
         data = abi.encode(
             _flashLoanParams.owner,
             _flashLoanParams.receiver,
@@ -377,9 +329,7 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
      * @param data Encoded data
      * @return _flashLoanParams Decoded flash loan parameters
      */
-    function _decodeDataToParams(
-        bytes memory data
-    ) internal pure returns (FlashLoanParams memory _flashLoanParams) {
+    function _decodeDataToParams(bytes memory data) internal pure returns (FlashLoanParams memory _flashLoanParams) {
         (
             _flashLoanParams.owner,
             _flashLoanParams.receiver,
@@ -389,18 +339,6 @@ abstract contract DLoopWithdrawerBase is IERC3156FlashBorrower, Ownable {
             _flashLoanParams.minReceiveAmount,
             _flashLoanParams.underlyingToDStableSwapData,
             _flashLoanParams.dLoopCore
-        ) = abi.decode(
-            data,
-            (
-                address,
-                address,
-                uint256,
-                uint256,
-                uint256,
-                uint256,
-                bytes,
-                DLoopCoreBase
-            )
-        );
+        ) = abi.decode(data, (address, address, uint256, uint256, uint256, uint256, bytes, DLoopCoreBase));
     }
 }

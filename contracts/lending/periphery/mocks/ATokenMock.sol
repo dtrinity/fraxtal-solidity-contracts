@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.10;
 
-import {IRewardsController} from "../rewards/interfaces/IRewardsController.sol";
+import { IRewardsController } from "../rewards/interfaces/IRewardsController.sol";
 
 contract ATokenMock {
     IRewardsController public _aic;
@@ -47,34 +47,21 @@ contract ATokenMock {
         _decimals = decimals;
     }
 
-    function handleActionOnAic(
-        address user,
-        uint256 totalSupply,
-        uint256 userBalance
-    ) external {
+    function handleActionOnAic(address user, uint256 totalSupply, uint256 userBalance) external {
         _aic.handleAction(user, totalSupply, userBalance);
     }
 
-    function doubleHandleActionOnAic(
-        address user,
-        uint256 totalSupply,
-        uint256 userBalance
-    ) external {
+    function doubleHandleActionOnAic(address user, uint256 totalSupply, uint256 userBalance) external {
         _aic.handleAction(user, totalSupply, userBalance);
         _aic.handleAction(user, totalSupply, userBalance);
     }
 
-    function setUserBalanceAndSupply(
-        uint256 userBalance,
-        uint256 totalSupply
-    ) public {
+    function setUserBalanceAndSupply(uint256 userBalance, uint256 totalSupply) public {
         _userBalance = userBalance;
         _totalSupply = totalSupply;
     }
 
-    function getScaledUserBalanceAndSupply(
-        address
-    ) external view returns (uint256, uint256) {
+    function getScaledUserBalanceAndSupply(address) external view returns (uint256, uint256) {
         return (_userBalance, _totalSupply);
     }
 

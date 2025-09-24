@@ -4,10 +4,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getConfig } from "../../../config/config";
 import { AAVE_ORACLE_USD_DECIMALS } from "../../../utils/constants";
 import { deployContract } from "../../../utils/deploy";
-import {
-  UNISWAP_STATIC_ORACLE_ID,
-  UNISWAP_STATIC_ORACLE_WRAPPER_ID,
-} from "../../../utils/dex/deploy-ids";
+import { UNISWAP_STATIC_ORACLE_ID, UNISWAP_STATIC_ORACLE_WRAPPER_ID } from "../../../utils/dex/deploy-ids";
 import { isLocalNetwork, isMainnetNetwork } from "../../../utils/utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -20,9 +17,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Skip deployment if dex config is not populated
   if (!config.dex) {
-    console.log(
-      "Skipping Oracle Wrapper deployment - dex config not populated",
-    );
+    console.log("Skipping Oracle Wrapper deployment - dex config not populated");
     return false;
   }
 
@@ -30,9 +25,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const baseTokenAddress = await getBaseTokenAddress(hre);
 
-  const { address: staticOracleAddress } = await hre.deployments.get(
-    UNISWAP_STATIC_ORACLE_ID,
-  );
+  const { address: staticOracleAddress } = await hre.deployments.get(UNISWAP_STATIC_ORACLE_ID);
 
   const baseTokenAmountForQuoting = config.dex.oracle.baseTokenAmountForQuoting;
   const quotePeriodSeconds = config.dex.oracle.quotePeriodSeconds;
@@ -65,9 +58,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
  * @param hre Hardhat runtime environment
  * @returns Base token address
  */
-async function getBaseTokenAddress(
-  hre: HardhatRuntimeEnvironment,
-): Promise<string> {
+async function getBaseTokenAddress(hre: HardhatRuntimeEnvironment): Promise<string> {
   if (isLocalNetwork(hre.network.name)) {
     // Use dUSD for local networks
     const { address: baseTokenAddress } = await hre.deployments.get("dUSD");
@@ -82,9 +73,7 @@ async function getBaseTokenAddress(
   const baseTokenAddress = config.dex.oracle.baseTokenAddress;
 
   if (!baseTokenAddress) {
-    throw new Error(
-      `Base token address is not set in the config: ${hre.network.name}`,
-    );
+    throw new Error(`Base token address is not set in the config: ${hre.network.name}`);
   }
 
   return baseTokenAddress;

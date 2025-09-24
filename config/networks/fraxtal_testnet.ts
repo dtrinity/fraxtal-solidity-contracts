@@ -10,11 +10,7 @@ import {
   SDUSD_REWARD_MANAGER_ID,
   SDUSD_WRAPPED_DLEND_CONVERSION_ADAPTER_ID,
 } from "../../typescript/deploy-ids";
-import {
-  AAVE_ORACLE_USD_DECIMALS,
-  ONE_BPS_UNIT,
-  ONE_PERCENT_BPS,
-} from "../../utils/constants";
+import { AAVE_ORACLE_USD_DECIMALS, ONE_BPS_UNIT, ONE_PERCENT_BPS } from "../../utils/constants";
 import {
   rateStrategyDUSD,
   rateStrategyHighLiquidityStable,
@@ -32,15 +28,10 @@ import {
 import { DEX_ORACLE_WRAPPER_ID } from "../../utils/oracle/deploy-ids";
 import { API3_PRICE_DECIMALS } from "../../utils/oracle_aggregator/constants";
 import { Config } from "../types";
-import {
-  CURVE_POOLS,
-  CURVE_SWAP_ROUTER_ADDRESS,
-  liquidatorBotCurve,
-} from "./fraxtal_testnet/liquidator-curve";
+import { CURVE_POOLS, CURVE_SWAP_ROUTER_ADDRESS, liquidatorBotCurve } from "./fraxtal_testnet/liquidator-curve";
 
 // Must be an oracle that conforms to the Chainlink aggregator interface, e.g. Redstone classic
-const ETH_CHAINLINK_ORACLE_ADDRESS =
-  "0x2fB93C42D7727C6A69B66943008C26Ec7701eAd1";
+const ETH_CHAINLINK_ORACLE_ADDRESS = "0x2fB93C42D7727C6A69B66943008C26Ec7701eAd1";
 
 export const TOKEN_INFO = {
   wfrxETH: {
@@ -91,31 +82,16 @@ export const TOKEN_INFO = {
  * @param hre - Hardhat Runtime Environment
  * @returns The configuration for the network
  */
-export async function getConfig(
-  hre: HardhatRuntimeEnvironment,
-): Promise<Config> {
-  const dexOracleWrapperDeployment = await hre.deployments.getOrNull(
-    DEX_ORACLE_WRAPPER_ID,
-  );
+export async function getConfig(hre: HardhatRuntimeEnvironment): Promise<Config> {
+  const dexOracleWrapperDeployment = await hre.deployments.getOrNull(DEX_ORACLE_WRAPPER_ID);
 
   // Fetch dSTAKE related deployments
-  const sdUSDDeployment = await hre.deployments.getOrNull(
-    SDUSD_DSTAKE_TOKEN_ID,
-  );
-  const dUSDStaticATokenDeployment = await hre.deployments.getOrNull(
-    dUSD_A_TOKEN_WRAPPER_ID,
-  );
-  const conversionAdapterDeployment = await hre.deployments.getOrNull(
-    SDUSD_WRAPPED_DLEND_CONVERSION_ADAPTER_ID,
-  );
-  const _rewardManagerDeployment = await hre.deployments.getOrNull(
-    SDUSD_REWARD_MANAGER_ID,
-  );
-  const rewardsControllerDeployment =
-    await hre.deployments.getOrNull(INCENTIVES_PROXY_ID);
-  const dUSDATokenDeployment = await hre.deployments.getOrNull(
-    `${ATOKEN_IMPL_ID}_dUSD`,
-  );
+  const sdUSDDeployment = await hre.deployments.getOrNull(SDUSD_DSTAKE_TOKEN_ID);
+  const dUSDStaticATokenDeployment = await hre.deployments.getOrNull(dUSD_A_TOKEN_WRAPPER_ID);
+  const conversionAdapterDeployment = await hre.deployments.getOrNull(SDUSD_WRAPPED_DLEND_CONVERSION_ADAPTER_ID);
+  const _rewardManagerDeployment = await hre.deployments.getOrNull(SDUSD_REWARD_MANAGER_ID);
+  const rewardsControllerDeployment = await hre.deployments.getOrNull(INCENTIVES_PROXY_ID);
+  const dUSDATokenDeployment = await hre.deployments.getOrNull(`${ATOKEN_IMPL_ID}_dUSD`);
 
   const { lendingDeployer } = await hre.getNamedAccounts();
 
@@ -227,17 +203,11 @@ export async function getConfig(
       depositors: {
         uniswapV3: {
           defaultDusdToUnderlyingSwapPath: {
-            tokenAddressesPath: [
-              TOKEN_INFO.dUSD.address,
-              TOKEN_INFO.sFRAX.address,
-            ],
+            tokenAddressesPath: [TOKEN_INFO.dUSD.address, TOKEN_INFO.sFRAX.address],
             poolFeeSchemaPath: [FeeAmount.MEDIUM],
           },
           defaultUnderlyingToDusdSwapPath: {
-            tokenAddressesPath: [
-              TOKEN_INFO.sFRAX.address,
-              TOKEN_INFO.dUSD.address,
-            ],
+            tokenAddressesPath: [TOKEN_INFO.sFRAX.address, TOKEN_INFO.dUSD.address],
             poolFeeSchemaPath: [FeeAmount.MEDIUM],
           },
         },
@@ -304,17 +274,11 @@ export async function getConfig(
       withdrawers: {
         uniswapV3: {
           defaultDusdToUnderlyingSwapPath: {
-            tokenAddressesPath: [
-              TOKEN_INFO.dUSD.address,
-              TOKEN_INFO.sFRAX.address,
-            ],
+            tokenAddressesPath: [TOKEN_INFO.dUSD.address, TOKEN_INFO.sFRAX.address],
             poolFeeSchemaPath: [FeeAmount.MEDIUM],
           },
           defaultUnderlyingToDusdSwapPath: {
-            tokenAddressesPath: [
-              TOKEN_INFO.sFRAX.address,
-              TOKEN_INFO.dUSD.address,
-            ],
+            tokenAddressesPath: [TOKEN_INFO.sFRAX.address, TOKEN_INFO.dUSD.address],
             poolFeeSchemaPath: [FeeAmount.MEDIUM],
           },
         },
@@ -384,25 +348,14 @@ export async function getConfig(
       priceDecimals: AAVE_ORACLE_USD_DECIMALS,
       dUSDAddress: TOKEN_INFO.dUSD.address,
       dexOracleAssets: {
-        [TOKEN_INFO.wfrxETH.address]: emptyIfUndefined(
-          dexOracleWrapperDeployment?.address,
-          "",
-        ),
-        [TOKEN_INFO.FXS.address]: emptyIfUndefined(
-          dexOracleWrapperDeployment?.address,
-          "",
-        ),
-        [TOKEN_INFO.sfrxETH.address]: emptyIfUndefined(
-          dexOracleWrapperDeployment?.address,
-          "",
-        ),
+        [TOKEN_INFO.wfrxETH.address]: emptyIfUndefined(dexOracleWrapperDeployment?.address, ""),
+        [TOKEN_INFO.FXS.address]: emptyIfUndefined(dexOracleWrapperDeployment?.address, ""),
+        [TOKEN_INFO.sfrxETH.address]: emptyIfUndefined(dexOracleWrapperDeployment?.address, ""),
       },
       api3OracleAssets: {
         plainApi3OracleWrappers: {
-          [TOKEN_INFO.DAI.address]:
-            "0x881c60d9C000a954E87B6e24700998EF89501a8a",
-          [TOKEN_INFO.USDe.address]:
-            "0x45C3e10E3a9A4DDB35Edba2c03610CFd4A83fcE0",
+          [TOKEN_INFO.DAI.address]: "0x881c60d9C000a954E87B6e24700998EF89501a8a",
+          [TOKEN_INFO.USDe.address]: "0x45C3e10E3a9A4DDB35Edba2c03610CFd4A83fcE0",
         },
         api3OracleWrappersWithThresholding: {
           [TOKEN_INFO.FRAX.address]: {
@@ -503,9 +456,7 @@ export async function getConfig(
         collateralVault: "DStakeCollateralVault_sdUSD",
         collateralExchangers: [lendingDeployer],
         dLendRewardManager:
-          dUSDStaticATokenDeployment &&
-          dUSDATokenDeployment &&
-          rewardsControllerDeployment
+          dUSDStaticATokenDeployment && dUSDATokenDeployment && rewardsControllerDeployment
             ? {
                 managedVaultAsset: dUSDStaticATokenDeployment.address,
                 dLendAssetToClaimFor: dUSDATokenDeployment.address,

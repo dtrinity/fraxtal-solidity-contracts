@@ -49,11 +49,7 @@ contract MockTimeUniswapV3PoolDeployer is IUniswapV3PoolDeployer {
             tickSpacing: tickSpacing
         });
         pool = address(
-            new MockTimeUniswapV3Pool{
-                salt: keccak256(
-                    abi.encodePacked(token0, token1, fee, tickSpacing)
-                )
-            }()
+            new MockTimeUniswapV3Pool{ salt: keccak256(abi.encodePacked(token0, token1, fee, tickSpacing)) }()
         );
         emit PoolDeployed(pool);
         delete parameters;

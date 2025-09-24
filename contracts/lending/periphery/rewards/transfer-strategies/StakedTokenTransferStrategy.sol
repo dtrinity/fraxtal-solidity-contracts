@@ -17,12 +17,12 @@
 
 pragma solidity ^0.8.10;
 
-import {IStakedToken} from "../interfaces/IStakedToken.sol";
-import {IStakedTokenTransferStrategy} from "../interfaces/IStakedTokenTransferStrategy.sol";
-import {ITransferStrategyBase} from "../interfaces/ITransferStrategyBase.sol";
-import {TransferStrategyBase} from "./TransferStrategyBase.sol";
-import {GPv2SafeERC20} from "contracts/lending/core/dependencies/gnosis/contracts/GPv2SafeERC20.sol";
-import {IERC20} from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
+import { IStakedToken } from "../interfaces/IStakedToken.sol";
+import { IStakedTokenTransferStrategy } from "../interfaces/IStakedTokenTransferStrategy.sol";
+import { ITransferStrategyBase } from "../interfaces/ITransferStrategyBase.sol";
+import { TransferStrategyBase } from "./TransferStrategyBase.sol";
+import { GPv2SafeERC20 } from "contracts/lending/core/dependencies/gnosis/contracts/GPv2SafeERC20.sol";
+import { IERC20 } from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
 
 /**
  * @title StakedTokenTransferStrategy
@@ -30,10 +30,7 @@ import {IERC20} from "contracts/lending/core/dependencies/openzeppelin/contracts
  * The underlying token must be transferred to this contract to be able to stake it on demand.
  * @author Aave
  **/
-contract StakedTokenTransferStrategy is
-    TransferStrategyBase,
-    IStakedTokenTransferStrategy
-{
+contract StakedTokenTransferStrategy is TransferStrategyBase, IStakedTokenTransferStrategy {
     using GPv2SafeERC20 for IERC20;
 
     IStakedToken internal immutable STAKE_CONTRACT;
@@ -48,10 +45,7 @@ contract StakedTokenTransferStrategy is
         UNDERLYING_TOKEN = STAKE_CONTRACT.STAKED_TOKEN();
 
         IERC20(UNDERLYING_TOKEN).approve(address(STAKE_CONTRACT), 0);
-        IERC20(UNDERLYING_TOKEN).approve(
-            address(STAKE_CONTRACT),
-            type(uint256).max
-        );
+        IERC20(UNDERLYING_TOKEN).approve(address(STAKE_CONTRACT), type(uint256).max);
     }
 
     /// @inheritdoc TransferStrategyBase
@@ -59,16 +53,8 @@ contract StakedTokenTransferStrategy is
         address to,
         address reward,
         uint256 amount
-    )
-        external
-        override(TransferStrategyBase, ITransferStrategyBase)
-        onlyIncentivesController
-        returns (bool)
-    {
-        require(
-            reward == address(STAKE_CONTRACT),
-            "REWARD_TOKEN_NOT_STAKE_CONTRACT"
-        );
+    ) external override(TransferStrategyBase, ITransferStrategyBase) onlyIncentivesController returns (bool) {
+        require(reward == address(STAKE_CONTRACT), "REWARD_TOKEN_NOT_STAKE_CONTRACT");
 
         STAKE_CONTRACT.stake(to, amount);
 
@@ -78,10 +64,7 @@ contract StakedTokenTransferStrategy is
     /// @inheritdoc IStakedTokenTransferStrategy
     function renewApproval() external onlyRewardsAdmin {
         IERC20(UNDERLYING_TOKEN).approve(address(STAKE_CONTRACT), 0);
-        IERC20(UNDERLYING_TOKEN).approve(
-            address(STAKE_CONTRACT),
-            type(uint256).max
-        );
+        IERC20(UNDERLYING_TOKEN).approve(address(STAKE_CONTRACT), type(uint256).max);
     }
 
     /// @inheritdoc IStakedTokenTransferStrategy

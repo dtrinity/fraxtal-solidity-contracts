@@ -2,10 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../../../config/config";
-import {
-  LENDING_CORE_VERSION,
-  MARKET_NAME,
-} from "../../../../utils/lending/constants";
+import { LENDING_CORE_VERSION, MARKET_NAME } from "../../../../utils/lending/constants";
 import { deployTestPriceAggregator } from "../../../../utils/lending/price-aggregator";
 import { isLocalNetwork } from "../../../../utils/utils";
 
@@ -22,16 +19,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const prices = config.lending.mockPriceAggregatorInitialUSDPrices;
 
   if (!prices) {
-    throw new Error(
-      `config.lending.mockPriceAggregatorInitialUSDPrices is not defined`,
-    );
+    throw new Error(`config.lending.mockPriceAggregatorInitialUSDPrices is not defined`);
   }
 
-  await deployTestPriceAggregator(
-    hre,
-    await hre.ethers.getSigner(lendingDeployer),
-    prices,
-  );
+  await deployTestPriceAggregator(hre, await hre.ethers.getSigner(lendingDeployer), prices);
 
   // Return true to indicate the success of the script
   // It is to avoid running this script again (except using --reset flag)

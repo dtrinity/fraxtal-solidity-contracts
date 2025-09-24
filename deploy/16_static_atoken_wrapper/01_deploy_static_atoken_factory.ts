@@ -34,13 +34,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 
   if (staticATokenFactoryDeployment.newlyDeployed) {
-    console.log(
-      `StaticATokenFactory deployed at ${staticATokenFactoryDeployment.address}`,
-    );
+    console.log(`StaticATokenFactory deployed at ${staticATokenFactoryDeployment.address}`);
   } else {
-    console.log(
-      `StaticATokenFactory already deployed at ${staticATokenFactoryDeployment.address}`,
-    );
+    console.log(`StaticATokenFactory already deployed at ${staticATokenFactoryDeployment.address}`);
   }
 
   console.log(`🎁 ${__filename.split("/").slice(-2).join("/")}: ✅`);

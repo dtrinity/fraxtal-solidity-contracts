@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.0;
 
-import {ERC20} from "../../dependencies/openzeppelin/contracts/ERC20.sol";
-import {IDelegationToken} from "../../interfaces/IDelegationToken.sol";
+import { ERC20 } from "../../dependencies/openzeppelin/contracts/ERC20.sol";
+import { IDelegationToken } from "../../interfaces/IDelegationToken.sol";
 
 /**
  * @title MintableDelegationERC20
@@ -27,11 +27,7 @@ import {IDelegationToken} from "../../interfaces/IDelegationToken.sol";
 contract MintableDelegationERC20 is IDelegationToken, ERC20 {
     address public delegatee;
 
-    constructor(
-        string memory name,
-        string memory symbol,
-        uint8 decimals
-    ) ERC20(name, symbol) {
+    constructor(string memory name, string memory symbol, uint8 decimals) ERC20(name, symbol) {
         _setupDecimals(decimals);
     }
 

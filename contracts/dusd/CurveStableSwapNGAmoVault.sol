@@ -65,16 +65,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
         address _collateralWithdrawer,
         address _recoverer,
         address _amoTrader
-    )
-        AmoVault(
-            _dusd,
-            _amoManager,
-            _admin,
-            _collateralWithdrawer,
-            _recoverer,
-            _oracle
-        )
-    {
+    ) AmoVault(_dusd, _amoManager, _admin, _collateralWithdrawer, _recoverer, _oracle) {
         router = ICurveRouterNgPoolsOnlyV1(_router);
 
         grantRole(AMO_TRADER_ROLE, _amoTrader);
@@ -91,9 +82,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
         address[] memory collateralTokens = listCollateral();
         for (uint256 i = 0; i < collateralTokens.length; i++) {
             address collateralToken = collateralTokens[i];
-            uint256 collateralBalance = IERC20(collateralToken).balanceOf(
-                address(this)
-            );
+            uint256 collateralBalance = IERC20(collateralToken).balanceOf(address(this));
             totalUsdValue += _getTokenValue(collateralToken, collateralBalance);
         }
 
@@ -133,9 +122,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
         address[] memory collateralTokens = listCollateral();
         for (uint256 i = 0; i < collateralTokens.length; i++) {
             address collateralToken = collateralTokens[i];
-            uint256 collateralBalance = IERC20(collateralToken).balanceOf(
-                address(this)
-            );
+            uint256 collateralBalance = IERC20(collateralToken).balanceOf(address(this));
             _totalValue += _getTokenValue(collateralToken, collateralBalance);
         }
 
@@ -154,9 +141,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
      * @dev Helper for allowing multiple collateral tokens.
      * @param tokens An array of token addresses to be added as collateral.
      */
-    function allowCollaterals(
-        address[] calldata tokens
-    ) external onlyRole(COLLATERAL_MANAGER_ROLE) {
+    function allowCollaterals(address[] calldata tokens) external onlyRole(COLLATERAL_MANAGER_ROLE) {
         for (uint256 i = 0; i < tokens.length; i++) {
             super.allowCollateral(tokens[i]);
         }
@@ -166,9 +151,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
      * @dev Helper for disallowing multiple collateral tokens.
      * @param tokens An array of token addresses to be removed from collateral.
      */
-    function disallowCollaterals(
-        address[] calldata tokens
-    ) external onlyRole(COLLATERAL_MANAGER_ROLE) {
+    function disallowCollaterals(address[] calldata tokens) external onlyRole(COLLATERAL_MANAGER_ROLE) {
         for (uint256 i = 0; i < tokens.length; i++) {
             super.disallowCollateral(tokens[i]);
         }
@@ -193,14 +176,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
         address tokenIn = route[0];
         IERC20(tokenIn).approve(address(router), amountIn);
 
-        return
-            router.exchange(
-                route,
-                swapParams,
-                amountIn,
-                minAmountOut,
-                address(this)
-            );
+        return router.exchange(route, swapParams, amountIn, minAmountOut, address(this));
     }
 
     /**
@@ -284,10 +260,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
         IERC20(poolAddress).approve(poolAddress, lpTokenAmount);
 
         // Remove liquidity from the pool
-        uint256[] memory receivedAmounts = pool.remove_liquidity(
-            lpTokenAmount,
-            minAmounts
-        );
+        uint256[] memory receivedAmounts = pool.remove_liquidity(lpTokenAmount, minAmounts);
 
         // Update position tracking
         if (IERC20(poolAddress).balanceOf(address(this)) == 0) {
@@ -317,11 +290,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
         IERC20(poolAddress).approve(poolAddress, lpTokenAmount);
 
         // Remove liquidity from the pool
-        uint256 receivedAmount = pool.remove_liquidity_one_coin(
-            lpTokenAmount,
-            i,
-            minAmount
-        );
+        uint256 receivedAmount = pool.remove_liquidity_one_coin(lpTokenAmount, i, minAmount);
 
         // Update position tracking
         if (IERC20(poolAddress).balanceOf(address(this)) == 0) {
@@ -349,10 +318,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
         IERC20(poolAddress).approve(poolAddress, maxBurnAmount);
 
         // Remove liquidity from the pool
-        uint256 burnedAmount = pool.remove_liquidity_imbalance(
-            amounts,
-            maxBurnAmount
-        );
+        uint256 burnedAmount = pool.remove_liquidity_imbalance(amounts, maxBurnAmount);
 
         // Update position tracking
         if (IERC20(poolAddress).balanceOf(address(this)) == 0) {
@@ -393,9 +359,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
      * @return collateralValue The value of the collateral in BASE_CURRENCY_UNIT
      * @return dusdValue The value of the dUSD in BASE_CURRENCY_UNIT
      */
-    function _getLpValues(
-        address lpToken
-    ) internal view returns (uint256 collateralValue, uint256 dusdValue) {
+    function _getLpValues(address lpToken) internal view returns (uint256 collateralValue, uint256 dusdValue) {
         ICurveStableSwapNG pool = ICurveStableSwapNG(lpToken);
         uint256 myLpBalance = IERC20(lpToken).balanceOf(address(this));
         uint256 totalLpSupply = IERC20(lpToken).totalSupply();
@@ -404,8 +368,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
         for (uint256 i = 0; i < nCoins; i++) {
             address token = pool.coins(i);
             uint256 poolTokenBalance = pool.balances(i);
-            uint256 myTokenShare = (poolTokenBalance * myLpBalance) /
-                totalLpSupply;
+            uint256 myTokenShare = (poolTokenBalance * myLpBalance) / totalLpSupply;
             uint256 tokenValue = _getTokenValue(token, myTokenShare);
             if (token == address(dusd)) {
                 dusdValue += tokenValue;
@@ -423,10 +386,7 @@ contract CurveStableSwapNGAmoVault is AmoVault {
      * @param amount The amount of tokens
      * @return The value of the tokens in BASE_CURRENCY_UNIT
      */
-    function _getTokenValue(
-        address token,
-        uint256 amount
-    ) internal view returns (uint256) {
+    function _getTokenValue(address token, uint256 amount) internal view returns (uint256) {
         uint256 price = oracle.getAssetPrice(token);
         uint256 decimals = IERC20Metadata(token).decimals();
 
@@ -438,17 +398,11 @@ contract CurveStableSwapNGAmoVault is AmoVault {
      * @return _totalCollateralValue The sum of all non-dUSD token values in BASE_CURRENCY_UNIT
      * @return _totalDusdValue The sum of all dUSD values in BASE_CURRENCY_UNIT
      */
-    function _totalLpValues()
-        internal
-        view
-        returns (uint256 _totalCollateralValue, uint256 _totalDusdValue)
-    {
+    function _totalLpValues() internal view returns (uint256 _totalCollateralValue, uint256 _totalDusdValue) {
         uint256 lpTokenCount = _lpTokens.length();
         for (uint256 i = 0; i < lpTokenCount; i++) {
             address lpToken = _lpTokens.at(i);
-            (uint256 collateralValue, uint256 dusdValue) = _getLpValues(
-                lpToken
-            );
+            (uint256 collateralValue, uint256 dusdValue) = _getLpValues(lpToken);
             _totalCollateralValue += collateralValue;
             _totalDusdValue += dusdValue;
         }

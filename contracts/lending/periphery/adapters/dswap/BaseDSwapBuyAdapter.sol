@@ -17,14 +17,14 @@
 
 pragma solidity ^0.8.10;
 
-import {SafeERC20} from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeERC20.sol";
-import {SafeMath} from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeMath.sol";
-import {PercentageMath} from "contracts/lending/core/protocol/libraries/math/PercentageMath.sol";
-import {IPoolAddressesProvider} from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
-import {IERC20Detailed} from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
-import {BaseDSwapAdapter} from "./BaseDSwapAdapter.sol";
-import {ISwapRouter} from "./interfaces/ISwapRouter.sol";
-import {TransferHelper} from "./TransferHelper.sol";
+import { SafeERC20 } from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeERC20.sol";
+import { SafeMath } from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeMath.sol";
+import { PercentageMath } from "contracts/lending/core/protocol/libraries/math/PercentageMath.sol";
+import { IPoolAddressesProvider } from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
+import { IERC20Detailed } from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import { BaseDSwapAdapter } from "./BaseDSwapAdapter.sol";
+import { ISwapRouter } from "./interfaces/ISwapRouter.sol";
+import { TransferHelper } from "./TransferHelper.sol";
 
 /**
  * @title BaseDSwapBuyAdapter
@@ -37,10 +37,7 @@ abstract contract BaseDSwapBuyAdapter is BaseDSwapAdapter {
 
     ISwapRouter public immutable swapRouter;
 
-    constructor(
-        IPoolAddressesProvider addressesProvider,
-        ISwapRouter _swapRouter
-    ) BaseDSwapAdapter(addressesProvider) {
+    constructor(IPoolAddressesProvider addressesProvider, ISwapRouter _swapRouter) BaseDSwapAdapter(addressesProvider) {
         swapRouter = _swapRouter;
     }
 
@@ -60,31 +57,21 @@ abstract contract BaseDSwapBuyAdapter is BaseDSwapAdapter {
         uint256 amountToReceive,
         bytes memory path
     ) internal returns (uint256 amountSold) {
-        uint256 balanceBeforeAssetFrom = assetToSwapFrom.balanceOf(
-            address(this)
-        );
-        require(
-            balanceBeforeAssetFrom >= maxAmountToSwap,
-            "INSUFFICIENT_BALANCE_BEFORE_SWAP"
-        );
+        uint256 balanceBeforeAssetFrom = assetToSwapFrom.balanceOf(address(this));
+        require(balanceBeforeAssetFrom >= maxAmountToSwap, "INSUFFICIENT_BALANCE_BEFORE_SWAP");
 
         address tokenIn = address(assetToSwapFrom);
         address tokenOut = address(assetToSwapTo);
 
-        TransferHelper.safeApprove(
-            tokenIn,
-            address(swapRouter),
-            maxAmountToSwap
-        );
+        TransferHelper.safeApprove(tokenIn, address(swapRouter), maxAmountToSwap);
 
-        ISwapRouter.ExactOutputParams memory params = ISwapRouter
-            .ExactOutputParams({
-                path: path,
-                recipient: address(this),
-                deadline: block.timestamp,
-                amountOut: amountToReceive,
-                amountInMaximum: maxAmountToSwap
-            });
+        ISwapRouter.ExactOutputParams memory params = ISwapRouter.ExactOutputParams({
+            path: path,
+            recipient: address(this),
+            deadline: block.timestamp,
+            amountOut: amountToReceive,
+            amountInMaximum: maxAmountToSwap
+        });
         amountSold = swapRouter.exactOutput(params);
 
         emit Bought(tokenIn, tokenOut, amountSold, amountToReceive);

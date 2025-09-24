@@ -16,9 +16,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Skip deployment if dex config is not populated
   if (!config.dex) {
-    console.log(
-      "Skipping Uniswap Interface Multicall deployment - dex config not populated",
-    );
+    console.log("Skipping Uniswap Interface Multicall deployment - dex config not populated");
     return false;
   }
   const { dexDeployer } = await hre.getNamedAccounts();

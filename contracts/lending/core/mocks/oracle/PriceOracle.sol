@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.0;
 
-import {IPriceOracle} from "../../interfaces/IPriceOracle.sol";
+import { IPriceOracle } from "../../interfaces/IPriceOracle.sol";
 
 contract PriceOracle is IPriceOracle {
     // Map of asset prices (asset => price)
@@ -28,9 +28,7 @@ contract PriceOracle is IPriceOracle {
     event AssetPriceUpdated(address asset, uint256 price, uint256 timestamp);
     event EthPriceUpdated(uint256 price, uint256 timestamp);
 
-    function getAssetPrice(
-        address asset
-    ) external view override returns (uint256) {
+    function getAssetPrice(address asset) external view override returns (uint256) {
         return prices[asset];
     }
 

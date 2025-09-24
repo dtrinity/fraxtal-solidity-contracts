@@ -5,10 +5,7 @@ import "dotenv/config";
 import { HardhatUserConfig } from "hardhat/config";
 
 import { getDefaultSolidityCompilersConfig } from "./utils/hardhat-config/compilers";
-import {
-  getDefaultNamedAccounts,
-  getDefaultPrivateKeys,
-} from "./utils/hardhat-config/named_accounts";
+import { getDefaultNamedAccounts, getDefaultPrivateKeys } from "./utils/hardhat-config/named_accounts";
 
 /**
  * We separate the configuration for the test tokens deployment from the default

@@ -18,14 +18,14 @@
 pragma solidity ^0.8.17;
 
 // Command implementations
-import {Dispatcher} from "./base/Dispatcher.sol";
-import {RewardsCollector} from "./base/RewardsCollector.sol";
-import {RouterParameters} from "./base/RouterImmutables.sol";
-import {PaymentsImmutables, PaymentsParameters} from "./modules/PaymentsImmutables.sol";
-import {NFTImmutables, NFTParameters} from "./modules/NFTImmutables.sol";
-import {UniswapImmutables, UniswapParameters} from "./modules/uniswap/UniswapImmutables.sol";
-import {Commands} from "./libraries/Commands.sol";
-import {IUniversalRouter} from "./interfaces/IUniversalRouter.sol";
+import { Dispatcher } from "./base/Dispatcher.sol";
+import { RewardsCollector } from "./base/RewardsCollector.sol";
+import { RouterParameters } from "./base/RouterImmutables.sol";
+import { PaymentsImmutables, PaymentsParameters } from "./modules/PaymentsImmutables.sol";
+import { NFTImmutables, NFTParameters } from "./modules/NFTImmutables.sol";
+import { UniswapImmutables, UniswapParameters } from "./modules/uniswap/UniswapImmutables.sol";
+import { Commands } from "./libraries/Commands.sol";
+import { IUniversalRouter } from "./interfaces/IUniversalRouter.sol";
 
 contract UniversalRouter is IUniversalRouter, Dispatcher, RewardsCollector {
     modifier checkDeadline(uint256 deadline) {
@@ -36,17 +36,8 @@ contract UniversalRouter is IUniversalRouter, Dispatcher, RewardsCollector {
     constructor(
         RouterParameters memory params
     )
-        UniswapImmutables(
-            UniswapParameters(params.v3Factory, params.poolInitCodeHash)
-        )
-        PaymentsImmutables(
-            PaymentsParameters(
-                params.permit2,
-                params.weth9,
-                params.openseaConduit,
-                params.sudoswap
-            )
-        )
+        UniswapImmutables(UniswapParameters(params.v3Factory, params.poolInitCodeHash))
+        PaymentsImmutables(PaymentsParameters(params.permit2, params.weth9, params.openseaConduit, params.sudoswap))
         NFTImmutables(
             NFTParameters(
                 params.seaportV1_5,
@@ -76,10 +67,7 @@ contract UniversalRouter is IUniversalRouter, Dispatcher, RewardsCollector {
     }
 
     /// @inheritdoc Dispatcher
-    function execute(
-        bytes calldata commands,
-        bytes[] calldata inputs
-    ) public payable override isNotLocked {
+    function execute(bytes calldata commands, bytes[] calldata inputs) public payable override isNotLocked {
         bool success;
         bytes memory output;
         uint256 numCommands = commands.length;
@@ -94,10 +82,7 @@ contract UniversalRouter is IUniversalRouter, Dispatcher, RewardsCollector {
             (success, output) = dispatch(command, input);
 
             if (!success && successRequired(command)) {
-                revert ExecutionFailed({
-                    commandIndex: commandIndex,
-                    message: output
-                });
+                revert ExecutionFailed({ commandIndex: commandIndex, message: output });
             }
 
             unchecked {

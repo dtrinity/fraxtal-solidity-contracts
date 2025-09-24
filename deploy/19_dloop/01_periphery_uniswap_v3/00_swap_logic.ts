@@ -23,13 +23,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const config = await getConfig(hre);
   const hasUniswapV3Config =
     config.dLoop &&
-    ((config.dLoop.depositors && config.dLoop.depositors.uniswapV3) ||
-      (config.dLoop.withdrawers && config.dLoop.withdrawers.uniswapV3));
+    ((config.dLoop.depositors && config.dLoop.depositors.uniswapV3) || (config.dLoop.withdrawers && config.dLoop.withdrawers.uniswapV3));
 
   if (!hasUniswapV3Config) {
-    console.log(
-      `No dLOOP UniswapV3 depositor/withdrawer defined for network ${hre.network.name}. Skipping UniswapV3SwapLogic deployment.`,
-    );
+    console.log(`No dLOOP UniswapV3 depositor/withdrawer defined for network ${hre.network.name}. Skipping UniswapV3SwapLogic deployment.`);
     return false;
   }
 

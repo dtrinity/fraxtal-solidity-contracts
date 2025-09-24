@@ -53,11 +53,7 @@ async function main(): Promise<void> {
     const admin = await hre.ethers.getSigner(lendingDeployer);
     const { address: aaveOracleAddress } = await hre.deployments.get(ORACLE_ID);
 
-    const oracle = await ethers.getContractAt(
-      "AaveOracle",
-      aaveOracleAddress,
-      admin,
-    );
+    const oracle = await ethers.getContractAt("AaveOracle", aaveOracleAddress, admin);
 
     // Set asset sources
     console.log("Setting asset sources...");

@@ -3,8 +3,7 @@ import { ethers } from "ethers";
 import { ONE_BPS_UNIT } from "../../../utils/constants";
 import { LiquidatorBotCurveConfig } from "../../types";
 
-export const CURVE_SWAP_ROUTER_ADDRESS =
-  "0xF66c3Ef85BceafaEcE9171E25Eee2972b10e1958";
+export const CURVE_SWAP_ROUTER_ADDRESS = "0xF66c3Ef85BceafaEcE9171E25Eee2972b10e1958";
 
 export const TOKEN_INFO = {
   dUSD: {

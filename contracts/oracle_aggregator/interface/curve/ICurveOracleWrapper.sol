@@ -39,11 +39,7 @@ abstract contract ICurveOracleWrapper is IOracleWrapper, AccessControl {
 
     /* Events */
 
-    event AssetConfigSet(
-        address indexed asset,
-        address indexed pool,
-        uint256 tokenIndex
-    );
+    event AssetConfigSet(address indexed asset, address indexed pool, uint256 tokenIndex);
     event AssetConfigRemoved(address indexed asset);
 
     /* Errors */
@@ -55,8 +51,7 @@ abstract contract ICurveOracleWrapper is IOracleWrapper, AccessControl {
 
     /* Roles */
 
-    bytes32 public constant ORACLE_MANAGER_ROLE =
-        keccak256("ORACLE_MANAGER_ROLE");
+    bytes32 public constant ORACLE_MANAGER_ROLE = keccak256("ORACLE_MANAGER_ROLE");
 
     constructor(uint256 _baseCurrencyUnit) {
         BASE_CURRENCY_UNIT = _baseCurrencyUnit;
@@ -77,21 +72,15 @@ abstract contract ICurveOracleWrapper is IOracleWrapper, AccessControl {
      */
     function removeAssetConfig(address asset) external virtual;
 
-    function getPriceInfo(
-        address asset
-    ) public view virtual override returns (uint256 price, bool isAlive);
+    function getPriceInfo(address asset) public view virtual override returns (uint256 price, bool isAlive);
 
-    function getAssetPrice(
-        address asset
-    ) external view virtual override returns (uint256) {
+    function getAssetPrice(address asset) external view virtual override returns (uint256) {
         (uint256 price, bool isAlive) = getPriceInfo(asset);
         if (!isAlive) revert PriceIsZero(asset);
         return price;
     }
 
-    function _convertToBaseCurrencyUnit(
-        uint256 price
-    ) internal view returns (uint256) {
+    function _convertToBaseCurrencyUnit(uint256 price) internal view returns (uint256) {
         return (price * BASE_CURRENCY_UNIT) / CURVE_BASE_CURRENCY_UNIT;
     }
 }

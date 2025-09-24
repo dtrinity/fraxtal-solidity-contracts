@@ -3,10 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../../config/config";
 import { deployContract } from "../../../utils/deploy";
-import {
-  SWAP_ROUTER_ID,
-  UNISWAP_V3_SWAP_LOGIC_ID,
-} from "../../../utils/dex/deploy-ids";
+import { SWAP_ROUTER_ID, UNISWAP_V3_SWAP_LOGIC_ID } from "../../../utils/dex/deploy-ids";
 import { isLocalNetwork } from "../../../utils/utils";
 import { DLOOP_WITHDRAWER_UNISWAP_V3_ID } from "../../../utils/vault/deploy-ids";
 
@@ -19,9 +16,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Skip local networks
   if (isLocalNetwork(hre.network.name)) {
-    console.log(
-      "Skipping DLoopWithdrawerUniswapV3 deployment on local network",
-    );
+    console.log("Skipping DLoopWithdrawerUniswapV3 deployment on local network");
     return false;
   }
 
@@ -30,17 +25,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Skip if no dLOOP configuration
   if (!config.dLoop) {
-    console.log(
-      `No dLOOP configuration defined for network ${hre.network.name}. Skipping UniswapV3 withdrawer deployment.`,
-    );
+    console.log(`No dLOOP configuration defined for network ${hre.network.name}. Skipping UniswapV3 withdrawer deployment.`);
     return false;
   }
 
   // Skip if no withdrawers section or UniswapV3 withdrawer is defined
   if (!config.dLoop.withdrawers || !config.dLoop.withdrawers.uniswapV3) {
-    console.log(
-      `UniswapV3 withdrawer not defined for network ${hre.network.name}. Skipping.`,
-    );
+    console.log(`UniswapV3 withdrawer not defined for network ${hre.network.name}. Skipping.`);
     return false;
   }
 
@@ -54,9 +45,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   // Get the deployed UniswapV3SwapLogic library address
-  const { address: uniswapV3SwapLogicAddress } = await hre.deployments.get(
-    UNISWAP_V3_SWAP_LOGIC_ID,
-  );
+  const { address: uniswapV3SwapLogicAddress } = await hre.deployments.get(UNISWAP_V3_SWAP_LOGIC_ID);
 
   const { address: routerAddress } = await hre.deployments.get(SWAP_ROUTER_ID);
 

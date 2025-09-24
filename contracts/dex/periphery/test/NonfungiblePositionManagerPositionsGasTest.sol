@@ -26,9 +26,7 @@ contract NonfungiblePositionManagerPositionsGasTest {
         nonfungiblePositionManager = _nonfungiblePositionManager;
     }
 
-    function getGasCostOfPositions(
-        uint256 tokenId
-    ) external view returns (uint256) {
+    function getGasCostOfPositions(uint256 tokenId) external view returns (uint256) {
         uint256 gasBefore = gasleft();
         nonfungiblePositionManager.positions(tokenId);
         return gasBefore - gasleft();

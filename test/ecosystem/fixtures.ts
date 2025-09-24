@@ -16,23 +16,17 @@ import {
 import { depositCollateralWithApproval } from "./utils.lbp";
 import { getTokenContractForSymbol } from "./utils.token";
 
-export const freshFixture = deployments.createFixture(
-  async ({ deployments }) => {
-    await deployments.fixture(["mock", "dex", "lbp"]); // Mimic a testnet deployment
-  },
-);
+export const freshFixture = deployments.createFixture(async ({ deployments }) => {
+  await deployments.fixture(["mock", "dex", "lbp"]); // Mimic a testnet deployment
+});
 
-export const standardUniswapV3DEXLBPLiquidityFixture =
-  deployments.createFixture(async ({ deployments }) => {
-    await standardUniswapV3DEXLBPLiquidityFixtureImplementation(deployments);
-  });
+export const standardUniswapV3DEXLBPLiquidityFixture = deployments.createFixture(async ({ deployments }) => {
+  await standardUniswapV3DEXLBPLiquidityFixtureImplementation(deployments);
+});
 
-export const standardUniswapV3DEXLBPLiquidityWithMockOracleFixture =
-  deployments.createFixture(async ({ deployments }) => {
-    await standardUniswapV3DEXLBPLiquidityWithMockOracleFixtureImplementation(
-      deployments,
-    );
-  });
+export const standardUniswapV3DEXLBPLiquidityWithMockOracleFixture = deployments.createFixture(async ({ deployments }) => {
+  await standardUniswapV3DEXLBPLiquidityWithMockOracleFixtureImplementation(deployments);
+});
 
 /**
  * Standard DEX/LBP liquidity fixture implementation with mock oracle (use Uniswap V3 DEX)
@@ -44,16 +38,10 @@ export async function standardUniswapV3DEXLBPLiquidityWithMockOracleFixtureImple
   deployments: DeploymentsExtension,
   addtionalFixtureNames: string[] = [],
 ): Promise<void> {
-  await standardUniswapV3DEXLBPLiquidityFixtureImplementation(
-    deployments,
-    addtionalFixtureNames,
-  );
+  await standardUniswapV3DEXLBPLiquidityFixtureImplementation(deployments, addtionalFixtureNames);
 
   const { dexDeployer } = await getNamedAccounts();
-  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
-    dexDeployer,
-    "dUSD",
-  );
+  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(dexDeployer, "dUSD");
 
   // Use MockStaticOracleWrapper to mock the price
   await useMockStaticOracleWrapper(dusdInfo.address, AAVE_ORACLE_USD_DECIMALS);
@@ -78,25 +66,13 @@ export async function standardUniswapV3DEXLBPLiquidityFixtureImplementation(
   /*
    * Get shared token info
    */
-  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
-    dexDeployer,
-    "dUSD",
-  );
+  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(dexDeployer, "dUSD");
 
-  const { tokenInfo: sfraxInfo } = await getTokenContractForSymbol(
-    dexDeployer,
-    "SFRAX",
-  );
+  const { tokenInfo: sfraxInfo } = await getTokenContractForSymbol(dexDeployer, "SFRAX");
 
-  const { tokenInfo: sfrxethInfo } = await getTokenContractForSymbol(
-    dexDeployer,
-    "SFRXETH",
-  );
+  const { tokenInfo: sfrxethInfo } = await getTokenContractForSymbol(dexDeployer, "SFRXETH");
 
-  const { tokenInfo: fxsInfo } = await getTokenContractForSymbol(
-    dexDeployer,
-    "FXS",
-  );
+  const { tokenInfo: fxsInfo } = await getTokenContractForSymbol(dexDeployer, "FXS");
 
   /*
    * Set up DEX infra
@@ -139,40 +115,16 @@ export async function standardUniswapV3DEXLBPLiquidityFixtureImplementation(
 
   for (let i = 0; i < 1; i++) {
     // SFRAX
-    await swapExactInputSingleWithApproval(
-      dexDeployer,
-      FeeAmount.HIGH,
-      dusdInfo.address,
-      sfraxInfo.address,
-      1,
-      TEST_DEADLINE_SECONDS,
-    );
+    await swapExactInputSingleWithApproval(dexDeployer, FeeAmount.HIGH, dusdInfo.address, sfraxInfo.address, 1, TEST_DEADLINE_SECONDS);
     // SFRXETH
-    await swapExactInputSingleWithApproval(
-      dexDeployer,
-      FeeAmount.HIGH,
-      dusdInfo.address,
-      sfrxethInfo.address,
-      1,
-      TEST_DEADLINE_SECONDS,
-    );
+    await swapExactInputSingleWithApproval(dexDeployer, FeeAmount.HIGH, dusdInfo.address, sfrxethInfo.address, 1, TEST_DEADLINE_SECONDS);
     // FXS
-    await swapExactInputSingleWithApproval(
-      dexDeployer,
-      FeeAmount.HIGH,
-      dusdInfo.address,
-      fxsInfo.address,
-      1,
-      TEST_DEADLINE_SECONDS,
-    );
+    await swapExactInputSingleWithApproval(dexDeployer, FeeAmount.HIGH, dusdInfo.address, fxsInfo.address, 1, TEST_DEADLINE_SECONDS);
     await increaseTime(60);
   }
   const sfraxPrice = await getStaticOraclePrice(dexDeployer, sfraxInfo.address);
   console.log("Warmed up sFRAX price: ", sfraxPrice.toString());
-  const sfrxethPrice = await getStaticOraclePrice(
-    dexDeployer,
-    sfrxethInfo.address,
-  );
+  const sfrxethPrice = await getStaticOraclePrice(dexDeployer, sfrxethInfo.address);
   console.log("Warmed up sFRXETH price: ", sfrxethPrice.toString());
   const fxsPrice = await getStaticOraclePrice(dexDeployer, fxsInfo.address);
   console.log("Warmed up FXS price: ", fxsPrice.toString());
@@ -190,25 +142,17 @@ export async function standardUniswapV3DEXLBPLiquidityFixtureImplementation(
   // We don't deposit other assets since we don't expect users to deposit them without borrowing other assets
 }
 
-export const standardCurveDEXLBPLiquidityFixture = deployments.createFixture(
-  async ({ deployments }) => {
-    await standardCurveDEXLBPLiquidityFixtureImplementation(deployments);
-  },
-);
+export const standardCurveDEXLBPLiquidityFixture = deployments.createFixture(async ({ deployments }) => {
+  await standardCurveDEXLBPLiquidityFixtureImplementation(deployments);
+});
 
-export const standardCurveDEXLBPLiquidityWithMockOracleFixture =
-  deployments.createFixture(async ({ deployments }) => {
-    await standardCurveDEXLBPLiquidityWithMockOracleFixtureImplementation(
-      deployments,
-    );
-  });
+export const standardCurveDEXLBPLiquidityWithMockOracleFixture = deployments.createFixture(async ({ deployments }) => {
+  await standardCurveDEXLBPLiquidityWithMockOracleFixtureImplementation(deployments);
+});
 
-export const standardMockCurveDEXLBPLiquidityWithMockOracleFixture =
-  deployments.createFixture(async ({ deployments }) => {
-    await standardMockCurveDEXLBPLiquidityWithMockOracleFixtureImplementation(
-      deployments,
-    );
-  });
+export const standardMockCurveDEXLBPLiquidityWithMockOracleFixture = deployments.createFixture(async ({ deployments }) => {
+  await standardMockCurveDEXLBPLiquidityWithMockOracleFixtureImplementation(deployments);
+});
 
 /**
  * Standard DEX/LBP liquidity fixture implementation (use Curve DEX)
@@ -220,10 +164,7 @@ export async function standardCurveDEXLBPLiquidityWithMockOracleFixtureImplement
   deployments: DeploymentsExtension,
   addtionalFixtureNames: string[] = [],
 ): Promise<void> {
-  await standardCurveDEXLBPLiquidityFixtureImplementation(
-    deployments,
-    addtionalFixtureNames,
-  );
+  await standardCurveDEXLBPLiquidityFixtureImplementation(deployments, addtionalFixtureNames);
 
   const { dexDeployer } = await getNamedAccounts();
 
@@ -233,10 +174,7 @@ export async function standardCurveDEXLBPLiquidityWithMockOracleFixtureImplement
     throw new Error("The dLoopCurve configuration is not available");
   }
 
-  const { tokenInfo: dusdInfo } = await getTokenContractForAddress(
-    dexDeployer,
-    config.dLoopCurve.dUSDAddress,
-  );
+  const { tokenInfo: dusdInfo } = await getTokenContractForAddress(dexDeployer, config.dLoopCurve.dUSDAddress);
 
   // Use MockStaticOracleWrapper to mock the price
   await useMockStaticOracleWrapper(dusdInfo.address, AAVE_ORACLE_USD_DECIMALS);
@@ -252,17 +190,11 @@ export async function standardMockCurveDEXLBPLiquidityWithMockOracleFixtureImple
   deployments: DeploymentsExtension,
   addtionalFixtureNames: string[] = [],
 ): Promise<void> {
-  await standardMockCurveDEXLBPLiquidityFixtureImplementation(
-    deployments,
-    addtionalFixtureNames,
-  );
+  await standardMockCurveDEXLBPLiquidityFixtureImplementation(deployments, addtionalFixtureNames);
 
   const { dexDeployer } = await getNamedAccounts();
 
-  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
-    dexDeployer,
-    "dUSD",
-  );
+  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(dexDeployer, "dUSD");
 
   // Use MockStaticOracleWrapper to mock the price
   await useMockStaticOracleWrapper(dusdInfo.address, AAVE_ORACLE_USD_DECIMALS);
@@ -286,15 +218,9 @@ export async function standardCurveDEXLBPLiquidityFixtureImplementation(
   /*
    * Get shared token info
    */
-  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
-    dexDeployer,
-    "dUSD",
-  );
+  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(dexDeployer, "dUSD");
 
-  const { tokenInfo: fxsInfo } = await getTokenContractForSymbol(
-    dexDeployer,
-    "FXS",
-  );
+  const { tokenInfo: fxsInfo } = await getTokenContractForSymbol(dexDeployer, "FXS");
 
   /*
    * Set up LBP infra
@@ -327,15 +253,9 @@ export async function standardMockCurveDEXLBPLiquidityFixtureImplementation(
   /*
    * Get shared token info
    */
-  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(
-    dexDeployer,
-    "dUSD",
-  );
+  const { tokenInfo: dusdInfo } = await getTokenContractForSymbol(dexDeployer, "dUSD");
 
-  const { tokenInfo: fxsInfo } = await getTokenContractForSymbol(
-    dexDeployer,
-    "FXS",
-  );
+  const { tokenInfo: fxsInfo } = await getTokenContractForSymbol(dexDeployer, "FXS");
 
   /*
    * Set up LBP infra

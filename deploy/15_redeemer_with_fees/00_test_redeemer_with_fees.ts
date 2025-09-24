@@ -48,19 +48,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const dUSDRedeemerWithFees = await deploy("TestDUSDRedeemerWithFees", {
       from: dusdDeployer,
       contract: "RedeemerWithFees",
-      args: [
-        mockDUSDVault.address,
-        dUSD.address,
-        mockUSDOracle.address,
-        dUSDConfig.initialFeeReceiver,
-        dUSDConfig.initialRedemptionFeeBps,
-      ],
+      args: [mockDUSDVault.address, dUSD.address, mockUSDOracle.address, dUSDConfig.initialFeeReceiver, dUSDConfig.initialRedemptionFeeBps],
       log: true,
     });
 
-    console.log(
-      `✅ dUSD RedeemerWithFees deployed at: ${dUSDRedeemerWithFees.address}`,
-    );
+    console.log(`✅ dUSD RedeemerWithFees deployed at: ${dUSDRedeemerWithFees.address}`);
     console.log(`   Fee Receiver: ${dUSDConfig.initialFeeReceiver}`);
     console.log(`   Default Fee: ${dUSDConfig.initialRedemptionFeeBps} bps`);
   }
@@ -71,9 +63,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if (dUSDConfig?.collateralRedemptionFees) {
     console.log("\n📋 dUSD Collateral-specific fees configured:");
 
-    for (const [collateral, feeBps] of Object.entries(
-      dUSDConfig.collateralRedemptionFees,
-    )) {
+    for (const [collateral, feeBps] of Object.entries(dUSDConfig.collateralRedemptionFees)) {
       console.log(`   ${collateral}: ${feeBps} bps`);
     }
   }

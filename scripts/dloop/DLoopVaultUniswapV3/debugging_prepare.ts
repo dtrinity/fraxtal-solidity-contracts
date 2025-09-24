@@ -14,27 +14,17 @@ async function main(): Promise<void> {
   const { dexDeployer } = await hre.getNamedAccounts();
   const signer = await hre.ethers.getSigner(dexDeployer);
 
-  const underlyingTokenInfo = await fetchTokenInfo(
-    hre,
-    "0x0Dbf64462FEC588df32FC5C9941421F7d93e0Fb3",
-  );
+  const underlyingTokenInfo = await fetchTokenInfo(hre, "0x0Dbf64462FEC588df32FC5C9941421F7d93e0Fb3");
 
   // const dLOOPUniswapV3Address = "0x4CF0A91e8467dcC259De9aD424adBB5f366Bf370";
   // const dLOOPUniswapV3Address = "0xC20291214862C29B974E1A37e19234CaCC600b09";
   const { address: dLOOPUniswapV3Address } = await hre.deployments.get(
-    getDLoopVaultUniswapV3DeploymentName(
-      underlyingTokenInfo.symbol,
-      30000 * ONE_BPS_UNIT,
-    ),
+    getDLoopVaultUniswapV3DeploymentName(underlyingTokenInfo.symbol, 30000 * ONE_BPS_UNIT),
   );
 
   console.log("dLOOPUniswapV3Address: ", dLOOPUniswapV3Address);
 
-  const dLOOPUniswapV3Contract = await hre.ethers.getContractAt(
-    "DLoopVaultUniswapV3",
-    dLOOPUniswapV3Address,
-    signer,
-  );
+  const dLOOPUniswapV3Contract = await hre.ethers.getContractAt("DLoopVaultUniswapV3", dLOOPUniswapV3Address, signer);
 
   console.log("Fetched the underlying token info");
 
@@ -46,22 +36,13 @@ async function main(): Promise<void> {
   );
   let res;
 
-  await underlyingTokenContract.approve(
-    dLOOPUniswapV3Address,
-    ethers.parseUnits("100", 18),
-  );
+  await underlyingTokenContract.approve(dLOOPUniswapV3Address, ethers.parseUnits("100", 18));
 
   console.log("Approved the contract to spend the underlying token");
-  console.log(
-    "Underlying token balance before deposit: ",
-    await underlyingTokenContract.balanceOf(signer.address),
-  );
+  console.log("Underlying token balance before deposit: ", await underlyingTokenContract.balanceOf(signer.address));
 
   // Deposit the 1st time
-  res = await dLOOPUniswapV3Contract.deposit(
-    ethers.parseUnits("1", 18),
-    signer.address,
-  );
+  res = await dLOOPUniswapV3Contract.deposit(ethers.parseUnits("1", 18), signer.address);
 
   console.log("Depositing 1st: ", res.hash);
   await res.wait();
@@ -72,10 +53,7 @@ async function main(): Promise<void> {
   console.log("Current leverage bps: ", leverageBps.toString());
 
   // Deposit the 2nd time
-  res = await dLOOPUniswapV3Contract.deposit(
-    ethers.parseUnits("1", 18),
-    signer.address,
-  );
+  res = await dLOOPUniswapV3Contract.deposit(ethers.parseUnits("1", 18), signer.address);
 
   console.log("Depositing 2nd: ", res.hash);
   await res.wait();

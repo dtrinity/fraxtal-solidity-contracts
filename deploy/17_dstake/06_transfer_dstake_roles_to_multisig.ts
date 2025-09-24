@@ -16,9 +16,7 @@ import { isMainnetNetwork } from "../../utils/utils";
  */
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if (!isMainnetNetwork(hre.network.name)) {
-    console.log(
-      `\n🔑 ${__filename.split("/").slice(-2).join("/")}: Skipping non-mainnet network`,
-    );
+    console.log(`\n🔑 ${__filename.split("/").slice(-2).join("/")}: Skipping non-mainnet network`);
     return true;
   }
 
@@ -26,9 +24,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { dusdDeployer: deployer } = await getNamedAccounts();
 
   if (!deployer) {
-    throw new Error(
-      "Named account 'dusdDeployer' is not configured for this network",
-    );
+    throw new Error("Named account 'dusdDeployer' is not configured for this network");
   }
   const deployerSigner: Signer = await ethers.getSigner(deployer);
 
@@ -55,12 +51,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       [
         {
           roleName: "FEE_MANAGER_ROLE",
-          roleHash: await getRoleHash(
-            hre,
-            "DStakeToken",
-            tokenId,
-            "FEE_MANAGER_ROLE",
-          ),
+          roleHash: await getRoleHash(hre, "DStakeToken", tokenId, "FEE_MANAGER_ROLE"),
           target: instanceConfig.initialFeeManager,
         },
         {
@@ -145,11 +136,7 @@ async function migrateRoles(
     return;
   }
 
-  const contract = await ethers.getContractAt(
-    contractName,
-    dep.address,
-    signer,
-  );
+  const contract = await ethers.getContractAt(contractName, dep.address, signer);
 
   const signerAddress = await signer.getAddress();
 

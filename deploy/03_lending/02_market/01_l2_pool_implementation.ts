@@ -6,10 +6,7 @@ import { deployL2PoolImplementation } from "../../../utils/lending/deploy/02_mar
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { lendingDeployer } = await hre.getNamedAccounts();
 
-  return deployL2PoolImplementation(
-    hre,
-    await hre.ethers.getSigner(lendingDeployer),
-  );
+  return deployL2PoolImplementation(hre, await hre.ethers.getSigner(lendingDeployer));
 };
 
 func.id = "L2PoolImplementations";

@@ -35,25 +35,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     try {
       // Check if wrapper deployment exists
-      const wrapperDeployment = await deployments.getOrNull(
-        wrapperConfig.deploymentId,
-      );
+      const wrapperDeployment = await deployments.getOrNull(wrapperConfig.deploymentId);
 
       if (!wrapperDeployment) {
-        console.log(
-          `${wrapperConfig.symbol} wrapper not deployed, skipping...`,
-        );
+        console.log(`${wrapperConfig.symbol} wrapper not deployed, skipping...`);
         continue;
       }
 
-      const wrapper = await hre.ethers.getContractAt(
-        "StaticATokenLM",
-        wrapperDeployment.address,
-        signer,
-      );
-      console.log(
-        `${wrapperConfig.symbol} wrapper address: ${wrapperDeployment.address}`,
-      );
+      const wrapper = await hre.ethers.getContractAt("StaticATokenLM", wrapperDeployment.address, signer);
+      console.log(`${wrapperConfig.symbol} wrapper address: ${wrapperDeployment.address}`);
 
       // Check if rewards controller is set
       const rewardsController = await wrapper.REWARDS_CONTROLLER();
@@ -72,9 +62,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
           console.log(`Could not refresh reward tokens: ${error}`);
         }
       } else {
-        console.log(
-          `No rewards controller configured for ${wrapperConfig.symbol}`,
-        );
+        console.log(`No rewards controller configured for ${wrapperConfig.symbol}`);
       }
 
       // Log wrapper configuration
@@ -91,20 +79,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       console.log(`  aToken: ${aToken}`);
       console.log(`  Underlying asset: ${asset}`);
     } catch (error) {
-      console.error(
-        `Error configuring ${wrapperConfig.symbol} wrapper:`,
-        error,
-      );
+      console.error(`Error configuring ${wrapperConfig.symbol} wrapper:`, error);
     }
   }
 
   // Log factory ownership (note: factory has no admin functions, but we log for completeness)
   try {
     const factoryDeployment = await get(STATIC_ATOKEN_FACTORY_ID);
-    const factory = await hre.ethers.getContractAt(
-      "StaticATokenFactory",
-      factoryDeployment.address,
-    );
+    const factory = await hre.ethers.getContractAt("StaticATokenFactory", factoryDeployment.address);
 
     console.log(`\nStaticATokenFactory configuration:`);
     console.log(`  Address: ${factoryDeployment.address}`);

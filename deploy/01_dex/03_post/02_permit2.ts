@@ -36,9 +36,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
   } else {
     const permit2Address = await getPermit2Address(hre);
-    console.log(
-      `Using Permit2 contract address from the configuration file: ${permit2Address}`,
-    );
+    console.log(`Using Permit2 contract address from the configuration file: ${permit2Address}`);
   }
 
   // Return true to indicate the success of the deployment

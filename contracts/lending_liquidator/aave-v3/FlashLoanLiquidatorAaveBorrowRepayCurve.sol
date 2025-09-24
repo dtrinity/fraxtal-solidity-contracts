@@ -1,22 +1,16 @@
 // SPDX-License-Identifier: GNU AGPLv3
 pragma solidity 0.8.20;
 
-import {FlashLoanLiquidatorAaveBorrowRepayBase, SafeTransferLib, ERC20, ILendingPool, ILendingPoolAddressesProvider} from "./FlashLoanLiquidatorAaveBorrowRepayBase.sol";
-import {CurveHelper} from "contracts/curve/CurveHelper.sol";
-import {ICurveRouterNgPoolsOnlyV1} from "contracts/curve/interfaces/ICurveRouterNgPoolsOnlyV1.sol";
-import {ICurveRouterWrapper} from "contracts/curve/interfaces/ICurveRouterWrapper.sol";
-import {Strings} from "@openzeppelin/contracts-5/utils/Strings.sol";
+import { FlashLoanLiquidatorAaveBorrowRepayBase, SafeTransferLib, ERC20, ILendingPool, ILendingPoolAddressesProvider } from "./FlashLoanLiquidatorAaveBorrowRepayBase.sol";
+import { CurveHelper } from "contracts/curve/CurveHelper.sol";
+import { ICurveRouterNgPoolsOnlyV1 } from "contracts/curve/interfaces/ICurveRouterNgPoolsOnlyV1.sol";
+import { ICurveRouterWrapper } from "contracts/curve/interfaces/ICurveRouterWrapper.sol";
+import { Strings } from "@openzeppelin/contracts-5/utils/Strings.sol";
 
-contract FlashLoanLiquidatorAaveBorrowRepayCurve is
-    FlashLoanLiquidatorAaveBorrowRepayBase
-{
+contract FlashLoanLiquidatorAaveBorrowRepayCurve is FlashLoanLiquidatorAaveBorrowRepayBase {
     using SafeTransferLib for ERC20;
 
-    error NotSupportedCustomSwapData(
-        address _inputToken,
-        address _outputToken,
-        bytes _swapData
-    );
+    error NotSupportedCustomSwapData(address _inputToken, address _outputToken, bytes _swapData);
 
     struct CurveSwapExtraParamsDefaultConfig {
         address inputToken;
@@ -27,8 +21,7 @@ contract FlashLoanLiquidatorAaveBorrowRepayCurve is
 
     ICurveRouterNgPoolsOnlyV1 public immutable curveRouter;
     uint256 public immutable maxSlippageSurplusSwapBps;
-    mapping(string => CurveHelper.CurveSwapExtraParams)
-        public defaultSwapParams;
+    mapping(string => CurveHelper.CurveSwapExtraParams) public defaultSwapParams;
     mapping(string => bool) public isSwapParamsSet;
 
     constructor(
@@ -79,14 +72,11 @@ contract FlashLoanLiquidatorAaveBorrowRepayCurve is
                 );
             }
             isSwapParamsSet[reverseKey] = true;
-            defaultSwapParams[reverseKey] = _defaultSwapParamsList[i]
-                .reverseSwapExtraParams;
+            defaultSwapParams[reverseKey] = _defaultSwapParamsList[i].reverseSwapExtraParams;
         }
     }
 
-    function setSwapExtraParams(
-        CurveSwapExtraParamsDefaultConfig memory _swapExtraParamsConfig
-    ) external onlyOwner {
+    function setSwapExtraParams(CurveSwapExtraParamsDefaultConfig memory _swapExtraParamsConfig) external onlyOwner {
         string memory key = _getSwapExtraParamsKey(
             _swapExtraParamsConfig.inputToken,
             _swapExtraParamsConfig.outputToken
@@ -99,14 +89,10 @@ contract FlashLoanLiquidatorAaveBorrowRepayCurve is
             _swapExtraParamsConfig.inputToken
         );
         isSwapParamsSet[reverseKey] = true;
-        defaultSwapParams[reverseKey] = _swapExtraParamsConfig
-            .reverseSwapExtraParams;
+        defaultSwapParams[reverseKey] = _swapExtraParamsConfig.reverseSwapExtraParams;
     }
 
-    function _getSwapExtraParamsKey(
-        address _inputToken,
-        address _outputToken
-    ) internal pure returns (string memory) {
+    function _getSwapExtraParamsKey(address _inputToken, address _outputToken) internal pure returns (string memory) {
         string memory key = string.concat(
             Strings.toHexString(uint160(_inputToken), 20),
             "-",
@@ -122,11 +108,7 @@ contract FlashLoanLiquidatorAaveBorrowRepayCurve is
         string memory key = _getSwapExtraParamsKey(_inputToken, _outputToken);
         // If the key is not found, revert
         if (!isSwapParamsSet[key]) {
-            revert ICurveRouterWrapper.NotFoundKeyForSwapExtraParams(
-                _inputToken,
-                _outputToken,
-                key
-            );
+            revert ICurveRouterWrapper.NotFoundKeyForSwapExtraParams(_inputToken, _outputToken, key);
         }
         return defaultSwapParams[key];
     }
@@ -141,30 +123,18 @@ contract FlashLoanLiquidatorAaveBorrowRepayCurve is
     ) internal override returns (uint256 amountIn) {
         // If _swapData is not empty, revert (TODO: need to fix this)
         if (_swapData.length != 0) {
-            revert NotSupportedCustomSwapData(
-                _inputToken,
-                _outputToken,
-                _swapData
-            );
+            revert NotSupportedCustomSwapData(_inputToken, _outputToken, _swapData);
         }
 
         // As Curve does not support exact output swaps, we need to calculate the required input amount
         // and add a buffer to account for potential slippage. Then swapping back the surplus amount
-        CurveHelper.CurveSwapExtraParams
-            memory extraParams = _getSwapExtraParams(_inputToken, _outputToken);
+        CurveHelper.CurveSwapExtraParams memory extraParams = _getSwapExtraParams(_inputToken, _outputToken);
 
-        CurveHelper.CurveSwapExtraParams
-            memory reverseExtraParams = _getSwapExtraParams(
-                _outputToken,
-                _inputToken
-            );
+        CurveHelper.CurveSwapExtraParams memory reverseExtraParams = _getSwapExtraParams(_outputToken, _inputToken);
 
         // Double check _inputToken is the first token in the route
         if (_inputToken != extraParams.route[0]) {
-            revert ICurveRouterWrapper.InvalidInputTokenInRoute(
-                _inputToken,
-                extraParams.route
-            );
+            revert ICurveRouterWrapper.InvalidInputTokenInRoute(_inputToken, extraParams.route);
         }
 
         return

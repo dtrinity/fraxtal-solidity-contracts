@@ -31,12 +31,9 @@ async function deployFlashLoanLiquidatorBot(
   defaultSwapParamsList: any[],
   proxyContractMap: { [key: string]: string },
 ): Promise<boolean> {
-  const { address: lendingPoolAddressesProviderAddress } =
-    await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
+  const { address: lendingPoolAddressesProviderAddress } = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
 
-  const addressProviderDeployedResult = await hre.deployments.get(
-    POOL_ADDRESSES_PROVIDER_ID,
-  );
+  const addressProviderDeployedResult = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
   const addressProviderContract = await hre.ethers.getContractAt(
     "PoolAddressesProvider",
     addressProviderDeployedResult.address,
@@ -46,8 +43,7 @@ async function deployFlashLoanLiquidatorBot(
   const poolAddress = await addressProviderContract.getPool();
 
   // Get the deployed CurveHelper library address
-  const { address: curveHelperAddress } =
-    await hre.deployments.get(CURVE_HELPER_ID);
+  const { address: curveHelperAddress } = await hre.deployments.get(CURVE_HELPER_ID);
 
   await deployContract(
     hre,
@@ -70,9 +66,7 @@ async function deployFlashLoanLiquidatorBot(
   );
 
   // Set the proxy contract
-  const flashLoanLiquidatorBotDeployedResult = await hre.deployments.get(
-    FLASH_LOAN_LIQUIDATOR_CURVE_ID,
-  );
+  const flashLoanLiquidatorBotDeployedResult = await hre.deployments.get(FLASH_LOAN_LIQUIDATOR_CURVE_ID);
   const flashLoanLiquidatorBotContract = await hre.ethers.getContractAt(
     "FlashLoanLiquidatorAaveBorrowRepayCurve",
     flashLoanLiquidatorBotDeployedResult.address,
@@ -98,14 +92,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   if (isLocalNetwork(hre.network.name)) {
-    throw new Error(
-      "Curve liquidator bot config cannot be used on local networks",
-    );
+    throw new Error("Curve liquidator bot config cannot be used on local networks");
   }
 
-  const addressProviderDeployedResult = await hre.deployments.get(
-    POOL_ADDRESSES_PROVIDER_ID,
-  );
+  const addressProviderDeployedResult = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
   const addressProviderContract = await hre.ethers.getContractAt(
     "PoolAddressesProvider",
     addressProviderDeployedResult.address,

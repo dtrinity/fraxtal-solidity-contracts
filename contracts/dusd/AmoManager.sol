@@ -49,24 +49,16 @@ contract AmoManager is AccessControl, OracleAware {
 
     /* Roles */
 
-    bytes32 public constant AMO_ALLOCATOR_ROLE =
-        keccak256("AMO_ALLOCATOR_ROLE");
-    bytes32 public constant FEE_COLLECTOR_ROLE =
-        keccak256("FEE_COLLECTOR_ROLE");
+    bytes32 public constant AMO_ALLOCATOR_ROLE = keccak256("AMO_ALLOCATOR_ROLE");
+    bytes32 public constant FEE_COLLECTOR_ROLE = keccak256("FEE_COLLECTOR_ROLE");
 
     /* Errors */
 
     error InactiveAmoVault(address amoVault);
-    error AmoSupplyInvariantViolation(
-        uint256 startingSupply,
-        uint256 endingSupply
-    );
+    error AmoSupplyInvariantViolation(uint256 startingSupply, uint256 endingSupply);
     error AmoVaultAlreadyEnabled(address amoVault);
     error CannotTransferDUSD();
-    error InsufficientProfits(
-        uint256 takeProfitValueInUsd,
-        int256 availableProfitInUsd
-    );
+    error InsufficientProfits(uint256 takeProfitValueInUsd, int256 availableProfitInUsd);
 
     /**
      * @notice Initializes the AmoManager contract.
@@ -96,10 +88,7 @@ contract AmoManager is AccessControl, OracleAware {
      * @param amoVault The address of the AMO vault.
      * @param dusdAmount The amount of dUSD to allocate.
      */
-    function allocateAmo(
-        address amoVault,
-        uint256 dusdAmount
-    ) public onlyRole(AMO_ALLOCATOR_ROLE) {
+    function allocateAmo(address amoVault, uint256 dusdAmount) public onlyRole(AMO_ALLOCATOR_ROLE) {
         uint256 startingAmoSupply = totalAmoSupply();
 
         // Make sure the vault is active
@@ -118,10 +107,7 @@ contract AmoManager is AccessControl, OracleAware {
         // Check invariants
         uint256 endingAmoSupply = totalAmoSupply();
         if (endingAmoSupply != startingAmoSupply) {
-            revert AmoSupplyInvariantViolation(
-                startingAmoSupply,
-                endingAmoSupply
-            );
+            revert AmoSupplyInvariantViolation(startingAmoSupply, endingAmoSupply);
         }
 
         emit AmoAllocated(amoVault, dusdAmount);
@@ -132,10 +118,7 @@ contract AmoManager is AccessControl, OracleAware {
      * @param amoVault The address of the AMO vault.
      * @param dusdAmount The amount of dUSD to deallocate.
      */
-    function deallocateAmo(
-        address amoVault,
-        uint256 dusdAmount
-    ) public onlyRole(AMO_ALLOCATOR_ROLE) {
+    function deallocateAmo(address amoVault, uint256 dusdAmount) public onlyRole(AMO_ALLOCATOR_ROLE) {
         uint256 startingAmoSupply = totalAmoSupply();
 
         // We don't require that the vault is active or has allocation, since we want to allow withdrawing from inactive vaults
@@ -154,10 +137,7 @@ contract AmoManager is AccessControl, OracleAware {
         // Check invariants
         uint256 endingAmoSupply = totalAmoSupply();
         if (endingAmoSupply != startingAmoSupply) {
-            revert AmoSupplyInvariantViolation(
-                startingAmoSupply,
-                endingAmoSupply
-            );
+            revert AmoSupplyInvariantViolation(startingAmoSupply, endingAmoSupply);
         }
 
         emit AmoDeallocated(amoVault, dusdAmount);
@@ -176,9 +156,7 @@ contract AmoManager is AccessControl, OracleAware {
      * @notice Decreases the AMO supply by burning dUSD.
      * @param dusdAmount The amount of dUSD to burn.
      */
-    function decreaseAmoSupply(
-        uint256 dusdAmount
-    ) public onlyRole(AMO_ALLOCATOR_ROLE) {
+    function decreaseAmoSupply(uint256 dusdAmount) public onlyRole(AMO_ALLOCATOR_ROLE) {
         dusd.burn(dusdAmount);
     }
 
@@ -196,9 +174,7 @@ contract AmoManager is AccessControl, OracleAware {
      * @param amoVault The address of the AMO vault.
      * @return The current allocation for the vault.
      */
-    function amoVaultAllocation(
-        address amoVault
-    ) public view returns (uint256) {
+    function amoVaultAllocation(address amoVault) public view returns (uint256) {
         (bool exists, uint256 allocation) = _amoVaults.tryGet(amoVault);
         return exists ? allocation : 0;
     }
@@ -215,9 +191,7 @@ contract AmoManager is AccessControl, OracleAware {
      * @notice Enables an AMO vault.
      * @param amoVault The address of the AMO vault.
      */
-    function enableAmoVault(
-        address amoVault
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function enableAmoVault(address amoVault) public onlyRole(DEFAULT_ADMIN_ROLE) {
         if (_amoVaults.contains(amoVault)) {
             revert AmoVaultAlreadyEnabled(amoVault);
         }
@@ -229,9 +203,7 @@ contract AmoManager is AccessControl, OracleAware {
      * @notice Disables an AMO vault.
      * @param amoVault The address of the AMO vault.
      */
-    function disableAmoVault(
-        address amoVault
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function disableAmoVault(address amoVault) public onlyRole(DEFAULT_ADMIN_ROLE) {
         if (!_amoVaults.contains(amoVault)) {
             revert InactiveAmoVault(amoVault);
         }
@@ -280,21 +252,14 @@ contract AmoManager is AccessControl, OracleAware {
         //    converted to that collateral is now free-floating and fully backed
         // 5. Thus we decrement the AMO allocation to reflect the fact that the dUSD is no longer
         //    unbacked, but is actually fully backed and circulating
-        uint256 collateralUsdValue = collateralHolderVault.assetValueFromAmount(
-            amount,
-            token
-        );
+        uint256 collateralUsdValue = collateralHolderVault.assetValueFromAmount(amount, token);
         uint256 collateralInDusd = usdValueToDusdAmount(collateralUsdValue);
         (, uint256 currentAllocation) = _amoVaults.tryGet(amoVault);
         _amoVaults.set(amoVault, currentAllocation - collateralInDusd);
         totalAllocated -= collateralInDusd;
 
         // Transfer the collateral
-        AmoVault(amoVault).withdrawTo(
-            address(collateralHolderVault),
-            amount,
-            token
-        );
+        AmoVault(amoVault).withdrawTo(address(collateralHolderVault), amount, token);
     }
 
     /**
@@ -321,10 +286,7 @@ contract AmoManager is AccessControl, OracleAware {
         // 2. When we buy back dUSD, the dUSD is now unbacked (a redemption)
         // 3. Thus any collateral deposited to an AMO vault can create unbacked dUSD,
         //    which means the AMO allocation for that vault must be increased to reflect this
-        uint256 collateralUsdValue = collateralHolderVault.assetValueFromAmount(
-            amount,
-            token
-        );
+        uint256 collateralUsdValue = collateralHolderVault.assetValueFromAmount(amount, token);
         uint256 collateralInDusd = usdValueToDusdAmount(collateralUsdValue);
         (, uint256 currentAllocation) = _amoVaults.tryGet(amoVault);
         _amoVaults.set(amoVault, currentAllocation + collateralInDusd);
@@ -341,9 +303,7 @@ contract AmoManager is AccessControl, OracleAware {
      * @param vaultAddress The address of the AMO vault to check.
      * @return The available profit in USD (can be negative).
      */
-    function availableVaultProfitsInUsd(
-        address vaultAddress
-    ) public view returns (int256) {
+    function availableVaultProfitsInUsd(address vaultAddress) public view returns (int256) {
         uint256 totalVaultValueInUsd = AmoVault(vaultAddress).totalValue();
         uint256 allocatedDusd = amoVaultAllocation(vaultAddress);
         uint256 allocatedValueInUsd = dusdAmountToUsdValue(allocatedDusd);
@@ -364,31 +324,16 @@ contract AmoManager is AccessControl, OracleAware {
         address recipient,
         address takeProfitToken,
         uint256 takeProfitAmount
-    )
-        public
-        onlyRole(FEE_COLLECTOR_ROLE)
-        returns (uint256 takeProfitValueInUsd)
-    {
+    ) public onlyRole(FEE_COLLECTOR_ROLE) returns (uint256 takeProfitValueInUsd) {
         // Leave open the possibility of withdrawing profits from inactive vaults
 
-        takeProfitValueInUsd = amoVault.assetValueFromAmount(
-            takeProfitAmount,
-            takeProfitToken
-        );
+        takeProfitValueInUsd = amoVault.assetValueFromAmount(takeProfitAmount, takeProfitToken);
 
-        int256 _availableProfitInUsd = availableVaultProfitsInUsd(
-            address(amoVault)
-        );
+        int256 _availableProfitInUsd = availableVaultProfitsInUsd(address(amoVault));
 
         // Make sure we are withdrawing less than the available profit
-        if (
-            _availableProfitInUsd <= 0 ||
-            int256(takeProfitValueInUsd) > _availableProfitInUsd
-        ) {
-            revert InsufficientProfits(
-                takeProfitValueInUsd,
-                _availableProfitInUsd
-            );
+        if (_availableProfitInUsd <= 0 || int256(takeProfitValueInUsd) > _availableProfitInUsd) {
+            revert InsufficientProfits(takeProfitValueInUsd, _availableProfitInUsd);
         }
 
         // Withdraw profits from the vault
@@ -425,9 +370,7 @@ contract AmoManager is AccessControl, OracleAware {
      * @param usdValue The amount of USD value to convert.
      * @return The equivalent amount of dUSD tokens.
      */
-    function usdValueToDusdAmount(
-        uint256 usdValue
-    ) public view returns (uint256) {
+    function usdValueToDusdAmount(uint256 usdValue) public view returns (uint256) {
         uint8 dusdDecimals = dusd.decimals();
         return (usdValue * (10 ** dusdDecimals)) / USD_UNIT;
     }
@@ -437,13 +380,9 @@ contract AmoManager is AccessControl, OracleAware {
      * @param dusdAmount The amount of dUSD tokens to convert.
      * @return The equivalent amount of USD value.
      */
-    function dusdAmountToUsdValue(
-        uint256 dusdAmount
-    ) public view returns (uint256) {
+    function dusdAmountToUsdValue(uint256 dusdAmount) public view returns (uint256) {
         uint8 dusdDecimals = dusd.decimals();
-        return
-            (dusdAmount * oracle.getAssetPrice(address(dusd))) /
-            (10 ** dusdDecimals);
+        return (dusdAmount * oracle.getAssetPrice(address(dusd))) / (10 ** dusdDecimals);
     }
 
     /* Admin */
@@ -452,9 +391,7 @@ contract AmoManager is AccessControl, OracleAware {
      * @notice Sets the collateral vault address
      * @param _collateralVault The address of the new collateral vault
      */
-    function setCollateralVault(
-        address _collateralVault
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setCollateralVault(address _collateralVault) external onlyRole(DEFAULT_ADMIN_ROLE) {
         collateralHolderVault = CollateralVault(_collateralVault);
     }
 }

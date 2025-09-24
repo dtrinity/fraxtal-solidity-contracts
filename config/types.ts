@@ -1,10 +1,7 @@
 import { FeeAmount } from "@uniswap/v3-sdk";
 import { Addressable, BigNumberish } from "ethers";
 
-import {
-  IInterestRateStrategyParams,
-  IReserveParams,
-} from "../utils/lending/types";
+import { IInterestRateStrategyParams, IReserveParams } from "../utils/lending/types";
 
 export interface Config {
   // Only for localhost/hardhat/testnet
@@ -94,9 +91,7 @@ export interface LendingConfig {
   // Mapping from token symbol to asset address
   readonly reserveAssetAddresses: { [tokenSymbol: string]: string } | undefined;
   // Mapping from token symbol to Chainlink aggregator address
-  readonly chainlinkAggregatorAddresses:
-    | { [tokenSymbol: string]: string }
-    | undefined;
+  readonly chainlinkAggregatorAddresses: { [tokenSymbol: string]: string } | undefined;
   readonly flashLoanPremium: {
     readonly total: number;
     readonly protocol: number;

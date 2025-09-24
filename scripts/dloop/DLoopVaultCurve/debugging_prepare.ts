@@ -17,27 +17,17 @@ async function main(): Promise<void> {
 
   const config = await getConfig(hre);
 
-  const underlyingTokenInfo = await fetchTokenInfo(
-    hre,
-    config.dLoopCurve?.vaults[0].underlyingAssetAddress as string,
-  );
+  const underlyingTokenInfo = await fetchTokenInfo(hre, config.dLoopCurve?.vaults[0].underlyingAssetAddress as string);
 
   // const DLoopVaultCurve = "0x4CF0A91e8467dcC259De9aD424adBB5f366Bf370";
   // const DLoopVaultCurve = "0xC20291214862C29B974E1A37e19234CaCC600b09";
   const { address: DLoopVaultCurve } = await hre.deployments.get(
-    getDLoopVaultCurveDeploymentName(
-      underlyingTokenInfo.symbol,
-      30000 * ONE_BPS_UNIT,
-    ),
+    getDLoopVaultCurveDeploymentName(underlyingTokenInfo.symbol, 30000 * ONE_BPS_UNIT),
   );
 
   console.log("DLoopVaultCurve: ", DLoopVaultCurve);
 
-  const dLOOPCurve = await hre.ethers.getContractAt(
-    "DLoopVaultCurve",
-    DLoopVaultCurve,
-    signer,
-  );
+  const dLOOPCurve = await hre.ethers.getContractAt("DLoopVaultCurve", DLoopVaultCurve, signer);
 
   console.log("Fetched the underlying token info");
 
@@ -50,21 +40,13 @@ async function main(): Promise<void> {
   let res;
   let leverageBps;
 
-  await underlyingTokenContract.approve(
-    DLoopVaultCurve,
-    ethers.parseUnits("100", 18),
-  );
+  await underlyingTokenContract.approve(DLoopVaultCurve, ethers.parseUnits("100", 18));
 
   console.log("Approved the contract to spend the underlying token");
-  console.log(
-    "Underlying token balance before deposit: ",
-    await underlyingTokenContract.balanceOf(signer.address),
-  );
+  console.log("Underlying token balance before deposit: ", await underlyingTokenContract.balanceOf(signer.address));
   console.log("");
 
-  const balanceBeforeDeposit1 = await underlyingTokenContract.balanceOf(
-    signer.address,
-  );
+  const balanceBeforeDeposit1 = await underlyingTokenContract.balanceOf(signer.address);
   const shareBalanceBeforeDeposit1 = await dLOOPCurve.balanceOf(signer.address);
 
   // Deposit the 1st time
@@ -74,25 +56,17 @@ async function main(): Promise<void> {
   await res.wait();
   console.log("Deposit successful");
 
-  const balanceAfterDeposit1 = await underlyingTokenContract.balanceOf(
-    signer.address,
-  );
-  console.log(
-    `Deposited amount: ${balanceAfterDeposit1 - balanceBeforeDeposit1}`,
-  );
+  const balanceAfterDeposit1 = await underlyingTokenContract.balanceOf(signer.address);
+  console.log(`Deposited amount: ${balanceAfterDeposit1 - balanceBeforeDeposit1}`);
   const shareBalanceAfterDeposit1 = await dLOOPCurve.balanceOf(signer.address);
-  console.log(
-    `Share received: ${shareBalanceAfterDeposit1 - shareBalanceBeforeDeposit1}`,
-  );
+  console.log(`Share received: ${shareBalanceAfterDeposit1 - shareBalanceBeforeDeposit1}`);
 
   // Check current leverage bps
   leverageBps = await dLOOPCurve.getCurrentLeverageBps();
   console.log("Current leverage bps: ", leverageBps.toString());
   console.log("");
 
-  const balanceBeforeDeposit2 = await underlyingTokenContract.balanceOf(
-    signer.address,
-  );
+  const balanceBeforeDeposit2 = await underlyingTokenContract.balanceOf(signer.address);
   const shareBalanceBeforeDeposit2 = await dLOOPCurve.balanceOf(signer.address);
 
   // Deposit the 2nd time
@@ -102,47 +76,29 @@ async function main(): Promise<void> {
   await res.wait();
   console.log("Deposit successful");
 
-  const balanceAfterDeposit2 = await underlyingTokenContract.balanceOf(
-    signer.address,
-  );
-  console.log(
-    `Deposited amount: ${balanceAfterDeposit2 - balanceBeforeDeposit2}`,
-  );
+  const balanceAfterDeposit2 = await underlyingTokenContract.balanceOf(signer.address);
+  console.log(`Deposited amount: ${balanceAfterDeposit2 - balanceBeforeDeposit2}`);
   const shareBalanceAfterDeposit2 = await dLOOPCurve.balanceOf(signer.address);
-  console.log(
-    `Share received: ${shareBalanceAfterDeposit2 - shareBalanceBeforeDeposit2}`,
-  );
+  console.log(`Share received: ${shareBalanceAfterDeposit2 - shareBalanceBeforeDeposit2}`);
 
   // Check current leverage bps
   leverageBps = await dLOOPCurve.getCurrentLeverageBps();
   console.log("Current leverage bps: ", leverageBps.toString());
   console.log("");
 
-  const balanceBeforeWithdraw = await underlyingTokenContract.balanceOf(
-    signer.address,
-  );
+  const balanceBeforeWithdraw = await underlyingTokenContract.balanceOf(signer.address);
   const shareBalanceBeforeWithdraw = await dLOOPCurve.balanceOf(signer.address);
 
   // First withdrawal with be successful
   console.log("Withdrawing: ", res.hash);
-  res = await dLOOPCurve.withdraw(
-    ethers.parseUnits("0.1", 18),
-    signer.address,
-    signer.address,
-  );
+  res = await dLOOPCurve.withdraw(ethers.parseUnits("0.1", 18), signer.address, signer.address);
   await res.wait();
   console.log("Withdraw successful");
 
-  const balanceAfterWithdraw = await underlyingTokenContract.balanceOf(
-    signer.address,
-  );
-  console.log(
-    `Withdrawn amount: ${balanceAfterWithdraw - balanceBeforeWithdraw}`,
-  );
+  const balanceAfterWithdraw = await underlyingTokenContract.balanceOf(signer.address);
+  console.log(`Withdrawn amount: ${balanceAfterWithdraw - balanceBeforeWithdraw}`);
   const shareBalanceAfterWithdraw = await dLOOPCurve.balanceOf(signer.address);
-  console.log(
-    `Share burned: ${shareBalanceBeforeWithdraw - shareBalanceAfterWithdraw}`,
-  );
+  console.log(`Share burned: ${shareBalanceBeforeWithdraw - shareBalanceAfterWithdraw}`);
 
   // Check current leverage bps
   leverageBps = await dLOOPCurve.getCurrentLeverageBps();

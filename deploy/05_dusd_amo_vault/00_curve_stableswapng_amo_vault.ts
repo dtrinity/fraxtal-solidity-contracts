@@ -4,46 +4,30 @@ import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../config/config";
 import { deployContract } from "../../utils/deploy";
-import {
-  AMO_MANAGER_ID,
-  CURVE_STABLESWAPNG_AMO_VAULT_ID,
-} from "../../utils/deploy-ids";
+import { AMO_MANAGER_ID, CURVE_STABLESWAPNG_AMO_VAULT_ID } from "../../utils/deploy-ids";
 import { ORACLE_AGGREGATOR_ID } from "../../utils/oracle/deploy-ids";
 import { isLocalNetwork } from "../../utils/utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {
-    dusdDeployer,
-    dusdCollateralWithdrawer,
-    dusdRecoverer,
-    dusdAmoTrader,
-  } = await hre.getNamedAccounts();
+  const { dusdDeployer, dusdCollateralWithdrawer, dusdRecoverer, dusdAmoTrader } = await hre.getNamedAccounts();
   const signer = await hre.ethers.getSigner(dusdDeployer);
   const { dusd } = await getConfig(hre);
   const curve = dusd?.amoVaults?.curveStableSwapNG;
 
   if (!curve) {
-    console.log(
-      "Skipping Curve AMO vault deployment since missing Curve contracts config",
-    );
+    console.log("Skipping Curve AMO vault deployment since missing Curve contracts config");
     return true;
   }
 
-  const { address: amoManagerAddress } =
-    await hre.deployments.get(AMO_MANAGER_ID);
+  const { address: amoManagerAddress } = await hre.deployments.get(AMO_MANAGER_ID);
   let oracleAggregatorAddress = ZeroAddress;
 
   try {
     const { address } = await hre.deployments.get(ORACLE_AGGREGATOR_ID);
     oracleAggregatorAddress = address;
   } catch (e: any) {
-    if (
-      isLocalNetwork(hre.network.name) &&
-      e.message.includes("No deployment found for")
-    ) {
-      console.log(
-        "Ignoring AaveOracle not found since we may be running in a local test fixture",
-      );
+    if (isLocalNetwork(hre.network.name) && e.message.includes("No deployment found for")) {
+      console.log("Ignoring AaveOracle not found since we may be running in a local test fixture");
     } else {
       throw e;
     }
@@ -69,14 +53,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if (!deploymentResult) throw new Error("Failed to deploy Curve AMO vault");
 
   console.log("Enabling Curve AMO vault");
-  const amoManager = await hre.ethers.getContractAt(
-    "AmoManager",
-    amoManagerAddress,
-    signer,
-  );
-  const { address: vaultAddress } = await hre.deployments.get(
-    CURVE_STABLESWAPNG_AMO_VAULT_ID,
-  );
+  const amoManager = await hre.ethers.getContractAt("AmoManager", amoManagerAddress, signer);
+  const { address: vaultAddress } = await hre.deployments.get(CURVE_STABLESWAPNG_AMO_VAULT_ID);
   await amoManager.enableAmoVault(vaultAddress);
   return true;
 };

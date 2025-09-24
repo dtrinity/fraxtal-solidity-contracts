@@ -17,14 +17,14 @@
 
 pragma solidity ^0.8.10;
 
-import {IERC20Detailed} from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
-import {IERC20WithPermit} from "contracts/lending/core/interfaces/IERC20WithPermit.sol";
-import {IPoolAddressesProvider} from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
-import {SafeERC20} from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeERC20.sol";
-import {SafeMath} from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeMath.sol";
-import {BaseDSwapSellAdapter} from "./BaseDSwapSellAdapter.sol";
-import {ReentrancyGuard} from "../../dependencies/openzeppelin/ReentrancyGuard.sol";
-import {ISwapRouter} from "./interfaces/ISwapRouter.sol";
+import { IERC20Detailed } from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import { IERC20WithPermit } from "contracts/lending/core/interfaces/IERC20WithPermit.sol";
+import { IPoolAddressesProvider } from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
+import { SafeERC20 } from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeERC20.sol";
+import { SafeMath } from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeMath.sol";
+import { BaseDSwapSellAdapter } from "./BaseDSwapSellAdapter.sol";
+import { ReentrancyGuard } from "../../dependencies/openzeppelin/ReentrancyGuard.sol";
+import { ISwapRouter } from "./interfaces/ISwapRouter.sol";
 
 /**
  * @title DSwapLiquiditySwapAdapter
@@ -77,10 +77,7 @@ contract DSwapLiquiditySwapAdapter is BaseDSwapSellAdapter, ReentrancyGuard {
             uint256 swapAllBalanceOffset,
             bytes memory path,
             PermitSignature memory permitParams
-        ) = abi.decode(
-                params,
-                (IERC20Detailed, uint256, uint256, bytes, PermitSignature)
-            );
+        ) = abi.decode(params, (IERC20Detailed, uint256, uint256, bytes, PermitSignature));
 
         _swapLiquidity(
             swapAllBalanceOffset,
@@ -118,9 +115,7 @@ contract DSwapLiquiditySwapAdapter is BaseDSwapSellAdapter, ReentrancyGuard {
         bytes memory path,
         PermitSignature calldata permitParams
     ) external nonReentrant {
-        IERC20WithPermit aToken = IERC20WithPermit(
-            _getReserveData(address(assetToSwapFrom)).aTokenAddress
-        );
+        IERC20WithPermit aToken = IERC20WithPermit(_getReserveData(address(assetToSwapFrom)).aTokenAddress);
 
         if (swapAllBalanceOffset != 0) {
             uint256 balance = aToken.balanceOf(msg.sender);
@@ -128,21 +123,9 @@ contract DSwapLiquiditySwapAdapter is BaseDSwapSellAdapter, ReentrancyGuard {
             amountToSwap = balance;
         }
 
-        _pullATokenAndWithdraw(
-            address(assetToSwapFrom),
-            aToken,
-            msg.sender,
-            amountToSwap,
-            permitParams
-        );
+        _pullATokenAndWithdraw(address(assetToSwapFrom), aToken, msg.sender, amountToSwap, permitParams);
 
-        uint256 amountReceived = _sellOnDSwap(
-            assetToSwapFrom,
-            assetToSwapTo,
-            amountToSwap,
-            minAmountToReceive,
-            path
-        );
+        uint256 amountReceived = _sellOnDSwap(assetToSwapFrom, assetToSwapTo, amountToSwap, minAmountToReceive, path);
 
         assetToSwapTo.safeApprove(address(POOL), 0);
         assetToSwapTo.safeApprove(address(POOL), amountReceived);
@@ -172,51 +155,28 @@ contract DSwapLiquiditySwapAdapter is BaseDSwapSellAdapter, ReentrancyGuard {
         IERC20Detailed assetToSwapTo,
         uint256 minAmountToReceive
     ) internal {
-        IERC20WithPermit aToken = IERC20WithPermit(
-            _getReserveData(address(assetToSwapFrom)).aTokenAddress
-        );
+        IERC20WithPermit aToken = IERC20WithPermit(_getReserveData(address(assetToSwapFrom)).aTokenAddress);
         uint256 amountToSwap = flashLoanAmount;
 
         uint256 balance = aToken.balanceOf(initiator);
         if (swapAllBalanceOffset != 0) {
             uint256 balanceToSwap = balance.sub(premium);
-            require(
-                balanceToSwap <= amountToSwap,
-                "INSUFFICIENT_AMOUNT_TO_SWAP"
-            );
+            require(balanceToSwap <= amountToSwap, "INSUFFICIENT_AMOUNT_TO_SWAP");
             amountToSwap = balanceToSwap;
         } else {
-            require(
-                balance >= amountToSwap.add(premium),
-                "INSUFFICIENT_ATOKEN_BALANCE"
-            );
+            require(balance >= amountToSwap.add(premium), "INSUFFICIENT_ATOKEN_BALANCE");
         }
 
-        uint256 amountReceived = _sellOnDSwap(
-            assetToSwapFrom,
-            assetToSwapTo,
-            amountToSwap,
-            minAmountToReceive,
-            path
-        );
+        uint256 amountReceived = _sellOnDSwap(assetToSwapFrom, assetToSwapTo, amountToSwap, minAmountToReceive, path);
 
         assetToSwapTo.safeApprove(address(POOL), 0);
         assetToSwapTo.safeApprove(address(POOL), amountReceived);
         POOL.deposit(address(assetToSwapTo), amountReceived, initiator, 0);
 
-        _pullATokenAndWithdraw(
-            address(assetToSwapFrom),
-            aToken,
-            initiator,
-            amountToSwap.add(premium),
-            permitParams
-        );
+        _pullATokenAndWithdraw(address(assetToSwapFrom), aToken, initiator, amountToSwap.add(premium), permitParams);
 
         // Repay flash loan
         assetToSwapFrom.safeApprove(address(POOL), 0);
-        assetToSwapFrom.safeApprove(
-            address(POOL),
-            flashLoanAmount.add(premium)
-        );
+        assetToSwapFrom.safeApprove(address(POOL), flashLoanAmount.add(premium));
     }
 }

@@ -20,11 +20,7 @@ pragma solidity =0.7.6;
 import "../libraries/FullMath.sol";
 
 contract FullMathEchidnaTest {
-    function checkMulDivRounding(
-        uint256 x,
-        uint256 y,
-        uint256 d
-    ) external pure {
+    function checkMulDivRounding(uint256 x, uint256 y, uint256 d) external pure {
         require(d > 0);
 
         uint256 ceiled = FullMath.mulDivRoundingUp(x, y, d);
@@ -55,11 +51,7 @@ contract FullMathEchidnaTest {
         assert(y - y2 < d);
     }
 
-    function checkMulDivRoundingUp(
-        uint256 x,
-        uint256 y,
-        uint256 d
-    ) external pure {
+    function checkMulDivRoundingUp(uint256 x, uint256 y, uint256 d) external pure {
         require(d > 0);
         uint256 z = FullMath.mulDivRoundingUp(x, y, d);
         if (x == 0 || y == 0) {

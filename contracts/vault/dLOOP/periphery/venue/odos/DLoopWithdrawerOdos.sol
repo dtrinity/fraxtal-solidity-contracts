@@ -17,8 +17,8 @@
 
 pragma solidity 0.8.20;
 
-import {DLoopWithdrawerBase, ERC20, IERC3156FlashLender} from "../../DLoopWithdrawerBase.sol";
-import {OdosSwapLogic, IOdosRouterV2} from "./OdosSwapLogic.sol";
+import { DLoopWithdrawerBase, ERC20, IERC3156FlashLender } from "../../DLoopWithdrawerBase.sol";
+import { OdosSwapLogic, IOdosRouterV2 } from "./OdosSwapLogic.sol";
 
 /**
  * @title DLoopWithdrawerOdos
@@ -32,10 +32,7 @@ contract DLoopWithdrawerOdos is DLoopWithdrawerBase {
      * @param _flashLender Address of the flash loan provider
      * @param _odosRouter Address of the Odos router
      */
-    constructor(
-        IERC3156FlashLender _flashLender,
-        IOdosRouterV2 _odosRouter
-    ) DLoopWithdrawerBase(_flashLender) {
+    constructor(IERC3156FlashLender _flashLender, IOdosRouterV2 _odosRouter) DLoopWithdrawerBase(_flashLender) {
         odosRouter = _odosRouter;
     }
 

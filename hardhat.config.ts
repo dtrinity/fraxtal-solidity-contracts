@@ -10,10 +10,7 @@ import { HardhatUserConfig } from "hardhat/config";
 
 import { getDefaultDeployScriptPaths } from "./utils/deploy";
 import { getDefaultSolidityCompilersConfig } from "./utils/hardhat-config/compilers";
-import {
-  getDefaultNamedAccounts,
-  getDefaultPrivateKeys,
-} from "./utils/hardhat-config/named_accounts";
+import { getDefaultNamedAccounts, getDefaultPrivateKeys } from "./utils/hardhat-config/named_accounts";
 
 /* eslint-disable camelcase -- Use camelcase for network config  */
 const config: HardhatUserConfig = {

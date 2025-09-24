@@ -20,25 +20,17 @@ async function loadNetworkConfig() {
   const networkName = hre.network.name;
   try {
     // Example path: ../../config/networks/sonic_mainnet.ts (relative to this script file)
-    const configPath = path.resolve(
-      __dirname,
-      "../../config/networks",
-      `${networkName}.ts`,
-    );
+    const configPath = path.resolve(__dirname, "../../config/networks", `${networkName}.ts`);
 
     const configModule = await import(configPath);
     if (typeof configModule.getConfig !== "function") {
-      console.warn(
-        `Config module for ${networkName} does not export getConfig – skipping aggregator section`,
-      );
+      console.warn(`Config module for ${networkName} does not export getConfig – skipping aggregator section`);
       return undefined;
     }
     const config = await configModule.getConfig(hre);
     return config;
   } catch (err) {
-    console.warn(
-      `⚠️  Could not load network config for ${networkName}: ${(err as Error).message}`,
-    );
+    console.warn(`⚠️  Could not load network config for ${networkName}: ${(err as Error).message}`);
     return undefined;
   }
 }
@@ -47,9 +39,7 @@ async function loadNetworkConfig() {
 async function getOracleAggregatorContract() {
   try {
     const dep = await hre.deployments.get("OracleAggregator");
-    const AGGREGATOR_ABI = [
-      "function getAssetPrice(address) view returns (uint256)",
-    ];
+    const AGGREGATOR_ABI = ["function getAssetPrice(address) view returns (uint256)"];
     return await ethers.getContractAt(AGGREGATOR_ABI, dep.address);
   } catch {
     return undefined;
@@ -94,9 +84,7 @@ async function dumpAggregatorPrices(): Promise<void> {
   addKeys(aggCfg.curveOracleAssets?.curveApi3CompositeOracles);
 
   if (assetSet.size === 0) {
-    console.log(
-      "No assets configured for OracleAggregator – skipping section\n",
-    );
+    console.log("No assets configured for OracleAggregator – skipping section\n");
     return;
   }
 
@@ -123,9 +111,7 @@ async function dumpAggregatorPrices(): Promise<void> {
       const symbol = tokenAddressMap[assetAddrLower] || assetAddrLower;
       console.log(`  ${symbol.padEnd(15)} : ${priceHuman}`);
     } catch (err) {
-      console.warn(
-        `  ⚠️  Could not fetch price for ${assetAddrLower}: ${(err as Error).message}`,
-      );
+      console.warn(`  ⚠️  Could not fetch price for ${assetAddrLower}: ${(err as Error).message}`);
     }
   }
   console.log("------------------------------------------------------------");
@@ -149,8 +135,7 @@ async function main(): Promise<void> {
   const entries = Object.entries(deployments);
 
   // Helper to decide whether a deployment looks like an oracle (naive pattern match)
-  const looksLikeOracle = (name: string): boolean =>
-    /Oracle|Wrapper|Converter|HardPegOracle|Aggregator/i.test(name);
+  const looksLikeOracle = (name: string): boolean => /Oracle|Wrapper|Converter|HardPegOracle|Aggregator/i.test(name);
 
   for (const [name, deployment] of entries) {
     if (!looksLikeOracle(name)) {
@@ -166,10 +151,7 @@ async function main(): Promise<void> {
       const aggregator = await ethers.getContractAt(AGGREGATOR_ABI, address);
 
       // These calls are read-only and inexpensive
-      const [decimals, description] = await Promise.all([
-        aggregator.decimals(),
-        aggregator.description().catch(() => ""),
-      ]);
+      const [decimals, description] = await Promise.all([aggregator.decimals(), aggregator.description().catch(() => "")]);
 
       // latestRoundData returns (uint80,int256,uint256,uint256,uint80)
       const [, answer, , updatedAt] = await aggregator.latestRoundData();
@@ -182,9 +164,7 @@ async function main(): Promise<void> {
       console.log(`  decimals    : ${decimals}`);
       console.log(`  price       : ${priceHuman}`);
       console.log(`  updatedAt   : ${updatedIso}`);
-      console.log(
-        "------------------------------------------------------------",
-      );
+      console.log("------------------------------------------------------------");
     } catch (err) {
       // The contract might not conform to the interface – skip quietly.
       // Uncomment next line for troubleshooting.

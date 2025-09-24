@@ -30,9 +30,7 @@ contract DexOracleWrapper is IOracleWrapper {
     /**
      * @dev Get the price info of an asset
      */
-    function getPriceInfo(
-        address asset
-    ) external view returns (uint256 price, bool isAlive) {
+    function getPriceInfo(address asset) external view returns (uint256 price, bool isAlive) {
         price = priceOracle.getAssetPrice(asset);
         isAlive = price > 0;
 

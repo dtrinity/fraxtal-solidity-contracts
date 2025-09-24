@@ -1,11 +1,7 @@
 import { expect } from "chai";
 import hre from "hardhat";
 
-import {
-  getTokenAddresses,
-  getTokenRegistry,
-  TokenDeploymentStrategy,
-} from "../../utils/token-registry";
+import { getTokenAddresses, getTokenRegistry, TokenDeploymentStrategy } from "../../utils/token-registry";
 
 describe("Token Registry", function () {
   describe("getTokenRegistry", function () {
@@ -13,9 +9,7 @@ describe("Token Registry", function () {
       const registry = await getTokenRegistry(hre);
 
       expect(registry.tokens.dUSD).to.exist;
-      expect(registry.tokens.dUSD.strategy).to.equal(
-        TokenDeploymentStrategy.DEPLOY_ONLY,
-      );
+      expect(registry.tokens.dUSD.strategy).to.equal(TokenDeploymentStrategy.DEPLOY_ONLY);
       expect(registry.tokens.dUSD.aliases).to.include("dusd");
       expect(registry.tokens.dUSD.aliases).to.include("DUSD");
     });

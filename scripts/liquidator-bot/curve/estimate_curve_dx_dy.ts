@@ -1,10 +1,7 @@
 import hre from "hardhat";
 
 import { getConfig } from "../../../config/config";
-import {
-  CURVE_POOLS,
-  TOKEN_INFO,
-} from "../../../config/networks/fraxtal_testnet";
+import { CURVE_POOLS, TOKEN_INFO } from "../../../config/networks/fraxtal_testnet";
 import { ICurveRouterNgPoolsOnlyV1 } from "../../../typechain-types";
 
 /**
@@ -24,19 +21,7 @@ async function main(): Promise<void> {
     throw new Error("Curve router address is not set in config");
   }
   // Example route and swap params from fraxtal_testnet.ts
-  const route: [
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-  ] = [
+  const route: [string, string, string, string, string, string, string, string, string, string, string] = [
     TOKEN_INFO.dUSD.address,
     CURVE_POOLS.stableswapng.dUSD_FRAX.address,
     TOKEN_INFO.FRAX.address,
@@ -64,19 +49,7 @@ async function main(): Promise<void> {
     [0n, 0n, 0n, 0n],
   ];
 
-  const reversedRoute: [
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-  ] = [
+  const reversedRoute: [string, string, string, string, string, string, string, string, string, string, string] = [
     TOKEN_INFO.sFRAX.address,
     CURVE_POOLS.stableswapng.FRAX_sFRAX.address,
     TOKEN_INFO.FRAX.address,
@@ -114,19 +87,11 @@ async function main(): Promise<void> {
     config.liquidatorBotCurve.swapRouter,
   )) as ICurveRouterNgPoolsOnlyV1;
 
-  const estimatedAmountIn = await curveRouter.get_dx(
-    route,
-    swapParams,
-    amountOut,
-  );
+  const estimatedAmountIn = await curveRouter.get_dx(route, swapParams, amountOut);
 
   console.log("Estimated input amount:", estimatedAmountIn.toString());
 
-  const estimatedAmountOut = await curveRouter.get_dy(
-    route,
-    swapParams,
-    estimatedAmountIn,
-  );
+  const estimatedAmountOut = await curveRouter.get_dy(route, swapParams, estimatedAmountIn);
 
   console.log("Estimated output amount:", estimatedAmountOut.toString());
 
@@ -137,25 +102,11 @@ async function main(): Promise<void> {
 
   // Convert Result objects to regular arrays
   const normalizedReversedRoute = [...reversedRoute];
-  const normalizedReversedSwapParams = reversedSwapParams.map((param) => [
-    ...param,
-  ]);
+  const normalizedReversedSwapParams = reversedSwapParams.map((param) => [...param]);
 
   // Test the reversed route/params with get_dy
   const estimatedAmountInWithReversed = await curveRouter.get_dy(
-    normalizedReversedRoute as [
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-    ],
+    normalizedReversedRoute as [string, string, string, string, string, string, string, string, string, string, string],
     normalizedReversedSwapParams as [
       [bigint, bigint, bigint, bigint],
       [bigint, bigint, bigint, bigint],
@@ -166,25 +117,10 @@ async function main(): Promise<void> {
     amountOut,
   );
 
-  console.log(
-    "\nEstimated amount in using reversed route/params:",
-    estimatedAmountInWithReversed.toString(),
-  );
+  console.log("\nEstimated amount in using reversed route/params:", estimatedAmountInWithReversed.toString());
 
   const estimatedAmountOutWithReversed = await curveRouter.get_dx(
-    normalizedReversedRoute as [
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-    ],
+    normalizedReversedRoute as [string, string, string, string, string, string, string, string, string, string, string],
     normalizedReversedSwapParams as [
       [bigint, bigint, bigint, bigint],
       [bigint, bigint, bigint, bigint],
@@ -195,10 +131,7 @@ async function main(): Promise<void> {
     estimatedAmountInWithReversed,
   );
 
-  console.log(
-    "\nEstimated amount out using reversed route/params:",
-    estimatedAmountOutWithReversed.toString(),
-  );
+  console.log("\nEstimated amount out using reversed route/params:", estimatedAmountOutWithReversed.toString());
 }
 
 main()

@@ -41,14 +41,9 @@ contract CurveOracleWrapper is ICurveOracleWrapper {
         uint256 tokenIndex;
     }
 
-    constructor(
-        uint256 _baseCurrencyUnit
-    ) ICurveOracleWrapper(_baseCurrencyUnit) {}
+    constructor(uint256 _baseCurrencyUnit) ICurveOracleWrapper(_baseCurrencyUnit) {}
 
-    function setAssetConfig(
-        address asset,
-        address pool
-    ) external override onlyRole(ORACLE_MANAGER_ROLE) {
+    function setAssetConfig(address asset, address pool) external override onlyRole(ORACLE_MANAGER_ROLE) {
         if (pool == address(0)) revert InvalidPool(pool);
 
         ICurveStableNG curvePool = ICurveStableNG(pool);
@@ -69,30 +64,21 @@ contract CurveOracleWrapper is ICurveOracleWrapper {
             }
         }
 
-        if (tokenIndex == type(uint256).max)
-            revert InvalidTokenIndex(pool, tokenIndex);
+        if (tokenIndex == type(uint256).max) revert InvalidTokenIndex(pool, tokenIndex);
 
-        assetConfigs[asset] = PoolConfig({
-            pool: address(curvePool),
-            tokenIndex: tokenIndex
-        });
+        assetConfigs[asset] = PoolConfig({ pool: address(curvePool), tokenIndex: tokenIndex });
 
         emit AssetConfigSet(asset, pool, tokenIndex);
     }
 
-    function removeAssetConfig(
-        address asset
-    ) external override onlyRole(ORACLE_MANAGER_ROLE) {
+    function removeAssetConfig(address asset) external override onlyRole(ORACLE_MANAGER_ROLE) {
         delete assetConfigs[asset];
         emit AssetConfigRemoved(asset);
     }
 
-    function getPriceInfo(
-        address asset
-    ) public view virtual override returns (uint256 price, bool isAlive) {
+    function getPriceInfo(address asset) public view virtual override returns (uint256 price, bool isAlive) {
         PoolConfig memory config = assetConfigs[asset];
-        if (address(config.pool) == address(0))
-            revert AssetNotConfigured(asset);
+        if (address(config.pool) == address(0)) revert AssetNotConfigured(asset);
 
         ICurveStableNG curvePool = ICurveStableNG(config.pool);
 
@@ -118,9 +104,7 @@ contract CurveOracleWrapper is ICurveOracleWrapper {
         if (rates.length <= config.tokenIndex) {
             scaledPrice = unscaledPrice;
         } else {
-            scaledPrice =
-                (rates[config.tokenIndex] * unscaledPrice) /
-                CURVE_RATE_PRECISION;
+            scaledPrice = (rates[config.tokenIndex] * unscaledPrice) / CURVE_RATE_PRECISION;
         }
 
         price = _convertToBaseCurrencyUnit(scaledPrice);

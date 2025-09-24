@@ -19,22 +19,16 @@ async function main(): Promise<void> {
   console.log(`New Collateral Asset: ${newCollateralAsset}`);
 
   // Get the deployed CollateralVault contract
-  const collateralVaultDeployment = await hre.deployments.get(
-    COLLATERAL_VAULT_CONTRACT_ID,
-  );
+  const collateralVaultDeployment = await hre.deployments.get(COLLATERAL_VAULT_CONTRACT_ID);
   const collateralVault = await ethers.getContractAt(
     COLLATERAL_VAULT_CONTRACT_ID,
     collateralVaultDeployment.address,
     await ethers.getSigner(dusdDeployer),
   );
-  console.log(
-    "CollateralVault contract at:",
-    collateralVaultDeployment.address,
-  );
+  console.log("CollateralVault contract at:", collateralVaultDeployment.address);
 
   // Check if the collateral is already supported
-  const isSupported =
-    await collateralVault.isCollateralSupported(newCollateralAsset);
+  const isSupported = await collateralVault.isCollateralSupported(newCollateralAsset);
 
   if (isSupported) {
     console.log("Collateral is already supported.");
@@ -51,8 +45,7 @@ async function main(): Promise<void> {
   console.log(`Gas Used: ${receipt?.gasUsed.toString()}`);
 
   // Verify the collateral was added
-  const isNowSupported =
-    await collateralVault.isCollateralSupported(newCollateralAsset);
+  const isNowSupported = await collateralVault.isCollateralSupported(newCollateralAsset);
   console.log(`Collateral is now supported: ${isNowSupported}`);
 
   // List all supported collaterals

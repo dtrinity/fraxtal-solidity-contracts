@@ -17,8 +17,8 @@
 
 pragma solidity 0.8.20;
 
-import {ERC20, SafeERC20} from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
-import {ISwapRouter} from "contracts/dex/periphery/interfaces/ISwapRouter.sol";
+import { ERC20, SafeERC20 } from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
+import { ISwapRouter } from "contracts/dex/periphery/interfaces/ISwapRouter.sol";
 
 /**
  * @title UniswapV3SwapLogic
@@ -60,10 +60,7 @@ library UniswapV3SwapLogic {
         }
 
         // Approve the swap router to spend the input token
-        require(
-            inputToken.approve(address(swapRouter), amountInMaximum),
-            "approve failed for swap router"
-        );
+        require(inputToken.approve(address(swapRouter), amountInMaximum), "approve failed for swap router");
 
         // Swap from the input token to the output token
         uint256 inputTokenUsedInSwap = swapRouter.exactOutput(

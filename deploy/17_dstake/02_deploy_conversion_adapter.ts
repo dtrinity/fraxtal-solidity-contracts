@@ -14,9 +14,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const config = await getConfig(hre);
 
   if (!config.dStake) {
-    console.log(
-      "No dStake configuration found for this network. Skipping conversion adapter deployment.",
-    );
+    console.log("No dStake configuration found for this network. Skipping conversion adapter deployment.");
     return;
   }
 
@@ -25,31 +23,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const instanceConfig = config.dStake[instanceKey] as DStakeInstanceConfig;
 
     // Validate required config
-    if (
-      !instanceConfig.dStable ||
-      instanceConfig.dStable === ethers.ZeroAddress
-    ) {
-      throw new Error(
-        `Missing dStable address for dSTAKE instance ${instanceKey}`,
-      );
+    if (!instanceConfig.dStable || instanceConfig.dStable === ethers.ZeroAddress) {
+      throw new Error(`Missing dStable address for dSTAKE instance ${instanceKey}`);
     }
 
     // Get the collateral vault deployment
     const collateralVaultDeploymentName = `DStakeCollateralVault_${instanceKey}`;
-    const collateralVault = await deployments.getOrNull(
-      collateralVaultDeploymentName,
-    );
+    const collateralVault = await deployments.getOrNull(collateralVaultDeploymentName);
 
     if (!collateralVault) {
-      console.log(
-        `Warning: ${collateralVaultDeploymentName} not found. Skipping adapter deployment for ${instanceKey}.`,
-      );
+      console.log(`Warning: ${collateralVaultDeploymentName} not found. Skipping adapter deployment for ${instanceKey}.`);
       continue;
     }
 
     // Get the wrapped aToken deployment based on the instance (dS removed for Fraxtal)
-    const wrappedTokenDeploymentId =
-      instanceKey === "sdUSD" ? dUSD_A_TOKEN_WRAPPER_ID : null;
+    const wrappedTokenDeploymentId = instanceKey === "sdUSD" ? dUSD_A_TOKEN_WRAPPER_ID : null;
 
     if (!wrappedTokenDeploymentId) {
       console.log(
@@ -59,14 +47,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     }
 
     // Check if the wrapped token is deployed
-    const wrappedTokenDeployment = await deployments.getOrNull(
-      wrappedTokenDeploymentId,
-    );
+    const wrappedTokenDeployment = await deployments.getOrNull(wrappedTokenDeploymentId);
 
     if (!wrappedTokenDeployment) {
-      console.log(
-        `Warning: Wrapped token ${wrappedTokenDeploymentId} not found for instance ${instanceKey}. Skipping adapter deployment.`,
-      );
+      console.log(`Warning: Wrapped token ${wrappedTokenDeploymentId} not found for instance ${instanceKey}. Skipping adapter deployment.`);
       continue;
     }
 
@@ -85,9 +69,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       log: true,
     });
 
-    console.log(
-      `WrappedDLendConversionAdapter for ${instanceKey} deployed at ${adapterDeployment.address}`,
-    );
+    console.log(`WrappedDLendConversionAdapter for ${instanceKey} deployed at ${adapterDeployment.address}`);
   }
 
   console.log(`🥩 ${__filename.split("/").slice(-2).join("/")}: ✅`);

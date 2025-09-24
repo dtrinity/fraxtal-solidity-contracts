@@ -45,22 +45,16 @@ async function main(): Promise<void> {
   ];
 
   // API3Wrapper contract address
-  const api3WrapperAddress = (await hre.deployments.get(API3_ORACLE_WRAPPER_ID))
-    .address;
+  const api3WrapperAddress = (await hre.deployments.get(API3_ORACLE_WRAPPER_ID)).address;
 
   // Get the API3Wrapper contract instance
-  const api3Wrapper = (await ethers.getContractAt(
-    "API3Wrapper",
-    api3WrapperAddress,
-  )) as API3Wrapper;
+  const api3Wrapper = (await ethers.getContractAt("API3Wrapper", api3WrapperAddress)) as API3Wrapper;
 
   // Set proxies for each asset
   for (const asset of assets) {
     console.log(`Setting proxy for ${asset.name}...`);
     await api3Wrapper.setProxy(asset.assetAddress, asset.oracleAddress);
-    console.log(
-      `Proxy set for ${asset.name}: Asset ${asset.assetAddress}, Oracle ${asset.oracleAddress}`,
-    );
+    console.log(`Proxy set for ${asset.name}: Asset ${asset.assetAddress}, Oracle ${asset.oracleAddress}`);
   }
 
   console.log("All proxies have been set successfully.");

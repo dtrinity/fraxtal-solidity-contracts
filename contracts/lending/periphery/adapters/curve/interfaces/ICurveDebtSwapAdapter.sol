@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.10;
 
-import {ICreditDelegationToken} from "contracts/lending/core/interfaces/ICreditDelegationToken.sol";
-import {IBaseCurveAdapter} from "./IBaseCurveAdapter.sol";
+import { ICreditDelegationToken } from "contracts/lending/core/interfaces/ICreditDelegationToken.sol";
+import { IBaseCurveAdapter } from "./IBaseCurveAdapter.sol";
 
 /**
  * @title ICurveDebtSwapAdapter

@@ -11,9 +11,7 @@ import { dUSD_REDEEMER_WITH_FEES_CONTRACT_ID } from "../../typescript/deploy-ids
  * @param hre - Hardhat runtime environment
  * @returns Promise<boolean> - True if configuration was successful
  */
-const func: DeployFunction = async function (
-  hre: HardhatRuntimeEnvironment,
-): Promise<boolean> {
+const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment): Promise<boolean> {
   const { dusdDeployer } = await hre.getNamedAccounts();
   const { get } = hre.deployments;
   const config = await getConfig(hre);
@@ -21,9 +19,7 @@ const func: DeployFunction = async function (
   console.log("Starting RedeemerWithFees fee configuration...");
 
   // Get deployed contracts
-  const dUSDRedeemerWithFeesDeployment = await get(
-    dUSD_REDEEMER_WITH_FEES_CONTRACT_ID,
-  );
+  const dUSDRedeemerWithFeesDeployment = await get(dUSD_REDEEMER_WITH_FEES_CONTRACT_ID);
   // dS RedeemerWithFees removed for Fraxtal (dS token not supported)
 
   // Configure dUSD RedeemerWithFees
@@ -36,31 +32,20 @@ const func: DeployFunction = async function (
 
     console.log("Configuring collateral-specific fees for dUSD...");
 
-    for (const [collateral, feeBps] of Object.entries(
-      config.dStables!.dUSD!.collateralRedemptionFees,
-    )) {
+    for (const [collateral, feeBps] of Object.entries(config.dStables!.dUSD!.collateralRedemptionFees)) {
       try {
-        const currentFee =
-          await dUSDRedeemerWithFees.collateralRedemptionFeeBps(collateral);
+        const currentFee = await dUSDRedeemerWithFees.collateralRedemptionFeeBps(collateral);
 
         if (currentFee.toString() !== feeBps.toString()) {
-          console.log(
-            `Setting fee for collateral ${collateral} to ${feeBps} bps...`,
-          );
-          const tx = await dUSDRedeemerWithFees.setCollateralRedemptionFee(
-            collateral,
-            feeBps,
-          );
+          console.log(`Setting fee for collateral ${collateral} to ${feeBps} bps...`);
+          const tx = await dUSDRedeemerWithFees.setCollateralRedemptionFee(collateral, feeBps);
           await tx.wait();
           console.log(`✅ Fee set for ${collateral}`);
         } else {
           console.log(`ℹ️  Fee for ${collateral} already set to ${feeBps} bps`);
         }
       } catch (error) {
-        console.error(
-          `❌ Failed to set fee for collateral ${collateral}:`,
-          error,
-        );
+        console.error(`❌ Failed to set fee for collateral ${collateral}:`, error);
       }
     }
   }

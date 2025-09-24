@@ -24,19 +24,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Get deployed StaticATokenFactory
   const factoryDeployment = await get(STATIC_ATOKEN_FACTORY_ID);
-  const factory = await hre.ethers.getContractAt(
-    "StaticATokenFactory",
-    factoryDeployment.address,
-    signer,
-  );
+  const factory = await hre.ethers.getContractAt("StaticATokenFactory", factoryDeployment.address, signer);
   console.log(`StaticATokenFactory address: ${factoryDeployment.address}`);
 
   // Get data provider to fetch aToken addresses
   const dataProviderDeployment = await get(POOL_DATA_PROVIDER_ID);
-  const dataProvider = await hre.ethers.getContractAt(
-    "AaveProtocolDataProvider",
-    dataProviderDeployment.address,
-  );
+  const dataProvider = await hre.ethers.getContractAt("AaveProtocolDataProvider", dataProviderDeployment.address);
 
   // Define the underlying assets to wrap (dS removed for Fraxtal)
   const assetsToWrap = [
@@ -61,9 +54,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     try {
       // Get aToken address for the underlying asset
-      const { aTokenAddress } = await dataProvider.getReserveTokensAddresses(
-        asset.address,
-      );
+      const { aTokenAddress } = await dataProvider.getReserveTokensAddresses(asset.address);
       console.log(`aToken address for ${asset.symbol}: ${aTokenAddress}`);
 
       if (aTokenAddress === hre.ethers.ZeroAddress) {
@@ -75,9 +66,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       const existingWrapper = await factory.getStaticAToken(asset.address);
 
       if (existingWrapper !== hre.ethers.ZeroAddress) {
-        console.log(
-          `StaticATokenLM wrapper for ${asset.symbol} already exists at ${existingWrapper}`,
-        );
+        console.log(`StaticATokenLM wrapper for ${asset.symbol} already exists at ${existingWrapper}`);
         deployedWrappers[asset.deploymentId] = existingWrapper;
 
         // Save deployment artifact for existing wrapper
@@ -99,9 +88,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
       // Get the deployed wrapper address
       const wrapperAddress = await factory.getStaticAToken(asset.address);
-      console.log(
-        `StaticATokenLM wrapper for ${asset.symbol} deployed at ${wrapperAddress}`,
-      );
+      console.log(`StaticATokenLM wrapper for ${asset.symbol} deployed at ${wrapperAddress}`);
       deployedWrappers[asset.deploymentId] = wrapperAddress;
 
       // Save deployment artifact

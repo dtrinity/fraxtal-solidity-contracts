@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.0;
 
-import {WETH9} from "contracts/dependencies/weth/WETH9.sol";
+import { WETH9 } from "contracts/dependencies/weth/WETH9.sol";
 
 contract WETH9Mocked is WETH9 {
     // Mint not backed by Ether: only for testing purposes

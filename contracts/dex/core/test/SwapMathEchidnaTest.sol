@@ -32,18 +32,13 @@ contract SwapMathEchidnaTest {
         require(feePips > 0);
         require(feePips < 1e6);
 
-        (
-            uint160 sqrtQ,
-            uint256 amountIn,
-            uint256 amountOut,
-            uint256 feeAmount
-        ) = SwapMath.computeSwapStep(
-                sqrtPriceRaw,
-                sqrtPriceTargetRaw,
-                liquidity,
-                amountRemaining,
-                feePips
-            );
+        (uint160 sqrtQ, uint256 amountIn, uint256 amountOut, uint256 feeAmount) = SwapMath.computeSwapStep(
+            sqrtPriceRaw,
+            sqrtPriceTargetRaw,
+            liquidity,
+            amountRemaining,
+            feePips
+        );
 
         assert(amountIn <= type(uint256).max - feeAmount);
 
@@ -62,8 +57,7 @@ contract SwapMathEchidnaTest {
 
         // didn't reach price target, entire amount must be consumed
         if (sqrtQ != sqrtPriceTargetRaw) {
-            if (amountRemaining < 0)
-                assert(amountOut == uint256(-amountRemaining));
+            if (amountRemaining < 0) assert(amountOut == uint256(-amountRemaining));
             else assert(amountIn + feeAmount == uint256(amountRemaining));
         }
 

@@ -59,11 +59,7 @@ contract SharedLiquidator is Ownable {
         emit LiquidatorRemoved(_liquidatorToRemove);
     }
 
-    function withdraw(
-        address _underlyingAddress,
-        address _receiver,
-        uint256 _amount
-    ) external onlyOwner {
+    function withdraw(address _underlyingAddress, address _receiver, uint256 _amount) external onlyOwner {
         uint256 amountMax = ERC20(_underlyingAddress).balanceOf(address(this));
         uint256 amount = _amount > amountMax ? amountMax : _amount;
         ERC20(_underlyingAddress).safeTransfer(_receiver, amount);

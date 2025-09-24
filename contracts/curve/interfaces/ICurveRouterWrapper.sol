@@ -24,16 +24,8 @@ interface ICurveRouterWrapper {
     error InputAmountExceedsMaximum(uint256 amountIn, uint256 maxAmountIn);
     error InvalidRouteLength(address[11] route);
     error InvalidInputTokenInRoute(address tokenIn, address[11] route);
-    error NotFoundKeyForSwapExtraParams(
-        address inputToken,
-        address outputToken,
-        string key
-    );
-    error DuplicateKeyForSwapExtraParams(
-        address inputToken,
-        address outputToken,
-        string key
-    );
+    error NotFoundKeyForSwapExtraParams(address inputToken, address outputToken, string key);
+    error DuplicateKeyForSwapExtraParams(address inputToken, address outputToken, string key);
 
     function router() external view returns (ICurveRouterNG);
 

@@ -2,10 +2,7 @@ import { assert } from "chai";
 import { ethers } from "ethers";
 import hre from "hardhat";
 
-import {
-  getUserDebtBalance,
-  getUserSupplyBalance,
-} from "../../utils/lending/balance";
+import { getUserDebtBalance, getUserSupplyBalance } from "../../utils/lending/balance";
 import { INTEREST_RATE_MODE_VARIABLE } from "../../utils/lending/constants";
 import { POOL_ADDRESSES_PROVIDER_ID } from "../../utils/lending/deploy-ids";
 import { getTokenAmountFromAddress } from "../../utils/token";
@@ -26,32 +23,18 @@ export async function depositCollateralWithApproval(
 ): Promise<void> {
   const signer = await hre.ethers.getSigner(callerAddress);
 
-  const { contract: collateralToken, tokenInfo: depositTokenInfo } =
-    await getTokenContractForAddress(callerAddress, depositTokenAddress);
+  const { contract: collateralToken, tokenInfo: depositTokenInfo } = await getTokenContractForAddress(callerAddress, depositTokenAddress);
 
-  const addressProviderDeployedResult = await hre.deployments.get(
-    POOL_ADDRESSES_PROVIDER_ID,
-  );
-  const addressProviderContract = await hre.ethers.getContractAt(
-    "PoolAddressesProvider",
-    addressProviderDeployedResult.address,
-    signer,
-  );
+  const addressProviderDeployedResult = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
+  const addressProviderContract = await hre.ethers.getContractAt("PoolAddressesProvider", addressProviderDeployedResult.address, signer);
 
   const poolAddress = await addressProviderContract.getPool();
 
   await collateralToken.approve(poolAddress, ethers.MaxUint256);
 
-  const poolContract = await hre.ethers.getContractAt(
-    "Pool",
-    poolAddress,
-    signer,
-  );
+  const poolContract = await hre.ethers.getContractAt("Pool", poolAddress, signer);
 
-  const depositAmountOnChainInt = ethers.parseUnits(
-    depositAmount.toString(),
-    depositTokenInfo.decimals,
-  );
+  const depositAmountOnChainInt = ethers.parseUnits(depositAmount.toString(), depositTokenInfo.decimals);
 
   const depositTxn = await poolContract.supply(
     depositTokenAddress,
@@ -74,47 +57,21 @@ export async function depositCollateralWithApproval(
  * @param borrowTokenAddress Address of the borrow token
  * @param borrowAmount Amount of borrow token to borrow
  */
-export async function borrowAsset(
-  callerAddress: string,
-  borrowTokenAddress: string,
-  borrowAmount: number,
-): Promise<void> {
+export async function borrowAsset(callerAddress: string, borrowTokenAddress: string, borrowAmount: number): Promise<void> {
   const signer = await hre.ethers.getSigner(callerAddress);
 
-  const { tokenInfo: borrowTokenInfo } = await getTokenContractForAddress(
-    callerAddress,
-    borrowTokenAddress,
-  );
+  const { tokenInfo: borrowTokenInfo } = await getTokenContractForAddress(callerAddress, borrowTokenAddress);
 
-  const addressProviderDeployedResult = await hre.deployments.get(
-    POOL_ADDRESSES_PROVIDER_ID,
-  );
-  const addressProviderContract = await hre.ethers.getContractAt(
-    "PoolAddressesProvider",
-    addressProviderDeployedResult.address,
-    signer,
-  );
+  const addressProviderDeployedResult = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
+  const addressProviderContract = await hre.ethers.getContractAt("PoolAddressesProvider", addressProviderDeployedResult.address, signer);
 
   const poolAddress = await addressProviderContract.getPool();
 
-  const poolContract = await hre.ethers.getContractAt(
-    "Pool",
-    poolAddress,
-    signer,
-  );
+  const poolContract = await hre.ethers.getContractAt("Pool", poolAddress, signer);
 
-  const borrowAmountOnChainInt = ethers.parseUnits(
-    borrowAmount.toString(),
-    borrowTokenInfo.decimals,
-  );
+  const borrowAmountOnChainInt = ethers.parseUnits(borrowAmount.toString(), borrowTokenInfo.decimals);
 
-  const borrowTxn = await poolContract.borrow(
-    borrowTokenAddress,
-    borrowAmountOnChainInt,
-    INTEREST_RATE_MODE_VARIABLE,
-    0,
-    callerAddress,
-  );
+  const borrowTxn = await poolContract.borrow(borrowTokenAddress, borrowAmountOnChainInt, INTEREST_RATE_MODE_VARIABLE, 0, callerAddress);
 
   const borrowResponse = await borrowTxn.wait();
 
@@ -130,50 +87,24 @@ export async function borrowAsset(
  * @param repayTokenAddress - Address of the token to repay
  * @param repayAmount - Amount of token to repay
  */
-export async function repayAsset(
-  callerAddress: string,
-  repayTokenAddress: string,
-  repayAmount: number,
-): Promise<void> {
+export async function repayAsset(callerAddress: string, repayTokenAddress: string, repayAmount: number): Promise<void> {
   const signer = await hre.ethers.getSigner(callerAddress);
 
-  const { contract: repayTokenContract, tokenInfo: repayTokenInfo } =
-    await getTokenContractForAddress(callerAddress, repayTokenAddress);
+  const { contract: repayTokenContract, tokenInfo: repayTokenInfo } = await getTokenContractForAddress(callerAddress, repayTokenAddress);
 
-  const addressProviderDeployedResult = await hre.deployments.get(
-    POOL_ADDRESSES_PROVIDER_ID,
-  );
-  const addressProviderContract = await hre.ethers.getContractAt(
-    "PoolAddressesProvider",
-    addressProviderDeployedResult.address,
-    signer,
-  );
+  const addressProviderDeployedResult = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
+  const addressProviderContract = await hre.ethers.getContractAt("PoolAddressesProvider", addressProviderDeployedResult.address, signer);
 
   const poolAddress = await addressProviderContract.getPool();
 
-  const poolContract = await hre.ethers.getContractAt(
-    "Pool",
-    poolAddress,
-    signer,
-  );
+  const poolContract = await hre.ethers.getContractAt("Pool", poolAddress, signer);
 
-  const repayAmountOnChainInt = ethers.parseUnits(
-    repayAmount.toString(),
-    repayTokenInfo.decimals,
-  );
+  const repayAmountOnChainInt = ethers.parseUnits(repayAmount.toString(), repayTokenInfo.decimals);
 
-  const approveTxn = await repayTokenContract.approve(
-    poolAddress,
-    repayAmountOnChainInt,
-  );
+  const approveTxn = await repayTokenContract.approve(poolAddress, repayAmountOnChainInt);
   await approveTxn.wait();
 
-  const txn = await poolContract.repay(
-    repayTokenAddress,
-    repayAmountOnChainInt,
-    INTEREST_RATE_MODE_VARIABLE,
-    callerAddress,
-  );
+  const txn = await poolContract.repay(repayTokenAddress, repayAmountOnChainInt, INTEREST_RATE_MODE_VARIABLE, callerAddress);
   const txnResponse = await txn.wait();
 
   if (txnResponse?.status !== 1) {
@@ -199,44 +130,24 @@ export async function liquidateAsset(
 ): Promise<void> {
   const signer = await hre.ethers.getSigner(callerAddress);
 
-  const { contract: borrowedTokenContract, tokenInfo: borrowedTokenInfo } =
-    await getTokenContractForAddress(callerAddress, debtTokenAddress);
+  const { contract: borrowedTokenContract, tokenInfo: borrowedTokenInfo } = await getTokenContractForAddress(
+    callerAddress,
+    debtTokenAddress,
+  );
 
-  const addressProviderDeployedResult = await hre.deployments.get(
-    POOL_ADDRESSES_PROVIDER_ID,
-  );
-  const addressProviderContract = await hre.ethers.getContractAt(
-    "PoolAddressesProvider",
-    addressProviderDeployedResult.address,
-    signer,
-  );
+  const addressProviderDeployedResult = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
+  const addressProviderContract = await hre.ethers.getContractAt("PoolAddressesProvider", addressProviderDeployedResult.address, signer);
 
   const poolAddress = await addressProviderContract.getPool();
 
-  const poolContract = await hre.ethers.getContractAt(
-    "Pool",
-    poolAddress,
-    signer,
-  );
+  const poolContract = await hre.ethers.getContractAt("Pool", poolAddress, signer);
 
-  const debtAmountToCoverInt = ethers.parseUnits(
-    debtAmountToCover.toString(),
-    borrowedTokenInfo.decimals,
-  );
+  const debtAmountToCoverInt = ethers.parseUnits(debtAmountToCover.toString(), borrowedTokenInfo.decimals);
 
-  const approveTxn = await borrowedTokenContract.approve(
-    poolAddress,
-    debtAmountToCoverInt,
-  );
+  const approveTxn = await borrowedTokenContract.approve(poolAddress, debtAmountToCoverInt);
   await approveTxn.wait();
 
-  const txn = await poolContract.liquidationCall(
-    collateralTokenAddress,
-    debtTokenAddress,
-    borrowerAddress,
-    debtAmountToCoverInt,
-    false,
-  );
+  const txn = await poolContract.liquidationCall(collateralTokenAddress, debtTokenAddress, borrowerAddress, debtAmountToCoverInt, false);
   const txnResponse = await txn.wait();
 
   if (txnResponse?.status !== 1) {
@@ -280,13 +191,8 @@ export async function assertUserLendingSupplyBalanceBigInt(
   expectedTokenAmount: bigint,
   tolerance: number = 1e-6,
 ): Promise<void> {
-  const userSupplyBalance = await getUserSupplyBalance(
-    assetAddress,
-    userAddress,
-  );
-  const toleranceBigInt = BigInt(
-    Math.floor(Number(expectedTokenAmount) * tolerance),
-  );
+  const userSupplyBalance = await getUserSupplyBalance(assetAddress, userAddress);
+  const toleranceBigInt = BigInt(Math.floor(Number(expectedTokenAmount) * tolerance));
 
   assert(
     userSupplyBalance.toBigInt() >= expectedTokenAmount - toleranceBigInt &&
@@ -332,9 +238,7 @@ export async function assertUserLendingDebtBalanceBigInt(
   tolerance: number = 1e-6,
 ): Promise<void> {
   const userDebtBalance = await getUserDebtBalance(assetAddress, userAddress);
-  const toleranceBigInt = BigInt(
-    Math.floor(Number(expectedTokenAmount) * tolerance),
-  );
+  const toleranceBigInt = BigInt(Math.floor(Number(expectedTokenAmount) * tolerance));
 
   assert(
     userDebtBalance.toBigInt() >= expectedTokenAmount - toleranceBigInt &&
@@ -389,16 +293,6 @@ export async function assertUserLendingSupplyAndDebtBalanceBigInt(
   expectedDebtTokenAmount: bigint,
   tolerance: number = 1e-6,
 ): Promise<void> {
-  await assertUserLendingSupplyBalanceBigInt(
-    userAddress,
-    supplyAssetAddress,
-    expectedSupplyTokenAmount,
-    tolerance,
-  );
-  await assertUserLendingDebtBalanceBigInt(
-    userAddress,
-    debtAssetAddress,
-    expectedDebtTokenAmount,
-    tolerance,
-  );
+  await assertUserLendingSupplyBalanceBigInt(userAddress, supplyAssetAddress, expectedSupplyTokenAmount, tolerance);
+  await assertUserLendingDebtBalanceBigInt(userAddress, debtAssetAddress, expectedDebtTokenAmount, tolerance);
 }

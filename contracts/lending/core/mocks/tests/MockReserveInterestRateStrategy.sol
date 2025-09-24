@@ -17,10 +17,10 @@
 
 pragma solidity ^0.8.0;
 
-import {IDefaultInterestRateStrategy} from "../../interfaces/IDefaultInterestRateStrategy.sol";
-import {IPoolAddressesProvider} from "../../interfaces/IPoolAddressesProvider.sol";
-import {WadRayMath} from "../../protocol/libraries/math/WadRayMath.sol";
-import {DataTypes} from "../../protocol/libraries/types/DataTypes.sol";
+import { IDefaultInterestRateStrategy } from "../../interfaces/IDefaultInterestRateStrategy.sol";
+import { IPoolAddressesProvider } from "../../interfaces/IPoolAddressesProvider.sol";
+import { WadRayMath } from "../../protocol/libraries/math/WadRayMath.sol";
+import { DataTypes } from "../../protocol/libraries/types/DataTypes.sol";
 
 contract MockReserveInterestRateStrategy is IDefaultInterestRateStrategy {
     uint256 public immutable OPTIMAL_USAGE_RATIO;
@@ -72,16 +72,7 @@ contract MockReserveInterestRateStrategy is IDefaultInterestRateStrategy {
 
     function calculateInterestRates(
         DataTypes.CalculateInterestRatesParams memory
-    )
-        external
-        view
-        override
-        returns (
-            uint256 liquidityRate,
-            uint256 stableBorrowRate,
-            uint256 variableBorrowRate
-        )
-    {
+    ) external view override returns (uint256 liquidityRate, uint256 stableBorrowRate, uint256 variableBorrowRate) {
         return (_liquidityRate, _stableBorrowRate, _variableBorrowRate);
     }
 
@@ -101,42 +92,21 @@ contract MockReserveInterestRateStrategy is IDefaultInterestRateStrategy {
         return _stableRateSlope2;
     }
 
-    function getBaseVariableBorrowRate()
-        external
-        view
-        override
-        returns (uint256)
-    {
+    function getBaseVariableBorrowRate() external view override returns (uint256) {
         return _baseVariableBorrowRate;
     }
 
-    function getMaxVariableBorrowRate()
-        external
-        view
-        override
-        returns (uint256)
-    {
-        return
-            _baseVariableBorrowRate + _variableRateSlope1 + _variableRateSlope2;
+    function getMaxVariableBorrowRate() external view override returns (uint256) {
+        return _baseVariableBorrowRate + _variableRateSlope1 + _variableRateSlope2;
     }
 
     // Not used, only defined for interface compatibility
-    function getBaseStableBorrowRate()
-        external
-        pure
-        override
-        returns (uint256)
-    {
+    function getBaseStableBorrowRate() external pure override returns (uint256) {
         return 0;
     }
 
     // Not used, only defined for interface compatibility
-    function getStableRateExcessOffset()
-        external
-        pure
-        override
-        returns (uint256)
-    {
+    function getStableRateExcessOffset() external pure override returns (uint256) {
         return 0;
     }
 }

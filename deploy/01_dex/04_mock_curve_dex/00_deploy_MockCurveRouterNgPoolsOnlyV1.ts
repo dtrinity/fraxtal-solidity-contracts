@@ -12,17 +12,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Skip deployment if dex config is not populated
   if (!config.dex) {
-    console.log(
-      "Skipping Mock Curve Router deployment - dex config not populated",
-    );
+    console.log("Skipping Mock Curve Router deployment - dex config not populated");
     return false;
   }
 
   // Only local
   if (!isLocalNetwork(hre.network.name)) {
-    console.log(
-      "Skipping deployment of MockCurveRouterNgPoolsOnlyV1 on non-local network",
-    );
+    console.log("Skipping deployment of MockCurveRouterNgPoolsOnlyV1 on non-local network");
     return false;
   }
 

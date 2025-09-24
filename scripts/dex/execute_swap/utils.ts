@@ -33,26 +33,16 @@ export async function executeSwap(
     await hre.ethers.getSigner(dexDeployer),
   );
 
-  const approveTxn = await inputTokenContract.approve(
-    routerAddress,
-    ethers.MaxUint256,
-  );
+  const approveTxn = await inputTokenContract.approve(routerAddress, ethers.MaxUint256);
 
   console.log("Approving SwapRouter to spend the input token");
   console.log(approveTxn?.hash);
 
-  const routerContract = await hre.ethers.getContractAt(
-    "SwapRouter",
-    routerAddress,
-    await hre.ethers.getSigner(dexDeployer),
-  );
+  const routerContract = await hre.ethers.getContractAt("SwapRouter", routerAddress, await hre.ethers.getSigner(dexDeployer));
 
   const inputTokenInfo = await fetchTokenInfo(hre, inputTokenAddress);
 
-  const inputTokenAmountOnChainInt = ethers.parseUnits(
-    inputTokenAmount.toString(),
-    inputTokenInfo.decimals,
-  );
+  const inputTokenAmountOnChainInt = ethers.parseUnits(inputTokenAmount.toString(), inputTokenInfo.decimals);
 
   console.log("Swapping tokens");
   const swapTxn = await routerContract.exactInputSingle({

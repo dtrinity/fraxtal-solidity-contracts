@@ -10,8 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const deployer = await hre.ethers.getSigner(dusdDeployer);
 
   const config = await getConfig(hre);
-  const baseCurrencyUnit =
-    BigInt(10) ** BigInt(config.oracleAggregator.priceDecimals);
+  const baseCurrencyUnit = BigInt(10) ** BigInt(config.oracleAggregator.priceDecimals);
 
   // Deploy API3Wrapper for plain oracle feeds (overwriting existing deployment)
   const api3WrapperDeployment = await deployContract(
@@ -24,20 +23,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     API3_ORACLE_WRAPPER_ID, // Use original ID to overwrite
   );
 
-  const api3Wrapper = await hre.ethers.getContractAt(
-    API3_ORACLE_WRAPPER_ID,
-    api3WrapperDeployment.address,
-  );
+  const api3Wrapper = await hre.ethers.getContractAt(API3_ORACLE_WRAPPER_ID, api3WrapperDeployment.address);
 
   // Set proxies for plain oracle feeds
-  const plainFeeds =
-    config.oracleAggregator.api3OracleAssets.plainApi3OracleWrappers;
+  const plainFeeds = config.oracleAggregator.api3OracleAssets.plainApi3OracleWrappers;
 
   for (const [assetAddress, proxyAddress] of Object.entries(plainFeeds)) {
     await api3Wrapper.setProxy(assetAddress, proxyAddress);
-    console.log(
-      `Set plain API3 proxy for asset ${assetAddress} to ${proxyAddress}`,
-    );
+    console.log(`Set plain API3 proxy for asset ${assetAddress} to ${proxyAddress}`);
   }
 
   // Deploy API3WrapperWithThresholding for feeds with thresholding (new deployment)
@@ -57,16 +50,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // Set proxies and thresholds for feeds with thresholding
-  const thresholdFeeds =
-    config.oracleAggregator.api3OracleAssets.api3OracleWrappersWithThresholding;
+  const thresholdFeeds = config.oracleAggregator.api3OracleAssets.api3OracleWrappersWithThresholding;
 
   for (const [assetAddress, feedConfig] of Object.entries(thresholdFeeds)) {
     await api3WrapperWithThresholding.setProxy(assetAddress, feedConfig.proxy);
-    await api3WrapperWithThresholding.setThresholdConfig(
-      assetAddress,
-      feedConfig.lowerThreshold,
-      feedConfig.fixedPrice,
-    );
+    await api3WrapperWithThresholding.setThresholdConfig(assetAddress, feedConfig.lowerThreshold, feedConfig.fixedPrice);
     console.log(
       `Set API3 proxy with thresholding for asset ${assetAddress}:`,
       `\n  - Proxy: ${feedConfig.proxy}`,
@@ -92,9 +80,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // Add composite feeds
-  const compositeFeeds =
-    config.oracleAggregator.api3OracleAssets
-      .compositeApi3OracleWrappersWithThresholding;
+  const compositeFeeds = config.oracleAggregator.api3OracleAssets.compositeApi3OracleWrappersWithThresholding;
 
   for (const [assetAddress, feedConfig] of Object.entries(compositeFeeds)) {
     await api3CompositeWrapper.addCompositeFeed(
@@ -134,18 +120,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // Configure Curve pools and thresholds
-  const curveCompositeFeeds =
-    config.oracleAggregator.curveOracleAssets.curveApi3CompositeOracles;
+  const curveCompositeFeeds = config.oracleAggregator.curveOracleAssets.curveApi3CompositeOracles;
 
-  for (const [assetAddress, feedConfig] of Object.entries(
-    curveCompositeFeeds,
-  )) {
+  for (const [assetAddress, feedConfig] of Object.entries(curveCompositeFeeds)) {
     // Set pool configuration
     await curveCompositeWrapper.setAssetConfig(assetAddress, feedConfig.pool);
-    console.log(
-      `Set Curve pool config for asset ${assetAddress}:`,
-      `\n  - Pool: ${feedConfig.pool}`,
-    );
+    console.log(`Set Curve pool config for asset ${assetAddress}:`, `\n  - Pool: ${feedConfig.pool}`);
 
     // Set API3 feed configuration
     await curveCompositeWrapper.setCompositeFeed(
@@ -171,12 +151,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   return true;
 };
 
-func.tags = [
-  "api3-migration-202501",
-  "api3-wrapper-deployment-202501",
-  "oracle-wrapper",
-  "api3-oracle-wrapper",
-];
+func.tags = ["api3-migration-202501", "api3-wrapper-deployment-202501", "oracle-wrapper", "api3-oracle-wrapper"];
 func.dependencies = [];
 func.id = "Api3MigrationSetupNewWrappers";
 

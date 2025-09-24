@@ -55,11 +55,7 @@ describe("Curve Pool Creation", function () {
       maxPriorityFeePerGas: maxPriorityFeePerGas?.toString(),
     });
     token0Address = deployToken0Result.address;
-    let token0 = await hre.ethers.getContractAt(
-      deployToken0Result.abi,
-      deployToken0Result.address,
-      signer,
-    );
+    let token0 = await hre.ethers.getContractAt(deployToken0Result.abi, deployToken0Result.address, signer);
     token0 = await token0.waitForDeployment();
     await token0.mint(deployer, hre.ethers.parseUnits("100000000", 18), {
       maxFeePerGas: maxFeePerGas?.toString(),
@@ -78,11 +74,7 @@ describe("Curve Pool Creation", function () {
       maxPriorityFeePerGas: maxPriorityFeePerGas?.toString(),
     });
     token1Address = deployToken1Result.address;
-    let token1 = await hre.ethers.getContractAt(
-      deployToken1Result.abi,
-      deployToken1Result.address,
-      signer,
-    );
+    let token1 = await hre.ethers.getContractAt(deployToken1Result.abi, deployToken1Result.address, signer);
     token1 = await token1.waitForDeployment();
     await token1.mint(deployer, hre.ethers.parseUnits("100000000", 18), {
       maxFeePerGas: maxFeePerGas?.toString(),

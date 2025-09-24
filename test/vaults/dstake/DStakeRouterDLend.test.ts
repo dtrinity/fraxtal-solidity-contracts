@@ -2,11 +2,7 @@ import { expect } from "chai";
 import { formatUnits, parseUnits } from "ethers";
 import hre from "hardhat";
 
-import {
-  calculateValueInDUSD,
-  DUSD_DECIMALS,
-  ORACLE_DECIMALS,
-} from "../../utils/decimal-utils";
+import { calculateValueInDUSD, DUSD_DECIMALS, ORACLE_DECIMALS } from "../../utils/decimal-utils";
 import { createDStakeFixture } from "./fixtures";
 
 describe("DStakeRouterDLend Integration", () => {
@@ -28,15 +24,11 @@ describe("DStakeRouterDLend Integration", () => {
       const initialDStakeBalance = await fixture.dStakeToken.balanceOf(user);
 
       // Approve router to spend dUSD
-      await fixture.dUSD
-        .connect(userSigner)
-        .approve(await fixture.router.getAddress(), depositAmount);
+      await fixture.dUSD.connect(userSigner).approve(await fixture.router.getAddress(), depositAmount);
 
       try {
         // Attempt to deposit through router (this integrates with dLEND)
-        const tx = await fixture.router
-          .connect(userSigner)
-          .depositAndSupply(depositAmount, user);
+        const tx = await fixture.router.connect(userSigner).depositAndSupply(depositAmount, user);
         await tx.wait();
 
         // Verify balances changed
@@ -46,23 +38,15 @@ describe("DStakeRouterDLend Integration", () => {
         expect(finalDUSDBalance).to.equal(initialDUSDBalance - depositAmount);
         expect(finalDStakeBalance).to.be.greaterThan(initialDStakeBalance);
 
-        console.log(
-          `Deposited ${formatUnits(depositAmount, DUSD_DECIMALS)} dUSD`,
-        );
-        console.log(
-          `Received ${formatUnits(finalDStakeBalance - initialDStakeBalance, DUSD_DECIMALS)} sdUSD`,
-        );
+        console.log(`Deposited ${formatUnits(depositAmount, DUSD_DECIMALS)} dUSD`);
+        console.log(`Received ${formatUnits(finalDStakeBalance - initialDStakeBalance, DUSD_DECIMALS)} sdUSD`);
       } catch (error) {
         // dLEND integration might not be fully set up in test environment
-        console.log(
-          "dLEND integration test skipped - dependencies may not be available",
-        );
+        console.log("dLEND integration test skipped - dependencies may not be available");
         console.log("Error:", error);
 
         // Fall back to basic deposit test
-        await fixture.dStakeToken
-          .connect(userSigner)
-          .deposit(depositAmount, user);
+        await fixture.dStakeToken.connect(userSigner).deposit(depositAmount, user);
         const finalDStakeBalance = await fixture.dStakeToken.balanceOf(user);
         expect(finalDStakeBalance).to.be.greaterThan(initialDStakeBalance);
       }
@@ -74,15 +58,10 @@ describe("DStakeRouterDLend Integration", () => {
       const tokenAmount = parseUnits("100", 18); // 100 tokens with 18 decimals
 
       // Set a test price in our mock oracle
-      await fixture.mockOracle.setAssetPrice(
-        await fixture.frax.getAddress(),
-        mockPrice,
-      );
+      await fixture.mockOracle.setAssetPrice(await fixture.frax.getAddress(), mockPrice);
 
       // Verify the oracle returns 8-decimal prices
-      const retrievedPrice = await fixture.mockOracle.getAssetPrice(
-        await fixture.frax.getAddress(),
-      );
+      const retrievedPrice = await fixture.mockOracle.getAssetPrice(await fixture.frax.getAddress());
       expect(retrievedPrice).to.equal(mockPrice);
 
       // Test our utility function for value calculation
@@ -121,17 +100,10 @@ describe("DStakeRouterDLend Integration", () => {
 
       for (const testCase of testCases) {
         // Set oracle price
-        await fixture.mockOracle.setAssetPrice(
-          await testCase.token.getAddress(),
-          testCase.price,
-        );
+        await fixture.mockOracle.setAssetPrice(await testCase.token.getAddress(), testCase.price);
 
         // Calculate expected value
-        const expectedValue = calculateValueInDUSD(
-          testCase.amount,
-          testCase.decimals,
-          testCase.price,
-        );
+        const expectedValue = calculateValueInDUSD(testCase.amount, testCase.decimals, testCase.price);
 
         // For $1.00 price and 100 tokens, should be ~100 dUSD
         const expectedDUSD = parseUnits("100", DUSD_DECIMALS);
@@ -139,9 +111,7 @@ describe("DStakeRouterDLend Integration", () => {
 
         expect(expectedValue).to.be.closeTo(expectedDUSD, tolerance);
 
-        console.log(
-          `${testCase.name}: ${formatUnits(expectedValue, DUSD_DECIMALS)} dUSD value`,
-        );
+        console.log(`${testCase.name}: ${formatUnits(expectedValue, DUSD_DECIMALS)} dUSD value`);
       }
     });
 
@@ -151,22 +121,13 @@ describe("DStakeRouterDLend Integration", () => {
       const depositAmount = parseUnits("1000", DUSD_DECIMALS);
 
       // Initial deposit
-      await fixture.dStakeToken
-        .connect(userSigner)
-        .deposit(depositAmount, user);
+      await fixture.dStakeToken.connect(userSigner).deposit(depositAmount, user);
       const initialShares = await fixture.dStakeToken.balanceOf(user);
-      const initialAssets =
-        await fixture.dStakeToken.convertToAssets(initialShares);
+      const initialAssets = await fixture.dStakeToken.convertToAssets(initialShares);
 
-      console.log(
-        `Initial deposit: ${formatUnits(depositAmount, DUSD_DECIMALS)} dUSD`,
-      );
-      console.log(
-        `Initial shares: ${formatUnits(initialShares, DUSD_DECIMALS)} sdUSD`,
-      );
-      console.log(
-        `Initial asset value: ${formatUnits(initialAssets, DUSD_DECIMALS)} dUSD`,
-      );
+      console.log(`Initial deposit: ${formatUnits(depositAmount, DUSD_DECIMALS)} dUSD`);
+      console.log(`Initial shares: ${formatUnits(initialShares, DUSD_DECIMALS)} sdUSD`);
+      console.log(`Initial asset value: ${formatUnits(initialAssets, DUSD_DECIMALS)} dUSD`);
 
       // Simulate time passage and yield accrual
       // In real integration, this would come from dLEND yields
@@ -177,8 +138,7 @@ describe("DStakeRouterDLend Integration", () => {
         expect(totalAssets).to.be.greaterThanOrEqual(depositAmount);
 
         // Test conversion functions with accrued yield
-        const currentAssetValue =
-          await fixture.dStakeToken.convertToAssets(initialShares);
+        const currentAssetValue = await fixture.dStakeToken.convertToAssets(initialShares);
         expect(currentAssetValue).to.be.greaterThanOrEqual(initialAssets);
       } catch (error) {
         console.log("Yield simulation not available in test environment");
@@ -197,8 +157,7 @@ describe("DStakeRouterDLend Integration", () => {
       // Check if router has the expected functions
       try {
         const routerInterface = fixture.router.interface;
-        const hasDepositFunction =
-          routerInterface.hasFunction("depositAndSupply");
+        const hasDepositFunction = routerInterface.hasFunction("depositAndSupply");
 
         if (hasDepositFunction) {
           console.log("Router has depositAndSupply function");
@@ -210,18 +169,14 @@ describe("DStakeRouterDLend Integration", () => {
         const depositAmount = parseUnits("100", DUSD_DECIMALS);
 
         // Approve router
-        await fixture.dUSD
-          .connect(userSigner)
-          .approve(await fixture.router.getAddress(), depositAmount);
+        await fixture.dUSD.connect(userSigner).approve(await fixture.router.getAddress(), depositAmount);
 
         // Try to use router (might fail if dependencies aren't set up)
         try {
           // Attempt router operation
           console.log("Testing router functionality...");
         } catch (routerError) {
-          console.log(
-            "Router operation failed - this is acceptable in test environment",
-          );
+          console.log("Router operation failed - this is acceptable in test environment");
           console.log("Router dependencies may not be fully configured");
         }
       } catch (error) {
@@ -236,9 +191,7 @@ describe("DStakeRouterDLend Integration", () => {
 
       try {
         // Test with zero deposit
-        await expect(
-          fixture.dStakeToken.connect(userSigner).deposit(0, user),
-        ).to.be.revertedWith("ERC4626: deposit more than max");
+        await expect(fixture.dStakeToken.connect(userSigner).deposit(0, user)).to.be.revertedWith("ERC4626: deposit more than max");
       } catch (error) {
         // Different revert message is acceptable
         console.log("Zero deposit handled (specific error message may vary)");
@@ -246,11 +199,7 @@ describe("DStakeRouterDLend Integration", () => {
 
       // Test withdrawal when no balance
       try {
-        await expect(
-          fixture.dStakeToken
-            .connect(userSigner)
-            .withdraw(parseUnits("100", DUSD_DECIMALS), user, user),
-        ).to.be.reverted;
+        await expect(fixture.dStakeToken.connect(userSigner).withdraw(parseUnits("100", DUSD_DECIMALS), user, user)).to.be.reverted;
       } catch (error) {
         console.log("Empty balance withdrawal properly rejected");
       }
@@ -262,14 +211,9 @@ describe("DStakeRouterDLend Integration", () => {
       // Test behavior with stale prices
       const stalePrice = parseUnits("0", ORACLE_DECIMALS); // Zero price (stale)
 
-      await fixture.mockOracle.setAssetPrice(
-        await fixture.frax.getAddress(),
-        stalePrice,
-      );
+      await fixture.mockOracle.setAssetPrice(await fixture.frax.getAddress(), stalePrice);
 
-      const retrievedPrice = await fixture.mockOracle.getAssetPrice(
-        await fixture.frax.getAddress(),
-      );
+      const retrievedPrice = await fixture.mockOracle.getAssetPrice(await fixture.frax.getAddress());
 
       expect(retrievedPrice).to.equal(stalePrice);
 
@@ -299,12 +243,8 @@ describe("DStakeRouterDLend Integration", () => {
       // Allow rounding tolerance for very small amounts
       expect(lowValue).to.be.closeTo(expectedLowValue, 1n);
 
-      console.log(
-        `High price value: ${formatUnits(highValue, DUSD_DECIMALS)} dUSD`,
-      );
-      console.log(
-        `Low price value: ${formatUnits(lowValue, DUSD_DECIMALS)} dUSD`,
-      );
+      console.log(`High price value: ${formatUnits(highValue, DUSD_DECIMALS)} dUSD`);
+      console.log(`Low price value: ${formatUnits(lowValue, DUSD_DECIMALS)} dUSD`);
     });
   });
 });

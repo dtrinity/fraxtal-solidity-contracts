@@ -21,23 +21,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const config = await getConfig(hre);
 
-  const { address: api3CompositeWrapperWithThresholdingAddress } =
-    await hre.deployments.get("API3CompositeWrapperWithThresholding");
+  const { address: api3CompositeWrapperWithThresholdingAddress } = await hre.deployments.get("API3CompositeWrapperWithThresholding");
   const api3CompositeWrapper = await hre.ethers.getContractAt(
     "API3CompositeWrapperWithThresholding",
     api3CompositeWrapperWithThresholdingAddress,
     deployer,
   );
 
-  const compositeAddresses = symbolsToAddresses(
-    configureAssetsByOracleType.compositeApi3OracleWrappersWithThresholding,
-    TOKEN_INFO,
-  );
+  const compositeAddresses = symbolsToAddresses(configureAssetsByOracleType.compositeApi3OracleWrappersWithThresholding, TOKEN_INFO);
   const compositeFeeds = Object.fromEntries(
-    Object.entries(
-      config.oracleAggregator.api3OracleAssets
-        .compositeApi3OracleWrappersWithThresholding,
-    ).filter(([key]) => compositeAddresses.includes(key)),
+    Object.entries(config.oracleAggregator.api3OracleAssets.compositeApi3OracleWrappersWithThresholding).filter(([key]) =>
+      compositeAddresses.includes(key),
+    ),
   );
 
   for (const [assetAddress, feedConfig] of Object.entries(compositeFeeds)) {
@@ -65,11 +60,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   return true;
 };
 
-func.tags = [
-  "oracle-wrapper",
-  "api3-oracle-wrapper",
-  "update-sfrax-to-sfrxUSD",
-];
+func.tags = ["oracle-wrapper", "api3-oracle-wrapper", "update-sfrax-to-sfrxUSD"];
 func.dependencies = [];
 func.id = "UpdateSfrxUSDOracleWrapper";
 

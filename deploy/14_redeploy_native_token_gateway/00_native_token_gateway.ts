@@ -10,19 +10,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { lendingDeployer } = await hre.getNamedAccounts();
   const wrappedNativeTokenAddress = await getWETH9Address(hre);
 
-  return deployNativeTokenGateway(
-    hre,
-    await hre.ethers.getSigner(lendingDeployer),
-    wrappedNativeTokenAddress,
-  );
+  return deployNativeTokenGateway(hre, await hre.ethers.getSigner(lendingDeployer), wrappedNativeTokenAddress);
 };
 
-func.tags = [
-  "lbp",
-  "lbp-periphery-post",
-  "lbp-WrappedTokenGateway",
-  "fraxtal-hardfork",
-];
+func.tags = ["lbp", "lbp-periphery-post", "lbp-WrappedTokenGateway", "fraxtal-hardfork"];
 func.dependencies = [];
 func.id = "NewWrappedTokenGateway";
 

@@ -49,9 +49,7 @@ describe("DStakeToken", () => {
       const initialShares = await fixture.dStakeToken.balanceOf(user);
 
       // Perform deposit
-      const tx = await fixture.dStakeToken
-        .connect(userSigner)
-        .deposit(depositAmount, user);
+      const tx = await fixture.dStakeToken.connect(userSigner).deposit(depositAmount, user);
       await tx.wait();
 
       // Verify balances changed correctly
@@ -62,8 +60,7 @@ describe("DStakeToken", () => {
       expect(finalShares).to.be.greaterThan(initialShares);
 
       // For first deposit, shares should be roughly equal to assets (depending on exchange rate)
-      const expectedShares =
-        await fixture.dStakeToken.convertToShares(depositAmount);
+      const expectedShares = await fixture.dStakeToken.convertToShares(depositAmount);
       expect(finalShares - initialShares).to.equal(expectedShares);
     });
 
@@ -88,9 +85,7 @@ describe("DStakeToken", () => {
 
       // First deposit to have something to withdraw
       const depositAmount = parseUnits("1000", DUSD_DECIMALS);
-      await fixture.dStakeToken
-        .connect(userSigner)
-        .deposit(depositAmount, user);
+      await fixture.dStakeToken.connect(userSigner).deposit(depositAmount, user);
 
       const _shares = await fixture.dStakeToken.balanceOf(user);
       const withdrawAmount = parseUnits("500", DUSD_DECIMALS); // Withdraw 500 dUSD
@@ -106,12 +101,9 @@ describe("DStakeToken", () => {
       // The fee is calculated on the gross amount that the vault needs to withdraw internally
 
       // Perform withdrawal
-      const sharesCost =
-        await fixture.dStakeToken.previewWithdraw(withdrawAmount);
+      const sharesCost = await fixture.dStakeToken.previewWithdraw(withdrawAmount);
 
-      const tx = await fixture.dStakeToken
-        .connect(userSigner)
-        .withdraw(withdrawAmount, user, user);
+      const tx = await fixture.dStakeToken.connect(userSigner).withdraw(withdrawAmount, user, user);
       await tx.wait();
 
       // Verify balances
@@ -120,10 +112,7 @@ describe("DStakeToken", () => {
 
       // User should receive exactly what they requested (NET semantics)
       const actualReceived = finalDUSDBalance - initialDUSDBalance;
-      expect(actualReceived).to.be.closeTo(
-        expectedNetAmount,
-        parseUnits("0.01", DUSD_DECIMALS),
-      );
+      expect(actualReceived).to.be.closeTo(expectedNetAmount, parseUnits("0.01", DUSD_DECIMALS));
 
       // Shares should be burned
       expect(initialShares - finalShares).to.equal(sharesCost);
@@ -143,9 +132,7 @@ describe("DStakeToken", () => {
         await fixture.dStakeToken.connect(userSigner).deposit(minAmount, user);
         expect(await fixture.dStakeToken.balanceOf(user)).to.be.greaterThan(0);
       } else {
-        console.log(
-          "Very small amount would result in zero shares - expected behavior",
-        );
+        console.log("Very small amount would result in zero shares - expected behavior");
       }
 
       // Test larger amounts that should definitely work
@@ -157,9 +144,7 @@ describe("DStakeToken", () => {
 
   describe("Fee Management", () => {
     it("should set and update withdrawal fees", async () => {
-      const deployerSigner = await hre.ethers.getSigner(
-        fixture.accounts.dusdDeployer,
-      );
+      const deployerSigner = await hre.ethers.getSigner(fixture.accounts.dusdDeployer);
 
       // Get initial fee
       const _initialFee = await fixture.dStakeToken.withdrawalFeeBps();
@@ -169,26 +154,17 @@ describe("DStakeToken", () => {
 
       try {
         // Check if deployer has fee manager role
-        const hasRole = await fixture.dStakeToken.hasRole(
-          await fixture.dStakeToken.FEE_MANAGER_ROLE(),
-          fixture.accounts.dusdDeployer,
-        );
+        const hasRole = await fixture.dStakeToken.hasRole(await fixture.dStakeToken.FEE_MANAGER_ROLE(), fixture.accounts.dusdDeployer);
 
         if (hasRole) {
-          await fixture.dStakeToken
-            .connect(deployerSigner)
-            .setWithdrawalFee(newFee);
+          await fixture.dStakeToken.connect(deployerSigner).setWithdrawalFee(newFee);
           const updatedFee = await fixture.dStakeToken.withdrawalFeeBps();
           expect(updatedFee).to.equal(newFee);
         } else {
-          console.log(
-            "Deployer doesn't have fee manager role - this is expected in production",
-          );
+          console.log("Deployer doesn't have fee manager role - this is expected in production");
         }
       } catch (error) {
-        console.log(
-          "Fee setting requires proper permissions - this is expected",
-        );
+        console.log("Fee setting requires proper permissions - this is expected");
       }
     });
 
@@ -236,9 +212,7 @@ describe("DStakeToken", () => {
       const userSigner = await hre.ethers.getSigner(user);
       const depositAmount = parseUnits("1000", DUSD_DECIMALS);
 
-      await fixture.dStakeToken
-        .connect(userSigner)
-        .deposit(depositAmount, user);
+      await fixture.dStakeToken.connect(userSigner).deposit(depositAmount, user);
 
       const finalAssets = await fixture.dStakeToken.totalAssets();
       expect(finalAssets).to.be.greaterThan(initialAssets);
@@ -248,21 +222,17 @@ describe("DStakeToken", () => {
       const depositAmount = parseUnits("500", DUSD_DECIMALS);
 
       // Preview deposit
-      const previewShares =
-        await fixture.dStakeToken.previewDeposit(depositAmount);
+      const previewShares = await fixture.dStakeToken.previewDeposit(depositAmount);
       expect(previewShares).to.be.greaterThan(0);
 
       // Preview withdrawal should account for fees
-      const previewAssets =
-        await fixture.dStakeToken.previewRedeem(previewShares);
+      const previewAssets = await fixture.dStakeToken.previewRedeem(previewShares);
       const feeRate = await fixture.dStakeToken.withdrawalFeeBps();
       const expectedFee = calculateFeeAmount(depositAmount, feeRate);
 
       // Preview should show net amount after fees
       expect(previewAssets).to.be.lessThanOrEqual(depositAmount);
-      expect(previewAssets).to.be.greaterThan(
-        depositAmount - expectedFee - parseUnits("1", DUSD_DECIMALS),
-      ); // Allow some tolerance
+      expect(previewAssets).to.be.greaterThan(depositAmount - expectedFee - parseUnits("1", DUSD_DECIMALS)); // Allow some tolerance
     });
   });
 
@@ -272,14 +242,8 @@ describe("DStakeToken", () => {
       const feeManagerRole = await fixture.dStakeToken.FEE_MANAGER_ROLE();
 
       // Check if deployer has admin role (might not in production setup)
-      const deployerHasAdmin = await fixture.dStakeToken.hasRole(
-        adminRole,
-        fixture.accounts.dusdDeployer,
-      );
-      const deployerHasFeeManager = await fixture.dStakeToken.hasRole(
-        feeManagerRole,
-        fixture.accounts.dusdDeployer,
-      );
+      const deployerHasAdmin = await fixture.dStakeToken.hasRole(adminRole, fixture.accounts.dusdDeployer);
+      const deployerHasFeeManager = await fixture.dStakeToken.hasRole(feeManagerRole, fixture.accounts.dusdDeployer);
 
       // Log roles for debugging
       console.log(`Deployer has admin role: ${deployerHasAdmin}`);
@@ -296,9 +260,7 @@ describe("DStakeToken", () => {
       const unauthorizedSigner = await hre.ethers.getSigner(unauthorizedUser);
 
       try {
-        await fixture.dStakeToken
-          .connect(unauthorizedSigner)
-          .setWithdrawalFee(100n);
+        await fixture.dStakeToken.connect(unauthorizedSigner).setWithdrawalFee(100n);
         // If this doesn't revert, the access control might be misconfigured
         console.log("WARNING: Unauthorized user was able to set fees");
       } catch (error) {

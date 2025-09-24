@@ -8,16 +8,11 @@ import { assert } from "chai";
  * @param expectedValue - The expected value
  * @param tolerance - The tolerance for float imprecision (default: 1e-6)
  */
-export function assertBigIntEqualApproximately(
-  value: bigint,
-  expectedValue: bigint,
-  tolerance: number = 1e-6,
-): void {
+export function assertBigIntEqualApproximately(value: bigint, expectedValue: bigint, tolerance: number = 1e-6): void {
   const toleranceBigInt = BigInt(Math.floor(Number(expectedValue) * tolerance));
 
   assert(
-    value >= expectedValue - toleranceBigInt &&
-      value <= expectedValue + toleranceBigInt,
+    value >= expectedValue - toleranceBigInt && value <= expectedValue + toleranceBigInt,
     `Value is not within tolerance. Expected: ${expectedValue}, Actual: ${value}, tolerance: ${toleranceBigInt}`,
   );
 }
@@ -30,16 +25,11 @@ export function assertBigIntEqualApproximately(
  * @param expectedValue - The expected value
  * @param tolerance - The tolerance for float imprecision (default: 1e-6)
  */
-export function assertNumberEqualApproximately(
-  value: number,
-  expectedValue: number,
-  tolerance: number = 1e-6,
-): void {
+export function assertNumberEqualApproximately(value: number, expectedValue: number, tolerance: number = 1e-6): void {
   const toleranceValue = Math.abs(expectedValue * tolerance);
 
   assert(
-    value >= expectedValue - toleranceValue &&
-      value <= expectedValue + toleranceValue,
+    value >= expectedValue - toleranceValue && value <= expectedValue + toleranceValue,
     `Value is not within tolerance. Expected: ${expectedValue}, Actual: ${value}, tolerance: ${toleranceValue}`,
   );
 }

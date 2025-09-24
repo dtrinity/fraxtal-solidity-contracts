@@ -10,8 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     return false;
   }
 
-  const { testTokenDeployer, dexDeployer, testTokenOwner1 } =
-    await hre.getNamedAccounts();
+  const { testTokenDeployer, dexDeployer, testTokenOwner1 } = await hre.getNamedAccounts();
   await deployTestERC20StablecoinUpgradeableTokens(
     hre,
     {

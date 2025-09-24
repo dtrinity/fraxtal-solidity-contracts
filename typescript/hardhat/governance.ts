@@ -3,11 +3,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { isMainnetNetwork } from "../../utils/utils";
 import { SafeManager } from "../safe/SafeManager";
-import {
-  SafeConfig,
-  SafeTransactionBatch,
-  SafeTransactionData,
-} from "../safe/types";
+import { SafeConfig, SafeTransactionBatch, SafeTransactionData } from "../safe/types";
 
 /**
  * GovernanceExecutor decides whether to execute operations directly
@@ -26,11 +22,7 @@ export class GovernanceExecutor {
   private readonly transactions: SafeTransactionData[] = [];
   readonly useSafe: boolean;
 
-  constructor(
-    hre: HardhatRuntimeEnvironment,
-    signer: Signer,
-    safeConfig?: SafeConfig,
-  ) {
+  constructor(hre: HardhatRuntimeEnvironment, signer: Signer, safeConfig?: SafeConfig) {
     this.hre = hre;
     this.signer = signer;
 
@@ -81,10 +73,7 @@ export class GovernanceExecutor {
    * @param safeTxBuilder Optional builder to create a Safe transaction
    * @returns True if complete, false if pending governance
    */
-  async tryOrQueue<T>(
-    directCall: () => Promise<T>,
-    safeTxBuilder?: () => SafeTransactionData,
-  ): Promise<boolean> {
+  async tryOrQueue<T>(directCall: () => Promise<T>, safeTxBuilder?: () => SafeTransactionData): Promise<boolean> {
     try {
       await directCall();
       return true;
@@ -94,15 +83,11 @@ export class GovernanceExecutor {
         this.transactions.push(tx);
         // Keep logs concise when queueing governance ops
         const message = error instanceof Error ? error.message : String(error);
-        console.log(
-          `   ➕ Queued governance operation for multisig (direct execution failed: ${message})`,
-        );
+        console.log(`   ➕ Queued governance operation for multisig (direct execution failed: ${message})`);
         return false;
       }
       const message = error instanceof Error ? error.message : String(error);
-      console.warn(
-        `Direct execution failed; marking requirement as pending: ${message}`,
-      );
+      console.warn(`Direct execution failed; marking requirement as pending: ${message}`);
       return false;
     }
   }

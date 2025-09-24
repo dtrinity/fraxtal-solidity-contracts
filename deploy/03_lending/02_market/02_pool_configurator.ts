@@ -6,10 +6,7 @@ import { deployPoolConfigurator } from "../../../utils/lending/deploy/02_market/
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { lendingDeployer } = await hre.getNamedAccounts();
 
-  return deployPoolConfigurator(
-    hre,
-    await hre.ethers.getSigner(lendingDeployer),
-  );
+  return deployPoolConfigurator(hre, await hre.ethers.getSigner(lendingDeployer));
 };
 
 func.id = "PoolConfigurator";

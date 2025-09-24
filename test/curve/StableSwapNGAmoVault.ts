@@ -21,10 +21,7 @@ describe("Curve StableSwapNG", function () {
     [owner] = await ethers.getSigners();
 
     // Connect to the StableSwapNG contract
-    stableSwap = (await ethers.getContractAt(
-      "ICurveStableSwapNG",
-      POOLS.stableswapng.USDe_USDC.address,
-    )) as ICurveStableSwapNG;
+    stableSwap = (await ethers.getContractAt("ICurveStableSwapNG", POOLS.stableswapng.USDe_USDC.address)) as ICurveStableSwapNG;
 
     // Connect to the token contracts
     USDe = (await ethers.getContractAt(
@@ -55,20 +52,11 @@ describe("Curve StableSwapNG", function () {
     const USDCBalanceBefore = await USDC.balanceOf(owner.address);
 
     // Approve the StableSwapNG contract to spend our tokens
-    await USDe.connect(owner).approve(
-      POOLS.stableswapng.USDe_USDC.address,
-      USDeAmount,
-    );
-    await USDC.connect(owner).approve(
-      POOLS.stableswapng.USDe_USDC.address,
-      USDCAmount,
-    );
+    await USDe.connect(owner).approve(POOLS.stableswapng.USDe_USDC.address, USDeAmount);
+    await USDC.connect(owner).approve(POOLS.stableswapng.USDe_USDC.address, USDCAmount);
 
     // The LP token is the same as the pool address
-    const lpToken = await ethers.getContractAt(
-      "@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20",
-      await stableSwap.getAddress(),
-    );
+    const lpToken = await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20", await stableSwap.getAddress());
 
     // Snapshot the starting LP token balance
     const lpBalanceBefore = await lpToken.balanceOf(owner.address);
@@ -93,12 +81,8 @@ describe("Curve StableSwapNG", function () {
     expect(USDCBalanceAfter).to.equal(USDCBalanceBefore - USDCAmount);
 
     // Check that the tokens were added to the pool
-    const poolUSDeBalance = await USDe.balanceOf(
-      POOLS.stableswapng.USDe_USDC.address,
-    );
-    const poolUSDCBalance = await USDC.balanceOf(
-      POOLS.stableswapng.USDe_USDC.address,
-    );
+    const poolUSDeBalance = await USDe.balanceOf(POOLS.stableswapng.USDe_USDC.address);
+    const poolUSDCBalance = await USDC.balanceOf(POOLS.stableswapng.USDe_USDC.address);
     expect(poolUSDeBalance).to.be.gte(USDeAmount);
     expect(poolUSDCBalance).to.be.gte(USDCAmount);
   });
@@ -108,10 +92,7 @@ describe("Curve StableSwapNG", function () {
     const lpTokensToRemove = ethers.parseUnits("10", 18); // Assuming 18 decimals for LP token
 
     // The LP token is the same as the pool address
-    const lpToken = await ethers.getContractAt(
-      "@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20",
-      await stableSwap.getAddress(),
-    );
+    const lpToken = await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20", await stableSwap.getAddress());
 
     // Snapshot the starting balances
     const lpBalanceBefore = await lpToken.balanceOf(owner.address);
@@ -120,23 +101,15 @@ describe("Curve StableSwapNG", function () {
 
     // Calculate the minimum amounts to receive (e.g., 99% of the current balance ratio)
     const totalSupply = await lpToken.totalSupply();
-    const USDeInPool = await USDe.balanceOf(
-      POOLS.stableswapng.USDe_USDC.address,
-    );
-    const USDCInPool = await USDC.balanceOf(
-      POOLS.stableswapng.USDe_USDC.address,
-    );
+    const USDeInPool = await USDe.balanceOf(POOLS.stableswapng.USDe_USDC.address);
+    const USDCInPool = await USDC.balanceOf(POOLS.stableswapng.USDe_USDC.address);
 
-    const minUSDeAmount =
-      (USDeInPool * lpTokensToRemove * 99n) / (totalSupply * 100n);
-    const minUSDCAmount =
-      (USDCInPool * lpTokensToRemove * 99n) / (totalSupply * 100n);
+    const minUSDeAmount = (USDeInPool * lpTokensToRemove * 99n) / (totalSupply * 100n);
+    const minUSDCAmount = (USDCInPool * lpTokensToRemove * 99n) / (totalSupply * 100n);
     const minAmounts = [minUSDeAmount, minUSDCAmount];
 
     // Approve the StableSwapNG contract to spend our LP tokens
-    await lpToken
-      .connect(owner)
-      .approve(POOLS.stableswapng.USDe_USDC.address, lpTokensToRemove);
+    await lpToken.connect(owner).approve(POOLS.stableswapng.USDe_USDC.address, lpTokensToRemove);
 
     // Remove liquidity from the pool
     const tx = await stableSwap.remove_liquidity(lpTokensToRemove, minAmounts);
@@ -158,35 +131,23 @@ describe("Curve StableSwapNG", function () {
     const lpTokensToRemove = ethers.parseUnits("10", 18); // Assuming 18 decimals for LP token
 
     // The LP token is the same as the pool address
-    const lpToken = await ethers.getContractAt(
-      "@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20",
-      await stableSwap.getAddress(),
-    );
+    const lpToken = await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20", await stableSwap.getAddress());
 
     // Snapshot the starting balances
     const lpBalanceBefore = await lpToken.balanceOf(owner.address);
     const USDeBalanceBefore = await USDe.balanceOf(owner.address);
 
     // Calculate the expected amount of USDe to receive
-    const expectedUSDe = await stableSwap.calc_withdraw_one_coin(
-      lpTokensToRemove,
-      0,
-    );
+    const expectedUSDe = await stableSwap.calc_withdraw_one_coin(lpTokensToRemove, 0);
 
     // Set minimum amount to 99% of expected amount (1% slippage tolerance)
     const minUSDeAmount = (expectedUSDe * 99n) / 100n;
 
     // Approve the StableSwapNG contract to spend our LP tokens
-    await lpToken
-      .connect(owner)
-      .approve(POOLS.stableswapng.USDe_USDC.address, lpTokensToRemove);
+    await lpToken.connect(owner).approve(POOLS.stableswapng.USDe_USDC.address, lpTokensToRemove);
 
     // Remove liquidity from the pool for a single coin (USDe)
-    const tx = await stableSwap.remove_liquidity_one_coin(
-      lpTokensToRemove,
-      0,
-      minUSDeAmount,
-    );
+    const tx = await stableSwap.remove_liquidity_one_coin(lpTokensToRemove, 0, minUSDeAmount);
     await tx.wait();
 
     // Check the LP token balance after removing liquidity
@@ -206,10 +167,7 @@ describe("Curve StableSwapNG", function () {
     const amounts = [USDeAmount, USDCAmount];
 
     // The LP token is the same as the pool address
-    const lpToken = await ethers.getContractAt(
-      "@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20",
-      await stableSwap.getAddress(),
-    );
+    const lpToken = await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20", await stableSwap.getAddress());
 
     // Snapshot the starting balances
     const lpBalanceBefore = await lpToken.balanceOf(owner.address);
@@ -221,23 +179,16 @@ describe("Curve StableSwapNG", function () {
     const maxBurnAmountWithSlippage = (maxBurnAmount * 101n) / 100n; // Add 1% slippage
 
     // Approve the StableSwapNG contract to spend our LP tokens
-    await lpToken
-      .connect(owner)
-      .approve(POOLS.stableswapng.USDe_USDC.address, maxBurnAmountWithSlippage);
+    await lpToken.connect(owner).approve(POOLS.stableswapng.USDe_USDC.address, maxBurnAmountWithSlippage);
 
     // Remove liquidity imbalanced from the pool
-    const tx = await stableSwap.remove_liquidity_imbalance(
-      amounts,
-      maxBurnAmountWithSlippage,
-    );
+    const tx = await stableSwap.remove_liquidity_imbalance(amounts, maxBurnAmountWithSlippage);
     await tx.wait();
 
     // Check the LP token balance after removing liquidity
     const lpBalanceAfter = await lpToken.balanceOf(owner.address);
     expect(lpBalanceAfter).to.be.lt(lpBalanceBefore);
-    expect(lpBalanceAfter).to.be.gte(
-      lpBalanceBefore - maxBurnAmountWithSlippage,
-    );
+    expect(lpBalanceAfter).to.be.gte(lpBalanceBefore - maxBurnAmountWithSlippage);
 
     // Check that the tokens were transferred to the owner
     const USDeBalanceAfter = await USDe.balanceOf(owner.address);
@@ -246,13 +197,7 @@ describe("Curve StableSwapNG", function () {
     expect(USDCBalanceAfter).to.be.gte(USDCBalanceBefore + USDCAmount);
 
     // Check that the actual received amounts are close to the requested amounts
-    expect(USDeBalanceAfter - USDeBalanceBefore).to.be.closeTo(
-      USDeAmount,
-      USDeAmount / 100n,
-    ); // Within 1%
-    expect(USDCBalanceAfter - USDCBalanceBefore).to.be.closeTo(
-      USDCAmount,
-      USDCAmount / 100n,
-    ); // Within 1%
+    expect(USDeBalanceAfter - USDeBalanceBefore).to.be.closeTo(USDeAmount, USDeAmount / 100n); // Within 1%
+    expect(USDCBalanceAfter - USDCBalanceBefore).to.be.closeTo(USDCAmount, USDCAmount / 100n); // Within 1%
   });
 });

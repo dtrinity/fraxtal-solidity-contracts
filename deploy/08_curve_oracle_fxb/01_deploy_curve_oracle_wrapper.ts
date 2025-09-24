@@ -10,8 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const deployer = await hre.ethers.getSigner(dusdDeployer);
 
   const config = await getConfig(hre);
-  const baseCurrencyUnit =
-    BigInt(10) ** BigInt(config.oracleAggregator.priceDecimals);
+  const baseCurrencyUnit = BigInt(10) ** BigInt(config.oracleAggregator.priceDecimals);
 
   const wrapperDeployment = await deployContract(
     hre,
@@ -23,22 +22,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     "CurveAPI3CompositeWrapperWithThresholding",
   );
 
-  const wrapper = await hre.ethers.getContractAt(
-    CURVE_API3_COMPOSITE_WRAPPER_WITH_THRESHOLDING_ID,
-    wrapperDeployment.address,
-  );
+  const wrapper = await hre.ethers.getContractAt(CURVE_API3_COMPOSITE_WRAPPER_WITH_THRESHOLDING_ID, wrapperDeployment.address);
 
   // Configure Curve pools and thresholds
-  const curveFeeds =
-    config.oracleAggregator.curveOracleAssets.curveApi3CompositeOracles || {};
+  const curveFeeds = config.oracleAggregator.curveOracleAssets.curveApi3CompositeOracles || {};
 
   for (const [assetAddress, feedConfig] of Object.entries(curveFeeds)) {
     // Set pool configuration
     await wrapper.setAssetConfig(assetAddress, feedConfig.pool);
-    console.log(
-      `Set Curve pool config for asset ${assetAddress}:`,
-      `\n  - Pool: ${feedConfig.pool}`,
-    );
+    console.log(`Set Curve pool config for asset ${assetAddress}:`, `\n  - Pool: ${feedConfig.pool}`);
 
     // Set API3 feed if configured
     await wrapper.setCompositeFeed(

@@ -13,10 +13,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await deployContract(
     hre,
     HARD_PEG_ORACLE_WRAPPER_ID,
-    [
-      config.oracleAggregator.hardDusdPeg,
-      BigInt(10) ** BigInt(config.oracleAggregator.priceDecimals),
-    ],
+    [config.oracleAggregator.hardDusdPeg, BigInt(10) ** BigInt(config.oracleAggregator.priceDecimals)],
     undefined, // auto-filled gas limit
     await hre.ethers.getSigner(dusdDeployer),
     undefined, // no library

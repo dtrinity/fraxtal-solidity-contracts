@@ -14,11 +14,7 @@ export const DEFAULT_TOKEN_DECIMALS = 18;
  * @param toDecimals - Target decimal precision
  * @returns The converted value in the target decimal precision
  */
-export function convertDecimalPrecision(
-  value: BigNumberish,
-  fromDecimals: number,
-  toDecimals: number,
-): bigint {
+export function convertDecimalPrecision(value: BigNumberish, fromDecimals: number, toDecimals: number): bigint {
   const valueBigInt = BigInt(value.toString());
 
   if (fromDecimals > toDecimals) {
@@ -58,25 +54,16 @@ export function convertOraclePrice(
  * @param oraclePrice - Price from oracle (8 decimals)
  * @returns Value in dUSD terms (6 decimals)
  */
-export function calculateValueInDUSD(
-  tokenAmount: BigNumberish,
-  tokenDecimals: number,
-  oraclePrice: BigNumberish,
-): bigint {
+export function calculateValueInDUSD(tokenAmount: BigNumberish, tokenDecimals: number, oraclePrice: BigNumberish): bigint {
   const amountBigInt = BigInt(tokenAmount.toString());
   const priceBigInt = BigInt(oraclePrice.toString());
 
   // Calculate value in 18 decimal precision first
   // (tokenAmount * oraclePrice) / (10^tokenDecimals)
-  const valueInHighPrecision =
-    (amountBigInt * priceBigInt) / 10n ** BigInt(tokenDecimals);
+  const valueInHighPrecision = (amountBigInt * priceBigInt) / 10n ** BigInt(tokenDecimals);
 
   // Convert from oracle decimals to dUSD decimals
-  return convertDecimalPrecision(
-    valueInHighPrecision,
-    ORACLE_DECIMALS,
-    DUSD_DECIMALS,
-  );
+  return convertDecimalPrecision(valueInHighPrecision, ORACLE_DECIMALS, DUSD_DECIMALS);
 }
 
 /**
@@ -87,20 +74,12 @@ export function calculateValueInDUSD(
  * @param oraclePrice - Price from oracle (8 decimals)
  * @returns Amount of tokens needed
  */
-export function calculateTokenAmountForDUSDValue(
-  dusdValue: BigNumberish,
-  tokenDecimals: number,
-  oraclePrice: BigNumberish,
-): bigint {
+export function calculateTokenAmountForDUSDValue(dusdValue: BigNumberish, tokenDecimals: number, oraclePrice: BigNumberish): bigint {
   const valueBigInt = BigInt(dusdValue.toString());
   const priceBigInt = BigInt(oraclePrice.toString());
 
   // Convert dUSD value to oracle decimal precision
-  const valueInOracleDecimals = convertDecimalPrecision(
-    valueBigInt,
-    DUSD_DECIMALS,
-    ORACLE_DECIMALS,
-  );
+  const valueInOracleDecimals = convertDecimalPrecision(valueBigInt, DUSD_DECIMALS, ORACLE_DECIMALS);
 
   // Calculate token amount: (value * 10^tokenDecimals) / price
   return (valueInOracleDecimals * 10n ** BigInt(tokenDecimals)) / priceBigInt;
@@ -114,10 +93,7 @@ export function calculateTokenAmountForDUSDValue(
  * @param decimals - The decimal precision to validate against
  * @returns True if the amount meets precision requirements, false if it's dust
  */
-export function validateDecimalPrecision(
-  amount: BigNumberish,
-  decimals: number,
-): boolean {
+export function validateDecimalPrecision(amount: BigNumberish, decimals: number): boolean {
   const amountBigInt = BigInt(amount.toString());
 
   // For amounts less than 1 unit in the given decimal precision,
@@ -139,10 +115,7 @@ export function validateDecimalPrecision(
  * @param feeRateBps - Fee rate in basis points using dTRINITY's system (100 = 1 bps, 10000 = 1%, 1000000 = 100%)
  * @returns Fee amount in same decimal precision as input
  */
-export function calculateFeeAmount(
-  amount: BigNumberish,
-  feeRateBps: BigNumberish,
-): bigint {
+export function calculateFeeAmount(amount: BigNumberish, feeRateBps: BigNumberish): bigint {
   const amountBigInt = BigInt(amount.toString());
   const feeRateBigInt = BigInt(feeRateBps.toString());
 

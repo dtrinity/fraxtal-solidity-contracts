@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.0;
 
-import {VariableDebtToken} from "../../protocol/tokenization/VariableDebtToken.sol";
-import {IPool} from "../../interfaces/IPool.sol";
+import { VariableDebtToken } from "../../protocol/tokenization/VariableDebtToken.sol";
+import { IPool } from "../../interfaces/IPool.sol";
 
 contract MockVariableDebtToken is VariableDebtToken {
     constructor(IPool pool) VariableDebtToken(pool) {}

@@ -3,16 +3,9 @@ import { assert } from "chai";
 import { ethers, getNamedAccounts } from "hardhat";
 
 import { TEST_WETH9_ID } from "../../utils/dex/deploy-ids";
-import {
-  freshFixture,
-  standardUniswapV3DEXLBPLiquidityFixture,
-} from "./fixtures";
+import { freshFixture, standardUniswapV3DEXLBPLiquidityFixture } from "./fixtures";
 import { swapExactInputSingleWithApproval } from "./utils.dex";
-import {
-  borrowAsset,
-  depositCollateralWithApproval,
-  repayAsset,
-} from "./utils.lbp";
+import { borrowAsset, depositCollateralWithApproval, repayAsset } from "./utils.lbp";
 import { getTokenContractForSymbol } from "./utils.token";
 
 /**
@@ -31,15 +24,9 @@ describe.skip("dTrinity basic functions", () => {
 
       const { dexDeployer } = await getNamedAccounts();
 
-      const { contract: wfrxethContract } = await getTokenContractForSymbol(
-        dexDeployer,
-        TEST_WETH9_ID,
-      );
+      const { contract: wfrxethContract } = await getTokenContractForSymbol(dexDeployer, TEST_WETH9_ID);
       const wfrxethBalanceBefore = await wfrxethContract.balanceOf(dexDeployer);
-      const { contract: dusdContract } = await getTokenContractForSymbol(
-        dexDeployer,
-        "dUSD",
-      );
+      const { contract: dusdContract } = await getTokenContractForSymbol(dexDeployer, "dUSD");
       const dusdBalanceBefore = await dusdContract.balanceOf(dexDeployer);
 
       await swapExactInputSingleWithApproval(
@@ -68,21 +55,12 @@ describe.skip("dTrinity basic functions", () => {
 
       const { dexDeployer } = await getNamedAccounts();
 
-      const { contract: dusdContract, tokenInfo: dusdInfo } =
-        await getTokenContractForSymbol(dexDeployer, "dUSD");
+      const { contract: dusdContract, tokenInfo: dusdInfo } = await getTokenContractForSymbol(dexDeployer, "dUSD");
       const dusdBalanceBefore = await dusdContract.balanceOf(dexDeployer);
-      const { contract: sfraxContract, tokenInfo: sfraxInfo } =
-        await getTokenContractForSymbol(dexDeployer, "SFRAX");
+      const { contract: sfraxContract, tokenInfo: sfraxInfo } = await getTokenContractForSymbol(dexDeployer, "SFRAX");
       const sfraxBalanceBefore = await sfraxContract.balanceOf(dexDeployer);
 
-      await swapExactInputSingleWithApproval(
-        dexDeployer,
-        FeeAmount.HIGH,
-        dusdInfo.address,
-        sfraxInfo.address,
-        100,
-        6000,
-      );
+      await swapExactInputSingleWithApproval(dexDeployer, FeeAmount.HIGH, dusdInfo.address, sfraxInfo.address, 100, 6000);
 
       const dusdBalanceAfter = await dusdContract.balanceOf(dexDeployer);
       const sfraxBalanceAfter = await sfraxContract.balanceOf(dexDeployer);
@@ -103,18 +81,11 @@ describe.skip("dTrinity basic functions", () => {
 
       const { lendingDeployer } = await getNamedAccounts();
 
-      const { contract: dusdContract } = await getTokenContractForSymbol(
-        lendingDeployer,
-        "dUSD",
-      );
+      const { contract: dusdContract } = await getTokenContractForSymbol(lendingDeployer, "dUSD");
 
       const dusdBalanceBefore = await dusdContract.balanceOf(lendingDeployer);
 
-      await depositCollateralWithApproval(
-        lendingDeployer,
-        await dusdContract.getAddress(),
-        50,
-      );
+      await depositCollateralWithApproval(lendingDeployer, await dusdContract.getAddress(), 50);
 
       const dusdBalanceAfter = await dusdContract.balanceOf(lendingDeployer);
       assert.isTrue(
@@ -129,16 +100,11 @@ describe.skip("dTrinity basic functions", () => {
       const { dexDeployer, testAccount1 } = await getNamedAccounts();
 
       // First we need some sFRAX to borrow against
-      const { contract: sfraxViaDeployer } = await getTokenContractForSymbol(
-        dexDeployer,
-        "SFRAX",
-      );
+      const { contract: sfraxViaDeployer } = await getTokenContractForSymbol(dexDeployer, "SFRAX");
 
-      const { contract: sfraxContract, tokenInfo: sfraxInfo } =
-        await getTokenContractForSymbol(testAccount1, "SFRAX");
+      const { contract: sfraxContract, tokenInfo: sfraxInfo } = await getTokenContractForSymbol(testAccount1, "SFRAX");
 
-      const { contract: dusdContract, tokenInfo: dusdInfo } =
-        await getTokenContractForSymbol(testAccount1, "dUSD");
+      const { contract: dusdContract, tokenInfo: dusdInfo } = await getTokenContractForSymbol(testAccount1, "dUSD");
 
       const sfrax1000 = ethers.parseUnits("1000", sfraxInfo.decimals);
       await sfraxViaDeployer.transfer(testAccount1, sfrax1000);
@@ -146,21 +112,14 @@ describe.skip("dTrinity basic functions", () => {
       const sfraxBalanceBefore = await sfraxContract.balanceOf(testAccount1);
 
       // We have some sFRAX now, let's deposit it as collateral
-      await depositCollateralWithApproval(
-        testAccount1,
-        sfraxInfo.address,
-        1000,
-      );
+      await depositCollateralWithApproval(testAccount1, sfraxInfo.address, 1000);
 
       // Let's borrow some DUSD against our sFRAX
       await borrowAsset(testAccount1, dusdInfo.address, 800);
 
       const dusdBalanceAfter = await dusdContract.balanceOf(testAccount1);
       const sfraxBalanceAfter = await sfraxContract.balanceOf(testAccount1);
-      assert.isTrue(
-        BigInt(sfraxBalanceBefore) - BigInt(sfraxBalanceAfter) == sfrax1000,
-        "sFRAX balance should decrease",
-      );
+      assert.isTrue(BigInt(sfraxBalanceBefore) - BigInt(sfraxBalanceAfter) == sfrax1000, "sFRAX balance should decrease");
       const dusd800 = ethers.parseUnits("800", dusdInfo.decimals);
       assert.equal(dusdBalanceAfter, dusd800, "DUSD balance should increase");
 
@@ -172,8 +131,7 @@ describe.skip("dTrinity basic functions", () => {
       assert.equal(dusdBalanceAfterRepay, dusd100);
 
       // The sFRAX balance should be the same as the repaying action does not affect it
-      const sfraxBalanceAfterRepay =
-        await sfraxContract.balanceOf(testAccount1);
+      const sfraxBalanceAfterRepay = await sfraxContract.balanceOf(testAccount1);
       assert.equal(BigInt(sfraxBalanceAfterRepay), BigInt(sfraxBalanceAfter));
     });
   });

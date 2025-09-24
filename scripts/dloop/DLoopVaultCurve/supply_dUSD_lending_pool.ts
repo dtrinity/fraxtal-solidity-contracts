@@ -17,21 +17,12 @@ async function main(): Promise<void> {
 
   // Get Lending pools
   const lendingPoolAddress = await getPoolContractAddress();
-  const lendingPool = await hre.ethers.getContractAt(
-    "Pool",
-    lendingPoolAddress,
-    signer,
-  );
+  const lendingPool = await hre.ethers.getContractAt("Pool", lendingPoolAddress, signer);
 
   // Supply dUSD to the lending pool
   const res = await lendingPool
     .connect(signer)
-    .supply(
-      config.dLoopCurve?.dUSDAddress as string,
-      ethers.parseUnits("1000", 6),
-      dexDeployer,
-      0,
-    );
+    .supply(config.dLoopCurve?.dUSDAddress as string, ethers.parseUnits("1000", 6), dexDeployer, 0);
 
   const output = await res.wait();
   console.log(output);

@@ -24,9 +24,7 @@ contract BitMathTest {
         return BitMath.mostSignificantBit(x);
     }
 
-    function getGasCostOfMostSignificantBit(
-        uint256 x
-    ) external view returns (uint256) {
+    function getGasCostOfMostSignificantBit(uint256 x) external view returns (uint256) {
         uint256 gasBefore = gasleft();
         BitMath.mostSignificantBit(x);
         return gasBefore - gasleft();
@@ -36,9 +34,7 @@ contract BitMathTest {
         return BitMath.leastSignificantBit(x);
     }
 
-    function getGasCostOfLeastSignificantBit(
-        uint256 x
-    ) external view returns (uint256) {
+    function getGasCostOfLeastSignificantBit(uint256 x) external view returns (uint256) {
         uint256 gasBefore = gasleft();
         BitMath.leastSignificantBit(x);
         return gasBefore - gasleft();

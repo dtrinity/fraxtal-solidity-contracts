@@ -17,19 +17,11 @@ import { MockVariableDebtToken__factory as MockVariableDebtTokenFactory } from "
 
 // Add setDecimals to mock contract types
 interface MockATokenWithSetDecimals extends MockAToken {
-  setDecimals: TypedContractMethod<
-    [decimals_: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setDecimals: TypedContractMethod<[decimals_: BigNumberish], [void], "nonpayable">;
 }
 
 interface MockVariableDebtTokenWithSetDecimals extends MockVariableDebtToken {
-  setDecimals: TypedContractMethod<
-    [decimals_: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setDecimals: TypedContractMethod<[decimals_: BigNumberish], [void], "nonpayable">;
 }
 
 describe("DLendBalanceChecker", () => {
@@ -49,28 +41,14 @@ describe("DLendBalanceChecker", () => {
     const TestnetERC20 = (await ethers.getContractFactory(
       "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
     )) as TestnetERC20Factory;
-    mockExternalToken = await TestnetERC20.deploy(
-      "Mock External",
-      "MEXT",
-      18,
-      _deployer.address,
-    );
-    mockUnderlyingToken = await TestnetERC20.deploy(
-      "Mock Underlying",
-      "MUND",
-      18,
-      _deployer.address,
-    );
+    mockExternalToken = await TestnetERC20.deploy("Mock External", "MEXT", 18, _deployer.address);
+    mockUnderlyingToken = await TestnetERC20.deploy("Mock Underlying", "MUND", 18, _deployer.address);
 
     // Deploy mock contracts
-    const MockPool = (await ethers.getContractFactory(
-      "contracts/mocks/MockPool.sol:MockPool",
-    )) as MockPoolFactory;
+    const MockPool = (await ethers.getContractFactory("contracts/mocks/MockPool.sol:MockPool")) as MockPoolFactory;
     mockPool = await MockPool.deploy();
 
-    const MockAToken = (await ethers.getContractFactory(
-      "contracts/mocks/MockAToken.sol:MockAToken",
-    )) as MockATokenFactory;
+    const MockAToken = (await ethers.getContractFactory("contracts/mocks/MockAToken.sol:MockAToken")) as MockATokenFactory;
     mockAToken = await MockAToken.deploy();
 
     const MockVariableDebtToken = (await ethers.getContractFactory(
@@ -82,9 +60,7 @@ describe("DLendBalanceChecker", () => {
     const DLendBalanceChecker = (await ethers.getContractFactory(
       "contracts/fxtl_balance_checkers/implementations/DLendBalanceChecker.sol:DLendBalanceChecker",
     )) as DLendBalanceCheckerFactory;
-    balanceChecker = await DLendBalanceChecker.deploy(
-      await mockPool.getAddress(),
-    );
+    balanceChecker = await DLendBalanceChecker.deploy(await mockPool.getAddress());
 
     // Setup mock AToken with underlying asset
     await mockAToken.setUnderlyingAsset(await mockUnderlyingToken.getAddress());
@@ -142,10 +118,7 @@ describe("DLendBalanceChecker", () => {
         await mockAToken.setTotalSupply(totalSupply);
         await mockDebtToken.setTotalSupply(totalDebt);
 
-        const balances = await balanceChecker.tokenBalances(
-          await mockUnderlyingToken.getAddress(),
-          [users[0].address],
-        );
+        const balances = await balanceChecker.tokenBalances(await mockUnderlyingToken.getAddress(), [users[0].address]);
 
         // With 50% utilization, effective balance should be 50% of actual balance
         expect(balances[0]).to.equal(userBalance / 2n);
@@ -162,10 +135,7 @@ describe("DLendBalanceChecker", () => {
         await mockAToken.setTotalSupply(totalSupply);
         await mockDebtToken.setTotalSupply(totalDebt);
 
-        const balances = await balanceChecker.tokenBalances(
-          await mockUnderlyingToken.getAddress(),
-          [users[0].address, users[1].address],
-        );
+        const balances = await balanceChecker.tokenBalances(await mockUnderlyingToken.getAddress(), [users[0].address, users[1].address]);
 
         // With 20% utilization, effective balance should be 80% of actual balance
         expect(balances[0]).to.equal((balance1 * 80n) / 100n);
@@ -177,10 +147,7 @@ describe("DLendBalanceChecker", () => {
         await mockAToken.setTotalSupply(0);
         await mockDebtToken.setTotalSupply(0);
 
-        const balances = await balanceChecker.tokenBalances(
-          await mockUnderlyingToken.getAddress(),
-          [users[0].address],
-        );
+        const balances = await balanceChecker.tokenBalances(await mockUnderlyingToken.getAddress(), [users[0].address]);
 
         expect(balances[0]).to.equal(0);
       });
@@ -191,10 +158,7 @@ describe("DLendBalanceChecker", () => {
         await mockAToken.setTotalSupply(totalSupply);
         await mockDebtToken.setTotalSupply(totalSupply);
 
-        const balances = await balanceChecker.tokenBalances(
-          await mockUnderlyingToken.getAddress(),
-          [users[0].address],
-        );
+        const balances = await balanceChecker.tokenBalances(await mockUnderlyingToken.getAddress(), [users[0].address]);
 
         expect(balances[0]).to.equal(0);
       });
@@ -206,17 +170,10 @@ describe("DLendBalanceChecker", () => {
         const totalSupply = parseEther("1000");
 
         // Use the specific mint function signature
-        await mockExternalToken["mint(address,uint256)"](
-          users[0].address,
-          userBalance,
-        ),
-          await mockAToken.setTotalSupply(totalSupply);
+        (await mockExternalToken["mint(address,uint256)"](users[0].address, userBalance), await mockAToken.setTotalSupply(totalSupply));
         await mockDebtToken.setTotalSupply(0);
 
-        const balances = await balanceChecker.tokenBalances(
-          await mockExternalToken.getAddress(),
-          [users[0].address],
-        );
+        const balances = await balanceChecker.tokenBalances(await mockExternalToken.getAddress(), [users[0].address]);
 
         expect(balances[0]).to.equal(userBalance);
       });
@@ -226,24 +183,12 @@ describe("DLendBalanceChecker", () => {
         const TestnetERC20 = (await ethers.getContractFactory(
           "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
         )) as TestnetERC20Factory;
-        const unmappedToken = await TestnetERC20.deploy(
-          "Unmapped Token",
-          "UNMAP",
-          18,
-          _deployer.address,
-        );
+        const unmappedToken = await TestnetERC20.deploy("Unmapped Token", "UNMAP", 18, _deployer.address);
 
         await (unmappedToken.connect(_deployer) as any).setProtected(false);
-        await unmappedToken["mint(address,uint256)"](
-          users[0].address,
-          parseEther("100"),
-        );
+        await unmappedToken["mint(address,uint256)"](users[0].address, parseEther("100"));
 
-        await expect(
-          balanceChecker.tokenBalances(await unmappedToken.getAddress(), [
-            users[0].address,
-          ]),
-        )
+        await expect(balanceChecker.tokenBalances(await unmappedToken.getAddress(), [users[0].address]))
           .to.be.revertedWithCustomError(balanceChecker, "InvalidDebtToken")
           .withArgs(await unmappedToken.getAddress());
       });
@@ -253,9 +198,7 @@ describe("DLendBalanceChecker", () => {
   describe("batchTokenBalances", () => {
     it("should handle multiple sources", async () => {
       // Deploy second set of mock tokens
-      const MockAToken2 = (await ethers.getContractFactory(
-        "contracts/mocks/MockAToken.sol:MockAToken",
-      )) as MockATokenFactory;
+      const MockAToken2 = (await ethers.getContractFactory("contracts/mocks/MockAToken.sol:MockAToken")) as MockATokenFactory;
       const mockAToken2 = await MockAToken2.deploy();
 
       const MockVariableDebtToken2 = (await ethers.getContractFactory(
@@ -267,15 +210,8 @@ describe("DLendBalanceChecker", () => {
       const testnetErc20Two = (await ethers.getContractFactory(
         "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
       )) as TestnetERC20Factory;
-      const mockUnderlyingToken2 = await testnetErc20Two.deploy(
-        "Mock Underlying 2",
-        "MUND2",
-        18,
-        _deployer.address,
-      );
-      await mockAToken2.setUnderlyingAsset(
-        await mockUnderlyingToken2.getAddress(),
-      );
+      const mockUnderlyingToken2 = await testnetErc20Two.deploy("Mock Underlying 2", "MUND2", 18, _deployer.address);
+      await mockAToken2.setUnderlyingAsset(await mockUnderlyingToken2.getAddress());
       await mockPool.setReserveData(
         await mockUnderlyingToken2.getAddress(), // underlying asset address
         await mockAToken2.getAddress(), // aToken address
@@ -296,10 +232,7 @@ describe("DLendBalanceChecker", () => {
       await mockDebtToken2.setTotalSupply(parseEther("400"));
 
       const balances = await balanceChecker.batchTokenBalances(
-        [
-          await mockUnderlyingToken.getAddress(),
-          await mockUnderlyingToken2.getAddress(),
-        ],
+        [await mockUnderlyingToken.getAddress(), await mockUnderlyingToken2.getAddress()],
         [users[0].address],
       );
 
@@ -309,9 +242,10 @@ describe("DLendBalanceChecker", () => {
     });
 
     it("should revert when no sources are provided", async () => {
-      await expect(
-        balanceChecker.batchTokenBalances([], [users[0].address]),
-      ).to.be.revertedWithCustomError(balanceChecker, "NoSourcesProvided");
+      await expect(balanceChecker.batchTokenBalances([], [users[0].address])).to.be.revertedWithCustomError(
+        balanceChecker,
+        "NoSourcesProvided",
+      );
     });
   });
 
@@ -321,9 +255,7 @@ describe("DLendBalanceChecker", () => {
         await mockAToken.setTotalSupply(parseEther("1000"));
         await mockDebtToken.setTotalSupply(parseEther("300")); // 30% utilization
 
-        const utilization = await balanceChecker.getUtilizationRatio(
-          await mockUnderlyingToken.getAddress(),
-        );
+        const utilization = await balanceChecker.getUtilizationRatio(await mockUnderlyingToken.getAddress());
 
         // 30% utilization = 0.3e18
         expect(utilization).to.equal(parseEther("0.3"));
@@ -335,9 +267,7 @@ describe("DLendBalanceChecker", () => {
         await mockAToken.setTotalSupply(parseEther("1000"));
         await mockDebtToken.setTotalSupply(parseEther("300")); // 30% utilization
 
-        const available = await balanceChecker.getAvailableRatio(
-          await mockUnderlyingToken.getAddress(),
-        );
+        const available = await balanceChecker.getAvailableRatio(await mockUnderlyingToken.getAddress());
 
         // 70% available = 0.7e18
         expect(available).to.equal(parseEther("0.7"));
@@ -346,9 +276,7 @@ describe("DLendBalanceChecker", () => {
 
     describe("getDebtToken", () => {
       it("should return correct debt token address", async () => {
-        const debtToken = await balanceChecker.getDebtToken(
-          await mockUnderlyingToken.getAddress(),
-        );
+        const debtToken = await balanceChecker.getDebtToken(await mockUnderlyingToken.getAddress());
 
         expect(debtToken).to.equal(await mockDebtToken.getAddress());
       });
@@ -358,31 +286,19 @@ describe("DLendBalanceChecker", () => {
   describe("mapExternalSource", () => {
     it("should allow admin to map external sources", async () => {
       const newExternalToken = await (
-        await ethers.getContractFactory(
-          "contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20",
-        )
+        await ethers.getContractFactory("contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20")
       ).deploy("New External", "NEW", 18, _deployer.address);
 
-      await balanceChecker.mapExternalSource(
-        await newExternalToken.getAddress(),
+      await balanceChecker.mapExternalSource(await newExternalToken.getAddress(), await mockUnderlyingToken.getAddress());
+
+      expect(await balanceChecker.externalSourceToInternalToken(await newExternalToken.getAddress())).to.equal(
         await mockUnderlyingToken.getAddress(),
       );
-
-      expect(
-        await balanceChecker.externalSourceToInternalToken(
-          await newExternalToken.getAddress(),
-        ),
-      ).to.equal(await mockUnderlyingToken.getAddress());
     });
 
     it("should revert when non-admin tries to map", async () => {
       await expect(
-        balanceChecker
-          .connect(users[0])
-          .mapExternalSource(
-            await mockExternalToken.getAddress(),
-            await mockUnderlyingToken.getAddress(),
-          ),
+        balanceChecker.connect(users[0]).mapExternalSource(await mockExternalToken.getAddress(), await mockUnderlyingToken.getAddress()),
       ).to.be.reverted;
     });
   });

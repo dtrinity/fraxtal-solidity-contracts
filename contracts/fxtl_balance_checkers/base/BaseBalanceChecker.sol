@@ -57,10 +57,7 @@ abstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {
      * @param externalToken The address of the external token
      * @param internalToken The address of the corresponding internal token
      */
-    function mapExternalSource(
-        address externalToken,
-        address internalToken
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function mapExternalSource(address externalToken, address internalToken) external onlyRole(DEFAULT_ADMIN_ROLE) {
         if (internalToken == address(0)) {
             revert InvalidAddress(internalToken);
         }
@@ -71,9 +68,7 @@ abstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {
      * @notice Removes an external token mapping
      * @param externalToken The address of the external token to remove
      */
-    function removeExternalSource(
-        address externalToken
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function removeExternalSource(address externalToken) external onlyRole(DEFAULT_ADMIN_ROLE) {
         delete externalSourceToInternalToken[externalToken];
     }
 
@@ -83,10 +78,7 @@ abstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {
      * @param tokenDecimals The current decimals of the token
      * @return The normalized balance (18 decimals)
      */
-    function _normalizeToDecimals18(
-        uint256 balance,
-        uint256 tokenDecimals
-    ) internal pure returns (uint256) {
+    function _normalizeToDecimals18(uint256 balance, uint256 tokenDecimals) internal pure returns (uint256) {
         if (tokenDecimals < 18) {
             return balance * (10 ** (18 - tokenDecimals));
         } else if (tokenDecimals > 18) {
@@ -114,10 +106,7 @@ abstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {
      * @param user The user address
      * @return The calculated balance (normalized to 18 decimals)
      */
-    function _calculateTokenBalance(
-        address token,
-        address user
-    ) internal view virtual returns (uint256);
+    function _calculateTokenBalance(address token, address user) internal view virtual returns (uint256);
 
     /**
      * @notice Abstract function to validate a token and get necessary details
@@ -128,15 +117,7 @@ abstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {
      */
     function _validateTokenAndGetDetails(
         address token
-    )
-        internal
-        view
-        virtual
-        returns (
-            address validToken,
-            address originalToken,
-            bool isExternalToken
-        );
+    ) internal view virtual returns (address validToken, address originalToken, bool isExternalToken);
 
     /**
      * @inheritdoc IBalanceChecker
@@ -173,9 +154,7 @@ abstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {
                 continue;
             }
 
-            try this.tokenBalances(sources[i], addresses) returns (
-                uint256[] memory balances
-            ) {
+            try this.tokenBalances(sources[i], addresses) returns (uint256[] memory balances) {
                 // Add balances from this source to the running total
                 for (uint256 j = 0; j < addresses.length; j++) {
                     result[j] += balances[j];
@@ -192,9 +171,7 @@ abstract contract BaseBalanceChecker is IBalanceChecker, AccessControl {
      * @param externalToken The external token address
      * @return The mapped internal token address (address(0) if not mapped)
      */
-    function getMappedToken(
-        address externalToken
-    ) external view returns (address) {
+    function getMappedToken(address externalToken) external view returns (address) {
         return externalSourceToInternalToken[externalToken];
     }
 

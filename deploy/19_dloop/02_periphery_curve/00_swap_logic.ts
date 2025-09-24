@@ -24,13 +24,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const config = await getConfig(hre);
   const hasCurveConfig =
     config.dLoop &&
-    ((config.dLoop.depositors && config.dLoop.depositors.curve) ||
-      (config.dLoop.withdrawers && config.dLoop.withdrawers.curve));
+    ((config.dLoop.depositors && config.dLoop.depositors.curve) || (config.dLoop.withdrawers && config.dLoop.withdrawers.curve));
 
   if (!hasCurveConfig) {
-    console.log(
-      `No dLOOP Curve depositor/withdrawer defined for network ${hre.network.name}. Skipping CurveSwapLogic deployment.`,
-    );
+    console.log(`No dLOOP Curve depositor/withdrawer defined for network ${hre.network.name}. Skipping CurveSwapLogic deployment.`);
     return false;
   }
 

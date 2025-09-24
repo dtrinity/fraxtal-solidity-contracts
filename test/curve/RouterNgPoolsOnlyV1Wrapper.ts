@@ -4,10 +4,7 @@ import { BigNumberish } from "ethers";
 import hre, { ethers } from "hardhat";
 
 import { CurveRouterNgPoolsOnlyV1Wrapper, IERC20 } from "../../typechain-types";
-import {
-  FRAXTAL_TESTNET_CURVE_CONTRACTS,
-  FRAXTAL_TESTNET_TOKENS,
-} from "./registry";
+import { FRAXTAL_TESTNET_CURVE_CONTRACTS, FRAXTAL_TESTNET_TOKENS } from "./registry";
 
 describe("Curve multi-hop swap by exchange function", function () {
   let owner: SignerWithAddress;
@@ -27,16 +24,11 @@ describe("Curve multi-hop swap by exchange function", function () {
     const maxFeePerGas = feeData.maxFeePerGas || undefined;
     const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas || undefined;
 
-    const CurveRouterFactory = await ethers.getContractFactory(
-      "CurveRouterNgPoolsOnlyV1Wrapper",
-    );
-    exchange = await CurveRouterFactory.deploy(
-      FRAXTAL_TESTNET_CURVE_CONTRACTS.router,
-      {
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-      },
-    );
+    const CurveRouterFactory = await ethers.getContractFactory("CurveRouterNgPoolsOnlyV1Wrapper");
+    exchange = await CurveRouterFactory.deploy(FRAXTAL_TESTNET_CURVE_CONTRACTS.router, {
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+    });
     await exchange.waitForDeployment();
     console.log("Exchange deployed at: ", await exchange.getAddress());
     // Connect to the token contracts
@@ -51,17 +43,12 @@ describe("Curve multi-hop swap by exchange function", function () {
   });
 
   it("swap exact input", async function () {
-    const amountIn = ethers.parseUnits(
-      "1",
-      FRAXTAL_TESTNET_TOKENS.dUSD.decimals,
-    );
+    const amountIn = ethers.parseUnits("1", FRAXTAL_TESTNET_TOKENS.dUSD.decimals);
     const { dusdDeployer } = await hre.getNamedAccounts();
     const funder = await ethers.getSigner(dusdDeployer);
 
     await tokenIn.connect(funder).transfer(owner.address, amountIn);
-    await tokenIn
-      .connect(funder)
-      .approve(await exchange.getAddress(), amountIn);
+    await tokenIn.connect(funder).approve(await exchange.getAddress(), amountIn);
 
     const route = [
       "0x4d6e79013212f10a026a1fb0b926c9fd0432b96c",
@@ -90,19 +77,9 @@ describe("Curve multi-hop swap by exchange function", function () {
       [0, 0, 0, 0],
     ];
 
-    const minAmountOut = await exchange.getExpectedOutput(
-      route,
-      swapParams,
-      amountIn,
-    );
+    const minAmountOut = await exchange.getExpectedOutput(route, swapParams, amountIn);
 
-    const tx = await exchange.swapExactIn(
-      route,
-      swapParams,
-      amountIn,
-      minAmountOut,
-      await tokenIn.getAddress(),
-    );
+    const tx = await exchange.swapExactIn(route, swapParams, amountIn, minAmountOut, await tokenIn.getAddress());
 
     await tx.wait();
 
@@ -113,14 +90,8 @@ describe("Curve multi-hop swap by exchange function", function () {
   });
 
   it("swap exact output with 0.01% difference", async function () {
-    const amountOut = ethers.parseUnits(
-      "8",
-      FRAXTAL_TESTNET_TOKENS.sFRAX.decimals,
-    );
-    const maxAmountIn = ethers.parseUnits(
-      "10",
-      FRAXTAL_TESTNET_TOKENS.dUSD.decimals,
-    );
+    const amountOut = ethers.parseUnits("8", FRAXTAL_TESTNET_TOKENS.sFRAX.decimals);
+    const maxAmountIn = ethers.parseUnits("10", FRAXTAL_TESTNET_TOKENS.dUSD.decimals);
 
     const { dusdDeployer } = await hre.getNamedAccounts();
     const funder = await ethers.getSigner(dusdDeployer);
@@ -128,9 +99,7 @@ describe("Curve multi-hop swap by exchange function", function () {
     await tokenIn.connect(funder).transfer(owner.address, maxAmountIn);
 
     // Approve the exchange contract to spend our tokens
-    await tokenIn
-      .connect(owner)
-      .approve(await exchange.getAddress(), maxAmountIn);
+    await tokenIn.connect(owner).approve(await exchange.getAddress(), maxAmountIn);
 
     const route = [
       "0x4d6e79013212f10a026a1fb0b926c9fd0432b96c", // TOKEN_A (dUSD)
@@ -159,24 +128,14 @@ describe("Curve multi-hop swap by exchange function", function () {
       [0, 0, 0, 0],
     ];
 
-    const expectedAmountIn = await exchange.getExpectedInput(
-      route,
-      swapParams,
-      amountOut,
-    );
+    const expectedAmountIn = await exchange.getExpectedInput(route, swapParams, amountOut);
     expect(expectedAmountIn).to.be.gt(0);
     expect(expectedAmountIn).to.be.lte(maxAmountIn);
 
     const balanceTokenInBefore = await tokenIn.balanceOf(owner.address);
     const balanceTokenOutBefore = await tokenOut.balanceOf(owner.address);
 
-    const tx = await exchange.swapExactOutput(
-      route,
-      swapParams,
-      amountOut,
-      maxAmountIn,
-      await tokenIn.getAddress(),
-    );
+    const tx = await exchange.swapExactOutput(route, swapParams, amountOut, maxAmountIn, await tokenIn.getAddress());
 
     await tx.wait();
 

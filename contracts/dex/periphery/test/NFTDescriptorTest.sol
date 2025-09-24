@@ -46,14 +46,7 @@ contract NFTDescriptorTest {
         uint8 token1Decimals,
         bool flipRatio
     ) public pure returns (string memory) {
-        return
-            NFTDescriptor.tickToDecimalString(
-                tick,
-                tickSpacing,
-                token0Decimals,
-                token1Decimals,
-                flipRatio
-            );
+        return NFTDescriptor.tickToDecimalString(tick, tickSpacing, token0Decimals, token1Decimals, flipRatio);
     }
 
     function fixedPointToDecimalString(
@@ -61,57 +54,34 @@ contract NFTDescriptorTest {
         uint8 token0Decimals,
         uint8 token1Decimals
     ) public pure returns (string memory) {
-        return
-            NFTDescriptor.fixedPointToDecimalString(
-                sqrtRatioX96,
-                token0Decimals,
-                token1Decimals
-            );
+        return NFTDescriptor.fixedPointToDecimalString(sqrtRatioX96, token0Decimals, token1Decimals);
     }
 
-    function feeToPercentString(
-        uint24 fee
-    ) public pure returns (string memory) {
+    function feeToPercentString(uint24 fee) public pure returns (string memory) {
         return NFTDescriptor.feeToPercentString(fee);
     }
 
-    function addressToString(
-        address _address
-    ) public pure returns (string memory) {
+    function addressToString(address _address) public pure returns (string memory) {
         return NFTDescriptor.addressToString(_address);
     }
 
-    function generateSVGImage(
-        NFTDescriptor.ConstructTokenURIParams memory params
-    ) public pure returns (string memory) {
+    function generateSVGImage(NFTDescriptor.ConstructTokenURIParams memory params) public pure returns (string memory) {
         return NFTDescriptor.generateSVGImage(params);
     }
 
-    function tokenToColorHex(
-        address token,
-        uint256 offset
-    ) public pure returns (string memory) {
+    function tokenToColorHex(address token, uint256 offset) public pure returns (string memory) {
         return NFTDescriptor.tokenToColorHex(uint256(token), offset);
     }
 
-    function sliceTokenHex(
-        address token,
-        uint256 offset
-    ) public pure returns (uint256) {
+    function sliceTokenHex(address token, uint256 offset) public pure returns (uint256) {
         return NFTDescriptor.sliceTokenHex(uint256(token), offset);
     }
 
-    function rangeLocation(
-        int24 tickLower,
-        int24 tickUpper
-    ) public pure returns (string memory, string memory) {
+    function rangeLocation(int24 tickLower, int24 tickUpper) public pure returns (string memory, string memory) {
         return NFTSVG.rangeLocation(tickLower, tickUpper);
     }
 
-    function isRare(
-        uint256 tokenId,
-        address poolAddress
-    ) public pure returns (bool) {
+    function isRare(uint256 tokenId, address poolAddress) public pure returns (bool) {
         return NFTSVG.isRare(tokenId, poolAddress);
     }
 }

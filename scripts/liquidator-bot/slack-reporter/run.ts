@@ -6,10 +6,7 @@ import hre from "hardhat";
 import { getConfig } from "../../../config/config";
 import { AAVE_ORACLE_USD_DECIMALS } from "../../../utils/constants";
 import { getOraclePrice } from "../../../utils/dex/oracle";
-import {
-  getUserAccountData,
-  getUsersReserveBalances,
-} from "../../../utils/lending/account";
+import { getUserAccountData, getUsersReserveBalances } from "../../../utils/lending/account";
 import { getReservesList } from "../../../utils/lending/pool";
 import { getReserveConfigurationData } from "../../../utils/lending/reserve";
 import { getAllLendingUserAddresses } from "../../../utils/liquidator-bot/curve/utils.run";
@@ -21,9 +18,7 @@ const SLACK_TOKEN = process.env.LIQUIDATOR_BOT_SLACK_BOT_TOKEN;
 const SLACK_CHANNEL = process.env.LIQUIDATOR_BOT_SLACK_CHANNEL_ID;
 
 if (!SLACK_TOKEN || !SLACK_CHANNEL) {
-  throw new Error(
-    "LIQUIDATOR_BOT_SLACK_BOT_TOKEN and LIQUIDATOR_BOT_SLACK_CHANNEL_ID must be set in environment variables",
-  );
+  throw new Error("LIQUIDATOR_BOT_SLACK_BOT_TOKEN and LIQUIDATOR_BOT_SLACK_CHANNEL_ID must be set in environment variables");
 }
 
 const slack = new WebClient(SLACK_TOKEN);
@@ -40,10 +35,7 @@ const lastHealthFactors: { [address: string]: number } = {};
  * @param files[].filename - The filename of the file
  * @param files[].comment - The comment for this specific file
  */
-async function sendSlackMessage(
-  message: string,
-  files?: Array<{ content: string; filename: string; comment: string }>,
-): Promise<void> {
+async function sendSlackMessage(message: string, files?: Array<{ content: string; filename: string; comment: string }>): Promise<void> {
   try {
     const result = await slack.chat.postMessage({
       channel: SLACK_CHANNEL as string,
@@ -127,16 +119,10 @@ async function generateDetailedStatsCSVContent(
   console.log("Getting reserves info");
 
   for (const reserve of reservesList) {
-    const tokenContract = await hre.ethers.getContractAt(
-      "@openzeppelin/contracts-5/token/ERC20/ERC20.sol:ERC20",
-      reserve,
-    );
+    const tokenContract = await hre.ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/ERC20.sol:ERC20", reserve);
 
     // Get asset price
-    const [price, reserveData] = await Promise.all([
-      getOraclePrice(liquidatorBotDeployer, reserve),
-      getReserveConfigurationData(reserve),
-    ]);
+    const [price, reserveData] = await Promise.all([getOraclePrice(liquidatorBotDeployer, reserve), getReserveConfigurationData(reserve)]);
 
     reservesInfoMap[reserve] = {
       symbol: await tokenContract.symbol(),
@@ -158,17 +144,9 @@ async function generateDetailedStatsCSVContent(
     healthFactorBatchSize,
   );
   // Create header row with base columns and collateral/debt columns grouped
-  const headers = [
-    "user_address",
-    "health_factor",
-    "ltv",
-    "total_collateral_usd",
-    "dUSD_deposit_usd",
-  ];
+  const headers = ["user_address", "health_factor", "ltv", "total_collateral_usd", "dUSD_deposit_usd"];
 
-  const collateralReservesList = Object.keys(reservesInfoMap).filter(
-    (reserve) => reservesInfoMap[reserve].canBeCollateral,
-  );
+  const collateralReservesList = Object.keys(reservesInfoMap).filter((reserve) => reservesInfoMap[reserve].canBeCollateral);
 
   // Add all collateral columns first
   collateralReservesList.forEach((reserve) => {
@@ -190,24 +168,15 @@ async function generateDetailedStatsCSVContent(
   console.log("Generating data rows");
   const rows = userDetails.map((user) => {
     const ltv = user.totalDebt / user.totalCollateral;
-    const row = [
-      user.address,
-      user.healthFactor.toFixed(4),
-      ltv.toFixed(4),
-      user.totalCollateral.toFixed(2),
-    ];
+    const row = [user.address, user.healthFactor.toFixed(4), ltv.toFixed(4), user.totalCollateral.toFixed(2)];
 
     const userBalances = usersReserveBalances[user.address] || {};
 
     // Add dUSD deposit (as dUSD is not counted in the total collateral and not considered as collateral, thus we need to add it manually)
     const dUSDAddress = config.dusd.address;
     const dUSDBalance = userBalances[dUSDAddress];
-    const dUSDCollateralValue = ethers.formatUnits(
-      dUSDBalance.collateral,
-      reservesInfoMap[dUSDAddress].decimals,
-    );
-    const dUSDBalanceUSD =
-      Number(dUSDCollateralValue) * reservesInfoMap[dUSDAddress].price;
+    const dUSDCollateralValue = ethers.formatUnits(dUSDBalance.collateral, reservesInfoMap[dUSDAddress].decimals);
+    const dUSDBalanceUSD = Number(dUSDCollateralValue) * reservesInfoMap[dUSDAddress].price;
     row.push(dUSDBalanceUSD.toFixed(2));
 
     // Add collateral balances for each reserve
@@ -216,12 +185,8 @@ async function generateDetailedStatsCSVContent(
         collateral: 0,
         debt: 0,
       };
-      const collateralValue = ethers.formatUnits(
-        reserveBalance.collateral,
-        reservesInfoMap[reserve].decimals,
-      );
-      const collateralValueUSD =
-        Number(collateralValue) * reservesInfoMap[reserve].price;
+      const collateralValue = ethers.formatUnits(reserveBalance.collateral, reservesInfoMap[reserve].decimals);
+      const collateralValueUSD = Number(collateralValue) * reservesInfoMap[reserve].price;
       row.push(collateralValueUSD.toFixed(2));
     });
 
@@ -282,18 +247,13 @@ async function generateDetailedStatsCSVContent(
  *
  * @param healthFactorBatchSize - The batch size for fetching user data
  */
-async function checkHealthFactors(
-  healthFactorBatchSize: number,
-): Promise<void> {
+async function checkHealthFactors(healthFactorBatchSize: number): Promise<void> {
   console.log("Checking all user health factors");
 
   const allUserAddresses = await getAllLendingUserAddresses();
   console.log(`Found ${allUserAddresses.length} users totally`);
 
-  const userDataRaw: (
-    | Awaited<ReturnType<typeof getUserAccountData>>
-    | undefined
-  )[] = [];
+  const userDataRaw: (Awaited<ReturnType<typeof getUserAccountData>> | undefined)[] = [];
   const sleepSecondsBetweenBatches = 0.2;
 
   for (let i = 0; i < allUserAddresses.length; i += healthFactorBatchSize) {
@@ -302,9 +262,7 @@ async function checkHealthFactors(
       try {
         return getUserAccountData(userAddress);
       } catch (error: any) {
-        console.log(
-          `Error occurred while getting account data of user ${userAddress}: ${error.message}`,
-        );
+        console.log(`Error occurred while getting account data of user ${userAddress}: ${error.message}`);
         return Promise.resolve(undefined);
       }
     });
@@ -312,14 +270,10 @@ async function checkHealthFactors(
     const batchResults = await Promise.all(batchPromises);
     userDataRaw.push(...batchResults);
 
-    console.log(
-      `Processed ${i + healthFactorBatchSize} of ${allUserAddresses.length} users`,
-    );
+    console.log(`Processed ${i + healthFactorBatchSize} of ${allUserAddresses.length} users`);
 
     if (i + healthFactorBatchSize < allUserAddresses.length) {
-      await new Promise((resolve) =>
-        setTimeout(resolve, sleepSecondsBetweenBatches * 1000),
-      );
+      await new Promise((resolve) => setTimeout(resolve, sleepSecondsBetweenBatches * 1000));
     }
   }
 
@@ -362,27 +316,19 @@ async function checkHealthFactors(
   const liquidatableUsers = userDetails.filter((user) => user.healthFactor < 1);
 
   const mintDebtThreshold = 1e-3;
-  const filteredLiquidatableUsers = liquidatableUsers.filter(
-    (user) => user.totalDebt > mintDebtThreshold,
-  );
+  const filteredLiquidatableUsers = liquidatableUsers.filter((user) => user.totalDebt > mintDebtThreshold);
 
   if (filteredLiquidatableUsers.length > 0) {
     // Filter users whose health factor has changed
-    const usersWithChangedHealthFactor = filteredLiquidatableUsers.filter(
-      (user) => {
-        const lastHealthFactor = lastHealthFactors[user.address];
-        const healthFactorChanged =
-          lastHealthFactor === undefined ||
-          lastHealthFactor !== user.healthFactor;
-        // Update last health factor
-        lastHealthFactors[user.address] = user.healthFactor;
-        return healthFactorChanged;
-      },
-    );
+    const usersWithChangedHealthFactor = filteredLiquidatableUsers.filter((user) => {
+      const lastHealthFactor = lastHealthFactors[user.address];
+      const healthFactorChanged = lastHealthFactor === undefined || lastHealthFactor !== user.healthFactor;
+      // Update last health factor
+      lastHealthFactors[user.address] = user.healthFactor;
+      return healthFactorChanged;
+    });
 
-    console.log(
-      `Found ${usersWithChangedHealthFactor.length} liquidatable users with updated health factors`,
-    );
+    console.log(`Found ${usersWithChangedHealthFactor.length} liquidatable users with updated health factors`);
 
     if (usersWithChangedHealthFactor.length > 0) {
       const message = `<!channel> 🚨 *LIQUIDATION ALERT* 🚨\n\nBot IP: ${publicIp}\n\n${usersWithChangedHealthFactor
@@ -408,9 +354,7 @@ async function checkHealthFactors(
   } else {
     console.log("No liquidatable users found");
     // Clear lastHealthFactors when no liquidatable users
-    Object.keys(lastHealthFactors).forEach(
-      (key) => delete lastHealthFactors[key],
-    );
+    Object.keys(lastHealthFactors).forEach((key) => delete lastHealthFactors[key]);
   }
 
   // Send stats every hour
@@ -418,25 +362,15 @@ async function checkHealthFactors(
 
   if (now - lastStatsTime >= STATS_INTERVAL) {
     console.log("Sending stats message");
-    const activeUsers = userDetails.filter(
-      (user) => user.totalCollateral > 0 || user.totalDebt > 0,
-    );
+    const activeUsers = userDetails.filter((user) => user.totalCollateral > 0 || user.totalDebt > 0);
 
     // We also consider dUSD deposit as well (as it's not counted in the total collateral), thus
     // as use all users, not just active users
-    const totalCollateral = userDetails.reduce(
-      (sum, user) => sum + user.totalCollateral,
-      0,
-    );
-    const totalDebt = userDetails.reduce(
-      (sum, user) => sum + user.totalDebt,
-      0,
-    );
+    const totalCollateral = userDetails.reduce((sum, user) => sum + user.totalCollateral, 0);
+    const totalDebt = userDetails.reduce((sum, user) => sum + user.totalDebt, 0);
 
     const lowestHealthFactorUser = userDetails[0];
-    const lowestHealthFactorUserFiltered = userDetails.find(
-      (user) => user.totalDebt > mintDebtThreshold,
-    );
+    const lowestHealthFactorUserFiltered = userDetails.find((user) => user.totalDebt > mintDebtThreshold);
 
     const nextStatsTime = new Date(now + STATS_INTERVAL);
     const statsMessage =
@@ -454,20 +388,15 @@ async function checkHealthFactors(
       `Next stats update at: ${nextStatsTime.toISOString()}`;
 
     console.log("Generating detailed stats CSV content");
-    const { detailedReportCSVContent, assetInfoContent } =
-      await generateDetailedStatsCSVContent(userDetails, healthFactorBatchSize);
-    const timestamp = new Date()
-      .toISOString()
-      .replace(/[T:]/g, "_")
-      .slice(0, 19);
+    const { detailedReportCSVContent, assetInfoContent } = await generateDetailedStatsCSVContent(userDetails, healthFactorBatchSize);
+    const timestamp = new Date().toISOString().replace(/[T:]/g, "_").slice(0, 19);
 
     console.log("Sending stats message");
     await sendSlackMessage(statsMessage, [
       {
         content: detailedReportCSVContent,
         filename: `lending_detailed_stats_${timestamp}.csv`,
-        comment:
-          "Detailed CSV report (only for user with non-zero collateral or debt)",
+        comment: "Detailed CSV report (only for user with non-zero collateral or debt)",
       },
       {
         content: assetInfoContent,
@@ -490,9 +419,7 @@ async function main(): Promise<void> {
   const healthFactorBatchSize = process.env.HEALTH_FACTOR_BATCH_SIZE;
 
   if (!healthFactorBatchSize) {
-    throw new Error(
-      "HEALTH_FACTOR_BATCH_SIZE must be set in environment variables",
-    );
+    throw new Error("HEALTH_FACTOR_BATCH_SIZE must be set in environment variables");
   }
 
   const healthFactorBatchSizeInt = parseInt(healthFactorBatchSize, 10);

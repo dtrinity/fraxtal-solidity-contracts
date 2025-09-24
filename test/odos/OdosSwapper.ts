@@ -35,14 +35,8 @@ describe("OdosSwapper Integration Tests", () => {
    * @param address - The address to check the balance for
    * @returns The token balance as a bigint
    */
-  async function getTokenBalance(
-    token: string,
-    address: string,
-  ): Promise<bigint> {
-    const tokenContract = await ethers.getContractAt(
-      "@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20",
-      token,
-    );
+  async function getTokenBalance(token: string, address: string): Promise<bigint> {
+    const tokenContract = await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20", token);
     return await tokenContract.balanceOf(address);
   }
 
@@ -53,27 +47,12 @@ describe("OdosSwapper Integration Tests", () => {
    * @param outputToken - The address of the output token contract
    * @returns A Promise that resolves when verification is complete
    */
-  async function verifyNoLeftoverTokens(
-    inputToken: string,
-    outputToken: string,
-  ): Promise<void> {
-    const swapperInputBalance = await getTokenBalance(
-      inputToken,
-      await odosSwapper.getAddress(),
-    );
-    const swapperOutputBalance = await getTokenBalance(
-      outputToken,
-      await odosSwapper.getAddress(),
-    );
+  async function verifyNoLeftoverTokens(inputToken: string, outputToken: string): Promise<void> {
+    const swapperInputBalance = await getTokenBalance(inputToken, await odosSwapper.getAddress());
+    const swapperOutputBalance = await getTokenBalance(outputToken, await odosSwapper.getAddress());
 
-    expect(swapperInputBalance).to.equal(
-      0n,
-      "Swapper should have no input tokens left",
-    );
-    expect(swapperOutputBalance).to.equal(
-      0n,
-      "Swapper should have no output tokens left",
-    );
+    expect(swapperInputBalance).to.equal(0n, "Swapper should have no input tokens left");
+    expect(swapperOutputBalance).to.equal(0n, "Swapper should have no output tokens left");
   }
 
   before(async () => {
@@ -87,10 +66,7 @@ describe("OdosSwapper Integration Tests", () => {
 
     odosClient = new OdosClient(ODOS_API_URL, chainId);
 
-    frax = (await ethers.getContractAt(
-      "@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20",
-      FRAX,
-    )) as unknown as IERC20;
+    frax = (await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20", FRAX)) as unknown as IERC20;
   });
 
   it("should execute FRAX -> sFRAX swap with exact output", async () => {
@@ -99,26 +75,11 @@ describe("OdosSwapper Integration Tests", () => {
     const minOutputAmount = "1";
 
     // Record initial balances
-    const initialUserFraxBalance = await getTokenBalance(
-      FRAX,
-      await owner.getAddress(),
-    );
-    const initialUserSfraxBalance = await getTokenBalance(
-      sFRAX,
-      await owner.getAddress(),
-    );
-    const inputAmount = await odosClient.calculateInputAmount(
-      minOutputAmount,
-      outputToken,
-      inputToken,
-      chainId,
-      0.1,
-    );
+    const initialUserFraxBalance = await getTokenBalance(FRAX, await owner.getAddress());
+    const initialUserSfraxBalance = await getTokenBalance(sFRAX, await owner.getAddress());
+    const inputAmount = await odosClient.calculateInputAmount(minOutputAmount, outputToken, inputToken, chainId, 0.1);
     const formattedInputAmount = OdosClient.formatTokenAmount(inputAmount, 18);
-    const formattedMinOutputAmount = OdosClient.formatTokenAmount(
-      minOutputAmount,
-      18,
-    );
+    const formattedMinOutputAmount = OdosClient.formatTokenAmount(minOutputAmount, 18);
 
     // Get quote from Odos API
     const quoteRequest = {
@@ -138,29 +99,20 @@ describe("OdosSwapper Integration Tests", () => {
     };
 
     // Approve router to spend input token before assembled due to simulation
-    const approveRouterTx = await frax
-      .connect(owner)
-      .approve(ODOS_ROUTER, quote.inAmounts[0]);
+    const approveRouterTx = await frax.connect(owner).approve(ODOS_ROUTER, quote.inAmounts[0]);
     await approveRouterTx.wait();
     console.log("Approved frax to router at tx ", approveRouterTx.hash);
 
     const assembled = await odosClient.assembleTransaction(assembleRequest);
     // Execute swap
-    const approveSwapperTx = await frax
-      .connect(owner)
-      .approve(swapperAddress, quote.inAmounts[0]);
+    const approveSwapperTx = await frax.connect(owner).approve(swapperAddress, quote.inAmounts[0]);
     await approveSwapperTx.wait();
     console.log("Approved frax to swapper at tx ", approveSwapperTx.hash);
 
     try {
       const tx = await odosSwapper
         .connect(owner)
-        .executeSwapOperation(
-          inputToken,
-          quote.inAmounts[0],
-          formattedMinOutputAmount,
-          assembled.transaction.data,
-        );
+        .executeSwapOperation(inputToken, quote.inAmounts[0], formattedMinOutputAmount, assembled.transaction.data);
 
       await tx.wait();
       console.log("tx", tx.hash);
@@ -170,34 +122,18 @@ describe("OdosSwapper Integration Tests", () => {
       throw error;
     }
     // Verify final balances
-    const finalUserFraxBalance = await getTokenBalance(
-      FRAX,
-      await owner.getAddress(),
-    );
-    const finalUserSfraxBalance = await getTokenBalance(
-      sFRAX,
-      await owner.getAddress(),
-    );
+    const finalUserFraxBalance = await getTokenBalance(FRAX, await owner.getAddress());
+    const finalUserSfraxBalance = await getTokenBalance(sFRAX, await owner.getAddress());
 
     // Verify exact output amount received
     const diff =
-      finalUserSfraxBalance >
-      initialUserSfraxBalance + BigInt(quote.outAmounts[0])
-        ? finalUserSfraxBalance -
-          (initialUserSfraxBalance + BigInt(quote.outAmounts[0]))
-        : initialUserSfraxBalance +
-          BigInt(quote.outAmounts[0]) -
-          finalUserSfraxBalance;
-    expect(diff * 1000n).to.be.lt(
-      BigInt(quote.outAmounts[0]),
-      "User should receive sFRAX amount within 0.1% of expected",
-    );
+      finalUserSfraxBalance > initialUserSfraxBalance + BigInt(quote.outAmounts[0])
+        ? finalUserSfraxBalance - (initialUserSfraxBalance + BigInt(quote.outAmounts[0]))
+        : initialUserSfraxBalance + BigInt(quote.outAmounts[0]) - finalUserSfraxBalance;
+    expect(diff * 1000n).to.be.lt(BigInt(quote.outAmounts[0]), "User should receive sFRAX amount within 0.1% of expected");
 
     // Verify input amount used is less than or equal to quote
-    expect(initialUserFraxBalance - finalUserFraxBalance).to.be.lte(
-      BigInt(quote.inAmounts[0]),
-      "Input amount should not exceed quote",
-    );
+    expect(initialUserFraxBalance - finalUserFraxBalance).to.be.lte(BigInt(quote.inAmounts[0]), "Input amount should not exceed quote");
 
     // Verify no tokens left in contract
     await verifyNoLeftoverTokens(inputToken, outputToken);

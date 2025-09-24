@@ -24,12 +24,7 @@ contract NoDelegateCallTest is NoDelegateCall {
         return block.timestamp / 5;
     }
 
-    function cannotBeDelegateCalled()
-        public
-        view
-        noDelegateCall
-        returns (uint256)
-    {
+    function cannotBeDelegateCalled() public view noDelegateCall returns (uint256) {
         return block.timestamp / 5;
     }
 
@@ -39,11 +34,7 @@ contract NoDelegateCallTest is NoDelegateCall {
         return gasBefore - gasleft();
     }
 
-    function getGasCostOfCannotBeDelegateCalled()
-        external
-        view
-        returns (uint256)
-    {
+    function getGasCostOfCannotBeDelegateCalled() external view returns (uint256) {
         uint256 gasBefore = gasleft();
         cannotBeDelegateCalled();
         return gasBefore - gasleft();

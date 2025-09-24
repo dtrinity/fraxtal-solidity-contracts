@@ -17,22 +17,13 @@ describe("API3Wrappers", () => {
   let dusdDeployer: Address;
 
   beforeEach(async function () {
-    const {
-      api3WrapperAddress,
-      mockAPI3OracleFRAXAddress,
-      fraxToken,
-      sfraxToken,
-    } = await api3OracleFixture();
+    const { api3WrapperAddress, mockAPI3OracleFRAXAddress, fraxToken, sfraxToken } = await api3OracleFixture();
     fraxInfo = fraxToken;
     sfraxInfo = sfraxToken;
 
     ({ dusdDeployer } = await getNamedAccounts());
 
-    api3WrapperContract = await hre.ethers.getContractAt(
-      "API3Wrapper",
-      api3WrapperAddress,
-      await hre.ethers.getSigner(dusdDeployer),
-    );
+    api3WrapperContract = await hre.ethers.getContractAt("API3Wrapper", api3WrapperAddress, await hre.ethers.getSigner(dusdDeployer));
 
     // api3WrapperWithThresholdingContract = await hre.ethers.getContractAt(
     //   "API3WrapperWithThresholding",
@@ -50,24 +41,16 @@ describe("API3Wrappers", () => {
   describe("Getting asset prices", () => {
     describe("API3Wrapper", () => {
       it("should return expected prices for FRAX and sFRAX", async function () {
-        const expectedPriceFrax = hre.ethers.parseUnits(
-          "1",
-          AAVE_ORACLE_USD_DECIMALS,
-        );
+        const expectedPriceFrax = hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS);
 
-        const { price: actualPriceFrax, isAlive: isAliveFrax } =
-          await api3WrapperContract.getPriceInfo(fraxInfo.address);
+        const { price: actualPriceFrax, isAlive: isAliveFrax } = await api3WrapperContract.getPriceInfo(fraxInfo.address);
 
         expect(actualPriceFrax).to.equal(expectedPriceFrax);
         expect(isAliveFrax).to.be.true;
 
-        const expectedPriceSFrax = hre.ethers.parseUnits(
-          "1.1",
-          AAVE_ORACLE_USD_DECIMALS,
-        );
+        const expectedPriceSFrax = hre.ethers.parseUnits("1.1", AAVE_ORACLE_USD_DECIMALS);
 
-        const { price: actualPriceSFrax, isAlive: isAliveSFrax } =
-          await api3WrapperContract.getPriceInfo(sfraxInfo.address);
+        const { price: actualPriceSFrax, isAlive: isAliveSFrax } = await api3WrapperContract.getPriceInfo(sfraxInfo.address);
         expect(actualPriceSFrax).to.equal(expectedPriceSFrax);
         expect(isAliveSFrax).to.be.true;
       });
@@ -97,15 +80,14 @@ describe("API3Wrappers", () => {
         await mockAPI3OracleFRAXContract.setMock(price, staleTimestamp);
 
         // getPriceInfo should return false
-        const { isAlive } = await api3WrapperContract.getPriceInfo(
-          fraxInfo.address,
-        );
+        const { isAlive } = await api3WrapperContract.getPriceInfo(fraxInfo.address);
         expect(isAlive).to.be.false;
 
         // getAssetPrice should revert
-        await expect(
-          api3WrapperContract.getAssetPrice(fraxInfo.address),
-        ).to.be.revertedWithCustomError(api3WrapperContract, "PriceIsStale");
+        await expect(api3WrapperContract.getAssetPrice(fraxInfo.address)).to.be.revertedWithCustomError(
+          api3WrapperContract,
+          "PriceIsStale",
+        );
       });
     });
 
@@ -117,19 +99,12 @@ describe("API3Wrappers", () => {
   describe("Base currency and units", () => {
     describe("API3Wrapper", () => {
       it("should return correct BASE_CURRENCY", async function () {
-        expect(await api3WrapperContract.BASE_CURRENCY()).to.equal(
-          hre.ethers.ZeroAddress,
-        );
+        expect(await api3WrapperContract.BASE_CURRENCY()).to.equal(hre.ethers.ZeroAddress);
       });
 
       it("should return correct BASE_CURRENCY_UNIT", async function () {
-        const expectedUnit = hre.ethers.parseUnits(
-          "1",
-          AAVE_ORACLE_USD_DECIMALS,
-        );
-        expect(await api3WrapperContract.BASE_CURRENCY_UNIT()).to.equal(
-          expectedUnit,
-        );
+        const expectedUnit = hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS);
+        expect(await api3WrapperContract.BASE_CURRENCY_UNIT()).to.equal(expectedUnit);
       });
     });
   });
@@ -150,19 +125,9 @@ describe("API3Wrappers", () => {
       const newAsset = "0x1234567890123456789012345678901234567890";
       const proxy = "0x2345678901234567890123456789012345678901";
 
-      await expect(
-        api3WrapperContract
-          .connect(unauthorizedSigner)
-          .setProxy(newAsset, proxy),
-      )
-        .to.be.revertedWithCustomError(
-          api3WrapperContract,
-          "AccessControlUnauthorizedAccount",
-        )
-        .withArgs(
-          testAccount1,
-          await api3WrapperContract.ORACLE_MANAGER_ROLE(),
-        );
+      await expect(api3WrapperContract.connect(unauthorizedSigner).setProxy(newAsset, proxy))
+        .to.be.revertedWithCustomError(api3WrapperContract, "AccessControlUnauthorizedAccount")
+        .withArgs(testAccount1, await api3WrapperContract.ORACLE_MANAGER_ROLE());
     });
   });
 });

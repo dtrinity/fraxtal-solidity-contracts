@@ -29,37 +29,24 @@ library OracleLibraryPlus {
         address _pool,
         uint32 _twapLength,
         uint32 _offset
-    )
-        internal
-        view
-        returns (int24 _arithmeticMeanTick, uint128 _harmonicMeanLiquidity)
-    {
+    ) internal view returns (int24 _arithmeticMeanTick, uint128 _harmonicMeanLiquidity) {
         uint32[] memory _secondsAgos = new uint32[](2);
         _secondsAgos[0] = _twapLength + _offset;
         _secondsAgos[1] = _offset;
 
-        (
-            int56[] memory _tickCumulatives,
-            uint160[] memory secondsPerLiquidityCumulativeX128s
-        ) = IUniswapV3Pool(_pool).observe(_secondsAgos);
+        (int56[] memory _tickCumulatives, uint160[] memory secondsPerLiquidityCumulativeX128s) = IUniswapV3Pool(_pool)
+            .observe(_secondsAgos);
 
         int56 _tickCumulativesDelta = _tickCumulatives[1] - _tickCumulatives[0];
-        uint160 _secondsPerLiquidityCumulativesDelta = secondsPerLiquidityCumulativeX128s[
-                1
-            ] - secondsPerLiquidityCumulativeX128s[0];
+        uint160 _secondsPerLiquidityCumulativesDelta = secondsPerLiquidityCumulativeX128s[1] -
+            secondsPerLiquidityCumulativeX128s[0];
 
         _arithmeticMeanTick = int24(_tickCumulativesDelta / _twapLength);
         // Always round to negative infinity
-        if (
-            _tickCumulativesDelta < 0 &&
-            (_tickCumulativesDelta % _twapLength != 0)
-        ) _arithmeticMeanTick--;
+        if (_tickCumulativesDelta < 0 && (_tickCumulativesDelta % _twapLength != 0)) _arithmeticMeanTick--;
 
         // We are multiplying here instead of shifting to ensure that _harmonicMeanLiquidity doesn't overflow uint128
         uint192 _secondsAgoX160 = uint192(_twapLength) * type(uint160).max;
-        _harmonicMeanLiquidity = uint128(
-            _secondsAgoX160 /
-                (uint192(_secondsPerLiquidityCumulativesDelta) << 32)
-        );
+        _harmonicMeanLiquidity = uint128(_secondsAgoX160 / (uint192(_secondsPerLiquidityCumulativesDelta) << 32));
     }
 }

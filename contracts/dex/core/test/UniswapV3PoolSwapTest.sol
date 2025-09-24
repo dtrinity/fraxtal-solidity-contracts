@@ -31,14 +31,7 @@ contract UniswapV3PoolSwapTest is IUniswapV3SwapCallback {
         bool zeroForOne,
         int256 amountSpecified,
         uint160 sqrtPriceLimitX96
-    )
-        external
-        returns (
-            int256 amount0Delta,
-            int256 amount1Delta,
-            uint160 nextSqrtRatio
-        )
-    {
+    ) external returns (int256 amount0Delta, int256 amount1Delta, uint160 nextSqrtRatio) {
         (amount0Delta, amount1Delta) = IUniswapV3Pool(pool).swap(
             address(0),
             zeroForOne,
@@ -50,25 +43,13 @@ contract UniswapV3PoolSwapTest is IUniswapV3SwapCallback {
         (nextSqrtRatio, , , , , , ) = IUniswapV3Pool(pool).slot0();
     }
 
-    function uniswapV3SwapCallback(
-        int256 amount0Delta,
-        int256 amount1Delta,
-        bytes calldata data
-    ) external override {
+    function uniswapV3SwapCallback(int256 amount0Delta, int256 amount1Delta, bytes calldata data) external override {
         address sender = abi.decode(data, (address));
 
         if (amount0Delta > 0) {
-            IERC20Minimal(IUniswapV3Pool(msg.sender).token0()).transferFrom(
-                sender,
-                msg.sender,
-                uint256(amount0Delta)
-            );
+            IERC20Minimal(IUniswapV3Pool(msg.sender).token0()).transferFrom(sender, msg.sender, uint256(amount0Delta));
         } else if (amount1Delta > 0) {
-            IERC20Minimal(IUniswapV3Pool(msg.sender).token1()).transferFrom(
-                sender,
-                msg.sender,
-                uint256(amount1Delta)
-            );
+            IERC20Minimal(IUniswapV3Pool(msg.sender).token1()).transferFrom(sender, msg.sender, uint256(amount1Delta));
         }
     }
 }

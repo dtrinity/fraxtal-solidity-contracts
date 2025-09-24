@@ -58,27 +58,18 @@ const NETWORK_CONFIGS = {
  * @param tokenAddress - The address of the token
  * @returns The decimals of the token
  */
-export async function getTokenDecimals(
-  provider: ethers.Provider,
-  tokenAddress: string,
-): Promise<number> {
-  const tokenContract = new ethers.Contract(
-    tokenAddress,
-    ["function decimals() view returns (uint8)"],
-    provider,
-  );
+export async function getTokenDecimals(provider: ethers.Provider, tokenAddress: string): Promise<number> {
+  const tokenContract = new ethers.Contract(tokenAddress, ["function decimals() view returns (uint8)"], provider);
   return await tokenContract.decimals();
 }
 
 app.post("/get-best-route-args", async (req, res) => {
   try {
-    const { inputTokenAddress, outputTokenAddress, inputAmount, network } =
-      req.body as RouteRequest;
+    const { inputTokenAddress, outputTokenAddress, inputAmount, network } = req.body as RouteRequest;
 
     if (!inputTokenAddress || !outputTokenAddress || !inputAmount || !network) {
       return res.status(400).json({
-        error:
-          "Missing required parameters: inputTokenAddress, outputTokenAddress, inputAmount, or network",
+        error: "Missing required parameters: inputTokenAddress, outputTokenAddress, inputAmount, or network",
       });
     }
 
@@ -88,12 +79,7 @@ app.post("/get-best-route-args", async (req, res) => {
       });
     }
 
-    const args = await getBestRouteArgs(
-      inputTokenAddress,
-      outputTokenAddress,
-      inputAmount,
-      network,
-    );
+    const args = await getBestRouteArgs(inputTokenAddress, outputTokenAddress, inputAmount, network);
 
     res.json(args);
   } catch (error) {

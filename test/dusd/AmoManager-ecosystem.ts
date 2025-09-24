@@ -2,13 +2,7 @@ import { assert, expect } from "chai";
 import hre, { getNamedAccounts } from "hardhat";
 import { Address } from "hardhat-deploy/types";
 
-import {
-  AmoManager,
-  CollateralHolderVault,
-  Issuer,
-  MintableERC20,
-  MockAmoVault,
-} from "../../typechain-types";
+import { AmoManager, CollateralHolderVault, Issuer, MintableERC20, MockAmoVault } from "../../typechain-types";
 import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
 import { TokenInfo } from "../../utils/token";
 import { getTokenContractForSymbol } from "../ecosystem/utils.token";
@@ -32,23 +26,12 @@ describe("AmoCollateralInteraction", () => {
     ({ dusdDeployer, testAccount1 } = await getNamedAccounts());
 
     const amoManagerAddress = (await hre.deployments.get("AmoManager")).address;
-    amoManagerContract = await hre.ethers.getContractAt(
-      "AmoManager",
-      amoManagerAddress,
-      await hre.ethers.getSigner(dusdDeployer),
-    );
+    amoManagerContract = await hre.ethers.getContractAt("AmoManager", amoManagerAddress, await hre.ethers.getSigner(dusdDeployer));
 
-    const mockAmoVaultAddress = (await hre.deployments.get("MockAmoVault"))
-      .address;
-    mockAmoVaultContract = await hre.ethers.getContractAt(
-      "MockAmoVault",
-      mockAmoVaultAddress,
-      await hre.ethers.getSigner(dusdDeployer),
-    );
+    const mockAmoVaultAddress = (await hre.deployments.get("MockAmoVault")).address;
+    mockAmoVaultContract = await hre.ethers.getContractAt("MockAmoVault", mockAmoVaultAddress, await hre.ethers.getSigner(dusdDeployer));
 
-    const collateralHolderVaultAddress = (
-      await hre.deployments.get("CollateralHolderVault")
-    ).address;
+    const collateralHolderVaultAddress = (await hre.deployments.get("CollateralHolderVault")).address;
     collateralHolderVaultContract = await hre.ethers.getContractAt(
       "CollateralHolderVault",
       collateralHolderVaultAddress,
@@ -56,31 +39,20 @@ describe("AmoCollateralInteraction", () => {
     );
 
     const issuerAddress = (await hre.deployments.get("Issuer")).address;
-    issuerContract = await hre.ethers.getContractAt(
-      "Issuer",
-      issuerAddress,
-      await hre.ethers.getSigner(dusdDeployer),
-    );
+    issuerContract = await hre.ethers.getContractAt("Issuer", issuerAddress, await hre.ethers.getSigner(dusdDeployer));
 
-    ({ contract: dusdContract, tokenInfo: dusdInfo } =
-      await getTokenContractForSymbol(dusdDeployer, "dUSD"));
-    ({ contract: fraxContract, tokenInfo: fraxInfo } =
-      await getTokenContractForSymbol(dusdDeployer, "FRAX"));
+    ({ contract: dusdContract, tokenInfo: dusdInfo } = await getTokenContractForSymbol(dusdDeployer, "dUSD"));
+    ({ contract: fraxContract, tokenInfo: fraxInfo } = await getTokenContractForSymbol(dusdDeployer, "FRAX"));
 
     // Whitelist FRAX for all tests
     await mockAmoVaultContract.allowCollateral(fraxInfo.address);
     await collateralHolderVaultContract.allowCollateral(fraxInfo.address);
 
     // Enable the MockAmoVault
-    await amoManagerContract.enableAmoVault(
-      await mockAmoVaultContract.getAddress(),
-    );
+    await amoManagerContract.enableAmoVault(await mockAmoVaultContract.getAddress());
 
     // Each collateral vault should assign the AMO manager the COLLATERAL_WITHDRAWER_ROLE
-    await mockAmoVaultContract.grantRole(
-      await mockAmoVaultContract.COLLATERAL_WITHDRAWER_ROLE(),
-      await amoManagerContract.getAddress(),
-    );
+    await mockAmoVaultContract.grantRole(await mockAmoVaultContract.COLLATERAL_WITHDRAWER_ROLE(), await amoManagerContract.getAddress());
     await collateralHolderVaultContract.grantRole(
       await collateralHolderVaultContract.COLLATERAL_WITHDRAWER_ROLE(),
       await amoManagerContract.getAddress(),
@@ -90,33 +62,20 @@ describe("AmoCollateralInteraction", () => {
   describe("Validate MockAmoVault functionality", () => {
     it("should correctly report totalCollateralValue including fake DeFi returns", async function () {
       const depositAmount = hre.ethers.parseUnits("1000", fraxInfo.decimals);
-      const fakeDeFiValue = hre.ethers.parseUnits(
-        "500",
-        AAVE_ORACLE_USD_DECIMALS,
-      );
+      const fakeDeFiValue = hre.ethers.parseUnits("500", AAVE_ORACLE_USD_DECIMALS);
       const removeAmount = hre.ethers.parseUnits("100", fraxInfo.decimals);
 
       // Deposit FRAX into the vault
-      await fraxContract.approve(
-        mockAmoVaultContract.getAddress(),
-        depositAmount,
-      );
-      await mockAmoVaultContract.deposit(
-        depositAmount,
-        fraxContract.getAddress(),
-      );
+      await fraxContract.approve(mockAmoVaultContract.getAddress(), depositAmount);
+      await mockAmoVaultContract.deposit(depositAmount, fraxContract.getAddress());
 
       // Expected value of deposit
-      const depositValue = await mockAmoVaultContract.assetValueFromAmount(
-        depositAmount,
-        fraxInfo.address,
-      );
+      const depositValue = await mockAmoVaultContract.assetValueFromAmount(depositAmount, fraxInfo.address);
 
       // Set fake DeFi collateral value
       await mockAmoVaultContract.setFakeDeFiCollateralValue(fakeDeFiValue);
 
-      const totalCollateralValue =
-        await mockAmoVaultContract.totalCollateralValue();
+      const totalCollateralValue = await mockAmoVaultContract.totalCollateralValue();
       const expectedTotalValue = depositValue + fakeDeFiValue;
 
       assert.equal(
@@ -126,16 +85,9 @@ describe("AmoCollateralInteraction", () => {
       );
 
       // Now simulate losing some collateral value
-      const removeValue = await mockAmoVaultContract.assetValueFromAmount(
-        removeAmount,
-        fraxInfo.address,
-      );
-      await mockAmoVaultContract.mockRemoveAsset(
-        fraxInfo.address,
-        removeAmount,
-      );
-      const totalCollateralValueAfterLoss =
-        await mockAmoVaultContract.totalCollateralValue();
+      const removeValue = await mockAmoVaultContract.assetValueFromAmount(removeAmount, fraxInfo.address);
+      await mockAmoVaultContract.mockRemoveAsset(fraxInfo.address, removeAmount);
+      const totalCollateralValueAfterLoss = await mockAmoVaultContract.totalCollateralValue();
       assert.equal(
         totalCollateralValueAfterLoss,
         expectedTotalValue - removeValue,
@@ -148,46 +100,26 @@ describe("AmoCollateralInteraction", () => {
     it("should not count AMO supply increases, decreases, and allocations as part of the collateral", async () => {
       const depositAmount = hre.ethers.parseUnits("1000", fraxInfo.decimals);
       const amoSupplyAmount = hre.ethers.parseUnits("5000", dusdInfo.decimals);
-      const amoAllocationAmount = hre.ethers.parseUnits(
-        "2000",
-        dusdInfo.decimals,
-      );
+      const amoAllocationAmount = hre.ethers.parseUnits("2000", dusdInfo.decimals);
 
       const depositValue = tokenValueFromAmount(depositAmount, fraxInfo);
 
       // Deposit some FRAX into the CollateralHolderVault
-      await fraxContract.approve(
-        collateralHolderVaultContract.getAddress(),
-        depositAmount,
-      );
-      await collateralHolderVaultContract.deposit(
-        depositAmount,
-        fraxContract.getAddress(),
-      );
+      await fraxContract.approve(collateralHolderVaultContract.getAddress(), depositAmount);
+      await collateralHolderVaultContract.deposit(depositAmount, fraxContract.getAddress());
 
       // Give dUSD AMO supply to AMO Manager
       await issuerContract.increaseAmoSupply(amoSupplyAmount);
 
       // Allocate dUSD AMO to an AMO vault
-      await amoManagerContract.allocateAmo(
-        mockAmoVaultContract.getAddress(),
-        amoAllocationAmount,
-      );
+      await amoManagerContract.allocateAmo(mockAmoVaultContract.getAddress(), amoAllocationAmount);
 
       const collateralValue1 = await collateralHolderVaultContract.totalValue();
       const amoSupply1 = await amoManagerContract.totalAmoSupply();
       const amoAllocation1 = await amoManagerContract.totalAllocated();
 
-      assert.equal(
-        collateralValue1,
-        depositValue,
-        "Collateral value should only reflect deposits and not AMO allocations",
-      );
-      assert.equal(
-        amoSupply1,
-        amoSupplyAmount,
-        "AMO supply should be equal to the increased amount and not include any collateral value",
-      );
+      assert.equal(collateralValue1, depositValue, "Collateral value should only reflect deposits and not AMO allocations");
+      assert.equal(amoSupply1, amoSupplyAmount, "AMO supply should be equal to the increased amount and not include any collateral value");
       assert.equal(
         amoAllocation1,
         amoAllocationAmount,
@@ -195,20 +127,11 @@ describe("AmoCollateralInteraction", () => {
       );
 
       // Now let's decrease the AMO supply
-      const amoDeallocationAmount = hre.ethers.parseUnits(
-        "500",
-        dusdInfo.decimals,
-      );
-      const amoDecreaseAmount = hre.ethers.parseUnits(
-        "1500",
-        dusdInfo.decimals,
-      );
+      const amoDeallocationAmount = hre.ethers.parseUnits("500", dusdInfo.decimals);
+      const amoDecreaseAmount = hre.ethers.parseUnits("1500", dusdInfo.decimals);
 
       // First we pull some funds from the AMO vault back to the AMO manager
-      await amoManagerContract.deallocateAmo(
-        mockAmoVaultContract.getAddress(),
-        amoDeallocationAmount,
-      );
+      await amoManagerContract.deallocateAmo(mockAmoVaultContract.getAddress(), amoDeallocationAmount);
 
       // Then we decrease the AMO supply
       await amoManagerContract.decreaseAmoSupply(amoDecreaseAmount);
@@ -217,11 +140,7 @@ describe("AmoCollateralInteraction", () => {
       const amoSupply2 = await amoManagerContract.totalAmoSupply();
       const amoAllocation2 = await amoManagerContract.totalAllocated();
 
-      assert.equal(
-        collateralValue2,
-        depositValue,
-        "Collateral value should not be affected by AMO supply decreases",
-      );
+      assert.equal(collateralValue2, depositValue, "Collateral value should not be affected by AMO supply decreases");
       assert.equal(
         amoSupply2,
         amoSupplyAmount - amoDecreaseAmount,
@@ -236,32 +155,18 @@ describe("AmoCollateralInteraction", () => {
 
     it("should decrease AMO allocation when transferring collateral to the holder vault", async () => {
       const depositAmount = hre.ethers.parseUnits("1000", fraxInfo.decimals);
-      const amoAllocationAmount = hre.ethers.parseUnits(
-        "2000",
-        dusdInfo.decimals,
-      );
+      const amoAllocationAmount = hre.ethers.parseUnits("2000", dusdInfo.decimals);
       const transferAmount = hre.ethers.parseUnits("500", fraxInfo.decimals);
 
       // Deposit FRAX into the MockAmoVault
-      await fraxContract.approve(
-        mockAmoVaultContract.getAddress(),
-        depositAmount,
-      );
-      await mockAmoVaultContract.deposit(
-        depositAmount,
-        fraxContract.getAddress(),
-      );
+      await fraxContract.approve(mockAmoVaultContract.getAddress(), depositAmount);
+      await mockAmoVaultContract.deposit(depositAmount, fraxContract.getAddress());
 
       // Allocate dUSD AMO to the MockAmoVault
       await issuerContract.increaseAmoSupply(amoAllocationAmount);
-      await amoManagerContract.allocateAmo(
-        mockAmoVaultContract.getAddress(),
-        amoAllocationAmount,
-      );
+      await amoManagerContract.allocateAmo(mockAmoVaultContract.getAddress(), amoAllocationAmount);
 
-      const initialAllocation = await amoManagerContract.amoVaultAllocation(
-        mockAmoVaultContract.getAddress(),
-      );
+      const initialAllocation = await amoManagerContract.amoVaultAllocation(mockAmoVaultContract.getAddress());
       const initialTotalAllocated = await amoManagerContract.totalAllocated();
 
       // Transfer collateral from MockAmoVault to CollateralHolderVault
@@ -271,18 +176,11 @@ describe("AmoCollateralInteraction", () => {
         transferAmount,
       );
 
-      const finalAllocation = await amoManagerContract.amoVaultAllocation(
-        mockAmoVaultContract.getAddress(),
-      );
+      const finalAllocation = await amoManagerContract.amoVaultAllocation(mockAmoVaultContract.getAddress());
       const finalTotalAllocated = await amoManagerContract.totalAllocated();
 
-      const transferValue =
-        await collateralHolderVaultContract.assetValueFromAmount(
-          transferAmount,
-          fraxContract.getAddress(),
-        );
-      const transferValueInDusd =
-        await amoManagerContract.usdValueToDusdAmount(transferValue);
+      const transferValue = await collateralHolderVaultContract.assetValueFromAmount(transferAmount, fraxContract.getAddress());
+      const transferValueInDusd = await amoManagerContract.usdValueToDusdAmount(transferValue);
 
       assert.equal(
         finalAllocation,
@@ -301,18 +199,10 @@ describe("AmoCollateralInteraction", () => {
       const transferAmount = hre.ethers.parseUnits("500", fraxInfo.decimals);
 
       // Deposit FRAX into the CollateralHolderVault
-      await fraxContract.approve(
-        collateralHolderVaultContract.getAddress(),
-        depositAmount,
-      );
-      await collateralHolderVaultContract.deposit(
-        depositAmount,
-        fraxContract.getAddress(),
-      );
+      await fraxContract.approve(collateralHolderVaultContract.getAddress(), depositAmount);
+      await collateralHolderVaultContract.deposit(depositAmount, fraxContract.getAddress());
 
-      const initialAllocation = await amoManagerContract.amoVaultAllocation(
-        mockAmoVaultContract.getAddress(),
-      );
+      const initialAllocation = await amoManagerContract.amoVaultAllocation(mockAmoVaultContract.getAddress());
       const initialTotalAllocated = await amoManagerContract.totalAllocated();
 
       // Transfer collateral from CollateralHolderVault to MockAmoVault
@@ -322,18 +212,11 @@ describe("AmoCollateralInteraction", () => {
         transferAmount,
       );
 
-      const finalAllocation = await amoManagerContract.amoVaultAllocation(
-        mockAmoVaultContract.getAddress(),
-      );
+      const finalAllocation = await amoManagerContract.amoVaultAllocation(mockAmoVaultContract.getAddress());
       const finalTotalAllocated = await amoManagerContract.totalAllocated();
 
-      const transferValue =
-        await collateralHolderVaultContract.assetValueFromAmount(
-          transferAmount,
-          fraxContract.getAddress(),
-        );
-      const transferValueInDusd =
-        await amoManagerContract.usdValueToDusdAmount(transferValue);
+      const transferValue = await collateralHolderVaultContract.assetValueFromAmount(transferAmount, fraxContract.getAddress());
+      const transferValueInDusd = await amoManagerContract.usdValueToDusdAmount(transferValue);
 
       assert.equal(
         finalAllocation,
@@ -351,95 +234,49 @@ describe("AmoCollateralInteraction", () => {
   describe("Taking profits", () => {
     it("should not be able to take profit when net value of the vault is negative", async () => {
       const collateralAmount = hre.ethers.parseUnits("1000", fraxInfo.decimals);
-      const amoAllocationAmount = hre.ethers.parseUnits(
-        "2000",
-        dusdInfo.decimals,
-      );
+      const amoAllocationAmount = hre.ethers.parseUnits("2000", dusdInfo.decimals);
       const amoRemovalAmount = hre.ethers.parseUnits("1000", dusdInfo.decimals);
       const lossAmount = hre.ethers.parseUnits("500", fraxInfo.decimals);
       const takeProfitAmount = hre.ethers.parseUnits("100", fraxInfo.decimals);
 
       // Allocate dUSD AMO to the MockAmoVault
       await issuerContract.increaseAmoSupply(amoAllocationAmount);
-      await amoManagerContract.allocateAmo(
-        mockAmoVaultContract.getAddress(),
-        amoAllocationAmount,
-      );
+      await amoManagerContract.allocateAmo(mockAmoVaultContract.getAddress(), amoAllocationAmount);
 
       // Pretend some of the AMO allocation is converted to FRAX
-      await mockAmoVaultContract.mockRemoveAsset(
-        dusdContract.getAddress(),
-        amoRemovalAmount,
-      );
+      await mockAmoVaultContract.mockRemoveAsset(dusdContract.getAddress(), amoRemovalAmount);
 
       // Deposit FRAX into the MockAmoVault to simulate the converted FRAX
-      await fraxContract.approve(
-        mockAmoVaultContract.getAddress(),
-        collateralAmount,
-      );
-      await mockAmoVaultContract.deposit(
-        collateralAmount,
-        fraxContract.getAddress(),
-      );
+      await fraxContract.approve(mockAmoVaultContract.getAddress(), collateralAmount);
+      await mockAmoVaultContract.deposit(collateralAmount, fraxContract.getAddress());
 
       // Simulate a loss in the vault
-      await mockAmoVaultContract.mockRemoveAsset(
-        fraxContract.getAddress(),
-        lossAmount,
-      );
+      await mockAmoVaultContract.mockRemoveAsset(fraxContract.getAddress(), lossAmount);
 
       // Convert depositAmount to collateral value (1000 USD)
-      const negativeProfit =
-        -1n *
-        (await mockAmoVaultContract.assetValueFromAmount(
-          lossAmount,
-          fraxContract.getAddress(),
-        ));
-      const withdrawValue = await mockAmoVaultContract.assetValueFromAmount(
-        takeProfitAmount,
-        fraxContract.getAddress(),
-      );
+      const negativeProfit = -1n * (await mockAmoVaultContract.assetValueFromAmount(lossAmount, fraxContract.getAddress()));
+      const withdrawValue = await mockAmoVaultContract.assetValueFromAmount(takeProfitAmount, fraxContract.getAddress());
 
       // Try to withdraw profits
       await expect(
-        amoManagerContract.withdrawProfits(
-          mockAmoVaultContract.getAddress(),
-          testAccount1,
-          fraxContract.getAddress(),
-          takeProfitAmount,
-        ),
+        amoManagerContract.withdrawProfits(mockAmoVaultContract.getAddress(), testAccount1, fraxContract.getAddress(), takeProfitAmount),
       )
-        .to.be.revertedWithCustomError(
-          amoManagerContract,
-          "InsufficientProfits",
-        )
+        .to.be.revertedWithCustomError(amoManagerContract, "InsufficientProfits")
         .withArgs(withdrawValue, negativeProfit);
     });
 
     it("should be able to take profit when net value of the vault is positive", async () => {
       const collateralAmount = hre.ethers.parseUnits("100", fraxInfo.decimals);
-      const amoAllocationAmount = hre.ethers.parseUnits(
-        "500",
-        dusdInfo.decimals,
-      );
+      const amoAllocationAmount = hre.ethers.parseUnits("500", dusdInfo.decimals);
       const takeProfitAmount = hre.ethers.parseUnits("100", fraxInfo.decimals);
 
       // Deposit FRAX into the MockAmoVault
-      await fraxContract.approve(
-        mockAmoVaultContract.getAddress(),
-        collateralAmount,
-      );
-      await mockAmoVaultContract.deposit(
-        collateralAmount,
-        fraxContract.getAddress(),
-      );
+      await fraxContract.approve(mockAmoVaultContract.getAddress(), collateralAmount);
+      await mockAmoVaultContract.deposit(collateralAmount, fraxContract.getAddress());
 
       // Allocate dUSD AMO to the MockAmoVault
       await issuerContract.increaseAmoSupply(amoAllocationAmount);
-      await amoManagerContract.allocateAmo(
-        mockAmoVaultContract.getAddress(),
-        amoAllocationAmount,
-      );
+      await amoManagerContract.allocateAmo(mockAmoVaultContract.getAddress(), amoAllocationAmount);
 
       const initialFraxBalance = await fraxContract.balanceOf(testAccount1);
       const initialDusdBalance = await dusdContract.balanceOf(testAccount1);
@@ -454,17 +291,10 @@ describe("AmoCollateralInteraction", () => {
 
       const finalFraxBalance = await fraxContract.balanceOf(testAccount1);
 
-      assert.equal(
-        finalFraxBalance - initialFraxBalance,
-        takeProfitAmount,
-        "Profit should be withdrawn successfully",
-      );
+      assert.equal(finalFraxBalance - initialFraxBalance, takeProfitAmount, "Profit should be withdrawn successfully");
 
       // Set fake DeFi collateral value to simulate additional profit
-      const fakeDeFiValue = hre.ethers.parseUnits(
-        "100",
-        AAVE_ORACLE_USD_DECIMALS,
-      );
+      const fakeDeFiValue = hre.ethers.parseUnits("100", AAVE_ORACLE_USD_DECIMALS);
       await mockAmoVaultContract.setFakeDeFiCollateralValue(fakeDeFiValue);
 
       // Try to withdraw more profits, this time as dUSD
@@ -479,11 +309,7 @@ describe("AmoCollateralInteraction", () => {
 
       const finalDusdBalance = await dusdContract.balanceOf(testAccount1);
 
-      assert.equal(
-        finalDusdBalance - initialDusdBalance,
-        dusdProfitAmount,
-        "Profit should be withdrawn successfully",
-      );
+      assert.equal(finalDusdBalance - initialDusdBalance, dusdProfitAmount, "Profit should be withdrawn successfully");
 
       // We cannot withdraw even 1 more dUSD because we've withdrawn all profits
       await expect(
@@ -493,55 +319,29 @@ describe("AmoCollateralInteraction", () => {
           dusdContract.getAddress(),
           hre.ethers.parseUnits("1", dusdInfo.decimals),
         ),
-      ).to.be.revertedWithCustomError(
-        amoManagerContract,
-        "InsufficientProfits",
-      );
+      ).to.be.revertedWithCustomError(amoManagerContract, "InsufficientProfits");
     });
 
     it("cannot withdraw more than the available profit", async () => {
       const depositAmount = hre.ethers.parseUnits("1000", fraxInfo.decimals);
-      const amoAllocationAmount = hre.ethers.parseUnits(
-        "800",
-        dusdInfo.decimals,
-      );
+      const amoAllocationAmount = hre.ethers.parseUnits("800", dusdInfo.decimals);
       const profitAmount = hre.ethers.parseUnits("201", fraxInfo.decimals);
 
       // Deposit FRAX into the MockAmoVault
-      await fraxContract.approve(
-        mockAmoVaultContract.getAddress(),
-        depositAmount,
-      );
-      await mockAmoVaultContract.deposit(
-        depositAmount,
-        fraxContract.getAddress(),
-      );
+      await fraxContract.approve(mockAmoVaultContract.getAddress(), depositAmount);
+      await mockAmoVaultContract.deposit(depositAmount, fraxContract.getAddress());
 
       // Allocate dUSD AMO to the MockAmoVault
       await issuerContract.increaseAmoSupply(amoAllocationAmount);
-      await amoManagerContract.allocateAmo(
-        mockAmoVaultContract.getAddress(),
-        amoAllocationAmount,
-      );
+      await amoManagerContract.allocateAmo(mockAmoVaultContract.getAddress(), amoAllocationAmount);
 
       // Now the AMO allocation and dUSD balance cancel each other out, so let's pretend we've distributed all dUSD
-      await mockAmoVaultContract.mockRemoveAsset(
-        dusdContract.getAddress(),
-        amoAllocationAmount,
-      );
+      await mockAmoVaultContract.mockRemoveAsset(dusdContract.getAddress(), amoAllocationAmount);
 
       // Try to withdraw more than the available profit
       await expect(
-        amoManagerContract.withdrawProfits(
-          mockAmoVaultContract.getAddress(),
-          testAccount1,
-          fraxContract.getAddress(),
-          profitAmount,
-        ),
-      ).to.be.revertedWithCustomError(
-        amoManagerContract,
-        "InsufficientProfits",
-      );
+        amoManagerContract.withdrawProfits(mockAmoVaultContract.getAddress(), testAccount1, fraxContract.getAddress(), profitAmount),
+      ).to.be.revertedWithCustomError(amoManagerContract, "InsufficientProfits");
     });
   });
 });
@@ -559,12 +359,10 @@ function tokenValueFromAmount(amount: bigint, tokenInfo: TokenInfo): bigint {
   }
 
   if (tokenInfo.decimals > AAVE_ORACLE_USD_DECIMALS) {
-    const scaleFactor =
-      10n ** BigInt(tokenInfo.decimals - AAVE_ORACLE_USD_DECIMALS);
+    const scaleFactor = 10n ** BigInt(tokenInfo.decimals - AAVE_ORACLE_USD_DECIMALS);
     return amount / scaleFactor;
   } else {
-    const scaleFactor =
-      10n ** BigInt(AAVE_ORACLE_USD_DECIMALS - tokenInfo.decimals);
+    const scaleFactor = 10n ** BigInt(AAVE_ORACLE_USD_DECIMALS - tokenInfo.decimals);
     return amount * scaleFactor;
   }
 }

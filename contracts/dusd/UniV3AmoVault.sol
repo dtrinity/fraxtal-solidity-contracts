@@ -74,23 +74,13 @@ contract UniV3AmoVault is AmoVault {
         address _collateralWithdrawer,
         address _recoverer,
         address _amoTrader
-    )
-        AmoVault(
-            _dusd,
-            _amoManager,
-            _admin,
-            _collateralWithdrawer,
-            _recoverer,
-            _oracle
-        )
-    {
+    ) AmoVault(_dusd, _amoManager, _admin, _collateralWithdrawer, _recoverer, _oracle) {
         pool = IUniswapV3Pool(_pool);
         token0 = IERC20(pool.token0());
         token1 = IERC20(pool.token1());
         dusdIsToken0 = address(dusd) == address(token0);
         collateralToken = dusdIsToken0 ? token1 : token0;
-        collateralDecimals = IERC20Metadata(address(collateralToken))
-            .decimals();
+        collateralDecimals = IERC20Metadata(address(collateralToken)).decimals();
 
         if (!(dusdIsToken0 || address(dusd) == address(token1))) {
             revert DusdMustBeOneOfThePoolTokens();
@@ -112,8 +102,7 @@ contract UniV3AmoVault is AmoVault {
     function totalCollateralValue() public view override returns (uint256) {
         // Get the total value of all held collaterals
         uint256 collateralBalance = collateralToken.balanceOf(address(this));
-        uint256 collateralBalanceValue = (collateralBalance *
-            oracle.getAssetPrice(address(collateralToken))) /
+        uint256 collateralBalanceValue = (collateralBalance * oracle.getAssetPrice(address(collateralToken))) /
             (10 ** collateralDecimals);
 
         // Add the value from positions
@@ -129,8 +118,7 @@ contract UniV3AmoVault is AmoVault {
     function totalDusdValue() public view override returns (uint256) {
         // Get dUSD balance
         uint256 dusdBalance = dusd.balanceOf(address(this));
-        uint256 dusdBalanceValue = (dusdBalance *
-            oracle.getAssetPrice(address(dusd))) / (10 ** dusdDecimals);
+        uint256 dusdBalanceValue = (dusdBalance * oracle.getAssetPrice(address(dusd))) / (10 ** dusdDecimals);
 
         // Get dUSD value from positions
         (, uint256 positionsDusdValue) = _totalPositionValues();
@@ -153,15 +141,9 @@ contract UniV3AmoVault is AmoVault {
      * @return _totalCollateralValue The sum of all non-dUSD token values in BASE_CURRENCY_UNIT
      * @return _totalDusdValue The sum of all dUSD values in BASE_CURRENCY_UNIT
      */
-    function _totalPositionValues()
-        internal
-        view
-        returns (uint256 _totalCollateralValue, uint256 _totalDusdValue)
-    {
+    function _totalPositionValues() internal view returns (uint256 _totalCollateralValue, uint256 _totalDusdValue) {
         for (uint i = 0; i < _positionsArray.length; i++) {
-            (uint256 collateralValue, uint256 dusdValue) = _getPositionValues(
-                _positionsArray[i]
-            );
+            (uint256 collateralValue, uint256 dusdValue) = _getPositionValues(_positionsArray[i]);
             _totalCollateralValue += collateralValue;
             _totalDusdValue += dusdValue;
         }
@@ -182,34 +164,20 @@ contract UniV3AmoVault is AmoVault {
         // Get the current price
         (uint160 sqrtPriceX96, , , , , , ) = pool.slot0();
 
-        uint256 amount0 = LiquidityAmounts.getAmount0ForLiquidity(
-            sqrtPriceX96,
-            sqrtRatioBX96,
-            position.liquidity
-        );
-        uint256 amount1 = LiquidityAmounts.getAmount1ForLiquidity(
-            sqrtRatioAX96,
-            sqrtPriceX96,
-            position.liquidity
-        );
+        uint256 amount0 = LiquidityAmounts.getAmount0ForLiquidity(sqrtPriceX96, sqrtRatioBX96, position.liquidity);
+        uint256 amount1 = LiquidityAmounts.getAmount1ForLiquidity(sqrtRatioAX96, sqrtPriceX96, position.liquidity);
 
         // Split values between dUSD and collateral
         if (dusdIsToken0) {
             dusdValue = amount0;
-            collateralValue =
-                (amount1 * oracle.getAssetPrice(position.collateral)) /
-                (10 ** collateralDecimals);
+            collateralValue = (amount1 * oracle.getAssetPrice(position.collateral)) / (10 ** collateralDecimals);
         } else {
             dusdValue = amount1;
-            collateralValue =
-                (amount0 * oracle.getAssetPrice(position.collateral)) /
-                (10 ** collateralDecimals);
+            collateralValue = (amount0 * oracle.getAssetPrice(position.collateral)) / (10 ** collateralDecimals);
         }
 
         // Convert dUSD to BASE_CURRENCY_UNIT
-        dusdValue =
-            (dusdValue * oracle.getAssetPrice(address(dusd))) /
-            (10 ** dusdDecimals);
+        dusdValue = (dusdValue * oracle.getAssetPrice(address(dusd))) / (10 ** dusdDecimals);
 
         return (collateralValue, dusdValue);
     }
@@ -227,28 +195,15 @@ contract UniV3AmoVault is AmoVault {
     )
         external
         onlyRole(AMO_TRADER_ROLE)
-        returns (
-            uint256 tokenId,
-            uint128 liquidity,
-            uint256 amount0,
-            uint256 amount1
-        )
+        returns (uint256 tokenId, uint128 liquidity, uint256 amount0, uint256 amount1)
     {
         if (params.amount0Desired == 0 || params.amount1Desired == 0) {
             revert("Both amounts must be non-zero");
         }
 
         // Approvals
-        TransferHelper.safeApprove(
-            address(token0),
-            address(positions),
-            params.amount0Desired
-        );
-        TransferHelper.safeApprove(
-            address(token1),
-            address(positions),
-            params.amount1Desired
-        );
+        TransferHelper.safeApprove(address(token0), address(positions), params.amount0Desired);
+        TransferHelper.safeApprove(address(token1), address(positions), params.amount1Desired);
 
         (tokenId, liquidity, amount0, amount1) = positions.mint(params);
 
@@ -277,15 +232,14 @@ contract UniV3AmoVault is AmoVault {
         }
 
         // First, remove all liquidity
-        INonfungiblePositionManager.DecreaseLiquidityParams
-            memory params = INonfungiblePositionManager
-                .DecreaseLiquidityParams({
-                    tokenId: tokenId,
-                    liquidity: _positionsMapping[tokenId].liquidity,
-                    amount0Min: 0,
-                    amount1Min: 0,
-                    deadline: block.timestamp + swapDeadlineBuffer
-                });
+        INonfungiblePositionManager.DecreaseLiquidityParams memory params = INonfungiblePositionManager
+            .DecreaseLiquidityParams({
+                tokenId: tokenId,
+                liquidity: _positionsMapping[tokenId].liquidity,
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: block.timestamp + swapDeadlineBuffer
+            });
 
         positions.decreaseLiquidity(params);
 
@@ -298,9 +252,7 @@ contract UniV3AmoVault is AmoVault {
         // Remove from our tracking
         for (uint i = 0; i < _positionsArray.length; i++) {
             if (_positionsArray[i].tokenId == tokenId) {
-                _positionsArray[i] = _positionsArray[
-                    _positionsArray.length - 1
-                ];
+                _positionsArray[i] = _positionsArray[_positionsArray.length - 1];
                 _positionsArray.pop();
                 break;
             }
@@ -317,26 +269,14 @@ contract UniV3AmoVault is AmoVault {
      */
     function increaseLiquidity(
         INonfungiblePositionManager.IncreaseLiquidityParams calldata params
-    )
-        external
-        onlyRole(AMO_TRADER_ROLE)
-        returns (uint128 liquidity, uint256 amount0, uint256 amount1)
-    {
+    ) external onlyRole(AMO_TRADER_ROLE) returns (uint128 liquidity, uint256 amount0, uint256 amount1) {
         // Approvals
         if (params.amount0Desired > 0) {
-            TransferHelper.safeApprove(
-                address(token0),
-                address(positions),
-                params.amount0Desired
-            );
+            TransferHelper.safeApprove(address(token0), address(positions), params.amount0Desired);
         }
 
         if (params.amount1Desired > 0) {
-            TransferHelper.safeApprove(
-                address(token1),
-                address(positions),
-                params.amount1Desired
-            );
+            TransferHelper.safeApprove(address(token1), address(positions), params.amount1Desired);
         }
 
         (liquidity, amount0, amount1) = positions.increaseLiquidity(params);
@@ -361,20 +301,15 @@ contract UniV3AmoVault is AmoVault {
     function decreaseLiquidity(
         uint256 tokenId,
         uint128 liquidity
-    )
-        external
-        onlyRole(AMO_TRADER_ROLE)
-        returns (uint256 amount0, uint256 amount1)
-    {
-        INonfungiblePositionManager.DecreaseLiquidityParams
-            memory params = INonfungiblePositionManager
-                .DecreaseLiquidityParams({
-                    tokenId: tokenId,
-                    liquidity: liquidity,
-                    amount0Min: 0,
-                    amount1Min: 0,
-                    deadline: block.timestamp + swapDeadlineBuffer
-                });
+    ) external onlyRole(AMO_TRADER_ROLE) returns (uint256 amount0, uint256 amount1) {
+        INonfungiblePositionManager.DecreaseLiquidityParams memory params = INonfungiblePositionManager
+            .DecreaseLiquidityParams({
+                tokenId: tokenId,
+                liquidity: liquidity,
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: block.timestamp + swapDeadlineBuffer
+            });
 
         (amount0, amount1) = positions.decreaseLiquidity(params);
 
@@ -394,24 +329,17 @@ contract UniV3AmoVault is AmoVault {
      * @return amount0 The amount of token0 collected as fees.
      * @return amount1 The amount of token1 collected as fees.
      */
-    function collectFees(
-        uint256 tokenId
-    )
-        public
-        onlyRole(AMO_TRADER_ROLE)
-        returns (uint256 amount0, uint256 amount1)
-    {
+    function collectFees(uint256 tokenId) public onlyRole(AMO_TRADER_ROLE) returns (uint256 amount0, uint256 amount1) {
         if (_positionsMapping[tokenId].tokenId == 0) {
             revert PositionDoesNotExist(tokenId);
         }
 
-        INonfungiblePositionManager.CollectParams
-            memory params = INonfungiblePositionManager.CollectParams({
-                tokenId: tokenId,
-                recipient: address(this),
-                amount0Max: type(uint128).max,
-                amount1Max: type(uint128).max
-            });
+        INonfungiblePositionManager.CollectParams memory params = INonfungiblePositionManager.CollectParams({
+            tokenId: tokenId,
+            recipient: address(this),
+            amount0Max: type(uint128).max,
+            amount1Max: type(uint128).max
+        });
 
         (amount0, amount1) = positions.collect(params);
 
@@ -426,11 +354,7 @@ contract UniV3AmoVault is AmoVault {
     function swapExactOutputSingle(
         ISwapRouter.ExactOutputSingleParams memory params
     ) external onlyRole(AMO_TRADER_ROLE) returns (uint256 amountIn) {
-        TransferHelper.safeApprove(
-            address(params.tokenIn),
-            address(router),
-            params.amountInMaximum
-        );
+        TransferHelper.safeApprove(address(params.tokenIn), address(router), params.amountInMaximum);
         return router.exactOutputSingle(params);
     }
 
@@ -442,11 +366,7 @@ contract UniV3AmoVault is AmoVault {
     function swapExactInputSingle(
         ISwapRouter.ExactInputSingleParams memory params
     ) external onlyRole(AMO_TRADER_ROLE) returns (uint256 amountOut) {
-        TransferHelper.safeApprove(
-            address(params.tokenIn),
-            address(router),
-            params.amountIn
-        );
+        TransferHelper.safeApprove(address(params.tokenIn), address(router), params.amountIn);
         return router.exactInputSingle(params);
     }
 
@@ -475,9 +395,7 @@ contract UniV3AmoVault is AmoVault {
      * @param tokenId The token ID of the position to return.
      * @return The position for the given token ID.
      */
-    function getPositionByTokenId(
-        uint256 tokenId
-    ) public view returns (Position memory) {
+    function getPositionByTokenId(uint256 tokenId) public view returns (Position memory) {
         if (_positionsMapping[tokenId].tokenId == 0) {
             revert PositionDoesNotExist(tokenId);
         }
@@ -488,9 +406,7 @@ contract UniV3AmoVault is AmoVault {
      * @notice Updates the swap deadline buffer
      * @param newBuffer New buffer in seconds
      */
-    function setSwapDeadlineBuffer(
-        uint256 newBuffer
-    ) external onlyRole(AMO_TRADER_ROLE) {
+    function setSwapDeadlineBuffer(uint256 newBuffer) external onlyRole(AMO_TRADER_ROLE) {
         swapDeadlineBuffer = newBuffer;
     }
 }
