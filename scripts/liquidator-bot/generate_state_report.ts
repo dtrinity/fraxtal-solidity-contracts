@@ -48,9 +48,7 @@ async function main(): Promise<void> {
   const userStateFilesDir = `${statePath}/${USER_STATE_DIR_NAME}`;
 
   if (!fs.existsSync(userStateFilesDir)) {
-    throw new Error(
-      `User state files directory does not exist: ${userStateFilesDir}`,
-    );
+    throw new Error(`User state files directory does not exist: ${userStateFilesDir}`);
   }
 
   // Load all JSON files in the user state directory and parse into objects array
@@ -96,15 +94,9 @@ async function main(): Promise<void> {
   console.log("");
   console.log("Summary");
   console.log("-------");
-  console.log(
-    ` - Successful        : ${userStateRecords.filter((record) => record.success).length}`,
-  );
-  console.log(
-    ` - Failed profitable : ${userStateRecords.filter((record) => !record.success && record.profitable).length}`,
-  );
-  console.log(
-    ` - Non-profitable    : ${userStateRecords.filter((record) => !record.success && !record.profitable).length}`,
-  );
+  console.log(` - Successful        : ${userStateRecords.filter((record) => record.success).length}`);
+  console.log(` - Failed profitable : ${userStateRecords.filter((record) => !record.success && record.profitable).length}`);
+  console.log(` - Non-profitable    : ${userStateRecords.filter((record) => !record.success && !record.profitable).length}`);
   console.log(` - Total             : ${userStateRecords.length}`);
 }
 
@@ -122,10 +114,7 @@ main()
  * @param userState - The user state log object
  * @returns The CSV record
  */
-function convertUserStateToRecord(
-  userAddress: string,
-  userState: UserStateLog,
-): UserStateCSVRecord {
+function convertUserStateToRecord(userAddress: string, userState: UserStateLog): UserStateCSVRecord {
   return {
     userAddress: userAddress,
     healthFactor: userState.healthFactor.toString(),

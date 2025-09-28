@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.0;
 
-import {ReserveConfiguration} from "../../protocol/libraries/configuration/ReserveConfiguration.sol";
-import {DataTypes} from "../../protocol/libraries/types/DataTypes.sol";
+import { ReserveConfiguration } from "../../protocol/libraries/configuration/ReserveConfiguration.sol";
+import { DataTypes } from "../../protocol/libraries/types/DataTypes.sol";
 
 contract MockReserveConfiguration {
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
@@ -145,9 +145,7 @@ contract MockReserveConfiguration {
         return configuration.getSupplyCap();
     }
 
-    function setLiquidationProtocolFee(
-        uint256 liquidationProtocolFee
-    ) external {
+    function setLiquidationProtocolFee(uint256 liquidationProtocolFee) external {
         DataTypes.ReserveConfigurationMap memory config = configuration;
         config.setLiquidationProtocolFee(liquidationProtocolFee);
         configuration = config;
@@ -171,11 +169,7 @@ contract MockReserveConfiguration {
         return configuration.getFlags();
     }
 
-    function getParams()
-        external
-        view
-        returns (uint256, uint256, uint256, uint256, uint256, uint256)
-    {
+    function getParams() external view returns (uint256, uint256, uint256, uint256, uint256, uint256) {
         return configuration.getParams();
     }
 

@@ -1,10 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
-import {
-  LENDING_PERIPHERY_VERSION,
-  MARKET_NAME,
-} from "../../utils/lending/constants";
+import { LENDING_PERIPHERY_VERSION, MARKET_NAME } from "../../utils/lending/constants";
 import { deployOdosAdapters } from "../../utils/lending/deploy/03_periphery_post/07_odos_adapters";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {

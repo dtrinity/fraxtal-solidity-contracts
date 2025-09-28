@@ -1,10 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
-import {
-  LENDING_PERIPHERY_VERSION,
-  MARKET_NAME,
-} from "../../../utils/lending/constants";
+import { LENDING_PERIPHERY_VERSION, MARKET_NAME } from "../../../utils/lending/constants";
 import { deployDSwapAdapters } from "../../../utils/lending/deploy/03_periphery_post/04_dswap_adaptes";
 import { isLocalNetwork } from "../../../utils/utils";
 

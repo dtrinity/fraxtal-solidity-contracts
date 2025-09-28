@@ -26,11 +26,7 @@ export class SafeManager {
   private hre: HardhatRuntimeEnvironment;
   private options: SafeManagerOptions;
 
-  constructor(
-    hre: HardhatRuntimeEnvironment,
-    signer: Signer,
-    options: SafeManagerOptions,
-  ) {
+  constructor(hre: HardhatRuntimeEnvironment, signer: Signer, options: SafeManagerOptions) {
     this.hre = hre;
     this.signer = signer;
     this.config = options.safeConfig;
@@ -52,9 +48,7 @@ export class SafeManager {
    */
   async initialize(): Promise<void> {
     try {
-      console.log(
-        `🔄 Initializing Safe Protocol Kit for Safe ${this.config.safeAddress}`,
-      );
+      console.log(`🔄 Initializing Safe Protocol Kit for Safe ${this.config.safeAddress}`);
 
       // Resolve signer address synchronously so we pass a concrete string
       // value to Safe.init instead of a Promise (satisfies linter types).
@@ -79,9 +73,7 @@ export class SafeManager {
       await this.verifySafeConfiguration();
 
       if (this.options.enableApiKit && this.config.txServiceUrl) {
-        console.log(
-          `🔄 Initializing Safe API Kit for chain ${this.config.chainId}`,
-        );
+        console.log(`🔄 Initializing Safe API Kit for chain ${this.config.chainId}`);
         this.apiKit = new SafeApiKit({
           chainId: BigInt(this.config.chainId),
           txServiceUrl: this.config.txServiceUrl,
@@ -108,42 +100,24 @@ export class SafeManager {
     const onChainOwners = await this.protocolKit.getOwners();
     const onChainThreshold = await this.protocolKit.getThreshold();
 
-    console.log(
-      `📊 Safe owners: ${onChainOwners.length}, threshold: ${onChainThreshold}`,
-    );
+    console.log(`📊 Safe owners: ${onChainOwners.length}, threshold: ${onChainThreshold}`);
 
     // Verify threshold matches
     if (onChainThreshold !== this.config.threshold) {
-      console.warn(
-        `⚠️ Threshold mismatch: config=${this.config.threshold}, on-chain=${onChainThreshold}`,
-      );
+      console.warn(`⚠️ Threshold mismatch: config=${this.config.threshold}, on-chain=${onChainThreshold}`);
     }
 
     // Verify all configured owners are actual owners
-    const missingOwners = this.config.owners.filter(
-      (owner) =>
-        !onChainOwners
-          .map((o) => o.toLowerCase())
-          .includes(owner.toLowerCase()),
-    );
+    const missingOwners = this.config.owners.filter((owner) => !onChainOwners.map((o) => o.toLowerCase()).includes(owner.toLowerCase()));
 
     if (missingOwners.length > 0) {
-      console.warn(
-        `⚠️ Config owners not found on-chain: ${missingOwners.join(", ")}`,
-      );
+      console.warn(`⚠️ Config owners not found on-chain: ${missingOwners.join(", ")}`);
     }
 
-    const extraOwners = onChainOwners.filter(
-      (owner) =>
-        !this.config.owners
-          .map((o) => o.toLowerCase())
-          .includes(owner.toLowerCase()),
-    );
+    const extraOwners = onChainOwners.filter((owner) => !this.config.owners.map((o) => o.toLowerCase()).includes(owner.toLowerCase()));
 
     if (extraOwners.length > 0) {
-      console.warn(
-        `⚠️ Unexpected owners found on-chain: ${extraOwners.join(", ")}`,
-      );
+      console.warn(`⚠️ Unexpected owners found on-chain: ${extraOwners.join(", ")}`);
     }
   }
 
@@ -153,9 +127,7 @@ export class SafeManager {
    * @param batch The batch of transactions to execute
    * @returns Result of preparing the batch transaction (offline mode)
    */
-  async createBatchTransaction(
-    batch: SafeTransactionBatch,
-  ): Promise<SafeOperationResult> {
+  async createBatchTransaction(batch: SafeTransactionBatch): Promise<SafeOperationResult> {
     if (!this.protocolKit) {
       throw new Error("Safe Manager not initialized. Call initialize() first.");
     }
@@ -168,9 +140,7 @@ export class SafeManager {
       // (e.g., grant admin, then revoke from deployer). If a standalone simulation fails,
       // continue and rely on Safe UI/on-chain execution ordering.
       for (let i = 0; i < batch.transactions.length; i++) {
-        console.log(
-          `   Simulating operation ${i + 1}/${batch.transactions.length}...`,
-        );
+        console.log(`   Simulating operation ${i + 1}/${batch.transactions.length}...`);
 
         try {
           await this.simulateTransaction(batch.transactions[i]);
@@ -183,8 +153,7 @@ export class SafeManager {
       const safeTransaction = await this.protocolKit.createTransaction({
         transactions: batch.transactions,
       });
-      const safeTxHash =
-        await this.protocolKit.getTransactionHash(safeTransaction);
+      const safeTxHash = await this.protocolKit.getTransactionHash(safeTransaction);
       console.log(`📝 Batch prepared (offline mode). Hash: ${safeTxHash}`);
       await this.storePendingTransaction(
         safeTxHash,
@@ -217,9 +186,7 @@ export class SafeManager {
    * @param transactionData The transaction data to simulate
    * @returns void when simulation completes
    */
-  private async simulateTransaction(
-    transactionData: SafeTransactionData,
-  ): Promise<void> {
+  private async simulateTransaction(transactionData: SafeTransactionData): Promise<void> {
     if (!this.protocolKit) {
       throw new Error("Protocol Kit not initialized");
     }
@@ -243,9 +210,7 @@ export class SafeManager {
       return;
     } catch (error) {
       console.error(`❌ Transaction simulation failed:`, error);
-      throw new Error(
-        `Transaction would fail: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw new Error(`Transaction would fail: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -255,24 +220,14 @@ export class SafeManager {
    * @param safeTxHash Safe transaction hash
    * @returns Status string of the transaction
    */
-  async getTransactionStatus(
-    safeTxHash: string,
-  ): Promise<"pending" | "executed" | "not_found"> {
+  async getTransactionStatus(safeTxHash: string): Promise<"pending" | "executed" | "not_found"> {
     const deploymentState = await this.getDeploymentState();
 
-    if (
-      deploymentState.pendingTransactions.some(
-        (tx) => tx.safeTxHash === safeTxHash,
-      )
-    ) {
+    if (deploymentState.pendingTransactions.some((tx) => tx.safeTxHash === safeTxHash)) {
       return "pending";
     }
 
-    if (
-      deploymentState.completedTransactions.some(
-        (tx) => tx.safeTxHash === safeTxHash,
-      )
-    ) {
+    if (deploymentState.completedTransactions.some((tx) => tx.safeTxHash === safeTxHash)) {
       return "executed";
     }
 
@@ -285,9 +240,7 @@ export class SafeManager {
    * @param checkFunction Asynchronous predicate returning true if requirement met
    * @returns True if requirement met, false otherwise
    */
-  async isRequirementMet(
-    checkFunction: () => Promise<boolean>,
-  ): Promise<boolean> {
+  async isRequirementMet(checkFunction: () => Promise<boolean>): Promise<boolean> {
     try {
       return await checkFunction();
     } catch (error) {
@@ -304,11 +257,7 @@ export class SafeManager {
    * @param description Human-readable description
    * @returns void when storage completes
    */
-  private async storePendingTransaction(
-    safeTxHash: string,
-    transactionData: SafeTransactionData,
-    description: string,
-  ): Promise<void> {
+  private async storePendingTransaction(safeTxHash: string, transactionData: SafeTransactionData, description: string): Promise<void> {
     if (!this.protocolKit) return;
 
     try {
@@ -342,18 +291,12 @@ export class SafeManager {
    * @param description Human-readable description
    * @returns void when storage completes
    */
-  private async storeCompletedTransaction(
-    safeTxHash: string,
-    transactionHash: string,
-    description: string,
-  ): Promise<void> {
+  private async storeCompletedTransaction(safeTxHash: string, transactionHash: string, description: string): Promise<void> {
     try {
       const deploymentState = await this.getDeploymentState();
 
       // Remove from pending transactions
-      const indexToRemove = deploymentState.pendingTransactions.findIndex(
-        (tx) => tx.safeTxHash === safeTxHash,
-      );
+      const indexToRemove = deploymentState.pendingTransactions.findIndex((tx) => tx.safeTxHash === safeTxHash);
 
       if (indexToRemove !== -1) {
         deploymentState.pendingTransactions.splice(indexToRemove, 1);
@@ -439,11 +382,7 @@ export class SafeManager {
    * @param safeTxHash Safe transaction hash (used for filename)
    * @returns void when export completes
    */
-  private async exportTransactionBuilderBatch(
-    transactions: SafeTransactionData[],
-    description: string,
-    safeTxHash: string,
-  ): Promise<void> {
+  private async exportTransactionBuilderBatch(transactions: SafeTransactionData[], description: string, safeTxHash: string): Promise<void> {
     try {
       const networkName = this.hre.network.name;
       const deploymentPath = `${this.hre.config.paths.deployments}/${networkName}`;

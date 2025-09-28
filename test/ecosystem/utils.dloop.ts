@@ -8,17 +8,9 @@ import { DLoopVaultBase } from "../../typechain-types";
 import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
 import { getEventFromTransaction } from "../../utils/event";
 import { fetchTokenInfo, fetchTokenInfoFromAddress } from "../../utils/token";
-import {
-  getDLoopVaultCurveDeploymentName,
-  getDLoopVaultUniswapV3DeploymentName,
-} from "../../utils/vault/dloop.utils";
+import { getDLoopVaultCurveDeploymentName, getDLoopVaultUniswapV3DeploymentName } from "../../utils/vault/dloop.utils";
 import { getMockStaticOracleWrapperPrice } from "./utils.dex";
-import {
-  approveTokenByAddress,
-  approveTokenByAddressRaw,
-  getTokenAmountFromAddress,
-  getTokenContractForSymbol,
-} from "./utils.token";
+import { approveTokenByAddress, approveTokenByAddressRaw, getTokenAmountFromAddress, getTokenContractForSymbol } from "./utils.token";
 
 /**
  * Get the DLoopVaultUniswapV3 contract object
@@ -35,16 +27,8 @@ export async function getDLoopVaultUniswapV3Contract(
   targetLeverageBps: number,
   callerAddress: string,
 ): Promise<DLoopVaultBase> {
-  const { tokenInfo } = await getTokenContractForSymbol(
-    callerAddress,
-    underlyingTokenSymbol,
-  );
-  return getDLoopVaultUniswapV3ContractFromAddress(
-    hre,
-    tokenInfo.address,
-    targetLeverageBps,
-    callerAddress,
-  );
+  const { tokenInfo } = await getTokenContractForSymbol(callerAddress, underlyingTokenSymbol);
+  return getDLoopVaultUniswapV3ContractFromAddress(hre, tokenInfo.address, targetLeverageBps, callerAddress);
 }
 
 /**
@@ -62,20 +46,10 @@ export async function getDLoopVaultUniswapV3ContractFromAddress(
   targetLeverageBps: number,
   callerAddress: string,
 ): Promise<DLoopVaultBase> {
-  const { symbol: underlyingTokenSymbol } = await fetchTokenInfoFromAddress(
-    underlyingTokenAddress,
-  );
-  const deploymentName = getDLoopVaultUniswapV3DeploymentName(
-    underlyingTokenSymbol,
-    targetLeverageBps,
-  );
-  const { address: deployedAddress } =
-    await hre.deployments.get(deploymentName);
-  return hre.ethers.getContractAt(
-    "DLoopVaultBase",
-    deployedAddress,
-    await hre.ethers.getSigner(callerAddress),
-  );
+  const { symbol: underlyingTokenSymbol } = await fetchTokenInfoFromAddress(underlyingTokenAddress);
+  const deploymentName = getDLoopVaultUniswapV3DeploymentName(underlyingTokenSymbol, targetLeverageBps);
+  const { address: deployedAddress } = await hre.deployments.get(deploymentName);
+  return hre.ethers.getContractAt("DLoopVaultBase", deployedAddress, await hre.ethers.getSigner(callerAddress));
 }
 
 /**
@@ -94,12 +68,7 @@ export async function getDLoopVaultCurveContract(
   callerAddress: string,
 ): Promise<DLoopVaultBase> {
   const tokenInfo = await fetchTokenInfo(hre, underlyingTokenSymbol);
-  return getDLoopVaultCurveContractFromAddress(
-    hre,
-    tokenInfo.address,
-    targetLeverageBps,
-    callerAddress,
-  );
+  return getDLoopVaultCurveContractFromAddress(hre, tokenInfo.address, targetLeverageBps, callerAddress);
 }
 
 /**
@@ -117,20 +86,10 @@ export async function getDLoopVaultCurveContractFromAddress(
   targetLeverageBps: number,
   callerAddress: string,
 ): Promise<DLoopVaultBase> {
-  const { symbol: underlyingTokenSymbol } = await fetchTokenInfoFromAddress(
-    underlyingTokenAddress,
-  );
-  const deploymentName = getDLoopVaultCurveDeploymentName(
-    underlyingTokenSymbol,
-    targetLeverageBps,
-  );
-  const { address: deployedAddress } =
-    await hre.deployments.get(deploymentName);
-  return hre.ethers.getContractAt(
-    "DLoopVaultBase",
-    deployedAddress,
-    await hre.ethers.getSigner(callerAddress),
-  );
+  const { symbol: underlyingTokenSymbol } = await fetchTokenInfoFromAddress(underlyingTokenAddress);
+  const deploymentName = getDLoopVaultCurveDeploymentName(underlyingTokenSymbol, targetLeverageBps);
+  const { address: deployedAddress } = await hre.deployments.get(deploymentName);
+  return hre.ethers.getContractAt("DLoopVaultBase", deployedAddress, await hre.ethers.getSigner(callerAddress));
 }
 
 /**
@@ -150,11 +109,7 @@ export async function getDLoopSharesBalance(
   value: bigint;
   decimals: number;
 }> {
-  const vaultContract = await hre.ethers.getContractAt(
-    "DLoopVaultBase",
-    vaultAddress,
-    await hre.ethers.getSigner(ownerAddress),
-  );
+  const vaultContract = await hre.ethers.getContractAt("DLoopVaultBase", vaultAddress, await hre.ethers.getSigner(ownerAddress));
   const rawValue = await vaultContract.balanceOf(ownerAddress);
   const decimals = await vaultContract.decimals();
   return {
@@ -180,14 +135,8 @@ export async function assertSharesBalance(
   const balance = await getDLoopSharesBalance(hre, vaultAddress, ownerAddress);
 
   assert.equal(balance.decimals, 18);
-  const actualShares = Number(
-    ethers.formatUnits(balance.value, balance.decimals),
-  );
-  assert.approximately(
-    actualShares,
-    expectedShares,
-    tolerance * expectedShares,
-  );
+  const actualShares = Number(ethers.formatUnits(balance.value, balance.decimals));
+  assert.approximately(actualShares, expectedShares, tolerance * expectedShares);
 }
 
 /**
@@ -196,12 +145,8 @@ export async function assertSharesBalance(
  * @param dLOOPsFRAX300Contract - The DLoopVault contract
  * @param expectedLeverageBps - The expected leverage in bps (i.e. 30000 means 300% leverage or 3x)
  */
-export async function assertCurrentLeverageBps(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
-  expectedLeverageBps: bigint,
-): Promise<void> {
-  const currentLeverageBps =
-    await dLOOPsFRAX300Contract.getCurrentLeverageBps();
+export async function assertCurrentLeverageBps(dLOOPsFRAX300Contract: DLoopVaultBase, expectedLeverageBps: bigint): Promise<void> {
+  const currentLeverageBps = await dLOOPsFRAX300Contract.getCurrentLeverageBps();
   assert.equal(currentLeverageBps, expectedLeverageBps);
 }
 
@@ -211,16 +156,11 @@ export async function assertCurrentLeverageBps(
  * @param dLOOPsFRAX300Contract - The DLoopVault contract
  * @param reverted - Whether the transaction should be reverted
  */
-export async function assertCheckIsTooImbalanced(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
-  reverted: boolean,
-): Promise<void> {
+export async function assertCheckIsTooImbalanced(dLOOPsFRAX300Contract: DLoopVaultBase, reverted: boolean): Promise<void> {
   if (!reverted) {
     await dLOOPsFRAX300Contract.checkIsTooImbalanced();
   } else {
-    await chai
-      .expect(dLOOPsFRAX300Contract.checkIsTooImbalanced())
-      .to.be.revertedWithCustomError(dLOOPsFRAX300Contract, "TooImbalanced");
+    await chai.expect(dLOOPsFRAX300Contract.checkIsTooImbalanced()).to.be.revertedWithCustomError(dLOOPsFRAX300Contract, "TooImbalanced");
   }
 }
 
@@ -236,18 +176,11 @@ export async function assertTotalAssets(
   expectedTotalAssets: number,
   tolerance: number = 1e-6,
 ): Promise<void> {
-  const underlyingTokenAddress =
-    await dLOOPsFRAX300Contract.getUnderlyingAssetAddress();
+  const underlyingTokenAddress = await dLOOPsFRAX300Contract.getUnderlyingAssetAddress();
   const tokenInfo = await fetchTokenInfo(hre, underlyingTokenAddress);
   const totalAssets = await dLOOPsFRAX300Contract.totalAssets();
-  const actualTotalAssets = Number(
-    ethers.formatUnits(totalAssets, tokenInfo.decimals),
-  );
-  assert.approximately(
-    actualTotalAssets,
-    expectedTotalAssets,
-    tolerance * expectedTotalAssets,
-  );
+  const actualTotalAssets = Number(ethers.formatUnits(totalAssets, tokenInfo.decimals));
+  assert.approximately(actualTotalAssets, expectedTotalAssets, tolerance * expectedTotalAssets);
 }
 
 /**
@@ -265,11 +198,7 @@ export async function assertTotalSupply(
   const decimals = await dLOOPsFRAX300Contract.decimals();
   const totalSupply = await dLOOPsFRAX300Contract.totalSupply();
   const actualTotalSupply = Number(ethers.formatUnits(totalSupply, decimals));
-  assert.approximately(
-    actualTotalSupply,
-    expectedTotalSupply,
-    tolerance * expectedTotalSupply,
-  );
+  assert.approximately(actualTotalSupply, expectedTotalSupply, tolerance * expectedTotalSupply);
 }
 
 /**
@@ -286,16 +215,8 @@ export async function assertTotalAssetAndSupply(
   expectedTotalSupply: number,
   tolerance: number = 1e-6,
 ): Promise<void> {
-  await assertTotalAssets(
-    dLOOPsFRAX300Contract,
-    expectedTotalAssets,
-    tolerance,
-  );
-  await assertTotalSupply(
-    dLOOPsFRAX300Contract,
-    expectedTotalSupply,
-    tolerance,
-  );
+  await assertTotalAssets(dLOOPsFRAX300Contract, expectedTotalAssets, tolerance);
+  await assertTotalSupply(dLOOPsFRAX300Contract, expectedTotalSupply, tolerance);
 }
 
 /**
@@ -315,19 +236,15 @@ export async function assertTotalAssetAndSupplyBigInt(
   const totalAssets = await dLOOPsFRAX300Contract.totalAssets();
   const totalSupply = await dLOOPsFRAX300Contract.totalSupply();
 
-  const toleranceBigInt = BigInt(
-    Math.floor(Number(expectedTotalAssets) * tolerance),
-  );
+  const toleranceBigInt = BigInt(Math.floor(Number(expectedTotalAssets) * tolerance));
 
   assert(
-    totalAssets >= expectedTotalAssets - toleranceBigInt &&
-      totalAssets <= expectedTotalAssets + toleranceBigInt,
+    totalAssets >= expectedTotalAssets - toleranceBigInt && totalAssets <= expectedTotalAssets + toleranceBigInt,
     `Total assets ${totalAssets} is not within tolerance of expected ${expectedTotalAssets}`,
   );
 
   assert(
-    totalSupply >= expectedTotalSupply - toleranceBigInt &&
-      totalSupply <= expectedTotalSupply + toleranceBigInt,
+    totalSupply >= expectedTotalSupply - toleranceBigInt && totalSupply <= expectedTotalSupply + toleranceBigInt,
     `Total supply ${totalSupply} is not within tolerance of expected ${expectedTotalSupply}`,
   );
 }
@@ -339,17 +256,9 @@ export async function assertTotalAssetAndSupplyBigInt(
  * @param expectedPrice - The expected price
  * @param tolerance - The tolerance for float imprecision (default: 1e-6)
  */
-export async function assertOraclePrice(
-  tokenAddress: string,
-  expectedPrice: number,
-  tolerance: number = 1e-6,
-): Promise<void> {
+export async function assertOraclePrice(tokenAddress: string, expectedPrice: number, tolerance: number = 1e-6): Promise<void> {
   const price = await getMockStaticOracleWrapperPrice(tokenAddress);
-  assert.approximately(
-    Number(ethers.formatUnits(price, AAVE_ORACLE_USD_DECIMALS)),
-    expectedPrice,
-    tolerance * expectedPrice,
-  );
+  assert.approximately(Number(ethers.formatUnits(price, AAVE_ORACLE_USD_DECIMALS)), expectedPrice, tolerance * expectedPrice);
 }
 
 /**
@@ -367,17 +276,9 @@ export async function depositWithApprovalToDLoop(
   callerAddress: string,
   assetAmount: number,
 ): Promise<void> {
-  const { tokenInfo } = await getTokenContractForSymbol(
-    callerAddress,
-    underlyingTokenSymbol,
-  );
+  const { tokenInfo } = await getTokenContractForSymbol(callerAddress, underlyingTokenSymbol);
 
-  await depositWithApprovalToDLoopFromTokenAddress(
-    dLOOPsFRAX300Contract,
-    tokenInfo.address,
-    callerAddress,
-    assetAmount,
-  );
+  await depositWithApprovalToDLoopFromTokenAddress(dLOOPsFRAX300Contract, tokenInfo.address, callerAddress, assetAmount);
 }
 
 /**
@@ -394,16 +295,8 @@ export async function depositWithApprovalToDLoopFromTokenAddress(
   callerAddress: string,
   assetAmount: number,
 ): Promise<void> {
-  const assetAmountRaw = await getTokenAmountFromAddress(
-    assetAmount.toString(),
-    underlyingTokenAddress,
-  );
-  await depositWithApprovalToDLoopFromTokenAddressRaw(
-    dLOOPsFRAX300Contract,
-    underlyingTokenAddress,
-    callerAddress,
-    assetAmountRaw,
-  );
+  const assetAmountRaw = await getTokenAmountFromAddress(assetAmount.toString(), underlyingTokenAddress);
+  await depositWithApprovalToDLoopFromTokenAddressRaw(dLOOPsFRAX300Contract, underlyingTokenAddress, callerAddress, assetAmountRaw);
 }
 
 /**
@@ -421,12 +314,7 @@ export async function depositWithApprovalToDLoopFromTokenAddressRaw(
   assetAmountRaw: bigint,
 ): Promise<void> {
   // Approve the vault to spend the underlying token on behalf of testAccount1
-  await approveTokenByAddressRaw(
-    callerAddress,
-    await dLOOPsFRAX300Contract.getAddress(),
-    underlyingTokenAddress,
-    assetAmountRaw,
-  );
+  await approveTokenByAddressRaw(callerAddress, await dLOOPsFRAX300Contract.getAddress(), underlyingTokenAddress, assetAmountRaw);
 
   // Perform the deposit
   const tx = await dLOOPsFRAX300Contract.deposit(assetAmountRaw, callerAddress);
@@ -439,9 +327,7 @@ export async function depositWithApprovalToDLoopFromTokenAddressRaw(
   }
 
   // Make sure the Deposit event is emitted
-  const logs = await getEventFromTransaction(dLOOPsFRAX300Contract, receipt, [
-    "Deposit",
-  ]);
+  const logs = await getEventFromTransaction(dLOOPsFRAX300Contract, receipt, ["Deposit"]);
   assert.isNotEmpty(logs);
 }
 
@@ -467,10 +353,7 @@ export async function redeemWithApprovalFromDLoop(
 
   // Perform the redeem
   const tx = await dLOOPsFRAX300Contract.redeem(
-    ethers.parseUnits(
-      sharesAmount.toString(),
-      await dLOOPsFRAX300Contract.decimals(),
-    ),
+    ethers.parseUnits(sharesAmount.toString(), await dLOOPsFRAX300Contract.decimals()),
     callerAddress,
     callerAddress,
   );
@@ -483,9 +366,7 @@ export async function redeemWithApprovalFromDLoop(
   }
 
   // Make sure the Withdraw event is emitted
-  const logs = await getEventFromTransaction(dLOOPsFRAX300Contract, receipt, [
-    "Withdraw",
-  ]);
+  const logs = await getEventFromTransaction(dLOOPsFRAX300Contract, receipt, ["Withdraw"]);
   assert.isNotEmpty(logs);
 }
 
@@ -505,10 +386,7 @@ export async function decreaseLeverageWithApproval(
   dUSDAmount: number,
   maxUnderlyingTokenPrice: number,
 ): Promise<void> {
-  const { tokenInfo: dusdTokenInfo } = await getTokenContractForSymbol(
-    callerAddress,
-    dUSDSymbol,
-  );
+  const { tokenInfo: dusdTokenInfo } = await getTokenContractForSymbol(callerAddress, dUSDSymbol);
 
   await decreaseLeverageWithApprovalFromTokenAddress(
     dLOOPsFRAX300Contract,
@@ -536,12 +414,7 @@ export async function decreaseLeverageWithApprovalFromTokenAddress(
   maxUnderlyingTokenPrice: number,
 ): Promise<void> {
   // Approve the vault to spend the dUSD on behalf of testAccount1
-  await approveTokenByAddress(
-    callerAddress,
-    await dLOOPsFRAX300Contract.getAddress(),
-    dUSDTokenAddress,
-    dUSDAmount,
-  );
+  await approveTokenByAddress(callerAddress, await dLOOPsFRAX300Contract.getAddress(), dUSDTokenAddress, dUSDAmount);
 
   const oracleContract = await hre.ethers.getContractAt(
     "contracts/lending/core/interfaces/IPriceOracleGetter.sol:IPriceOracleGetter",
@@ -551,18 +424,12 @@ export async function decreaseLeverageWithApprovalFromTokenAddress(
   const baseCurrencyUnit: bigint = await oracleContract.BASE_CURRENCY_UNIT();
 
   // Make sure the oracle price decimals is as expected
-  assert.equal(
-    baseCurrencyUnit,
-    ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS),
-  );
+  assert.equal(baseCurrencyUnit, ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS));
 
   // Rebalance the vault to the target leverage
   await dLOOPsFRAX300Contract.decreaseLeverage(
     await getTokenAmountFromAddress(dUSDAmount.toString(), dUSDTokenAddress),
-    ethers.parseUnits(
-      maxUnderlyingTokenPrice.toString(),
-      AAVE_ORACLE_USD_DECIMALS,
-    ), // underlying token max price
+    ethers.parseUnits(maxUnderlyingTokenPrice.toString(), AAVE_ORACLE_USD_DECIMALS), // underlying token max price
   );
 }
 
@@ -582,10 +449,7 @@ export async function increaseLeverageWithApproval(
   underlyingTokenAmount: number,
   minUnderlyingTokenPrice: number,
 ): Promise<void> {
-  const { tokenInfo } = await getTokenContractForSymbol(
-    callerAddress,
-    underlyingTokenSymbol,
-  );
+  const { tokenInfo } = await getTokenContractForSymbol(callerAddress, underlyingTokenSymbol);
 
   await increaseLeverageWithApprovalFromTokenAddress(
     dLOOPsFRAX300Contract,
@@ -613,12 +477,7 @@ export async function increaseLeverageWithApprovalFromTokenAddress(
   minUnderlyingTokenPrice: number,
 ): Promise<void> {
   // Approve the vault to spend the dUSD on behalf of testAccount1
-  await approveTokenByAddress(
-    callerAddress,
-    await dLOOPsFRAX300Contract.getAddress(),
-    underlyingTokenAddress,
-    underlyingTokenAmount,
-  );
+  await approveTokenByAddress(callerAddress, await dLOOPsFRAX300Contract.getAddress(), underlyingTokenAddress, underlyingTokenAmount);
 
   const oracleContract = await hre.ethers.getContractAt(
     "contracts/lending/core/interfaces/IPriceOracleGetter.sol:IPriceOracleGetter",
@@ -628,21 +487,12 @@ export async function increaseLeverageWithApprovalFromTokenAddress(
   const baseCurrencyUnit: bigint = await oracleContract.BASE_CURRENCY_UNIT();
 
   // Make sure the oracle price decimals is as expected
-  assert.equal(
-    baseCurrencyUnit,
-    ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS),
-  );
+  assert.equal(baseCurrencyUnit, ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS));
 
   // Rebalance the vault to the target leverage
   await dLOOPsFRAX300Contract.increaseLeverage(
-    await getTokenAmountFromAddress(
-      underlyingTokenAmount.toString(),
-      underlyingTokenAddress,
-    ),
-    ethers.parseUnits(
-      minUnderlyingTokenPrice.toString(),
-      AAVE_ORACLE_USD_DECIMALS,
-    ), // underlying token min price
+    await getTokenAmountFromAddress(underlyingTokenAmount.toString(), underlyingTokenAddress),
+    ethers.parseUnits(minUnderlyingTokenPrice.toString(), AAVE_ORACLE_USD_DECIMALS), // underlying token min price
   );
 }
 
@@ -661,17 +511,9 @@ export async function mintWithApprovalToDLoop(
   callerAddress: string,
   sharesAmount: number,
 ): Promise<void> {
-  const { tokenInfo } = await getTokenContractForSymbol(
-    callerAddress,
-    underlyingTokenSymbol,
-  );
+  const { tokenInfo } = await getTokenContractForSymbol(callerAddress, underlyingTokenSymbol);
 
-  await mintWithApprovalToDLoopFromTokenAddress(
-    dLOOPsFRAX300Contract,
-    tokenInfo.address,
-    callerAddress,
-    sharesAmount,
-  );
+  await mintWithApprovalToDLoopFromTokenAddress(dLOOPsFRAX300Contract, tokenInfo.address, callerAddress, sharesAmount);
 }
 
 /**
@@ -690,10 +532,7 @@ export async function mintWithApprovalToDLoopFromTokenAddress(
 ): Promise<void> {
   // Calculate the amount of assets needed to mint the requested shares
   const assets = await dLOOPsFRAX300Contract.convertToAssets(
-    ethers.parseUnits(
-      sharesAmount.toString(),
-      await dLOOPsFRAX300Contract.decimals(),
-    ),
+    ethers.parseUnits(sharesAmount.toString(), await dLOOPsFRAX300Contract.decimals()),
   );
 
   // Approve the vault to spend the underlying token on behalf of callerAddress
@@ -706,10 +545,7 @@ export async function mintWithApprovalToDLoopFromTokenAddress(
 
   // Perform the mint
   const tx = await dLOOPsFRAX300Contract.mint(
-    ethers.parseUnits(
-      sharesAmount.toString(),
-      await dLOOPsFRAX300Contract.decimals(),
-    ),
+    ethers.parseUnits(sharesAmount.toString(), await dLOOPsFRAX300Contract.decimals()),
     callerAddress,
   );
 
@@ -721,9 +557,7 @@ export async function mintWithApprovalToDLoopFromTokenAddress(
   }
 
   // Make sure the Deposit event is emitted
-  const logs = await getEventFromTransaction(dLOOPsFRAX300Contract, receipt, [
-    "Deposit",
-  ]);
+  const logs = await getEventFromTransaction(dLOOPsFRAX300Contract, receipt, ["Deposit"]);
   assert.isNotEmpty(logs);
 }
 
@@ -739,19 +573,11 @@ export async function withdrawWithApprovalFromDLoop(
   callerAddress: string,
   assetAmount: number,
 ): Promise<void> {
-  const underlyingTokenAddress =
-    await dLOOPsFRAX300Contract.getUnderlyingAssetAddress();
+  const underlyingTokenAddress = await dLOOPsFRAX300Contract.getUnderlyingAssetAddress();
 
-  const assetAmountRaw = await getTokenAmountFromAddress(
-    assetAmount.toString(),
-    underlyingTokenAddress,
-  );
+  const assetAmountRaw = await getTokenAmountFromAddress(assetAmount.toString(), underlyingTokenAddress);
 
-  await withdrawWithApprovalFromDLoopRaw(
-    dLOOPsFRAX300Contract,
-    callerAddress,
-    assetAmountRaw,
-  );
+  await withdrawWithApprovalFromDLoopRaw(dLOOPsFRAX300Contract, callerAddress, assetAmountRaw);
 }
 
 /**
@@ -778,11 +604,7 @@ export async function withdrawWithApprovalFromDLoopRaw(
   );
 
   // Perform the withdraw
-  const tx = await dLOOPsFRAX300Contract.withdraw(
-    assetAmountRaw,
-    callerAddress,
-    callerAddress,
-  );
+  const tx = await dLOOPsFRAX300Contract.withdraw(assetAmountRaw, callerAddress, callerAddress);
 
   // Wait for the transaction to be mined
   const receipt = await tx.wait();
@@ -792,8 +614,6 @@ export async function withdrawWithApprovalFromDLoopRaw(
   }
 
   // Make sure the Withdraw event is emitted
-  const logs = await getEventFromTransaction(dLOOPsFRAX300Contract, receipt, [
-    "Withdraw",
-  ]);
+  const logs = await getEventFromTransaction(dLOOPsFRAX300Contract, receipt, ["Withdraw"]);
   assert.isNotEmpty(logs);
 }

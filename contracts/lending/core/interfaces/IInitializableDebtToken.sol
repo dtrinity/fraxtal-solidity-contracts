@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.0;
 
-import {IAaveIncentivesController} from "./IAaveIncentivesController.sol";
-import {IPool} from "./IPool.sol";
+import { IAaveIncentivesController } from "./IAaveIncentivesController.sol";
+import { IPool } from "./IPool.sol";
 
 /**
  * @title IInitializableDebtToken

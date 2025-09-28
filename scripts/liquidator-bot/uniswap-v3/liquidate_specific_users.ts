@@ -4,10 +4,7 @@ import { getConfig } from "../../../config/config";
 import { getUserHealthFactor } from "../../../utils/lending/account";
 import { printLog } from "../../../utils/liquidator-bot/shared/log";
 import { runBotBatch } from "../../../utils/liquidator-bot/uniswap-v3/run";
-import {
-  getFlashLoanLiquidatorBot,
-  getFlashMintLiquidatorBot,
-} from "../../../utils/liquidator-bot/uniswap-v3/utils";
+import { getFlashLoanLiquidatorBot, getFlashMintLiquidatorBot } from "../../../utils/liquidator-bot/uniswap-v3/utils";
 
 /**
  * This script liquidates specific users by their addresses.
@@ -24,10 +21,8 @@ async function main(): Promise<void> {
 
   const index = 1;
   const { liquidatorBotDeployer } = await hre.getNamedAccounts();
-  const { contract: flashMintLiquidatorBotContract } =
-    await getFlashMintLiquidatorBot(liquidatorBotDeployer);
-  const { contract: flashLoanliquidatorBotContract } =
-    await getFlashLoanLiquidatorBot(liquidatorBotDeployer);
+  const { contract: flashMintLiquidatorBotContract } = await getFlashMintLiquidatorBot(liquidatorBotDeployer);
+  const { contract: flashLoanliquidatorBotContract } = await getFlashLoanLiquidatorBot(liquidatorBotDeployer);
 
   printLog(index, "Printing health factors of the users to liquidate");
 

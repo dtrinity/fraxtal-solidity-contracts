@@ -45,14 +45,8 @@ export async function createCurvePoolAddLiquidity(
   gaugeAddress: string;
   underlyingBalances: string[];
 }> {
-  const { contract: token0Contract } = await getTokenContractForAddress(
-    callerAddress,
-    token0Address,
-  );
-  const { contract: token1Contract } = await getTokenContractForAddress(
-    callerAddress,
-    token1Address,
-  );
+  const { contract: token0Contract } = await getTokenContractForAddress(callerAddress, token0Address);
+  const { contract: token1Contract } = await getTokenContractForAddress(callerAddress, token1Address);
 
   const coins = [token0Address, token1Address];
 
@@ -72,17 +66,14 @@ export async function createCurvePoolAddLiquidity(
     initialPrice,
   );
 
-  const poolAddress =
-    await curve.cryptoFactory.getDeployedPoolAddress(deployPoolTx);
+  const poolAddress = await curve.cryptoFactory.getDeployedPoolAddress(deployPoolTx);
   const deployGaugeTx = await curve.cryptoFactory.deployGauge(poolAddress);
-  const gaugeAddress =
-    await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
+  const gaugeAddress = await curve.factory.getDeployedGaugeAddress(deployGaugeTx);
 
   // Add liquidity
   await token0Contract.approve(poolAddress, ethers.MaxUint256);
   await token1Contract.approve(poolAddress, ethers.MaxUint256);
-  const poolId =
-    await curve.cryptoFactory.fetchRecentlyDeployedPool(poolAddress);
+  const poolId = await curve.cryptoFactory.fetchRecentlyDeployedPool(poolAddress);
   const pool = curve.getPool(poolId);
   const amounts = await pool.cryptoSeedAmounts(token0Amount); // Initial amounts for crypto pools must have the ratio corresponding to initialPrice
   await pool.depositAndStake(amounts);

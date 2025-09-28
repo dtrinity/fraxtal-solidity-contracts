@@ -58,25 +58,14 @@ contract DLendBalanceChecker is BaseBalanceChecker {
      */
     function _validateTokenAndGetDetails(
         address token
-    )
-        internal
-        view
-        override
-        returns (
-            address validToken,
-            address originalToken,
-            bool isExternalToken
-        )
-    {
+    ) internal view override returns (address validToken, address originalToken, bool isExternalToken) {
         originalToken = token;
         address mappedDToken = externalSourceToInternalToken[token];
         isExternalToken = mappedDToken != address(0);
         validToken = isExternalToken ? mappedDToken : token;
 
         // Simple validation - check if it's a contract with reserves in the pool
-        try POOL.getReserveData(validToken) returns (
-            DataTypes.ReserveData memory
-        ) {
+        try POOL.getReserveData(validToken) returns (DataTypes.ReserveData memory) {
             // Valid token if it has reserve data
         } catch {
             if (isExternalToken) {
@@ -93,22 +82,13 @@ contract DLendBalanceChecker is BaseBalanceChecker {
      * @param user The user address
      * @return The calculated effective balance (normalized to 18 decimals)
      */
-    function _calculateTokenBalance(
-        address token,
-        address user
-    ) internal view override returns (uint256) {
+    function _calculateTokenBalance(address token, address user) internal view override returns (uint256) {
         // Validate token and get necessary details
-        (
-            address validToken,
-            address originalToken,
-            bool isExternalToken
-        ) = _validateTokenAndGetDetails(token);
+        (address validToken, address originalToken, bool isExternalToken) = _validateTokenAndGetDetails(token);
 
         // For dLEND tokens, we need to find the underlying asset by checking pool reserve data
         // Since we validated that validToken has reserve data, we can use it directly
-        DataTypes.ReserveData memory reserveData = POOL.getReserveData(
-            validToken
-        );
+        DataTypes.ReserveData memory reserveData = POOL.getReserveData(validToken);
         address aToken = reserveData.aTokenAddress;
         address debtToken = reserveData.variableDebtTokenAddress;
 
@@ -129,9 +109,7 @@ contract DLendBalanceChecker is BaseBalanceChecker {
         uint256 ratio = ((totalSupply - totalDebt) * 1e18) / totalSupply;
 
         // Get balance based on token type
-        uint256 balance = isExternalToken
-            ? IERC20(originalToken).balanceOf(user)
-            : IERC20(aToken).balanceOf(user);
+        uint256 balance = isExternalToken ? IERC20(originalToken).balanceOf(user) : IERC20(aToken).balanceOf(user);
 
         // Apply utilization ratio
         uint256 effectiveBalance = (balance * ratio) / 1e18;
@@ -150,9 +128,7 @@ contract DLendBalanceChecker is BaseBalanceChecker {
      * @param underlyingAsset The underlying asset address
      * @return The underlying asset address (same as input for dLEND)
      */
-    function getUnderlyingAsset(
-        address underlyingAsset
-    ) external view returns (address) {
+    function getUnderlyingAsset(address underlyingAsset) external view returns (address) {
         return underlyingAsset;
     }
 
@@ -161,9 +137,7 @@ contract DLendBalanceChecker is BaseBalanceChecker {
      * @param underlyingAsset The underlying asset address
      * @return The debt token address
      */
-    function getDebtToken(
-        address underlyingAsset
-    ) external view returns (address) {
+    function getDebtToken(address underlyingAsset) external view returns (address) {
         return POOL.getReserveData(underlyingAsset).variableDebtTokenAddress;
     }
 
@@ -172,12 +146,8 @@ contract DLendBalanceChecker is BaseBalanceChecker {
      * @param underlyingAsset The underlying asset address
      * @return The utilization ratio (1e18 = 100%)
      */
-    function getUtilizationRatio(
-        address underlyingAsset
-    ) external view returns (uint256) {
-        DataTypes.ReserveData memory reserveData = POOL.getReserveData(
-            underlyingAsset
-        );
+    function getUtilizationRatio(address underlyingAsset) external view returns (uint256) {
+        DataTypes.ReserveData memory reserveData = POOL.getReserveData(underlyingAsset);
         address aToken = reserveData.aTokenAddress;
         address debtToken = reserveData.variableDebtTokenAddress;
 
@@ -201,9 +171,7 @@ contract DLendBalanceChecker is BaseBalanceChecker {
      * @param underlyingAsset The underlying asset address
      * @return The available ratio (1e18 = 100%)
      */
-    function getAvailableRatio(
-        address underlyingAsset
-    ) external view returns (uint256) {
+    function getAvailableRatio(address underlyingAsset) external view returns (uint256) {
         uint256 utilizationRatio = this.getUtilizationRatio(underlyingAsset);
         return 1e18 - utilizationRatio;
     }

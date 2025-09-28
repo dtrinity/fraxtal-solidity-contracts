@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.0;
 
-import {WETH9} from "contracts/dependencies/weth/WETH9.sol";
-import {Ownable} from "contracts/lending/core/dependencies/openzeppelin/contracts/Ownable.sol";
+import { WETH9 } from "contracts/dependencies/weth/WETH9.sol";
+import { Ownable } from "contracts/lending/core/dependencies/openzeppelin/contracts/Ownable.sol";
 
 contract WETH9Mock is WETH9, Ownable {
     bool internal _protected;
@@ -28,19 +28,12 @@ contract WETH9Mock is WETH9, Ownable {
      */
     modifier onlyOwnerIfProtected() {
         if (_protected == true) {
-            require(
-                owner() == _msgSender(),
-                "Ownable: caller is not the owner"
-            );
+            require(owner() == _msgSender(), "Ownable: caller is not the owner");
         }
         _;
     }
 
-    constructor(
-        string memory mockName,
-        string memory mockSymbol,
-        address owner
-    ) {
+    constructor(string memory mockName, string memory mockSymbol, address owner) {
         name = mockName;
         symbol = mockSymbol;
 
@@ -48,10 +41,7 @@ contract WETH9Mock is WETH9, Ownable {
         _protected = true;
     }
 
-    function mint(
-        address account,
-        uint256 value
-    ) public onlyOwnerIfProtected returns (bool) {
+    function mint(address account, uint256 value) public onlyOwnerIfProtected returns (bool) {
         balanceOf[account] += value;
         emit Transfer(address(0), account, value);
         return true;

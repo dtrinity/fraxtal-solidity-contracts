@@ -60,10 +60,7 @@ library PoolTicksCounter {
                 ((tickBefore % self.tickSpacing()) == 0) &&
                 (tickBefore < tickAfter);
 
-            if (
-                wordPos < wordPosAfter ||
-                (wordPos == wordPosAfter && bitPos <= bitPosAfter)
-            ) {
+            if (wordPos < wordPosAfter || (wordPos == wordPosAfter && bitPos <= bitPosAfter)) {
                 wordPosLower = wordPos;
                 bitPosLower = bitPos;
                 wordPosHigher = wordPosAfter;

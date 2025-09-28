@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.0;
 
-import {AToken} from "../../protocol/tokenization/AToken.sol";
-import {IPool} from "../../interfaces/IPool.sol";
+import { AToken } from "../../protocol/tokenization/AToken.sol";
+import { IPool } from "../../interfaces/IPool.sol";
 
 contract MockAToken is AToken {
     constructor(IPool pool) AToken(pool) {}

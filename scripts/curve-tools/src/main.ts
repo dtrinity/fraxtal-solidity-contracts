@@ -17,15 +17,13 @@ const NETWORK_CONFIGS: { [key: string]: NetworkConfig } = {
     name: "Fraxtal Testnet",
     chainId: 2522,
     rpcUrl: "https://rpc.testnet.frax.com",
-    privateKey:
-      "3d3c83c453b40ed9fe6ebeaa527cb354bc526218e69185786a4953909fb54e63",
+    privateKey: "3d3c83c453b40ed9fe6ebeaa527cb354bc526218e69185786a4953909fb54e63",
   },
   fraxtal_mainnet: {
     name: "Fraxtal Mainnet",
     chainId: 252, // TODO: Update with actual chain ID
     rpcUrl: "https://rpc.frax.com",
-    privateKey:
-      "3d3c83c453b40ed9fe6ebeaa527cb354bc526218e69185786a4953909fb54e63",
+    privateKey: "3d3c83c453b40ed9fe6ebeaa527cb354bc526218e69185786a4953909fb54e63",
     requiresFactoryFetch: true,
   },
   ethereum_mainnet: {
@@ -47,9 +45,7 @@ async function initializeCurve(network: string): Promise<void> {
   const config = NETWORK_CONFIGS[network];
 
   if (!config) {
-    throw new Error(
-      `Unsupported network: ${network}. Supported networks: ${Object.keys(NETWORK_CONFIGS).join(", ")}`,
-    );
+    throw new Error(`Unsupported network: ${network}. Supported networks: ${Object.keys(NETWORK_CONFIGS).join(", ")}`);
   }
 
   console.log(`Initializing curve on ${config.name}`);
@@ -107,20 +103,11 @@ async function initializeCurve(network: string): Promise<void> {
  * @param network - The network to initialize
  * @returns The best route arguments
  */
-export async function getBestRouteArgs(
-  tokenIn: string,
-  tokenOut: string,
-  amountIn: string,
-  network: string,
-): Promise<any> {
+export async function getBestRouteArgs(tokenIn: string, tokenOut: string, amountIn: string, network: string): Promise<any> {
   await initializeCurve(network);
 
   console.log("Getting best route");
-  const { route } = await curve.router.getBestRouteAndOutput(
-    tokenIn,
-    tokenOut,
-    amountIn,
-  );
+  const { route } = await curve.router.getBestRouteAndOutput(tokenIn, tokenOut, amountIn);
 
   return curve.router.getArgs(route);
 }
@@ -136,9 +123,7 @@ if (isMainModule) {
    */
   async function main(): Promise<void> {
     if (process.argv.length < 6) {
-      throw new Error(
-        "Usage: tsx main.ts <tokenIn> <tokenOut> <amountIn> <network>",
-      );
+      throw new Error("Usage: tsx main.ts <tokenIn> <tokenOut> <amountIn> <network>");
     }
     const tokenIn = process.argv[2];
     const tokenOut = process.argv[3];
@@ -146,9 +131,7 @@ if (isMainModule) {
     const network = process.argv[5];
 
     if (!NETWORK_CONFIGS[network]) {
-      throw new Error(
-        `Invalid network. Supported networks: ${Object.keys(NETWORK_CONFIGS).join(", ")}`,
-      );
+      throw new Error(`Invalid network. Supported networks: ${Object.keys(NETWORK_CONFIGS).join(", ")}`);
     }
 
     const args = await getBestRouteArgs(tokenIn, tokenOut, amountIn, network);

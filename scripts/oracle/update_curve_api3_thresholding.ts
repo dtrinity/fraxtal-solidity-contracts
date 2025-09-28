@@ -48,24 +48,16 @@ async function main(): Promise<void> {
     }
 
     if (!ethers.isAddress(config.api3Wrapper)) {
-      throw new Error(
-        `Invalid API3 wrapper address format: ${config.api3Wrapper}`,
-      );
+      throw new Error(`Invalid API3 wrapper address format: ${config.api3Wrapper}`);
     }
   });
 
   try {
     const { dusdDeployer } = await hre.getNamedAccounts();
     const admin = await hre.ethers.getSigner(dusdDeployer);
-    const { address: wrapperAddress } = await hre.deployments.get(
-      "CurveAPI3CompositeWrapperWithThresholding",
-    );
+    const { address: wrapperAddress } = await hre.deployments.get("CurveAPI3CompositeWrapperWithThresholding");
 
-    const wrapper = await ethers.getContractAt(
-      "CurveAPI3CompositeWrapperWithThresholding",
-      wrapperAddress,
-      admin,
-    );
+    const wrapper = await ethers.getContractAt("CurveAPI3CompositeWrapperWithThresholding", wrapperAddress, admin);
 
     // Update thresholds for each asset
     console.log("Updating threshold configurations...");
@@ -93,18 +85,10 @@ async function main(): Promise<void> {
       console.log(`Asset ${config.asset}:`);
       console.log(`  API3 Asset: ${feed.api3Asset}`);
       console.log(`  API3 Wrapper: ${feed.api3Wrapper}`);
-      console.log(
-        `  Curve Lower Threshold: ${feed.thresholds.primary.lowerThresholdInBase}`,
-      );
-      console.log(
-        `  Curve Fixed Price: ${feed.thresholds.primary.fixedPriceInBase}`,
-      );
-      console.log(
-        `  API3 Lower Threshold: ${feed.thresholds.secondary.lowerThresholdInBase}`,
-      );
-      console.log(
-        `  API3 Fixed Price: ${feed.thresholds.secondary.fixedPriceInBase}`,
-      );
+      console.log(`  Curve Lower Threshold: ${feed.thresholds.primary.lowerThresholdInBase}`);
+      console.log(`  Curve Fixed Price: ${feed.thresholds.primary.fixedPriceInBase}`);
+      console.log(`  API3 Lower Threshold: ${feed.thresholds.secondary.lowerThresholdInBase}`);
+      console.log(`  API3 Fixed Price: ${feed.thresholds.secondary.fixedPriceInBase}`);
     }
   } catch (error) {
     console.error("Error updating threshold configuration:", error);

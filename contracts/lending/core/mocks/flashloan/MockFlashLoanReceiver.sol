@@ -17,33 +17,23 @@
 
 pragma solidity ^0.8.0;
 
-import {IERC20} from "../../dependencies/openzeppelin/contracts/IERC20.sol";
-import {GPv2SafeERC20} from "../../dependencies/gnosis/contracts/GPv2SafeERC20.sol";
-import {IPoolAddressesProvider} from "../../interfaces/IPoolAddressesProvider.sol";
-import {FlashLoanReceiverBase} from "../../flashloan/base/FlashLoanReceiverBase.sol";
-import {MintableERC20} from "../tokens/MintableERC20.sol";
+import { IERC20 } from "../../dependencies/openzeppelin/contracts/IERC20.sol";
+import { GPv2SafeERC20 } from "../../dependencies/gnosis/contracts/GPv2SafeERC20.sol";
+import { IPoolAddressesProvider } from "../../interfaces/IPoolAddressesProvider.sol";
+import { FlashLoanReceiverBase } from "../../flashloan/base/FlashLoanReceiverBase.sol";
+import { MintableERC20 } from "../tokens/MintableERC20.sol";
 
 contract MockFlashLoanReceiver is FlashLoanReceiverBase {
     using GPv2SafeERC20 for IERC20;
 
-    event ExecutedWithFail(
-        address[] _assets,
-        uint256[] _amounts,
-        uint256[] _premiums
-    );
-    event ExecutedWithSuccess(
-        address[] _assets,
-        uint256[] _amounts,
-        uint256[] _premiums
-    );
+    event ExecutedWithFail(address[] _assets, uint256[] _amounts, uint256[] _premiums);
+    event ExecutedWithSuccess(address[] _assets, uint256[] _amounts, uint256[] _premiums);
 
     bool internal _failExecution;
     uint256 internal _amountToApprove;
     bool internal _simulateEOA;
 
-    constructor(
-        IPoolAddressesProvider provider
-    ) FlashLoanReceiverBase(provider) {}
+    constructor(IPoolAddressesProvider provider) FlashLoanReceiverBase(provider) {}
 
     function setFailExecutionTransfer(bool fail) public {
         _failExecution = fail;
@@ -82,14 +72,9 @@ contract MockFlashLoanReceiver is FlashLoanReceiverBase {
             MintableERC20 token = MintableERC20(assets[i]);
 
             //check the contract has the specified balance
-            require(
-                amounts[i] <= IERC20(assets[i]).balanceOf(address(this)),
-                "Invalid balance for the contract"
-            );
+            require(amounts[i] <= IERC20(assets[i]).balanceOf(address(this)), "Invalid balance for the contract");
 
-            uint256 amountToReturn = (_amountToApprove != 0)
-                ? _amountToApprove
-                : amounts[i] + premiums[i];
+            uint256 amountToReturn = (_amountToApprove != 0) ? _amountToApprove : amounts[i] + premiums[i];
             //execution does not fail - mint tokens and return them to the _destination
 
             token.mint(address(this), premiums[i]);

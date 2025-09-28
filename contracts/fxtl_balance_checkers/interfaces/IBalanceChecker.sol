@@ -33,10 +33,7 @@ interface IBalanceChecker {
      * @param addresses Array of addresses to check balances for (up to 1000 addresses)
      * @return result Array of effective balances (18 decimals) corresponding to the addresses array
      */
-    function tokenBalances(
-        address token,
-        address[] memory addresses
-    ) external view returns (uint256[] memory result);
+    function tokenBalances(address token, address[] memory addresses) external view returns (uint256[] memory result);
 
     /**
      * @notice Returns the effective balances for multiple addresses across multiple tokens

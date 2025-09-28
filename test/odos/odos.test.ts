@@ -16,10 +16,7 @@ describe.skip("ODOS Client Tests", () => {
   describe("Quote Generation", () => {
     it("should successfully generate a quote for FRAX to frxETH swap", async () => {
       const inputAmount = "1000"; // 1000 FRAX
-      const formattedAmount = OdosClient.formatTokenAmount(
-        inputAmount,
-        TOKEN_DECIMALS.FRAX,
-      );
+      const formattedAmount = OdosClient.formatTokenAmount(inputAmount, TOKEN_DECIMALS.FRAX);
 
       const quoteRequest = {
         chainId: FRAXTAL_CHAIN_ID,
@@ -49,9 +46,7 @@ describe.skip("ODOS Client Tests", () => {
       expect(quote).to.have.property("pathId");
       expect(quote.outTokens).to.be.an("array");
       expect(quote.outTokens).to.have.lengthOf(1);
-      expect(quote.outTokens[0].toLowerCase()).to.equal(
-        FRAXTAL_TOKENS.frxETH.toLowerCase(),
-      );
+      expect(quote.outTokens[0].toLowerCase()).to.equal(FRAXTAL_TOKENS.frxETH.toLowerCase());
       expect(quote.outAmounts).to.have.lengthOf(1);
       expect(quote.outAmounts[0]).to.be.a("string");
       expect(quote).to.have.property("gasEstimate");
@@ -63,10 +58,7 @@ describe.skip("ODOS Client Tests", () => {
     it("should successfully assemble a transaction from a quote", async () => {
       // First get a quote
       const inputAmount = "1000";
-      const formattedAmount = OdosClient.formatTokenAmount(
-        inputAmount,
-        TOKEN_DECIMALS.FRAX,
-      );
+      const formattedAmount = OdosClient.formatTokenAmount(inputAmount, TOKEN_DECIMALS.FRAX);
 
       const quoteRequest = {
         chainId: FRAXTAL_CHAIN_ID,
@@ -120,10 +112,7 @@ describe.skip("ODOS Client Tests", () => {
       const wallet = new ethers.Wallet("0x" + "1".repeat(64), provider); // Dummy private key
 
       const inputAmount = "1000"; // 1000 FRAX
-      const formattedAmount = OdosClient.formatTokenAmount(
-        inputAmount,
-        TOKEN_DECIMALS.FRAX,
-      );
+      const formattedAmount = OdosClient.formatTokenAmount(inputAmount, TOKEN_DECIMALS.FRAX);
 
       // Get quote
       const quote = await odosClient.getQuote({

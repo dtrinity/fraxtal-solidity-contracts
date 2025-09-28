@@ -23,33 +23,24 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const config = await getConfig(hre);
 
-  const { address: api3OracleWrapperWithThresholdingAddress } =
-    await hre.deployments.get("API3WrapperWithThresholding");
+  const { address: api3OracleWrapperWithThresholdingAddress } = await hre.deployments.get("API3WrapperWithThresholding");
   const api3WrapperWithThresholding = await hre.ethers.getContractAt(
     "API3WrapperWithThresholding",
     api3OracleWrapperWithThresholdingAddress,
     deployer,
   );
 
-  const thresholdAddresses = symbolsToAddresses(
-    configureAssetsByOracleType.api3WrapperWithThresholding,
-    TOKEN_INFO,
-  );
+  const thresholdAddresses = symbolsToAddresses(configureAssetsByOracleType.api3WrapperWithThresholding, TOKEN_INFO);
 
   const thresholdFeeds = Object.fromEntries(
-    Object.entries(
-      config.oracleAggregator.api3OracleAssets
-        .api3OracleWrappersWithThresholding,
-    ).filter(([address]) => thresholdAddresses.includes(address)),
+    Object.entries(config.oracleAggregator.api3OracleAssets.api3OracleWrappersWithThresholding).filter(([address]) =>
+      thresholdAddresses.includes(address),
+    ),
   );
 
   for (const [assetAddress, feedConfig] of Object.entries(thresholdFeeds)) {
     await api3WrapperWithThresholding.setProxy(assetAddress, feedConfig.proxy);
-    await api3WrapperWithThresholding.setThresholdConfig(
-      assetAddress,
-      feedConfig.lowerThreshold,
-      feedConfig.fixedPrice,
-    );
+    await api3WrapperWithThresholding.setThresholdConfig(assetAddress, feedConfig.lowerThreshold, feedConfig.fixedPrice);
     console.log(
       `Set API3 proxy with thresholding for asset ${assetAddress}:`,
       `\n  - Proxy: ${feedConfig.proxy}`,
@@ -58,23 +49,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
   }
 
-  const { address: api3CompositeWrapperWithThresholdingAddress } =
-    await hre.deployments.get("API3CompositeWrapperWithThresholding");
+  const { address: api3CompositeWrapperWithThresholdingAddress } = await hre.deployments.get("API3CompositeWrapperWithThresholding");
   const api3CompositeWrapper = await hre.ethers.getContractAt(
     "API3CompositeWrapperWithThresholding",
     api3CompositeWrapperWithThresholdingAddress,
     deployer,
   );
 
-  const compositeAddresses = symbolsToAddresses(
-    configureAssetsByOracleType.compositeApi3OracleWrappersWithThresholding,
-    TOKEN_INFO,
-  );
+  const compositeAddresses = symbolsToAddresses(configureAssetsByOracleType.compositeApi3OracleWrappersWithThresholding, TOKEN_INFO);
   const compositeFeeds = Object.fromEntries(
-    Object.entries(
-      config.oracleAggregator.api3OracleAssets
-        .compositeApi3OracleWrappersWithThresholding,
-    ).filter(([key]) => compositeAddresses.includes(key)),
+    Object.entries(config.oracleAggregator.api3OracleAssets.compositeApi3OracleWrappersWithThresholding).filter(([key]) =>
+      compositeAddresses.includes(key),
+    ),
   );
 
   for (const [assetAddress, feedConfig] of Object.entries(compositeFeeds)) {
@@ -98,32 +84,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
   }
 
-  const { address: curveCompositeWrapperWithThresholdingAddress } =
-    await hre.deployments.get("CurveAPI3CompositeWrapperWithThresholding");
+  const { address: curveCompositeWrapperWithThresholdingAddress } = await hre.deployments.get("CurveAPI3CompositeWrapperWithThresholding");
   const curveCompositeWrapper = await hre.ethers.getContractAt(
     "CurveAPI3CompositeWrapperWithThresholding",
     curveCompositeWrapperWithThresholdingAddress,
     deployer,
   );
 
-  const curveAddresses = symbolsToAddresses(
-    configureAssetsByOracleType.curveApi3CompositeOracles,
-    TOKEN_INFO,
-  );
+  const curveAddresses = symbolsToAddresses(configureAssetsByOracleType.curveApi3CompositeOracles, TOKEN_INFO);
   const curveCompositeFeeds = Object.fromEntries(
-    Object.entries(
-      config.oracleAggregator.curveOracleAssets.curveApi3CompositeOracles,
-    ).filter(([key]) => curveAddresses.includes(key)),
+    Object.entries(config.oracleAggregator.curveOracleAssets.curveApi3CompositeOracles).filter(([key]) => curveAddresses.includes(key)),
   );
 
-  for (const [assetAddress, feedConfig] of Object.entries(
-    curveCompositeFeeds,
-  )) {
+  for (const [assetAddress, feedConfig] of Object.entries(curveCompositeFeeds)) {
     await curveCompositeWrapper.setAssetConfig(assetAddress, feedConfig.pool);
-    console.log(
-      `Set Curve pool config for asset ${assetAddress}:`,
-      `\n  - Pool: ${feedConfig.pool}`,
-    );
+    console.log(`Set Curve pool config for asset ${assetAddress}:`, `\n  - Pool: ${feedConfig.pool}`);
 
     await curveCompositeWrapper.setCompositeFeed(
       assetAddress,

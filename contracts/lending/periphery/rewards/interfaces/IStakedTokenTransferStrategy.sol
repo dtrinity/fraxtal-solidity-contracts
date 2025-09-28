@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.10;
 
-import {IStakedToken} from "../interfaces/IStakedToken.sol";
-import {ITransferStrategyBase} from "./ITransferStrategyBase.sol";
+import { IStakedToken } from "../interfaces/IStakedToken.sol";
+import { ITransferStrategyBase } from "./ITransferStrategyBase.sol";
 
 /**
  * @title IStakedTokenTransferStrategy

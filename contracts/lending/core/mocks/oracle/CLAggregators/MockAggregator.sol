@@ -21,11 +21,7 @@ contract MockAggregator {
     int256 private _latestAnswer;
     uint256 private _latestRound;
 
-    event AnswerUpdated(
-        int256 indexed current,
-        uint256 indexed roundId,
-        uint256 updatedAt
-    );
+    event AnswerUpdated(int256 indexed current, uint256 indexed roundId, uint256 updatedAt);
 
     constructor(int256 initialAnswer) {
         _latestAnswer = initialAnswer;

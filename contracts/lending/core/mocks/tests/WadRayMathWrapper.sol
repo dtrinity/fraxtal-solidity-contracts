@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.0;
 
-import {WadRayMath} from "../../protocol/libraries/math/WadRayMath.sol";
+import { WadRayMath } from "../../protocol/libraries/math/WadRayMath.sol";
 
 contract WadRayMathWrapper {
     function wad() public pure returns (uint256) {

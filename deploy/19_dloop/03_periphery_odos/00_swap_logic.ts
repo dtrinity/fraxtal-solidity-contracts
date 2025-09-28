@@ -23,13 +23,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const config = await getConfig(hre);
   const hasOdosConfig =
     config.dLoop &&
-    ((config.dLoop.depositors && config.dLoop.depositors.odos) ||
-      (config.dLoop.withdrawers && config.dLoop.withdrawers.odos));
+    ((config.dLoop.depositors && config.dLoop.depositors.odos) || (config.dLoop.withdrawers && config.dLoop.withdrawers.odos));
 
   if (!hasOdosConfig) {
-    console.log(
-      `No dLOOP Odos depositor/withdrawer defined for network ${hre.network.name}. Skipping OdosSwapLogic deployment.`,
-    );
+    console.log(`No dLOOP Odos depositor/withdrawer defined for network ${hre.network.name}. Skipping OdosSwapLogic deployment.`);
     return false;
   }
 

@@ -31,13 +31,7 @@ contract OracleEchidnaTest {
     }
 
     function initialize(uint32 time, int24 tick, uint128 liquidity) external {
-        oracle.initialize(
-            OracleTest.InitializeParams({
-                time: time,
-                tick: tick,
-                liquidity: liquidity
-            })
-        );
+        oracle.initialize(OracleTest.InitializeParams({ time: time, tick: tick, liquidity: liquidity }));
         initialized = true;
     }
 
@@ -52,34 +46,20 @@ contract OracleEchidnaTest {
     }
 
     // write an observation, then change tick and liquidity
-    function update(
-        uint32 advanceTimeBy,
-        int24 tick,
-        uint128 liquidity
-    ) external {
+    function update(uint32 advanceTimeBy, int24 tick, uint128 liquidity) external {
         limitTimePassed(advanceTimeBy);
-        oracle.update(
-            OracleTest.UpdateParams({
-                advanceTimeBy: advanceTimeBy,
-                tick: tick,
-                liquidity: liquidity
-            })
-        );
+        oracle.update(OracleTest.UpdateParams({ advanceTimeBy: advanceTimeBy, tick: tick, liquidity: liquidity }));
     }
 
     function grow(uint16 cardinality) external {
         oracle.grow(cardinality);
     }
 
-    function checkTimeWeightedResultAssertions(
-        uint32 secondsAgo0,
-        uint32 secondsAgo1
-    ) private view {
+    function checkTimeWeightedResultAssertions(uint32 secondsAgo0, uint32 secondsAgo1) private view {
         require(secondsAgo0 != secondsAgo1);
         require(initialized);
         // secondsAgo0 should be the larger one
-        if (secondsAgo0 < secondsAgo1)
-            (secondsAgo0, secondsAgo1) = (secondsAgo1, secondsAgo0);
+        if (secondsAgo0 < secondsAgo1) (secondsAgo0, secondsAgo1) = (secondsAgo1, secondsAgo0);
 
         uint32 timeElapsed = secondsAgo0 - secondsAgo1;
 
@@ -87,18 +67,12 @@ contract OracleEchidnaTest {
         secondsAgos[0] = secondsAgo0;
         secondsAgos[1] = secondsAgo1;
 
-        (
-            int56[] memory tickCumulatives,
-            uint160[] memory secondsPerLiquidityCumulativeX128s
-        ) = oracle.observe(secondsAgos);
-        int56 timeWeightedTick = (tickCumulatives[1] - tickCumulatives[0]) /
-            timeElapsed;
-        uint256 timeWeightedHarmonicMeanLiquidity = (uint256(timeElapsed) *
-            type(uint160).max) /
-            (uint256(
-                secondsPerLiquidityCumulativeX128s[1] -
-                    secondsPerLiquidityCumulativeX128s[0]
-            ) << 32);
+        (int56[] memory tickCumulatives, uint160[] memory secondsPerLiquidityCumulativeX128s) = oracle.observe(
+            secondsAgos
+        );
+        int56 timeWeightedTick = (tickCumulatives[1] - tickCumulatives[0]) / timeElapsed;
+        uint256 timeWeightedHarmonicMeanLiquidity = (uint256(timeElapsed) * type(uint160).max) /
+            (uint256(secondsPerLiquidityCumulativeX128s[1] - secondsPerLiquidityCumulativeX128s[0]) << 32);
         assert(timeWeightedHarmonicMeanLiquidity <= type(uint128).max);
         assert(timeWeightedTick <= type(int24).max);
         assert(timeWeightedTick >= type(int24).min);
@@ -117,43 +91,25 @@ contract OracleEchidnaTest {
         return oracle.cardinality() <= oracle.cardinalityNext();
     }
 
-    function echidna_canAlwaysObserve0IfInitialized()
-        external
-        view
-        returns (bool)
-    {
+    function echidna_canAlwaysObserve0IfInitialized() external view returns (bool) {
         if (!initialized) {
             return true;
         }
         uint32[] memory arr = new uint32[](1);
         arr[0] = 0;
-        (bool success, ) = address(oracle).staticcall(
-            abi.encodeWithSelector(OracleTest.observe.selector, arr)
-        );
+        (bool success, ) = address(oracle).staticcall(abi.encodeWithSelector(OracleTest.observe.selector, arr));
         return success;
     }
 
-    function checkTwoAdjacentObservationsTickCumulativeModTimeElapsedAlways0(
-        uint16 index
-    ) external view {
+    function checkTwoAdjacentObservationsTickCumulativeModTimeElapsedAlways0(uint16 index) external view {
         uint16 cardinality = oracle.cardinality();
         // check that the observations are initialized, and that the index is not the oldest observation
-        require(
-            index < cardinality && index != (oracle.index() + 1) % cardinality
-        );
+        require(index < cardinality && index != (oracle.index() + 1) % cardinality);
 
-        (
-            uint32 blockTimestamp0,
-            int56 tickCumulative0,
-            ,
-            bool initialized0
-        ) = oracle.observations(index == 0 ? cardinality - 1 : index - 1);
-        (
-            uint32 blockTimestamp1,
-            int56 tickCumulative1,
-            ,
-            bool initialized1
-        ) = oracle.observations(index);
+        (uint32 blockTimestamp0, int56 tickCumulative0, , bool initialized0) = oracle.observations(
+            index == 0 ? cardinality - 1 : index - 1
+        );
+        (uint32 blockTimestamp1, int56 tickCumulative1, , bool initialized1) = oracle.observations(index);
 
         require(initialized0);
         require(initialized1);
@@ -163,18 +119,15 @@ contract OracleEchidnaTest {
         assert((tickCumulative1 - tickCumulative0) % timeElapsed == 0);
     }
 
-    function checkTimeWeightedAveragesAlwaysFitsType(
-        uint32 secondsAgo
-    ) external view {
+    function checkTimeWeightedAveragesAlwaysFitsType(uint32 secondsAgo) external view {
         require(initialized);
         require(secondsAgo > 0);
         uint32[] memory secondsAgos = new uint32[](2);
         secondsAgos[0] = secondsAgo;
         secondsAgos[1] = 0;
-        (
-            int56[] memory tickCumulatives,
-            uint160[] memory secondsPerLiquidityCumulativeX128s
-        ) = oracle.observe(secondsAgos);
+        (int56[] memory tickCumulatives, uint160[] memory secondsPerLiquidityCumulativeX128s) = oracle.observe(
+            secondsAgos
+        );
 
         // compute the time weighted tick, rounded towards negative infinity
         int56 numerator = tickCumulatives[1] - tickCumulatives[0];
@@ -184,17 +137,10 @@ contract OracleEchidnaTest {
         }
 
         // the time weighted averages fit in their respective accumulated types
-        assert(
-            timeWeightedTick <= type(int24).max &&
-                timeWeightedTick >= type(int24).min
-        );
+        assert(timeWeightedTick <= type(int24).max && timeWeightedTick >= type(int24).min);
 
-        uint256 timeWeightedHarmonicMeanLiquidity = (uint256(secondsAgo) *
-            type(uint160).max) /
-            (uint256(
-                secondsPerLiquidityCumulativeX128s[1] -
-                    secondsPerLiquidityCumulativeX128s[0]
-            ) << 32);
+        uint256 timeWeightedHarmonicMeanLiquidity = (uint256(secondsAgo) * type(uint160).max) /
+            (uint256(secondsPerLiquidityCumulativeX128s[1] - secondsPerLiquidityCumulativeX128s[0]) << 32);
         assert(timeWeightedHarmonicMeanLiquidity <= type(uint128).max);
     }
 }

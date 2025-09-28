@@ -4,11 +4,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../../config/config";
 import { deployContract } from "../../../utils/deploy";
-import {
-  NONFUNGIBLE_TOKEN_POSITION_DESCRIPTOR_ID,
-  PROXY_ADMIN_ID,
-  TRANSPARENT_UPGRADEABLE_PROXY_ID,
-} from "../../../utils/dex/deploy-ids";
+import { NONFUNGIBLE_TOKEN_POSITION_DESCRIPTOR_ID, PROXY_ADMIN_ID, TRANSPARENT_UPGRADEABLE_PROXY_ID } from "../../../utils/dex/deploy-ids";
 import { isLocalNetwork, isMainnetNetwork } from "../../../utils/utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -21,9 +17,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Skip deployment if dex config is not populated
   if (!config.dex) {
-    console.log(
-      "Skipping Transparent Proxy Descriptor deployment - dex config not populated",
-    );
+    console.log("Skipping Transparent Proxy Descriptor deployment - dex config not populated");
     return false;
   }
 
@@ -34,12 +28,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { dexDeployer } = await hre.getNamedAccounts();
 
-  const { address: positionDescriptorAddress } = await hre.deployments.get(
-    NONFUNGIBLE_TOKEN_POSITION_DESCRIPTOR_ID,
-  );
+  const { address: positionDescriptorAddress } = await hre.deployments.get(NONFUNGIBLE_TOKEN_POSITION_DESCRIPTOR_ID);
 
-  const { address: proxyAdminAddress } =
-    await hre.deployments.get(PROXY_ADMIN_ID);
+  const { address: proxyAdminAddress } = await hre.deployments.get(PROXY_ADMIN_ID);
 
   await deployContract(
     hre,

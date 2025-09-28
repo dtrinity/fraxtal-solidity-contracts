@@ -17,12 +17,12 @@
 
 pragma solidity ^0.8.17;
 
-import {Constants} from "../libraries/Constants.sol";
-import {PaymentsImmutables} from "../modules/PaymentsImmutables.sol";
-import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
-import {ERC20} from "solmate/src/tokens/ERC20.sol";
-import {ERC721} from "solmate/src/tokens/ERC721.sol";
-import {ERC1155} from "solmate/src/tokens/ERC1155.sol";
+import { Constants } from "../libraries/Constants.sol";
+import { PaymentsImmutables } from "../modules/PaymentsImmutables.sol";
+import { SafeTransferLib } from "solmate/src/utils/SafeTransferLib.sol";
+import { ERC20 } from "solmate/src/tokens/ERC20.sol";
+import { ERC721 } from "solmate/src/tokens/ERC721.sol";
+import { ERC1155 } from "solmate/src/tokens/ERC1155.sol";
 
 /// @title Payments contract
 /// @notice Performs various operations around the payment of ETH and tokens
@@ -72,11 +72,7 @@ abstract contract Payments is PaymentsImmutables {
     /// @param token The token to pay (can be ETH using Constants.ETH)
     /// @param recipient The address that will receive payment
     /// @param bips Portion in bips of whole balance of the contract
-    function payPortion(
-        address token,
-        address recipient,
-        uint256 bips
-    ) internal {
+    function payPortion(address token, address recipient, uint256 bips) internal {
         if (bips == 0 || bips > FEE_BIPS_BASE) revert InvalidBips();
         if (token == Constants.ETH) {
             uint256 balance = address(this).balance;
@@ -93,11 +89,7 @@ abstract contract Payments is PaymentsImmutables {
     /// @param token The token to sweep (can be ETH using Constants.ETH)
     /// @param recipient The address that will receive payment
     /// @param amountMinimum The minimum desired amount
-    function sweep(
-        address token,
-        address recipient,
-        uint256 amountMinimum
-    ) internal {
+    function sweep(address token, address recipient, uint256 amountMinimum) internal {
         uint256 balance;
         if (token == Constants.ETH) {
             balance = address(this).balance;
@@ -114,11 +106,7 @@ abstract contract Payments is PaymentsImmutables {
     /// @param token The ERC721 token to sweep
     /// @param recipient The address that will receive payment
     /// @param id The ID of the ERC721 to sweep
-    function sweepERC721(
-        address token,
-        address recipient,
-        uint256 id
-    ) internal {
+    function sweepERC721(address token, address recipient, uint256 id) internal {
         ERC721(token).safeTransferFrom(address(this), recipient, id);
     }
 
@@ -127,21 +115,10 @@ abstract contract Payments is PaymentsImmutables {
     /// @param recipient The address that will receive payment
     /// @param id The ID of the ERC1155 to sweep
     /// @param amountMinimum The minimum desired amount
-    function sweepERC1155(
-        address token,
-        address recipient,
-        uint256 id,
-        uint256 amountMinimum
-    ) internal {
+    function sweepERC1155(address token, address recipient, uint256 id, uint256 amountMinimum) internal {
         uint256 balance = ERC1155(token).balanceOf(address(this), id);
         if (balance < amountMinimum) revert InsufficientToken();
-        ERC1155(token).safeTransferFrom(
-            address(this),
-            recipient,
-            id,
-            balance,
-            bytes("")
-        );
+        ERC1155(token).safeTransferFrom(address(this), recipient, id, balance, bytes(""));
     }
 
     /// @notice Wraps an amount of ETH into WETH
@@ -154,7 +131,7 @@ abstract contract Payments is PaymentsImmutables {
             revert InsufficientETH();
         }
         if (amount > 0) {
-            WETH9.deposit{value: amount}();
+            WETH9.deposit{ value: amount }();
             if (recipient != address(this)) {
                 WETH9.transfer(recipient, amount);
             }

@@ -36,11 +36,7 @@ contract PairFlash is IUniswapV3FlashCallback, PeripheryPayments {
 
     ISwapRouter public immutable swapRouter;
 
-    constructor(
-        ISwapRouter _swapRouter,
-        address _factory,
-        address _WETH9
-    ) PeripheryImmutableState(_factory, _WETH9) {
+    constructor(ISwapRouter _swapRouter, address _factory, address _WETH9) PeripheryImmutableState(_factory, _WETH9) {
         swapRouter = _swapRouter;
     }
 
@@ -59,15 +55,8 @@ contract PairFlash is IUniswapV3FlashCallback, PeripheryPayments {
     /// @param data The data needed in the callback passed as FlashCallbackData from `initFlash`
     /// @notice implements the callback called from flash
     /// @dev fails if the flash is not profitable, meaning the amountOut from the flash is less than the amount borrowed
-    function uniswapV3FlashCallback(
-        uint256 fee0,
-        uint256 fee1,
-        bytes calldata data
-    ) external override {
-        FlashCallbackData memory decoded = abi.decode(
-            data,
-            (FlashCallbackData)
-        );
+    function uniswapV3FlashCallback(uint256 fee0, uint256 fee1, bytes calldata data) external override {
+        FlashCallbackData memory decoded = abi.decode(data, (FlashCallbackData));
         CallbackValidation.verifyCallback(factory, decoded.poolKey);
 
         address token0 = decoded.poolKey.token0;
@@ -79,11 +68,7 @@ contract PairFlash is IUniswapV3FlashCallback, PeripheryPayments {
         uint256 amount1Min = LowGasSafeMath.add(decoded.amount1, fee1);
 
         // call exactInputSingle for swapping token1 for token0 in pool with fee2
-        TransferHelper.safeApprove(
-            token1,
-            address(swapRouter),
-            decoded.amount1
-        );
+        TransferHelper.safeApprove(token1, address(swapRouter), decoded.amount1);
         uint256 amountOut0 = swapRouter.exactInputSingle(
             ISwapRouter.ExactInputSingleParams({
                 tokenIn: token1,
@@ -98,11 +83,7 @@ contract PairFlash is IUniswapV3FlashCallback, PeripheryPayments {
         );
 
         // call exactInputSingle for swapping token0 for token 1 in pool with fee3
-        TransferHelper.safeApprove(
-            token0,
-            address(swapRouter),
-            decoded.amount0
-        );
+        TransferHelper.safeApprove(token0, address(swapRouter), decoded.amount0);
         uint256 amountOut1 = swapRouter.exactInputSingle(
             ISwapRouter.ExactInputSingleParams({
                 tokenIn: token0,
@@ -152,9 +133,7 @@ contract PairFlash is IUniswapV3FlashCallback, PeripheryPayments {
             token1: params.token1,
             fee: params.fee1
         });
-        IUniswapV3Pool pool = IUniswapV3Pool(
-            PoolAddress.computeAddress(factory, poolKey)
-        );
+        IUniswapV3Pool pool = IUniswapV3Pool(PoolAddress.computeAddress(factory, poolKey));
         // recipient of borrowed amounts
         // amount of token0 requested to borrow
         // amount of token1 requested to borrow

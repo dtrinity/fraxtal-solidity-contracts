@@ -18,7 +18,7 @@
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
-import {IPriceOracleGetter} from "../../lending/core/interfaces/IPriceOracleGetter.sol";
+import { IPriceOracleGetter } from "../../lending/core/interfaces/IPriceOracleGetter.sol";
 
 contract MockStaticOracleWrapper is IPriceOracleGetter {
     address public immutable BASE_CURRENCY;

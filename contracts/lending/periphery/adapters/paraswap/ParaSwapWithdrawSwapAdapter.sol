@@ -17,19 +17,16 @@
 
 pragma solidity ^0.8.10;
 
-import {IERC20Detailed} from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
-import {IERC20WithPermit} from "contracts/lending/core/interfaces/IERC20WithPermit.sol";
-import {IPoolAddressesProvider} from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
-import {BaseParaSwapSellAdapter} from "./BaseParaSwapSellAdapter.sol";
-import {IParaSwapAugustusRegistry} from "./interfaces/IParaSwapAugustusRegistry.sol";
-import {SafeERC20} from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeERC20.sol";
-import {IParaSwapAugustus} from "./interfaces/IParaSwapAugustus.sol";
-import {ReentrancyGuard} from "../../dependencies/openzeppelin/ReentrancyGuard.sol";
+import { IERC20Detailed } from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import { IERC20WithPermit } from "contracts/lending/core/interfaces/IERC20WithPermit.sol";
+import { IPoolAddressesProvider } from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
+import { BaseParaSwapSellAdapter } from "./BaseParaSwapSellAdapter.sol";
+import { IParaSwapAugustusRegistry } from "./interfaces/IParaSwapAugustusRegistry.sol";
+import { SafeERC20 } from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeERC20.sol";
+import { IParaSwapAugustus } from "./interfaces/IParaSwapAugustus.sol";
+import { ReentrancyGuard } from "../../dependencies/openzeppelin/ReentrancyGuard.sol";
 
-contract ParaSwapWithdrawSwapAdapter is
-    BaseParaSwapSellAdapter,
-    ReentrancyGuard
-{
+contract ParaSwapWithdrawSwapAdapter is BaseParaSwapSellAdapter, ReentrancyGuard {
     using SafeERC20 for IERC20Detailed;
 
     constructor(
@@ -72,9 +69,7 @@ contract ParaSwapWithdrawSwapAdapter is
         IParaSwapAugustus augustus,
         PermitSignature calldata permitParams
     ) external nonReentrant {
-        IERC20WithPermit aToken = IERC20WithPermit(
-            _getReserveData(address(assetToSwapFrom)).aTokenAddress
-        );
+        IERC20WithPermit aToken = IERC20WithPermit(_getReserveData(address(assetToSwapFrom)).aTokenAddress);
 
         if (swapAllBalanceOffset != 0) {
             uint256 balance = aToken.balanceOf(msg.sender);
@@ -82,13 +77,7 @@ contract ParaSwapWithdrawSwapAdapter is
             amountToSwap = balance;
         }
 
-        _pullATokenAndWithdraw(
-            address(assetToSwapFrom),
-            aToken,
-            msg.sender,
-            amountToSwap,
-            permitParams
-        );
+        _pullATokenAndWithdraw(address(assetToSwapFrom), aToken, msg.sender, amountToSwap, permitParams);
 
         uint256 amountReceived = _sellOnParaSwap(
             swapAllBalanceOffset,

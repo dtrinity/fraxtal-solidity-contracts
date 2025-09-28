@@ -50,11 +50,7 @@ contract TickOverflowSafetyEchidnaTest {
         totalGrowth1 += amount;
     }
 
-    function setPosition(
-        int24 tickLower,
-        int24 tickUpper,
-        int128 liquidityDelta
-    ) external {
+    function setPosition(int24 tickLower, int24 tickUpper, int128 liquidityDelta) external {
         require(tickLower > MIN_TICK);
         require(tickUpper < MAX_TICK);
         require(tickLower < tickUpper);
@@ -113,25 +109,11 @@ contract TickOverflowSafetyEchidnaTest {
         while (tick != target) {
             if (tick < target) {
                 if (ticks[tick + 1].liquidityGross > 0)
-                    ticks.cross(
-                        tick + 1,
-                        feeGrowthGlobal0X128,
-                        feeGrowthGlobal1X128,
-                        0,
-                        0,
-                        uint32(block.timestamp)
-                    );
+                    ticks.cross(tick + 1, feeGrowthGlobal0X128, feeGrowthGlobal1X128, 0, 0, uint32(block.timestamp));
                 tick++;
             } else {
                 if (ticks[tick].liquidityGross > 0)
-                    ticks.cross(
-                        tick,
-                        feeGrowthGlobal0X128,
-                        feeGrowthGlobal1X128,
-                        0,
-                        0,
-                        uint32(block.timestamp)
-                    );
+                    ticks.cross(tick, feeGrowthGlobal0X128, feeGrowthGlobal1X128, 0, 0, uint32(block.timestamp));
                 tick--;
             }
         }

@@ -22,11 +22,7 @@ import "../libraries/SqrtPriceMath.sol";
 import "../libraries/FixedPoint96.sol";
 
 contract SqrtPriceMathEchidnaTest {
-    function mulDivRoundingUpInvariants(
-        uint256 x,
-        uint256 y,
-        uint256 z
-    ) external pure {
+    function mulDivRoundingUpInvariants(uint256 x, uint256 y, uint256 z) external pure {
         require(z > 0);
         uint256 notRoundedUp = FullMath.mulDiv(x, y, z);
         uint256 roundedUp = FullMath.mulDivRoundingUp(x, y, z);
@@ -45,25 +41,14 @@ contract SqrtPriceMathEchidnaTest {
         uint256 amountIn,
         bool zeroForOne
     ) external pure {
-        uint160 sqrtQ = SqrtPriceMath.getNextSqrtPriceFromInput(
-            sqrtP,
-            liquidity,
-            amountIn,
-            zeroForOne
-        );
+        uint160 sqrtQ = SqrtPriceMath.getNextSqrtPriceFromInput(sqrtP, liquidity, amountIn, zeroForOne);
 
         if (zeroForOne) {
             assert(sqrtQ <= sqrtP);
-            assert(
-                amountIn >=
-                    SqrtPriceMath.getAmount0Delta(sqrtQ, sqrtP, liquidity, true)
-            );
+            assert(amountIn >= SqrtPriceMath.getAmount0Delta(sqrtQ, sqrtP, liquidity, true));
         } else {
             assert(sqrtQ >= sqrtP);
-            assert(
-                amountIn >=
-                    SqrtPriceMath.getAmount1Delta(sqrtP, sqrtQ, liquidity, true)
-            );
+            assert(amountIn >= SqrtPriceMath.getAmount1Delta(sqrtP, sqrtQ, liquidity, true));
         }
     }
 
@@ -73,36 +58,15 @@ contract SqrtPriceMathEchidnaTest {
         uint256 amountOut,
         bool zeroForOne
     ) external pure {
-        uint160 sqrtQ = SqrtPriceMath.getNextSqrtPriceFromOutput(
-            sqrtP,
-            liquidity,
-            amountOut,
-            zeroForOne
-        );
+        uint160 sqrtQ = SqrtPriceMath.getNextSqrtPriceFromOutput(sqrtP, liquidity, amountOut, zeroForOne);
 
         if (zeroForOne) {
             assert(sqrtQ <= sqrtP);
-            assert(
-                amountOut <=
-                    SqrtPriceMath.getAmount1Delta(
-                        sqrtQ,
-                        sqrtP,
-                        liquidity,
-                        false
-                    )
-            );
+            assert(amountOut <= SqrtPriceMath.getAmount1Delta(sqrtQ, sqrtP, liquidity, false));
         } else {
             assert(sqrtQ > 0); // this has to be true, otherwise we need another require
             assert(sqrtQ >= sqrtP);
-            assert(
-                amountOut <=
-                    SqrtPriceMath.getAmount0Delta(
-                        sqrtP,
-                        sqrtQ,
-                        liquidity,
-                        false
-                    )
-            );
+            assert(amountOut <= SqrtPriceMath.getAmount0Delta(sqrtP, sqrtQ, liquidity, false));
         }
     }
 
@@ -114,12 +78,7 @@ contract SqrtPriceMathEchidnaTest {
     ) external pure {
         require(sqrtPX96 > 0);
         require(liquidity > 0);
-        uint160 sqrtQX96 = SqrtPriceMath.getNextSqrtPriceFromAmount0RoundingUp(
-            sqrtPX96,
-            liquidity,
-            amount,
-            add
-        );
+        uint160 sqrtQX96 = SqrtPriceMath.getNextSqrtPriceFromAmount0RoundingUp(sqrtPX96, liquidity, amount, add);
 
         if (add) {
             assert(sqrtQX96 <= sqrtPX96);
@@ -140,13 +99,7 @@ contract SqrtPriceMathEchidnaTest {
     ) external pure {
         require(sqrtPX96 > 0);
         require(liquidity > 0);
-        uint160 sqrtQX96 = SqrtPriceMath
-            .getNextSqrtPriceFromAmount1RoundingDown(
-                sqrtPX96,
-                liquidity,
-                amount,
-                add
-            );
+        uint160 sqrtQX96 = SqrtPriceMath.getNextSqrtPriceFromAmount1RoundingDown(sqrtPX96, liquidity, amount, add);
 
         if (add) {
             assert(sqrtQX96 >= sqrtPX96);
@@ -159,34 +112,14 @@ contract SqrtPriceMathEchidnaTest {
         }
     }
 
-    function getAmount0DeltaInvariants(
-        uint160 sqrtP,
-        uint160 sqrtQ,
-        uint128 liquidity
-    ) external pure {
+    function getAmount0DeltaInvariants(uint160 sqrtP, uint160 sqrtQ, uint128 liquidity) external pure {
         require(sqrtP > 0 && sqrtQ > 0);
 
-        uint256 amount0Down = SqrtPriceMath.getAmount0Delta(
-            sqrtQ,
-            sqrtP,
-            liquidity,
-            false
-        );
-        assert(
-            amount0Down ==
-                SqrtPriceMath.getAmount0Delta(sqrtP, sqrtQ, liquidity, false)
-        );
+        uint256 amount0Down = SqrtPriceMath.getAmount0Delta(sqrtQ, sqrtP, liquidity, false);
+        assert(amount0Down == SqrtPriceMath.getAmount0Delta(sqrtP, sqrtQ, liquidity, false));
 
-        uint256 amount0Up = SqrtPriceMath.getAmount0Delta(
-            sqrtQ,
-            sqrtP,
-            liquidity,
-            true
-        );
-        assert(
-            amount0Up ==
-                SqrtPriceMath.getAmount0Delta(sqrtP, sqrtQ, liquidity, true)
-        );
+        uint256 amount0Up = SqrtPriceMath.getAmount0Delta(sqrtQ, sqrtP, liquidity, true);
+        assert(amount0Up == SqrtPriceMath.getAmount0Delta(sqrtP, sqrtQ, liquidity, true));
 
         assert(amount0Down <= amount0Up);
         // diff is 0 or 1
@@ -195,12 +128,7 @@ contract SqrtPriceMathEchidnaTest {
 
     // ensure that chained division is always equal to the full-precision case for
     // liquidity * (sqrt(P) - sqrt(Q)) / (sqrt(P) * sqrt(Q))
-    function getAmount0DeltaEquivalency(
-        uint160 sqrtP,
-        uint160 sqrtQ,
-        uint128 liquidity,
-        bool roundUp
-    ) external pure {
+    function getAmount0DeltaEquivalency(uint160 sqrtP, uint160 sqrtQ, uint128 liquidity, bool roundUp) external pure {
         require(sqrtP >= sqrtQ);
         require(sqrtP > 0 && sqrtQ > 0);
         require((sqrtP * sqrtQ) / sqrtP == sqrtQ);
@@ -212,55 +140,26 @@ contract SqrtPriceMathEchidnaTest {
         uint256 safeResult = roundUp
             ? FullMath.mulDivRoundingUp(numerator1, numerator2, denominator)
             : FullMath.mulDiv(numerator1, numerator2, denominator);
-        uint256 fullResult = SqrtPriceMath.getAmount0Delta(
-            sqrtQ,
-            sqrtP,
-            liquidity,
-            roundUp
-        );
+        uint256 fullResult = SqrtPriceMath.getAmount0Delta(sqrtQ, sqrtP, liquidity, roundUp);
 
         assert(safeResult == fullResult);
     }
 
-    function getAmount1DeltaInvariants(
-        uint160 sqrtP,
-        uint160 sqrtQ,
-        uint128 liquidity
-    ) external pure {
+    function getAmount1DeltaInvariants(uint160 sqrtP, uint160 sqrtQ, uint128 liquidity) external pure {
         require(sqrtP > 0 && sqrtQ > 0);
 
-        uint256 amount1Down = SqrtPriceMath.getAmount1Delta(
-            sqrtP,
-            sqrtQ,
-            liquidity,
-            false
-        );
-        assert(
-            amount1Down ==
-                SqrtPriceMath.getAmount1Delta(sqrtQ, sqrtP, liquidity, false)
-        );
+        uint256 amount1Down = SqrtPriceMath.getAmount1Delta(sqrtP, sqrtQ, liquidity, false);
+        assert(amount1Down == SqrtPriceMath.getAmount1Delta(sqrtQ, sqrtP, liquidity, false));
 
-        uint256 amount1Up = SqrtPriceMath.getAmount1Delta(
-            sqrtP,
-            sqrtQ,
-            liquidity,
-            true
-        );
-        assert(
-            amount1Up ==
-                SqrtPriceMath.getAmount1Delta(sqrtQ, sqrtP, liquidity, true)
-        );
+        uint256 amount1Up = SqrtPriceMath.getAmount1Delta(sqrtP, sqrtQ, liquidity, true);
+        assert(amount1Up == SqrtPriceMath.getAmount1Delta(sqrtQ, sqrtP, liquidity, true));
 
         assert(amount1Down <= amount1Up);
         // diff is 0 or 1
         assert(amount1Up - amount1Down < 2);
     }
 
-    function getAmount0DeltaSignedInvariants(
-        uint160 sqrtP,
-        uint160 sqrtQ,
-        int128 liquidity
-    ) external pure {
+    function getAmount0DeltaSignedInvariants(uint160 sqrtP, uint160 sqrtQ, int128 liquidity) external pure {
         require(sqrtP > 0 && sqrtQ > 0);
 
         int256 amount0 = SqrtPriceMath.getAmount0Delta(sqrtQ, sqrtP, liquidity);
@@ -272,11 +171,7 @@ contract SqrtPriceMathEchidnaTest {
         if (liquidity == 0) assert(amount0 == 0);
     }
 
-    function getAmount1DeltaSignedInvariants(
-        uint160 sqrtP,
-        uint160 sqrtQ,
-        int128 liquidity
-    ) external pure {
+    function getAmount1DeltaSignedInvariants(uint160 sqrtP, uint160 sqrtQ, int128 liquidity) external pure {
         require(sqrtP > 0 && sqrtQ > 0);
 
         int256 amount1 = SqrtPriceMath.getAmount1Delta(sqrtP, sqrtQ, liquidity);
@@ -288,11 +183,7 @@ contract SqrtPriceMathEchidnaTest {
         if (liquidity == 0) assert(amount1 == 0);
     }
 
-    function getOutOfRangeMintInvariants(
-        uint160 sqrtA,
-        uint160 sqrtB,
-        int128 liquidity
-    ) external pure {
+    function getOutOfRangeMintInvariants(uint160 sqrtA, uint160 sqrtB, int128 liquidity) external pure {
         require(sqrtA > 0 && sqrtB > 0);
         require(liquidity > 0);
 
@@ -319,16 +210,8 @@ contract SqrtPriceMathEchidnaTest {
         require(sqrtLower <= sqrtCurrent && sqrtCurrent <= sqrtUpper);
         require(liquidity > 0);
 
-        int256 amount0 = SqrtPriceMath.getAmount0Delta(
-            sqrtCurrent,
-            sqrtUpper,
-            liquidity
-        );
-        int256 amount1 = SqrtPriceMath.getAmount1Delta(
-            sqrtLower,
-            sqrtCurrent,
-            liquidity
-        );
+        int256 amount0 = SqrtPriceMath.getAmount0Delta(sqrtCurrent, sqrtUpper, liquidity);
+        int256 amount1 = SqrtPriceMath.getAmount1Delta(sqrtLower, sqrtCurrent, liquidity);
 
         assert(amount0 > 0 || amount1 > 0);
     }

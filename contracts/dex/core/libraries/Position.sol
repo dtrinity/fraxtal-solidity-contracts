@@ -49,9 +49,7 @@ library Position {
         int24 tickLower,
         int24 tickUpper
     ) internal view returns (Position.Info storage position) {
-        position = self[
-            keccak256(abi.encodePacked(owner, tickLower, tickUpper))
-        ];
+        position = self[keccak256(abi.encodePacked(owner, tickLower, tickUpper))];
     }
 
     /// @notice Credits accumulated fees to a user's position
@@ -72,26 +70,15 @@ library Position {
             require(_self.liquidity > 0, "NP"); // disallow pokes for 0 liquidity positions
             liquidityNext = _self.liquidity;
         } else {
-            liquidityNext = LiquidityMath.addDelta(
-                _self.liquidity,
-                liquidityDelta
-            );
+            liquidityNext = LiquidityMath.addDelta(_self.liquidity, liquidityDelta);
         }
 
         // calculate accumulated fees
         uint128 tokensOwed0 = uint128(
-            FullMath.mulDiv(
-                feeGrowthInside0X128 - _self.feeGrowthInside0LastX128,
-                _self.liquidity,
-                FixedPoint128.Q128
-            )
+            FullMath.mulDiv(feeGrowthInside0X128 - _self.feeGrowthInside0LastX128, _self.liquidity, FixedPoint128.Q128)
         );
         uint128 tokensOwed1 = uint128(
-            FullMath.mulDiv(
-                feeGrowthInside1X128 - _self.feeGrowthInside1LastX128,
-                _self.liquidity,
-                FixedPoint128.Q128
-            )
+            FullMath.mulDiv(feeGrowthInside1X128 - _self.feeGrowthInside1LastX128, _self.liquidity, FixedPoint128.Q128)
         );
 
         // update the position

@@ -16,9 +16,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { dexDeployer } = await hre.getNamedAccounts();
 
-  const { address: staticOracleWrapperAddress } = await hre.deployments.get(
-    UNISWAP_STATIC_ORACLE_WRAPPER_ID,
-  );
+  const { address: staticOracleWrapperAddress } = await hre.deployments.get(UNISWAP_STATIC_ORACLE_WRAPPER_ID);
 
   await deployContract(
     hre,
@@ -31,9 +29,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // Get DexOracleWrapper contract
-  const dexOracleWrapperDeployedResult = await hre.deployments.get(
-    DEX_ORACLE_WRAPPER_ID,
-  );
+  const dexOracleWrapperDeployedResult = await hre.deployments.get(DEX_ORACLE_WRAPPER_ID);
   const dexOracleWrapperContract = await hre.ethers.getContractAt(
     "DexOracleWrapper",
     dexOracleWrapperDeployedResult.address,
@@ -43,14 +39,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // Make sure the decimals are consistent
   const baseUnit = await dexOracleWrapperContract.BASE_CURRENCY_UNIT();
   const config = await getConfig(hre);
-  const configPriceDecimals = BigNumber.from(
-    config.oracleAggregator.priceDecimals,
-  ).toBigInt();
+  const configPriceDecimals = BigNumber.from(config.oracleAggregator.priceDecimals).toBigInt();
 
   if (baseUnit !== BigInt(10) ** BigInt(configPriceDecimals)) {
-    throw new Error(
-      `The price decimals are not consistent: ${baseUnit} !== ${configPriceDecimals}`,
-    );
+    throw new Error(`The price decimals are not consistent: ${baseUnit} !== ${configPriceDecimals}`);
   }
 
   // Return true to indicate the success of the script

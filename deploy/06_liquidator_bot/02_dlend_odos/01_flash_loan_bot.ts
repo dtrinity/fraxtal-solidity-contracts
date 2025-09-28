@@ -23,12 +23,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     return false;
   }
 
-  const { address: lendingPoolAddressesProviderAddress } =
-    await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
+  const { address: lendingPoolAddressesProviderAddress } = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
 
-  const addressProviderDeployedResult = await hre.deployments.get(
-    POOL_ADDRESSES_PROVIDER_ID,
-  );
+  const addressProviderDeployedResult = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
   const addressProviderContract = await hre.ethers.getContractAt(
     "PoolAddressesProvider",
     addressProviderDeployedResult.address,
@@ -57,9 +54,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // Set the proxy contract
-  const flashLoanLiquidatorBotDeployedResult = await hre.deployments.get(
-    FLASH_LOAN_LIQUIDATOR_ODOS_ID,
-  );
+  const flashLoanLiquidatorBotDeployedResult = await hre.deployments.get(FLASH_LOAN_LIQUIDATOR_ODOS_ID);
   const flashLoanLiquidatorBotContract = await hre.ethers.getContractAt(
     "FlashLoanLiquidatorAaveBorrowRepayOdos",
     flashLoanLiquidatorBotDeployedResult.address,
@@ -68,13 +63,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Set proxy contracts if they exist in config
   if (config.liquidatorBotOdos?.proxyContractMap) {
-    for (const [token, proxyContract] of Object.entries(
-      config.liquidatorBotOdos.proxyContractMap,
-    )) {
-      await flashLoanLiquidatorBotContract.setProxyContract(
-        token,
-        proxyContract,
-      );
+    for (const [token, proxyContract] of Object.entries(config.liquidatorBotOdos.proxyContractMap)) {
+      await flashLoanLiquidatorBotContract.setProxyContract(token, proxyContract);
     }
   }
 

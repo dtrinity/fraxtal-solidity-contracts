@@ -16,13 +16,8 @@ import { parseUnitsFromToken } from "./utils";
 
 const setupDSwapAdapter = async (): Promise<DSwapWithdrawSwapAdapter> => {
   await standardUniswapV3DEXLBPLiquidityFixture();
-  const { lendingDeployer, addressesProvider, swapRouter } =
-    await loadTestEnv();
-  return await deployDSwapWithdrawSwapAdapter(
-    await addressesProvider.getAddress(),
-    swapRouter.address,
-    lendingDeployer,
-  );
+  const { lendingDeployer, addressesProvider, swapRouter } = await loadTestEnv();
+  return await deployDSwapWithdrawSwapAdapter(await addressesProvider.getAddress(), swapRouter.address, lendingDeployer);
 };
 
 let dswapWithdrawSwapAdapter: DSwapWithdrawSwapAdapter;
@@ -34,28 +29,17 @@ describe("DSwapWithdrawSwapAdapter", () => {
       const { users, sfrax } = await loadTestEnv();
       const userAddress = users[0].address;
       // Make a deposit for user
-      const sfraxAmount = await parseUnitsFromToken(
-        await sfrax.getAddress(),
-        "100",
-      );
+      const sfraxAmount = await parseUnitsFromToken(await sfrax.getAddress(), "100");
       await sfrax.mint(userAddress, sfraxAmount);
-      await depositCollateralWithApproval(
-        userAddress,
-        await sfrax.getAddress(),
-        100,
-      );
+      await depositCollateralWithApproval(userAddress, await sfrax.getAddress(), 100);
     });
 
     it("should correctly withdraw and swap", async () => {
-      const { users, sfrax, oracle, dusd, aSFRAX, fxs, swapPoolFee } =
-        await loadTestEnv();
+      const { users, sfrax, oracle, dusd, aSFRAX, fxs, swapPoolFee } = await loadTestEnv();
       const user = users[0];
       const userAddress = user.address;
 
-      const amountToSwap = await parseUnitsFromToken(
-        await sfrax.getAddress(),
-        "10",
-      );
+      const amountToSwap = await parseUnitsFromToken(await sfrax.getAddress(), "10");
 
       const sfraxPrice = await oracle.getAssetPrice(await sfrax.getAddress());
       const fxsPrice = await oracle.getAssetPrice(await fxs.getAddress());
@@ -72,65 +56,36 @@ describe("DSwapWithdrawSwapAdapter", () => {
 
       const userFxsBalanceBefore = await fxs.balanceOf(userAddress);
       const userASFRAXBalanceBefore = await aSFRAX.balanceOf(userAddress);
-      await aSFRAX
-        .connect(user)
-        .approve(await dswapWithdrawSwapAdapter.getAddress(), amountToSwap);
+      await aSFRAX.connect(user).approve(await dswapWithdrawSwapAdapter.getAddress(), amountToSwap);
 
       const path = solidityPacked(
         ["address", "uint24", "address", "uint24", "address"],
-        [
-          await sfrax.getAddress(),
-          swapPoolFee,
-          await dusd.getAddress(),
-          swapPoolFee,
-          await fxs.getAddress(),
-        ],
+        [await sfrax.getAddress(), swapPoolFee, await dusd.getAddress(), swapPoolFee, await fxs.getAddress()],
       );
 
       await expect(
         dswapWithdrawSwapAdapter
           .connect(user)
-          .withdrawAndSwap(
-            await sfrax.getAddress(),
-            await fxs.getAddress(),
-            amountToSwap,
-            minimumFxsAmountToRecieve,
-            0,
-            path,
-            {
-              amount: 0,
-              deadline: 0,
-              v: 0,
-              r: "0x0000000000000000000000000000000000000000000000000000000000000000",
-              s: "0x0000000000000000000000000000000000000000000000000000000000000000",
-            },
-          ),
+          .withdrawAndSwap(await sfrax.getAddress(), await fxs.getAddress(), amountToSwap, minimumFxsAmountToRecieve, 0, path, {
+            amount: 0,
+            deadline: 0,
+            v: 0,
+            r: "0x0000000000000000000000000000000000000000000000000000000000000000",
+            s: "0x0000000000000000000000000000000000000000000000000000000000000000",
+          }),
       )
         .to.emit(dswapWithdrawSwapAdapter, "Swapped")
-        .withArgs(
-          await sfrax.getAddress(),
-          await fxs.getAddress(),
-          amountToSwap,
-          (value: bigint) => value >= minimumFxsAmountToRecieve,
-        );
+        .withArgs(await sfrax.getAddress(), await fxs.getAddress(), amountToSwap, (value: bigint) => value >= minimumFxsAmountToRecieve);
 
-      const adapterSfraxBalance = await sfrax.balanceOf(
-        await dswapWithdrawSwapAdapter.getAddress(),
-      );
-      const adapterFxsBalance = await fxs.balanceOf(
-        await dswapWithdrawSwapAdapter.getAddress(),
-      );
+      const adapterSfraxBalance = await sfrax.balanceOf(await dswapWithdrawSwapAdapter.getAddress());
+      const adapterFxsBalance = await fxs.balanceOf(await dswapWithdrawSwapAdapter.getAddress());
       const userFxsBalance = await fxs.balanceOf(userAddress);
       const userASFRAXBalance = await aSFRAX.balanceOf(userAddress);
 
       expect(adapterSfraxBalance).to.be.eq("0");
       expect(adapterFxsBalance).to.be.eq("0");
-      expect(userFxsBalance - userFxsBalanceBefore).to.be.greaterThanOrEqual(
-        minimumFxsAmountToRecieve,
-      );
-      expect(userASFRAXBalance).to.be.eq(
-        userASFRAXBalanceBefore - amountToSwap,
-      );
+      expect(userFxsBalance - userFxsBalanceBefore).to.be.greaterThanOrEqual(minimumFxsAmountToRecieve);
+      expect(userASFRAXBalance).to.be.eq(userASFRAXBalanceBefore - amountToSwap);
     });
   });
 });
@@ -149,9 +104,5 @@ async function deployDSwapWithdrawSwapAdapter(
   owner: tEthereumAddress,
 ): Promise<DSwapWithdrawSwapAdapter> {
   const signer = await hre.ethers.getSigner(owner);
-  return await new DSwapWithdrawSwapAdapter__factory(signer).deploy(
-    poolAddressesProvider,
-    router,
-    owner,
-  );
+  return await new DSwapWithdrawSwapAdapter__factory(signer).deploy(poolAddressesProvider, router, owner);
 }

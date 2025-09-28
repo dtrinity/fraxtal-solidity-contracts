@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.15;
 
-import {ERC20} from "solmate/src/tokens/ERC20.sol";
+import { ERC20 } from "solmate/src/tokens/ERC20.sol";
 
 contract MockLooksRareRewardsDistributor {
     address public immutable routerRewardsDistributor;
@@ -29,9 +29,6 @@ contract MockLooksRareRewardsDistributor {
     }
 
     fallback() external {
-        looksRareToken.transfer(
-            routerRewardsDistributor,
-            looksRareToken.balanceOf(address(this))
-        );
+        looksRareToken.transfer(routerRewardsDistributor, looksRareToken.balanceOf(address(this)));
     }
 }

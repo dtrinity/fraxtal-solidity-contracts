@@ -2,14 +2,8 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 import { deployContract } from "../../utils/deploy";
-import {
-  LENDING_CORE_VERSION,
-  MARKET_NAME,
-} from "../../utils/lending/constants";
-import {
-  DLEND_BALANCE_CHECKER_ID,
-  POOL_ADDRESSES_PROVIDER_ID,
-} from "../../utils/lending/deploy-ids";
+import { LENDING_CORE_VERSION, MARKET_NAME } from "../../utils/lending/constants";
+import { DLEND_BALANCE_CHECKER_ID, POOL_ADDRESSES_PROVIDER_ID } from "../../utils/lending/deploy-ids";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre;
@@ -17,10 +11,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Get PoolAddressesProvider from deployments
   const addressesProvider = await deployments.get(POOL_ADDRESSES_PROVIDER_ID);
-  const addressesProviderInstance = await hre.ethers.getContractAt(
-    "PoolAddressesProvider",
-    addressesProvider.address,
-  );
+  const addressesProviderInstance = await hre.ethers.getContractAt("PoolAddressesProvider", addressesProvider.address);
 
   const poolAddress = await addressesProviderInstance.getPool();
 

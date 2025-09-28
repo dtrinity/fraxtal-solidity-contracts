@@ -1,15 +1,11 @@
 // USD Oracles
 export const USD_ORACLE_AGGREGATOR_ID = "USD_OracleAggregator";
 export const USD_API3_ORACLE_WRAPPER_ID = "USD_API3Wrapper";
-export const USD_API3_WRAPPER_WITH_THRESHOLDING_ID =
-  "USD_API3WrapperWithThresholding";
-export const USD_API3_COMPOSITE_WRAPPER_WITH_THRESHOLDING_ID =
-  "USD_API3CompositeWrapperWithThresholding";
+export const USD_API3_WRAPPER_WITH_THRESHOLDING_ID = "USD_API3WrapperWithThresholding";
+export const USD_API3_COMPOSITE_WRAPPER_WITH_THRESHOLDING_ID = "USD_API3CompositeWrapperWithThresholding";
 export const USD_REDSTONE_ORACLE_WRAPPER_ID = "USD_RedstoneChainlinkWrapper";
-export const USD_REDSTONE_WRAPPER_WITH_THRESHOLDING_ID =
-  "USD_RedstoneChainlinkWrapperWithThresholding";
-export const USD_REDSTONE_COMPOSITE_WRAPPER_WITH_THRESHOLDING_ID =
-  "USD_RedstoneChainlinkCompositeWrapperWithThresholding";
+export const USD_REDSTONE_WRAPPER_WITH_THRESHOLDING_ID = "USD_RedstoneChainlinkWrapperWithThresholding";
+export const USD_REDSTONE_COMPOSITE_WRAPPER_WITH_THRESHOLDING_ID = "USD_RedstoneChainlinkCompositeWrapperWithThresholding";
 
 // dUSD
 export const dUSD_TOKEN_ID = "dUSD";
@@ -36,8 +32,7 @@ export const STABLE_DEBT_TOKEN_IMPL_ID = "StableDebtTokenImpl";
 export const RATE_STRATEGY_ID = "RateStrategy";
 export const POOL_PROXY_ID = "PoolProxy";
 export const POOL_CONFIGURATOR_PROXY_ID = "PoolConfiguratorProxy";
-export const POOL_ADDRESS_PROVIDER_REGISTRY_ID =
-  "PoolAddressesProviderRegistry";
+export const POOL_ADDRESS_PROVIDER_REGISTRY_ID = "PoolAddressesProviderRegistry";
 export const SUPPLY_LOGIC_ID = "SupplyLogic";
 export const BORROW_LOGIC_ID = "BorrowLogic";
 export const LIQUIDATION_LOGIC_ID = "LiquidationLogic";
@@ -55,8 +50,7 @@ export const EMISSION_MANAGER_ID = "EmissionManager";
 export const INCENTIVES_IMPL_ID = "RewardsController";
 export const INCENTIVES_PROXY_ID = "IncentivesProxy";
 export const PULL_REWARDS_TRANSFER_STRATEGY_ID = "PullRewardsTransferStrategy";
-export const ORACLE_AGGREGATOR_WRAPPER_BASE_ID =
-  "oracle-aggregator-wrapper-base";
+export const ORACLE_AGGREGATOR_WRAPPER_BASE_ID = "oracle-aggregator-wrapper-base";
 
 // dLOOP
 export const DLOOP_CORE_DLEND_ID = "DLoopCoreDLend";
@@ -64,10 +58,8 @@ export const DLOOP_CORE_DLEND_ID = "DLoopCoreDLend";
 /* dLOOP Periphery */
 export const DLOOP_PERIPHERY_ODOS_DEPOSITOR_ID = "DLoopDepositorOdos";
 export const DLOOP_PERIPHERY_ODOS_REDEEMER_ID = "DLoopRedeemerOdos";
-export const DLOOP_PERIPHERY_ODOS_DECREASE_LEVERAGE_ID =
-  "DLoopDecreaseLeverageOdos";
-export const DLOOP_PERIPHERY_ODOS_INCREASE_LEVERAGE_ID =
-  "DLoopIncreaseLeverageOdos";
+export const DLOOP_PERIPHERY_ODOS_DECREASE_LEVERAGE_ID = "DLoopDecreaseLeverageOdos";
+export const DLOOP_PERIPHERY_ODOS_INCREASE_LEVERAGE_ID = "DLoopIncreaseLeverageOdos";
 export const DLOOP_PERIPHERY_ODOS_SWAP_LOGIC_ID = "OdosSwapLogic";
 
 // Wrapped dLEND ATokens
@@ -92,8 +84,7 @@ export const SDUSD_ROUTER_ID = `${DSTAKE_ROUTER_ID_PREFIX}_sdUSD`;
 // SDS (staked dS) constants removed for Fraxtal (dS token not supported)
 
 // dSTAKE adapter IDs
-export const WRAPPED_DLEND_CONVERSION_ADAPTER_ID_PREFIX =
-  "WrappedDLendConversionAdapter";
+export const WRAPPED_DLEND_CONVERSION_ADAPTER_ID_PREFIX = "WrappedDLendConversionAdapter";
 export const SDUSD_WRAPPED_DLEND_CONVERSION_ADAPTER_ID = `${WRAPPED_DLEND_CONVERSION_ADAPTER_ID_PREFIX}_sdUSD`;
 
 // dSTAKE reward manager IDs

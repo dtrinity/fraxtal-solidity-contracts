@@ -22,11 +22,7 @@ import {
   withdrawWithApprovalFromDLoopRaw,
 } from "../utils.dloop";
 import { assertUserLendingSupplyAndDebtBalance } from "../utils.lbp";
-import {
-  assertTokenBalanceFromAddress,
-  fillUpAccountBalance,
-  getTokenContractForSymbol,
-} from "../utils.token";
+import { assertTokenBalanceFromAddress, fillUpAccountBalance, getTokenContractForSymbol } from "../utils.token";
 
 describe("DLoopVaultCurve with Mock Curve", () => {
   let dLoopVaultContract: DLoopVaultBase;
@@ -45,31 +41,14 @@ describe("DLoopVaultCurve with Mock Curve", () => {
 
     ({ testAccount1, dexDeployer } = await getNamedAccounts());
 
-    ({ tokenInfo: underlyingTokenInfo } = await getTokenContractForSymbol(
-      dexDeployer,
-      "SFRAX",
-    ));
+    ({ tokenInfo: underlyingTokenInfo } = await getTokenContractForSymbol(dexDeployer, "SFRAX"));
 
-    ({ tokenInfo: dusdInfo } = await getTokenContractForSymbol(
-      dexDeployer,
-      "dUSD",
-    ));
+    ({ tokenInfo: dusdInfo } = await getTokenContractForSymbol(dexDeployer, "dUSD"));
 
-    dLoopVaultContract = await getDLoopVaultCurveContractFromAddress(
-      hre,
-      underlyingTokenInfo.address,
-      targetLeverageBps,
-      testAccount1,
-    );
+    dLoopVaultContract = await getDLoopVaultCurveContractFromAddress(hre, underlyingTokenInfo.address, targetLeverageBps, testAccount1);
 
-    ({ tokenInfo: underlyingTokenInfo } = await getTokenContractForAddress(
-      testAccount1,
-      underlyingTokenInfo.address,
-    ));
-    ({ tokenInfo: dusdInfo } = await getTokenContractForAddress(
-      testAccount1,
-      dusdInfo.address,
-    ));
+    ({ tokenInfo: underlyingTokenInfo } = await getTokenContractForAddress(testAccount1, underlyingTokenInfo.address));
+    ({ tokenInfo: dusdInfo } = await getTokenContractForAddress(testAccount1, dusdInfo.address));
 
     // Fill up account balances
     await fillUpAccountBalance(testAccount1, underlyingTokenInfo.symbol, 1000);
@@ -79,9 +58,7 @@ describe("DLoopVaultCurve with Mock Curve", () => {
     await setMockStaticOracleWrapperPrice(underlyingTokenInfo.address, 1);
 
     // Set exchange rate for the SFRAX/DUSD pool
-    const mockCurveRouterNgPoolsOnlyV1Deployment = await hre.deployments.get(
-      MOCK_CURVE_ROUTER_NG_POOLS_ONLY_V1_ID,
-    );
+    const mockCurveRouterNgPoolsOnlyV1Deployment = await hre.deployments.get(MOCK_CURVE_ROUTER_NG_POOLS_ONLY_V1_ID);
     const mockCurveRouterNgPoolsOnlyV1Contract = await hre.ethers.getContractAt(
       "MockCurveRouterNgPoolsOnlyV1",
       mockCurveRouterNgPoolsOnlyV1Deployment.address,
@@ -90,18 +67,12 @@ describe("DLoopVaultCurve with Mock Curve", () => {
     await mockCurveRouterNgPoolsOnlyV1Contract.setExchangeRate(
       underlyingTokenInfo.address,
       dusdInfo.address,
-      ethers.parseUnits(
-        "1.0",
-        await mockCurveRouterNgPoolsOnlyV1Contract.priceDecimals(),
-      ),
+      ethers.parseUnits("1.0", await mockCurveRouterNgPoolsOnlyV1Contract.priceDecimals()),
     );
     await mockCurveRouterNgPoolsOnlyV1Contract.setExchangeRate(
       dusdInfo.address,
       underlyingTokenInfo.address,
-      ethers.parseUnits(
-        "1.0",
-        await mockCurveRouterNgPoolsOnlyV1Contract.priceDecimals(),
-      ),
+      ethers.parseUnits("1.0", await mockCurveRouterNgPoolsOnlyV1Contract.priceDecimals()),
     );
 
     // Add some fund to the MockCurveRouterNgPoolsOnlyV1 contract
@@ -116,49 +87,26 @@ describe("DLoopVaultCurve with Mock Curve", () => {
       const dLoopVaultAddress = await dLoopVaultContract.getAddress();
 
       // Check initial state
-      await assertUserLendingSupplyAndDebtBalance(
-        dLoopVaultAddress,
-        underlyingTokenInfo.address,
-        0,
-        dusdInfo.address,
-        0,
-      );
+      await assertUserLendingSupplyAndDebtBalance(dLoopVaultAddress, underlyingTokenInfo.address, 0, dusdInfo.address, 0);
       await assertCurrentLeverageBps(dLoopVaultContract, 0n);
       await assertCheckIsTooImbalanced(dLoopVaultContract, false);
       await assertTotalAssetAndSupply(dLoopVaultContract, 0, 0);
       await assertSharesBalance(testAccount1, dLoopVaultAddress, 0);
 
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingTokenInfo.address,
-        1000,
-      );
+      await assertTokenBalanceFromAddress(testAccount1, underlyingTokenInfo.address, 1000);
 
       // Deposit
-      await depositWithApprovalToDLoopFromTokenAddress(
-        dLoopVaultContract,
-        underlyingTokenInfo.address,
-        testAccount1,
-        depositAmount,
-      );
+      await depositWithApprovalToDLoopFromTokenAddress(dLoopVaultContract, underlyingTokenInfo.address, testAccount1, depositAmount);
 
       // Check post-deposit state
       await assertTotalAssetAndSupply(dLoopVaultContract, 100, 100);
       await assertCurrentLeverageBps(dLoopVaultContract, 3000000n);
       await assertCheckIsTooImbalanced(dLoopVaultContract, false);
       await assertSharesBalance(testAccount1, dLoopVaultAddress, 100);
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingTokenInfo.address,
-        900,
-      );
+      await assertTokenBalanceFromAddress(testAccount1, underlyingTokenInfo.address, 900);
 
       // Withdraw
-      await withdrawWithApprovalFromDLoop(
-        dLoopVaultContract,
-        testAccount1,
-        withdrawAmount,
-      );
+      await withdrawWithApprovalFromDLoop(dLoopVaultContract, testAccount1, withdrawAmount);
 
       // Check post-withdraw state
       await assertTotalAssetAndSupply(dLoopVaultContract, 90, 90);
@@ -176,12 +124,7 @@ describe("DLoopVaultCurve with Mock Curve", () => {
       await assertTotalAssetAndSupply(dLoopVaultContract, 0, 0);
 
       // Initial deposit
-      await depositWithApprovalToDLoopFromTokenAddress(
-        dLoopVaultContract,
-        underlyingTokenInfo.address,
-        testAccount1,
-        depositAmount,
-      );
+      await depositWithApprovalToDLoopFromTokenAddress(dLoopVaultContract, underlyingTokenInfo.address, testAccount1, depositAmount);
 
       // Check post-deposit state
       await assertCurrentLeverageBps(dLoopVaultContract, 3000000n);
@@ -194,114 +137,57 @@ describe("DLoopVaultCurve with Mock Curve", () => {
       // Check imbalanced state
       await assertCurrentLeverageBps(dLoopVaultContract, 9000000n);
       await assertCheckIsTooImbalanced(dLoopVaultContract, true);
-      await assertTotalAssetAndSupply(
-        dLoopVaultContract,
-        33.333333333333336,
-        100,
-      );
+      await assertTotalAssetAndSupply(dLoopVaultContract, 33.333333333333336, 100);
 
       // Attempt deposit when imbalanced
       await expect(
-        depositWithApprovalToDLoopFromTokenAddress(
-          dLoopVaultContract,
-          underlyingTokenInfo.address,
-          testAccount1,
-          depositAmount,
-        ),
+        depositWithApprovalToDLoopFromTokenAddress(dLoopVaultContract, underlyingTokenInfo.address, testAccount1, depositAmount),
       ).to.be.revertedWithCustomError(dLoopVaultContract, "TooImbalanced");
 
       // Attempt withdraw when imbalanced
-      await expect(
-        withdrawWithApprovalFromDLoop(
-          dLoopVaultContract,
-          testAccount1,
-          withdrawAmount,
-        ),
-      ).to.be.revertedWithCustomError(dLoopVaultContract, "TooImbalanced");
+      await expect(withdrawWithApprovalFromDLoop(dLoopVaultContract, testAccount1, withdrawAmount)).to.be.revertedWithCustomError(
+        dLoopVaultContract,
+        "TooImbalanced",
+      );
     });
 
     it("deposit with less than minimum amount should be reverted (inflation attack)", async function () {
       // Deposit very small amount of tokens and expect revert
       await expect(
-        depositWithApprovalToDLoopFromTokenAddressRaw(
-          dLoopVaultContract,
-          underlyingTokenInfo.address,
-          testAccount1,
-          1n,
-        ),
-      ).to.be.revertedWithCustomError(
-        dLoopVaultContract,
-        "UnderlyingAssetLessThanMinimumAmount",
-      );
+        depositWithApprovalToDLoopFromTokenAddressRaw(dLoopVaultContract, underlyingTokenInfo.address, testAccount1, 1n),
+      ).to.be.revertedWithCustomError(dLoopVaultContract, "UnderlyingAssetLessThanMinimumAmount");
 
       // Deposit with a bit more, but still less than minimum amount, expect revert
       await expect(
-        depositWithApprovalToDLoopFromTokenAddressRaw(
-          dLoopVaultContract,
-          underlyingTokenInfo.address,
-          testAccount1,
-          100n,
-        ),
-      ).to.be.revertedWithCustomError(
-        dLoopVaultContract,
-        "UnderlyingAssetLessThanMinimumAmount",
-      );
+        depositWithApprovalToDLoopFromTokenAddressRaw(dLoopVaultContract, underlyingTokenInfo.address, testAccount1, 100n),
+      ).to.be.revertedWithCustomError(dLoopVaultContract, "UnderlyingAssetLessThanMinimumAmount");
     });
 
     it("withdraw with less than minimum amount should be reverted (inflation attack)", async function () {
       // Check initial state
       await assertTotalAssetAndSupply(dLoopVaultContract, 0, 0);
-      await assertSharesBalance(
-        testAccount1,
-        await dLoopVaultContract.getAddress(),
-        0,
-      );
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingTokenInfo.address,
-        1000,
-      );
+      await assertSharesBalance(testAccount1, await dLoopVaultContract.getAddress(), 0);
+      await assertTokenBalanceFromAddress(testAccount1, underlyingTokenInfo.address, 1000);
       await assertTokenBalanceFromAddress(testAccount1, dusdInfo.address, 1000);
 
       // Deposit
-      await depositWithApprovalToDLoopFromTokenAddress(
-        dLoopVaultContract,
-        underlyingTokenInfo.address,
-        testAccount1,
-        100,
-      );
+      await depositWithApprovalToDLoopFromTokenAddress(dLoopVaultContract, underlyingTokenInfo.address, testAccount1, 100);
 
       // Check post-deposit state
       await assertTotalAssetAndSupply(dLoopVaultContract, 100, 100);
       await assertCurrentLeverageBps(dLoopVaultContract, 3000000n);
       await assertCheckIsTooImbalanced(dLoopVaultContract, false);
-      await assertSharesBalance(
-        testAccount1,
-        await dLoopVaultContract.getAddress(),
-        100,
-      );
-      await assertTokenBalanceFromAddress(
-        testAccount1,
-        underlyingTokenInfo.address,
-        900,
-      );
+      await assertSharesBalance(testAccount1, await dLoopVaultContract.getAddress(), 100);
+      await assertTokenBalanceFromAddress(testAccount1, underlyingTokenInfo.address, 900);
 
       // Withdraw very small amount of tokens and expect revert
-      await expect(
-        withdrawWithApprovalFromDLoopRaw(dLoopVaultContract, testAccount1, 1n),
-      ).to.be.revertedWithCustomError(
+      await expect(withdrawWithApprovalFromDLoopRaw(dLoopVaultContract, testAccount1, 1n)).to.be.revertedWithCustomError(
         dLoopVaultContract,
         "SharesLessThanMinimumAmount",
       );
 
       // Withdraw with a bit more, but still less than minimum amount, expect revert
-      await expect(
-        withdrawWithApprovalFromDLoopRaw(
-          dLoopVaultContract,
-          testAccount1,
-          100n,
-        ),
-      ).to.be.revertedWithCustomError(
+      await expect(withdrawWithApprovalFromDLoopRaw(dLoopVaultContract, testAccount1, 100n)).to.be.revertedWithCustomError(
         dLoopVaultContract,
         "SharesLessThanMinimumAmount",
       );
@@ -316,12 +202,7 @@ describe("DLoopVaultCurve with Mock Curve", () => {
       await assertCurrentLeverageBps(dLoopVaultContract, 0n);
 
       // Deposit
-      await depositWithApprovalToDLoopFromTokenAddress(
-        dLoopVaultContract,
-        underlyingTokenInfo.address,
-        testAccount1,
-        100,
-      );
+      await depositWithApprovalToDLoopFromTokenAddress(dLoopVaultContract, underlyingTokenInfo.address, testAccount1, 100);
 
       // Check state after deposit and before withdraw
       await assertOraclePrice(underlyingTokenInfo.address, 1);
@@ -362,16 +243,10 @@ describe("DLoopVaultCurve with Mock Curve", () => {
  * @param tokenAddress - The address of the token to refill
  * @param amount - The amount of tokens to refill
  */
-async function refillMockCurveExchange(
-  hre: HardhatRuntimeEnvironment,
-  tokenAddress: string,
-  amount: string,
-): Promise<void> {
+async function refillMockCurveExchange(hre: HardhatRuntimeEnvironment, tokenAddress: string, amount: string): Promise<void> {
   const { dexDeployer } = await hre.getNamedAccounts();
 
-  const mockCurveRouterNgPoolsOnlyV1Deployment = await hre.deployments.get(
-    MOCK_CURVE_ROUTER_NG_POOLS_ONLY_V1_ID,
-  );
+  const mockCurveRouterNgPoolsOnlyV1Deployment = await hre.deployments.get(MOCK_CURVE_ROUTER_NG_POOLS_ONLY_V1_ID);
   const mockCurveRouterNgPoolsOnlyV1Contract = await hre.ethers.getContractAt(
     "MockCurveRouterNgPoolsOnlyV1",
     mockCurveRouterNgPoolsOnlyV1Deployment.address,
@@ -384,14 +259,8 @@ async function refillMockCurveExchange(
     tokenAddress,
     await hre.ethers.getSigner(dexDeployer),
   );
-  await tokenContract.approve(
-    mockCurveRouterNgPoolsOnlyV1Contract.getAddress(),
-    ethers.parseUnits(amount, await tokenContract.decimals()),
-  );
+  await tokenContract.approve(mockCurveRouterNgPoolsOnlyV1Contract.getAddress(), ethers.parseUnits(amount, await tokenContract.decimals()));
 
   // Add funds to the mock exchange
-  await mockCurveRouterNgPoolsOnlyV1Contract.refillFund(
-    tokenAddress,
-    ethers.parseUnits(amount, await tokenContract.decimals()),
-  );
+  await mockCurveRouterNgPoolsOnlyV1Contract.refillFund(tokenAddress, ethers.parseUnits(amount, await tokenContract.decimals()));
 }

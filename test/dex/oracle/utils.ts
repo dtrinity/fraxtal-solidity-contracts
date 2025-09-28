@@ -2,12 +2,7 @@ import chai from "chai";
 import hre from "hardhat";
 
 import { MintConfig } from "../../../config/types";
-import {
-  ERC20Test,
-  StaticOracle,
-  StaticOracleWrapper,
-  UniswapV3Factory,
-} from "../../../typechain-types";
+import { ERC20Test, StaticOracle, StaticOracleWrapper, UniswapV3Factory } from "../../../typechain-types";
 import { AAVE_ORACLE_USD_DECIMALS } from "../../../utils/constants";
 import { deployContract } from "../../../utils/deploy";
 import { deployTokensDefault } from "../../../utils/token";
@@ -33,11 +28,7 @@ export async function deployDEXFactory(): Promise<UniswapV3Factory> {
     deployer,
   );
 
-  const resContract = await hre.ethers.getContractAt(
-    "UniswapV3Factory",
-    res.address,
-    deployer,
-  );
+  const resContract = await hre.ethers.getContractAt("UniswapV3Factory", res.address, deployer);
   chai.assert.isDefined(await resContract.getAddress());
   chai.assert.isNotEmpty(await resContract.getAddress());
   return resContract;
@@ -49,9 +40,7 @@ export async function deployDEXFactory(): Promise<UniswapV3Factory> {
  * @param dexFactoryAddress - The address of the DEX factory contract
  * @returns The deployed contract
  */
-export async function deployOracle(
-  dexFactoryAddress: string,
-): Promise<StaticOracle> {
+export async function deployOracle(dexFactoryAddress: string): Promise<StaticOracle> {
   const { dexDeployer } = await hre.getNamedAccounts();
   const deployer = await hre.ethers.getSigner(dexDeployer);
 
@@ -62,20 +51,10 @@ export async function deployOracle(
     undefined, // auto-filling gas limit
     deployer,
   );
-  const oracleContract = await hre.ethers.getContractAt(
-    "StaticOracle",
-    deployedResult.address,
-    deployer,
-  );
-  chai
-    .expect(await oracleContract.UNISWAP_V3_FACTORY())
-    .to.equal(dexFactoryAddress);
-  chai
-    .expect(await oracleContract.CARDINALITY_PER_MINUTE())
-    .to.equal(CARDINALITY_PER_MINUTE);
-  chai
-    .expect(await oracleContract.supportedFeeTiers())
-    .to.deep.equal(BASE_KNOWN_FEE_TIERS);
+  const oracleContract = await hre.ethers.getContractAt("StaticOracle", deployedResult.address, deployer);
+  chai.expect(await oracleContract.UNISWAP_V3_FACTORY()).to.equal(dexFactoryAddress);
+  chai.expect(await oracleContract.CARDINALITY_PER_MINUTE()).to.equal(CARDINALITY_PER_MINUTE);
+  chai.expect(await oracleContract.supportedFeeTiers()).to.deep.equal(BASE_KNOWN_FEE_TIERS);
 
   return oracleContract;
 }
@@ -113,19 +92,11 @@ export async function deployOracleWrapper(
     undefined, // auto-filling gas limit
     deployer,
   );
-  const oracleWrapperContract = await hre.ethers.getContractAt(
-    "StaticOracleWrapper",
-    deployedResult.address,
-    deployer,
-  );
-  chai
-    .expect(await oracleWrapperContract.BASE_CURRENCY())
-    .to.equal(baseTokenAddress);
+  const oracleWrapperContract = await hre.ethers.getContractAt("StaticOracleWrapper", deployedResult.address, deployer);
+  chai.expect(await oracleWrapperContract.BASE_CURRENCY()).to.equal(baseTokenAddress);
 
   const priceUnit = 10 ** AAVE_ORACLE_USD_DECIMALS;
-  chai
-    .expect(await oracleWrapperContract.BASE_CURRENCY_UNIT())
-    .to.equal(BigInt(priceUnit));
+  chai.expect(await oracleWrapperContract.BASE_CURRENCY_UNIT()).to.equal(BigInt(priceUnit));
 
   return oracleWrapperContract;
 }
@@ -135,9 +106,7 @@ export async function deployOracleWrapper(
  *
  * @returns The deployed token contracts
  */
-export async function deployTestTokens(mintInfos: {
-  [tokenSymbol: string]: MintConfig[];
-}): Promise<{
+export async function deployTestTokens(mintInfos: { [tokenSymbol: string]: MintConfig[] }): Promise<{
   Token1: ERC20Test;
   Token2: ERC20Test;
   Token3: ERC20Test;
@@ -152,17 +121,8 @@ export async function deployTestTokens(mintInfos: {
   chai.assert.isDefined(res.Tokens.Token3.address);
 
   return {
-    Token1: await hre.ethers.getContractAt(
-      "ERC20Test",
-      res.Tokens.Token1.address,
-    ),
-    Token2: await hre.ethers.getContractAt(
-      "ERC20Test",
-      res.Tokens.Token2.address,
-    ),
-    Token3: await hre.ethers.getContractAt(
-      "ERC20Test",
-      res.Tokens.Token3.address,
-    ),
+    Token1: await hre.ethers.getContractAt("ERC20Test", res.Tokens.Token1.address),
+    Token2: await hre.ethers.getContractAt("ERC20Test", res.Tokens.Token2.address),
+    Token3: await hre.ethers.getContractAt("ERC20Test", res.Tokens.Token3.address),
   };
 }

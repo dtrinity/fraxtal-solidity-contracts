@@ -19,12 +19,10 @@ pragma solidity 0.8.20;
 
 import "../../dex/periphery/interfaces/ISwapRouter.sol";
 import "./FlashLoanLiquidatorAaveBase.sol";
-import {Constants} from "../../shared/Constants.sol";
-import {ERC4626} from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
+import { Constants } from "../../shared/Constants.sol";
+import { ERC4626 } from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
 
-abstract contract FlashLoanLiquidatorAaveBorrowRepayBase is
-    FlashLoanLiquidatorAaveBase
-{
+abstract contract FlashLoanLiquidatorAaveBorrowRepayBase is FlashLoanLiquidatorAaveBase {
     using SafeTransferLib for ERC20;
     using PercentageMath for uint256;
 
@@ -39,27 +37,16 @@ abstract contract FlashLoanLiquidatorAaveBorrowRepayBase is
         ILendingPoolAddressesProvider _addressesProvider,
         ILendingPool _liquidateLender,
         uint256 _slippageTolerance
-    )
-        FlashLoanLiquidatorAaveBase(
-            _flashLoanLender,
-            _liquidateLender,
-            _addressesProvider
-        )
-    {
+    ) FlashLoanLiquidatorAaveBase(_flashLoanLender, _liquidateLender, _addressesProvider) {
         slippageTolerance = _slippageTolerance;
         emit SlippageToleranceSet(_slippageTolerance);
     }
 
-    function setProxyContract(
-        address _collateralUnderlying,
-        address _proxyContract
-    ) external onlyOwner {
+    function setProxyContract(address _collateralUnderlying, address _proxyContract) external onlyOwner {
         proxyContractMap[_collateralUnderlying] = _proxyContract;
     }
 
-    function getProxyContract(
-        address _collateralUnderlying
-    ) public view returns (address) {
+    function getProxyContract(address _collateralUnderlying) public view returns (address) {
         address proxyContract = proxyContractMap[_collateralUnderlying];
         if (proxyContract != address(0)) {
             return proxyContract;
@@ -68,8 +55,7 @@ abstract contract FlashLoanLiquidatorAaveBorrowRepayBase is
     }
 
     function setSlippageTolerance(uint256 _newTolerance) external onlyOwner {
-        if (_newTolerance > Constants.ONE_HUNDRED_PERCENT_BPS)
-            revert InvalidSlippageTolerance(_newTolerance);
+        if (_newTolerance > Constants.ONE_HUNDRED_PERCENT_BPS) revert InvalidSlippageTolerance(_newTolerance);
 
         slippageTolerance = _newTolerance;
         emit SlippageToleranceSet(_newTolerance);
@@ -97,10 +83,7 @@ abstract contract FlashLoanLiquidatorAaveBorrowRepayBase is
 
         uint256 seized;
         address actualCollateralToken;
-        if (
-            liquidateParams.borrowedUnderlying.balanceOf(address(this)) >=
-            _repayAmount
-        )
+        if (liquidateParams.borrowedUnderlying.balanceOf(address(this)) >= _repayAmount)
             // we can liquidate without flash loan by using the contract balance
             seized = _liquidateInternal(liquidateParams);
         else {
@@ -118,8 +101,7 @@ abstract contract FlashLoanLiquidatorAaveBorrowRepayBase is
             (seized, actualCollateralToken) = _liquidateWithFlashLoan(params);
         }
 
-        if (!_stakeTokens)
-            ERC20(actualCollateralToken).safeTransfer(msg.sender, seized);
+        if (!_stakeTokens) ERC20(actualCollateralToken).safeTransfer(msg.sender, seized);
     }
 
     /// @dev IFlashLoanSimpleReceiver callback
@@ -134,10 +116,7 @@ abstract contract FlashLoanLiquidatorAaveBorrowRepayBase is
         if (_initiator != address(this)) revert UnknownInitiator();
         FlashLoanParams memory flashLoanParams = _decodeData(params);
         if (flashLoanAmount != flashLoanParams.toLiquidate) {
-            revert InvalidFlashLoanAmount(
-                flashLoanAmount,
-                flashLoanParams.toLiquidate
-            );
+            revert InvalidFlashLoanAmount(flashLoanAmount, flashLoanParams.toLiquidate);
         }
 
         _flashLoanInternal(flashLoanParams, premium);
@@ -145,12 +124,7 @@ abstract contract FlashLoanLiquidatorAaveBorrowRepayBase is
     }
 
     /// @dev IFlashLoanReceiver required function
-    function ADDRESSES_PROVIDER()
-        external
-        view
-        override
-        returns (IPoolAddressesProvider)
-    {
+    function ADDRESSES_PROVIDER() external view override returns (IPoolAddressesProvider) {
         return addressesProvider;
     }
 
@@ -159,10 +133,7 @@ abstract contract FlashLoanLiquidatorAaveBorrowRepayBase is
         return flashLoanLender;
     }
 
-    function _flashLoanInternal(
-        FlashLoanParams memory _flashLoanParams,
-        uint256 _premium
-    ) internal {
+    function _flashLoanInternal(FlashLoanParams memory _flashLoanParams, uint256 _premium) internal {
         LiquidateParams memory liquidateParams = LiquidateParams(
             ERC20(_flashLoanParams.collateralUnderlying),
             ERC20(_flashLoanParams.borrowedUnderlying),
@@ -175,43 +146,27 @@ abstract contract FlashLoanLiquidatorAaveBorrowRepayBase is
         );
         uint256 seized = _liquidateInternal(liquidateParams);
 
-        if (
-            _flashLoanParams.borrowedUnderlying !=
-            _flashLoanParams.collateralUnderlying
-        ) {
-            (
-                address actualCollateralToken,
-                address proxyContract
-            ) = getActualCollateralToken(
-                    _flashLoanParams.collateralUnderlying,
-                    _flashLoanParams.isUnstakeCollateralToken
-                );
+        if (_flashLoanParams.borrowedUnderlying != _flashLoanParams.collateralUnderlying) {
+            (address actualCollateralToken, address proxyContract) = getActualCollateralToken(
+                _flashLoanParams.collateralUnderlying,
+                _flashLoanParams.isUnstakeCollateralToken
+            );
             uint256 actualCollateralAmount = seized;
 
             if (_flashLoanParams.isUnstakeCollateralToken) {
                 // Approve to burn the shares
-                ERC20(_flashLoanParams.collateralUnderlying).approve(
-                    proxyContract,
-                    actualCollateralAmount
-                );
+                ERC20(_flashLoanParams.collateralUnderlying).approve(proxyContract, actualCollateralAmount);
 
-                actualCollateralAmount = redeemERC4626Token(
-                    proxyContract,
-                    actualCollateralAmount,
-                    address(this)
-                );
+                actualCollateralAmount = redeemERC4626Token(proxyContract, actualCollateralAmount, address(this));
             }
 
-            IPriceOracleGetter oracle = IPriceOracleGetter(
-                addressesProvider.getPriceOracle()
-            );
+            IPriceOracleGetter oracle = IPriceOracleGetter(addressesProvider.getPriceOracle());
             uint256 maxIn = (((actualCollateralAmount *
                 10 ** ERC20(actualCollateralToken).decimals() *
                 oracle.getAssetPrice(_flashLoanParams.borrowedUnderlying)) /
                 oracle.getAssetPrice(actualCollateralToken) /
                 10 ** liquidateParams.borrowedUnderlying.decimals()) *
-                (Constants.ONE_HUNDRED_PERCENT_BPS + slippageTolerance)) /
-                Constants.ONE_HUNDRED_PERCENT_BPS;
+                (Constants.ONE_HUNDRED_PERCENT_BPS + slippageTolerance)) / Constants.ONE_HUNDRED_PERCENT_BPS;
 
             _swapExactOutput(
                 actualCollateralToken,
@@ -221,15 +176,12 @@ abstract contract FlashLoanLiquidatorAaveBorrowRepayBase is
                 maxIn
             );
 
-            uint256 borrowedUnderlyingBalanceAfter = ERC20(
-                _flashLoanParams.borrowedUnderlying
-            ).balanceOf(address(this));
+            uint256 borrowedUnderlyingBalanceAfter = ERC20(_flashLoanParams.borrowedUnderlying).balanceOf(
+                address(this)
+            );
 
             // Make sure we have enough to repay the flash loan
-            if (
-                borrowedUnderlyingBalanceAfter <
-                _flashLoanParams.toLiquidate + _premium
-            ) {
+            if (borrowedUnderlyingBalanceAfter < _flashLoanParams.toLiquidate + _premium) {
                 revert InsufficientFlashLoanRepayAmount(
                     borrowedUnderlyingBalanceAfter,
                     _flashLoanParams.toLiquidate + _premium
@@ -255,12 +207,7 @@ abstract contract FlashLoanLiquidatorAaveBorrowRepayBase is
     function getActualCollateralToken(
         address _collateralUnderlying,
         bool _isUnstakeCollateralToken
-    )
-        public
-        view
-        override
-        returns (address actualCollateralToken_, address proxyContract_)
-    {
+    ) public view override returns (address actualCollateralToken_, address proxyContract_) {
         if (_isUnstakeCollateralToken) {
             proxyContract_ = getProxyContract(_collateralUnderlying);
             actualCollateralToken_ = ERC4626(proxyContract_).asset();

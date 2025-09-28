@@ -17,10 +17,10 @@
 
 pragma solidity ^0.8.10;
 
-import {ITransferStrategyBase} from "../rewards/interfaces/ITransferStrategyBase.sol";
-import {TransferStrategyBase} from "../rewards/transfer-strategies/TransferStrategyBase.sol";
-import {GPv2SafeERC20} from "contracts/lending/core/dependencies/gnosis/contracts/GPv2SafeERC20.sol";
-import {IERC20} from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
+import { ITransferStrategyBase } from "../rewards/interfaces/ITransferStrategyBase.sol";
+import { TransferStrategyBase } from "../rewards/transfer-strategies/TransferStrategyBase.sol";
+import { GPv2SafeERC20 } from "contracts/lending/core/dependencies/gnosis/contracts/GPv2SafeERC20.sol";
+import { IERC20 } from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
 
 /**
  * @title MockBadTransferStrategy
@@ -39,11 +39,7 @@ contract MockBadTransferStrategy is TransferStrategyBase {
     ) TransferStrategyBase(incentivesController, rewardsAdmin) {}
 
     /// @inheritdoc TransferStrategyBase
-    function performTransfer(
-        address,
-        address,
-        uint256
-    ) external override onlyIncentivesController returns (bool) {
+    function performTransfer(address, address, uint256) external override onlyIncentivesController returns (bool) {
         ignoreWarning = 1;
         return false;
     }

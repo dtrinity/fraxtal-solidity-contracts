@@ -24,16 +24,8 @@ pragma solidity ^0.8.20;
 
 interface ICurveStableSwapNG {
     // Events
-    event Transfer(
-        address indexed sender,
-        address indexed receiver,
-        uint256 value
-    );
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
+    event Transfer(address indexed sender, address indexed receiver, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
     event TokenExchange(
         address indexed buyer,
         int128 sold_id,
@@ -55,12 +47,7 @@ interface ICurveStableSwapNG {
         uint256 invariant,
         uint256 token_supply
     );
-    event RemoveLiquidity(
-        address indexed provider,
-        uint256[] token_amounts,
-        uint256[] fees,
-        uint256 token_supply
-    );
+    event RemoveLiquidity(address indexed provider, uint256[] token_amounts, uint256[] fees, uint256 token_supply);
     event RemoveLiquidityOne(
         address indexed provider,
         int128 token_id,
@@ -75,12 +62,7 @@ interface ICurveStableSwapNG {
         uint256 invariant,
         uint256 token_supply
     );
-    event RampA(
-        uint256 old_A,
-        uint256 new_A,
-        uint256 initial_time,
-        uint256 future_time
-    );
+    event RampA(uint256 old_A, uint256 new_A, uint256 initial_time, uint256 future_time);
     event StopRampA(uint256 A, uint256 t);
     event ApplyNewFee(uint256 fee, uint256 offpeg_fee_multiplier);
 
@@ -118,15 +100,9 @@ interface ICurveStableSwapNG {
 
     function get_virtual_price() external view returns (uint256);
 
-    function calc_token_amount(
-        uint256[] calldata amounts,
-        bool is_deposit
-    ) external view returns (uint256);
+    function calc_token_amount(uint256[] calldata amounts, bool is_deposit) external view returns (uint256);
 
-    function add_liquidity(
-        uint256[] calldata amounts,
-        uint256 min_mint_amount
-    ) external returns (uint256);
+    function add_liquidity(uint256[] calldata amounts, uint256 min_mint_amount) external returns (uint256);
 
     function add_liquidity(
         uint256[] calldata amounts,
@@ -134,39 +110,15 @@ interface ICurveStableSwapNG {
         address receiver
     ) external returns (uint256);
 
-    function get_dy(
-        int128 i,
-        int128 j,
-        uint256 dx
-    ) external view returns (uint256);
+    function get_dy(int128 i, int128 j, uint256 dx) external view returns (uint256);
 
-    function get_dx(
-        int128 i,
-        int128 j,
-        uint256 dy
-    ) external view returns (uint256);
+    function get_dx(int128 i, int128 j, uint256 dy) external view returns (uint256);
 
-    function exchange(
-        int128 i,
-        int128 j,
-        uint256 dx,
-        uint256 min_dy
-    ) external returns (uint256);
+    function exchange(int128 i, int128 j, uint256 dx, uint256 min_dy) external returns (uint256);
 
-    function exchange(
-        int128 i,
-        int128 j,
-        uint256 dx,
-        uint256 min_dy,
-        address receiver
-    ) external returns (uint256);
+    function exchange(int128 i, int128 j, uint256 dx, uint256 min_dy, address receiver) external returns (uint256);
 
-    function exchange_received(
-        int128 i,
-        int128 j,
-        uint256 dx,
-        uint256 min_dy
-    ) external returns (uint256);
+    function exchange_received(int128 i, int128 j, uint256 dx, uint256 min_dy) external returns (uint256);
 
     function exchange_received(
         int128 i,
@@ -176,10 +128,7 @@ interface ICurveStableSwapNG {
         address receiver
     ) external returns (uint256);
 
-    function remove_liquidity(
-        uint256 amount,
-        uint256[] calldata min_amounts
-    ) external returns (uint256[] memory);
+    function remove_liquidity(uint256 amount, uint256[] calldata min_amounts) external returns (uint256[] memory);
 
     function remove_liquidity(
         uint256 amount,
@@ -194,10 +143,7 @@ interface ICurveStableSwapNG {
         bool claim_admin_fees
     ) external returns (uint256[] memory);
 
-    function remove_liquidity_imbalance(
-        uint256[] calldata amounts,
-        uint256 max_burn_amount
-    ) external returns (uint256);
+    function remove_liquidity_imbalance(uint256[] calldata amounts, uint256 max_burn_amount) external returns (uint256);
 
     function remove_liquidity_imbalance(
         uint256[] calldata amounts,
@@ -205,16 +151,9 @@ interface ICurveStableSwapNG {
         address receiver
     ) external returns (uint256);
 
-    function calc_withdraw_one_coin(
-        uint256 token_amount,
-        int128 i
-    ) external view returns (uint256);
+    function calc_withdraw_one_coin(uint256 token_amount, int128 i) external view returns (uint256);
 
-    function remove_liquidity_one_coin(
-        uint256 token_amount,
-        int128 i,
-        uint256 min_amount
-    ) external returns (uint256);
+    function remove_liquidity_one_coin(uint256 token_amount, int128 i, uint256 min_amount) external returns (uint256);
 
     function remove_liquidity_one_coin(
         uint256 token_amount,
@@ -228,10 +167,7 @@ interface ICurveStableSwapNG {
 
     function stop_ramp_A() external;
 
-    function set_new_fee(
-        uint256 new_fee,
-        uint256 new_offpeg_fee_multiplier
-    ) external;
+    function set_new_fee(uint256 new_fee, uint256 new_offpeg_fee_multiplier) external;
 
     function set_ma_exp_time(uint256 _ma_exp_time, uint256 _D_ma_time) external;
 
@@ -259,20 +195,13 @@ interface ICurveStableSwapNG {
 
     function balanceOf(address account) external view returns (uint256);
 
-    function allowance(
-        address owner,
-        address spender
-    ) external view returns (uint256);
+    function allowance(address owner, address spender) external view returns (uint256);
 
     function approve(address spender, uint256 amount) external returns (bool);
 
     function transfer(address to, uint256 amount) external returns (bool);
 
-    function transferFrom(
-        address from,
-        address to,
-        uint256 amount
-    ) external returns (bool);
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
 
     function permit(
         address owner,

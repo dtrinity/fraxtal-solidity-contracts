@@ -15,10 +15,7 @@ import {
   WETH9,
 } from "../../../typechain-types";
 import { deployContract, DeployContractResult } from "../../../utils/deploy";
-import {
-  addPoolLiquidity,
-  deployAndInitializePool,
-} from "../../../utils/dex/pool";
+import { addPoolLiquidity, deployAndInitializePool } from "../../../utils/dex/pool";
 import { fetchTokenInfo } from "../../../utils/token";
 
 /**
@@ -45,19 +42,9 @@ export async function deployDEX(hre: HardhatRuntimeEnvironment): Promise<{
 
   const weth9 = await deployWETH9(hre, deployer);
   const factory = await deployFactory(hre, deployer);
-  const router = await deployRouter(
-    hre,
-    deployer,
-    factory.address,
-    weth9.address,
-  );
+  const router = await deployRouter(hre, deployer, factory.address, weth9.address);
   const nftDescriptorLibrary = await deployNFTDescriptorLibrary(hre, deployer);
-  const positionDescriptor = await deployPositionDescriptor(
-    hre,
-    deployer,
-    nftDescriptorLibrary.address,
-    weth9.address,
-  );
+  const positionDescriptor = await deployPositionDescriptor(hre, deployer, nftDescriptorLibrary.address, weth9.address);
   const nftPositionManager = await deployNonfungiblePositionManager(
     hre,
     deployer,
@@ -68,31 +55,11 @@ export async function deployDEX(hre: HardhatRuntimeEnvironment): Promise<{
 
   return {
     weth9: await hre.ethers.getContractAt("WETH9", weth9.address, deployer),
-    factory: await hre.ethers.getContractAt(
-      "UniswapV3Factory",
-      factory.address,
-      deployer,
-    ),
-    router: await hre.ethers.getContractAt(
-      "SwapRouter",
-      router.address,
-      deployer,
-    ),
-    nftDescriptorLibrary: await hre.ethers.getContractAt(
-      "NFTDescriptor",
-      nftDescriptorLibrary.address,
-      deployer,
-    ),
-    positionDescriptor: await hre.ethers.getContractAt(
-      "NonfungibleTokenPositionDescriptor",
-      positionDescriptor.address,
-      deployer,
-    ),
-    nftPositionManager: await hre.ethers.getContractAt(
-      "NonfungiblePositionManager",
-      nftPositionManager.address,
-      deployer,
-    ),
+    factory: await hre.ethers.getContractAt("UniswapV3Factory", factory.address, deployer),
+    router: await hre.ethers.getContractAt("SwapRouter", router.address, deployer),
+    nftDescriptorLibrary: await hre.ethers.getContractAt("NFTDescriptor", nftDescriptorLibrary.address, deployer),
+    positionDescriptor: await hre.ethers.getContractAt("NonfungibleTokenPositionDescriptor", positionDescriptor.address, deployer),
+    nftPositionManager: await hre.ethers.getContractAt("NonfungiblePositionManager", nftPositionManager.address, deployer),
   };
 }
 
@@ -103,10 +70,7 @@ export async function deployDEX(hre: HardhatRuntimeEnvironment): Promise<{
  * @param contractOwner - The owner wallet's signer
  * @returns The deployment result
  */
-async function deployWETH9(
-  hre: HardhatRuntimeEnvironment,
-  contractOwner: HardhatEthersSigner,
-): Promise<DeployContractResult> {
+async function deployWETH9(hre: HardhatRuntimeEnvironment, contractOwner: HardhatEthersSigner): Promise<DeployContractResult> {
   // The WETH9 will be automatically found in contracts/dependencies/WETH9.sol
   return deployContract(
     hre,
@@ -124,10 +88,7 @@ async function deployWETH9(
  * @param contractOwner - The owner wallet's signer
  * @returns The deployment result
  */
-async function deployFactory(
-  hre: HardhatRuntimeEnvironment,
-  contractOwner: HardhatEthersSigner,
-): Promise<DeployContractResult> {
+async function deployFactory(hre: HardhatRuntimeEnvironment, contractOwner: HardhatEthersSigner): Promise<DeployContractResult> {
   // The UniswapV3Factory will be automatically found in contracts/dex/core/UniswapV3Factory.sol
   return deployContract(
     hre,
@@ -297,12 +258,7 @@ export async function initDEXPool(
       deadlineInSeconds,
     );
 
-    pools.push(
-      await hre.ethers.getContractAt(
-        "UniswapV3Pool",
-        poolRes.poolDeploymentResult.poolAddress,
-      ),
-    );
+    pools.push(await hre.ethers.getContractAt("UniswapV3Pool", poolRes.poolDeploymentResult.poolAddress));
   }
 
   return {
@@ -331,13 +287,7 @@ export async function addLiquidityToDEXPool(
   inputToken0Amount: number,
   liquidityAdder: string,
 ): Promise<Position> {
-  const poolAddress = await getPoolAddress(
-    hre,
-    dexFactoryAddress,
-    token0Address,
-    token1Address,
-    fee,
-  );
+  const poolAddress = await getPoolAddress(hre, dexFactoryAddress, token0Address, token1Address, fee);
 
   const token0Info = await fetchTokenInfo(hre, token0Address.toString());
   const token1Info = await fetchTokenInfo(hre, token1Address.toString());
@@ -374,10 +324,7 @@ export async function getPoolAddress(
   token1Address: string,
   fee: FeeAmount,
 ): Promise<string> {
-  const dexFactoryContract = await hre.ethers.getContractAt(
-    "UniswapV3Factory",
-    dexFactoryAddress,
-  );
+  const dexFactoryContract = await hre.ethers.getContractAt("UniswapV3Factory", dexFactoryAddress);
   return dexFactoryContract.getPool(token0Address, token1Address, fee);
 }
 
@@ -388,10 +335,7 @@ export async function getPoolAddress(
  * @param poolAddress - DEX pool address
  * @returns The DEX pool contract
  */
-export async function getPoolFromAddress(
-  hre: HardhatRuntimeEnvironment,
-  poolAddress: string,
-): Promise<UniswapV3Pool> {
+export async function getPoolFromAddress(hre: HardhatRuntimeEnvironment, poolAddress: string): Promise<UniswapV3Pool> {
   return await hre.ethers.getContractAt("UniswapV3Pool", poolAddress);
 }
 

@@ -57,9 +57,7 @@ library Tick {
     /// @param tickSpacing The amount of required tick separation, realized in multiples of `tickSpacing`
     ///     e.g., a tickSpacing of 3 requires ticks to be initialized every 3rd tick i.e., ..., -6, -3, 0, 3, 6, ...
     /// @return The max liquidity per tick
-    function tickSpacingToMaxLiquidityPerTick(
-        int24 tickSpacing
-    ) internal pure returns (uint128) {
+    function tickSpacingToMaxLiquidityPerTick(int24 tickSpacing) internal pure returns (uint128) {
         int24 minTick = (TickMath.MIN_TICK / tickSpacing) * tickSpacing;
         int24 maxTick = (TickMath.MAX_TICK / tickSpacing) * tickSpacing;
         uint24 numTicks = uint24((maxTick - minTick) / tickSpacing) + 1;
@@ -82,11 +80,7 @@ library Tick {
         int24 tickCurrent,
         uint256 feeGrowthGlobal0X128,
         uint256 feeGrowthGlobal1X128
-    )
-        internal
-        view
-        returns (uint256 feeGrowthInside0X128, uint256 feeGrowthInside1X128)
-    {
+    ) internal view returns (uint256 feeGrowthInside0X128, uint256 feeGrowthInside1X128) {
         Info storage lower = self[tickLower];
         Info storage upper = self[tickUpper];
 
@@ -97,12 +91,8 @@ library Tick {
             feeGrowthBelow0X128 = lower.feeGrowthOutside0X128;
             feeGrowthBelow1X128 = lower.feeGrowthOutside1X128;
         } else {
-            feeGrowthBelow0X128 =
-                feeGrowthGlobal0X128 -
-                lower.feeGrowthOutside0X128;
-            feeGrowthBelow1X128 =
-                feeGrowthGlobal1X128 -
-                lower.feeGrowthOutside1X128;
+            feeGrowthBelow0X128 = feeGrowthGlobal0X128 - lower.feeGrowthOutside0X128;
+            feeGrowthBelow1X128 = feeGrowthGlobal1X128 - lower.feeGrowthOutside1X128;
         }
 
         // calculate fee growth above
@@ -112,22 +102,12 @@ library Tick {
             feeGrowthAbove0X128 = upper.feeGrowthOutside0X128;
             feeGrowthAbove1X128 = upper.feeGrowthOutside1X128;
         } else {
-            feeGrowthAbove0X128 =
-                feeGrowthGlobal0X128 -
-                upper.feeGrowthOutside0X128;
-            feeGrowthAbove1X128 =
-                feeGrowthGlobal1X128 -
-                upper.feeGrowthOutside1X128;
+            feeGrowthAbove0X128 = feeGrowthGlobal0X128 - upper.feeGrowthOutside0X128;
+            feeGrowthAbove1X128 = feeGrowthGlobal1X128 - upper.feeGrowthOutside1X128;
         }
 
-        feeGrowthInside0X128 =
-            feeGrowthGlobal0X128 -
-            feeGrowthBelow0X128 -
-            feeGrowthAbove0X128;
-        feeGrowthInside1X128 =
-            feeGrowthGlobal1X128 -
-            feeGrowthBelow1X128 -
-            feeGrowthAbove1X128;
+        feeGrowthInside0X128 = feeGrowthGlobal0X128 - feeGrowthBelow0X128 - feeGrowthAbove0X128;
+        feeGrowthInside1X128 = feeGrowthGlobal1X128 - feeGrowthBelow1X128 - feeGrowthAbove1X128;
     }
 
     /// @notice Updates a tick and returns true if the tick was flipped from initialized to uninitialized, or vice versa
@@ -159,10 +139,7 @@ library Tick {
         Tick.Info storage info = self[tick];
 
         uint128 liquidityGrossBefore = info.liquidityGross;
-        uint128 liquidityGrossAfter = LiquidityMath.addDelta(
-            liquidityGrossBefore,
-            liquidityDelta
-        );
+        uint128 liquidityGrossAfter = LiquidityMath.addDelta(liquidityGrossBefore, liquidityDelta);
 
         require(liquidityGrossAfter <= maxLiquidity, "LO");
 
@@ -173,8 +150,7 @@ library Tick {
             if (tick <= tickCurrent) {
                 info.feeGrowthOutside0X128 = feeGrowthGlobal0X128;
                 info.feeGrowthOutside1X128 = feeGrowthGlobal1X128;
-                info
-                    .secondsPerLiquidityOutsideX128 = secondsPerLiquidityCumulativeX128;
+                info.secondsPerLiquidityOutsideX128 = secondsPerLiquidityCumulativeX128;
                 info.tickCumulativeOutside = tickCumulative;
                 info.secondsOutside = time;
             }
@@ -192,10 +168,7 @@ library Tick {
     /// @notice Clears tick data
     /// @param self The mapping containing all initialized tick information for initialized ticks
     /// @param tick The tick that will be cleared
-    function clear(
-        mapping(int24 => Tick.Info) storage self,
-        int24 tick
-    ) internal {
+    function clear(mapping(int24 => Tick.Info) storage self, int24 tick) internal {
         delete self[tick];
     }
 
@@ -218,18 +191,10 @@ library Tick {
         uint32 time
     ) internal returns (int128 liquidityNet) {
         Tick.Info storage info = self[tick];
-        info.feeGrowthOutside0X128 =
-            feeGrowthGlobal0X128 -
-            info.feeGrowthOutside0X128;
-        info.feeGrowthOutside1X128 =
-            feeGrowthGlobal1X128 -
-            info.feeGrowthOutside1X128;
-        info.secondsPerLiquidityOutsideX128 =
-            secondsPerLiquidityCumulativeX128 -
-            info.secondsPerLiquidityOutsideX128;
-        info.tickCumulativeOutside =
-            tickCumulative -
-            info.tickCumulativeOutside;
+        info.feeGrowthOutside0X128 = feeGrowthGlobal0X128 - info.feeGrowthOutside0X128;
+        info.feeGrowthOutside1X128 = feeGrowthGlobal1X128 - info.feeGrowthOutside1X128;
+        info.secondsPerLiquidityOutsideX128 = secondsPerLiquidityCumulativeX128 - info.secondsPerLiquidityOutsideX128;
+        info.tickCumulativeOutside = tickCumulative - info.tickCumulativeOutside;
         info.secondsOutside = time - info.secondsOutside;
         liquidityNet = info.liquidityNet;
     }

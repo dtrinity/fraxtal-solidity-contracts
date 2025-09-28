@@ -29,10 +29,7 @@ contract TokenSupplyManager is Ownable {
     uint8 private _collateralDecimals;
     uint8 private _receiptDecimals;
 
-    constructor(
-        IERC20Stablecoin collateral,
-        IERC20Stablecoin receipt
-    ) Ownable(msg.sender) {
+    constructor(IERC20Stablecoin collateral, IERC20Stablecoin receipt) Ownable(msg.sender) {
         _collateral = collateral;
         _receipt = receipt;
         _collateralDecimals = collateral.decimals();
@@ -41,20 +38,9 @@ contract TokenSupplyManager is Ownable {
 
     function issue(address to, uint256 collateralAmount) public {
         // Transfer the deposit amount of the collateral token to this contract
-        require(
-            _collateral.transferFrom(
-                msg.sender,
-                address(this),
-                collateralAmount
-            ),
-            "Failed to deposit collateral"
-        );
+        require(_collateral.transferFrom(msg.sender, address(this), collateralAmount), "Failed to deposit collateral");
         // Convert the deposit amount to the receipt token amount
-        uint256 receiptAmount = _convertAmountBetweenDecimals(
-            collateralAmount,
-            _collateralDecimals,
-            _receiptDecimals
-        );
+        uint256 receiptAmount = _convertAmountBetweenDecimals(collateralAmount, _collateralDecimals, _receiptDecimals);
         // Mint the issue token to the recipient
         _receipt.mint(to, receiptAmount);
     }
@@ -63,27 +49,14 @@ contract TokenSupplyManager is Ownable {
         // Burn the receipt token from the sender
         _receipt.burnFrom(msg.sender, receiptAmount);
         // Convert the receipt token amount to the collateral token amount
-        uint256 collateralAmount = _convertAmountBetweenDecimals(
-            receiptAmount,
-            _receiptDecimals,
-            _collateralDecimals
-        );
+        uint256 collateralAmount = _convertAmountBetweenDecimals(receiptAmount, _receiptDecimals, _collateralDecimals);
         // Transfer the equivalent amount of the collateral token to the recipient
-        require(
-            _collateral.transfer(to, collateralAmount),
-            "Failed to transfer collateral token"
-        );
+        require(_collateral.transfer(to, collateralAmount), "Failed to transfer collateral token");
     }
 
-    function migrateCollateral(
-        address recipient,
-        uint256 collateralAmount
-    ) public onlyOwner {
+    function migrateCollateral(address recipient, uint256 collateralAmount) public onlyOwner {
         // Migrate collateral to a different collateral contract
-        require(
-            _collateral.transfer(recipient, collateralAmount),
-            "Failed to transfer collateral token"
-        );
+        require(_collateral.transfer(recipient, collateralAmount), "Failed to transfer collateral token");
     }
 
     function _convertAmountBetweenDecimals(

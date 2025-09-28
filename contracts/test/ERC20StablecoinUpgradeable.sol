@@ -46,10 +46,7 @@ contract ERC20StablecoinUpgradeable is
         _disableInitializers();
     }
 
-    function initialize(
-        string memory name,
-        string memory symbol
-    ) public initializer {
+    function initialize(string memory name, string memory symbol) public initializer {
         __ERC20_init(name, symbol);
         __ERC20Burnable_init();
         __Pausable_init();
@@ -83,16 +80,11 @@ contract ERC20StablecoinUpgradeable is
         _freeze(account);
     }
 
-    function unfreeze(
-        address account
-    ) public virtual onlyRole(COMPLIANCE_ROLE) {
+    function unfreeze(address account) public virtual onlyRole(COMPLIANCE_ROLE) {
         _unfreeze(account);
     }
 
-    function seize(
-        address account,
-        uint256 amount
-    ) public virtual onlyRole(COMPLIANCE_ROLE) {
+    function seize(address account, uint256 amount) public virtual onlyRole(COMPLIANCE_ROLE) {
         _seize(account, amount);
     }
 

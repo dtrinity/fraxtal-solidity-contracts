@@ -20,8 +20,7 @@ pragma solidity >=0.5.0;
 /// @title Provides functions for deriving a pool address from the factory, tokens, and the fee
 library PoolAddress {
     // The identifying key of the pool code which is to make sure the pool address will be different if the UniswapV3Pool contract code changes
-    bytes32 internal constant POOL_INIT_CODE_HASH =
-        0xeee17a48e7dd4fffcce4d79bb50f4f19fb4f3c03d3d7dacd6723eb17b1aef545;
+    bytes32 internal constant POOL_INIT_CODE_HASH = 0xeee17a48e7dd4fffcce4d79bb50f4f19fb4f3c03d3d7dacd6723eb17b1aef545;
 
     /// @notice The identifying key of the pool
     struct PoolKey {
@@ -35,23 +34,16 @@ library PoolAddress {
     /// @param tokenB The second token of a pool, unsorted
     /// @param fee The fee level of the pool
     /// @return Poolkey The pool details with ordered token0 and token1 assignments
-    function getPoolKey(
-        address tokenA,
-        address tokenB,
-        uint24 fee
-    ) internal pure returns (PoolKey memory) {
+    function getPoolKey(address tokenA, address tokenB, uint24 fee) internal pure returns (PoolKey memory) {
         if (tokenA > tokenB) (tokenA, tokenB) = (tokenB, tokenA);
-        return PoolKey({token0: tokenA, token1: tokenB, fee: fee});
+        return PoolKey({ token0: tokenA, token1: tokenB, fee: fee });
     }
 
     /// @notice Deterministically computes the pool address given the factory and PoolKey
     /// @param factory The Uniswap V3 factory contract address
     /// @param key The PoolKey
     /// @return pool The contract address of the V3 pool
-    function computeAddress(
-        address factory,
-        PoolKey memory key
-    ) internal pure returns (address pool) {
+    function computeAddress(address factory, PoolKey memory key) internal pure returns (address pool) {
         require(key.token0 < key.token1, "PoolAddress: INVALID_TOKEN_ORDER");
 
         // This code is to compute the pool address without depending on POOL_INIT_CODE_HASH

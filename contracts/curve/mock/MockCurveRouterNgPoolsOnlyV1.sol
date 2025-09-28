@@ -1,21 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {ICurveRouterNgPoolsOnlyV1} from "contracts/curve/interfaces/ICurveRouterNgPoolsOnlyV1.sol";
-import {ERC20} from "@rari-capital/solmate/src/tokens/ERC20.sol";
+import { ICurveRouterNgPoolsOnlyV1 } from "contracts/curve/interfaces/ICurveRouterNgPoolsOnlyV1.sol";
+import { ERC20 } from "@rari-capital/solmate/src/tokens/ERC20.sol";
 
 contract MockCurveRouterNgPoolsOnlyV1 is ICurveRouterNgPoolsOnlyV1 {
-    error InsufficientPoolBalance(
-        address token,
-        uint256 requested,
-        uint256 available
-    );
+    error InsufficientPoolBalance(address token, uint256 requested, uint256 available);
     error ExchangeRateNotSet(address token0, address token1);
     error TokenNotInPool(address token);
-    error InsufficientOutputAmount(
-        uint256 outputAmount,
-        uint256 minOutputAmount
-    );
+    error InsufficientOutputAmount(uint256 outputAmount, uint256 minOutputAmount);
 
     mapping(address => uint256) internal poolBalances;
     mapping(address => mapping(address => uint256)) internal exchangeRates; // token0 -> token1 -> rate
@@ -30,11 +23,7 @@ contract MockCurveRouterNgPoolsOnlyV1 is ICurveRouterNgPoolsOnlyV1 {
         poolBalances[token] += amount;
     }
 
-    function setExchangeRate(
-        address token0,
-        address token1,
-        uint256 rate
-    ) external {
+    function setExchangeRate(address token0, address token1, uint256 rate) external {
         exchangeRates[token0][token1] = rate;
     }
 
@@ -99,25 +88,14 @@ contract MockCurveRouterNgPoolsOnlyV1 is ICurveRouterNgPoolsOnlyV1 {
 
         // Check if we have enough balance
         if (poolBalances[outputToken] < outputAmount) {
-            revert InsufficientPoolBalance(
-                outputToken,
-                outputAmount,
-                poolBalances[outputToken]
-            );
+            revert InsufficientPoolBalance(outputToken, outputAmount, poolBalances[outputToken]);
         }
 
         // Transfer output tokens to receiver
         poolBalances[outputToken] -= outputAmount;
         ERC20(outputToken).transfer(_receiver, outputAmount);
 
-        emit Exchange(
-            msg.sender,
-            _receiver,
-            _route,
-            _swap_params,
-            _amount,
-            outputAmount
-        );
+        emit Exchange(msg.sender, _receiver, _route, _swap_params, _amount, outputAmount);
 
         return outputAmount;
     }
@@ -145,9 +123,7 @@ contract MockCurveRouterNgPoolsOnlyV1 is ICurveRouterNgPoolsOnlyV1 {
         uint256 outputDecimals = ERC20(outputToken).decimals();
 
         // Adjust for decimals difference and price decimals
-        return
-            (_amount * rate * (10 ** (outputDecimals))) /
-            10 ** (inputDecimals + priceDecimals);
+        return (_amount * rate * (10 ** (outputDecimals))) / 10 ** (inputDecimals + priceDecimals);
     }
 
     function get_dx(
@@ -172,9 +148,7 @@ contract MockCurveRouterNgPoolsOnlyV1 is ICurveRouterNgPoolsOnlyV1 {
         uint256 inputDecimals = ERC20(inputToken).decimals();
         uint256 outputDecimals = ERC20(outputToken).decimals();
         // Adjust for decimals difference and price decimals
-        return
-            (_out_amount * (10 ** (inputDecimals + priceDecimals))) /
-            (rate * (10 ** outputDecimals));
+        return (_out_amount * (10 ** (inputDecimals + priceDecimals))) / (rate * (10 ** outputDecimals));
     }
 
     function version() external pure returns (string memory) {

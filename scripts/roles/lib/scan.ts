@@ -43,9 +43,7 @@ export async function scanRolesAndOwnership(
 
   const deploymentsPath = path.join(hre.config.paths.deployments, network.name);
   if (!fs.existsSync(deploymentsPath)) {
-    throw new Error(
-      `Deployments directory not found for network ${network.name}: ${deploymentsPath}`,
-    );
+    throw new Error(`Deployments directory not found for network ${network.name}: ${deploymentsPath}`);
   }
 
   const deploymentFiles = fs
@@ -126,10 +124,7 @@ export async function scanRolesAndOwnership(
         let governanceHasDefaultAdmin = false;
         if (defaultAdmin) {
           try {
-            governanceHasDefaultAdmin = await (contract as any).hasRole(
-              defaultAdmin.hash,
-              governanceMultisig,
-            );
+            governanceHasDefaultAdmin = await (contract as any).hasRole(defaultAdmin.hash, governanceMultisig);
             log(`    governanceHasDefaultAdmin: ${governanceHasDefaultAdmin}`);
           } catch {}
         }
@@ -160,9 +155,7 @@ export async function scanRolesAndOwnership(
         try {
           const contract = await ethers.getContractAt(abi as any, contractAddress);
           const owner: string = await (contract as any).owner();
-          log(
-            `  Contract ${contractName} appears to be Ownable. owner=${owner}`,
-          );
+          log(`  Contract ${contractName} appears to be Ownable. owner=${owner}`);
           ownableContracts.push({
             name: contractName,
             address: contractAddress,
@@ -181,5 +174,3 @@ export async function scanRolesAndOwnership(
 
   return { rolesContracts, ownableContracts };
 }
-
-

@@ -22,9 +22,7 @@ import "./IOracle.sol";
 interface IIncentivesVault {
     function setOracle(IOracle _newOracle) external;
 
-    function setIncentivesTreasuryVault(
-        address _newIncentivesTreasuryVault
-    ) external;
+    function setIncentivesTreasuryVault(address _newIncentivesTreasuryVault) external;
 
     function setBonus(uint256 _newBonus) external;
 
@@ -32,8 +30,5 @@ interface IIncentivesVault {
 
     function transferTokensToDao(address _token, uint256 _amount) external;
 
-    function tradeRewardTokensForMorphoTokens(
-        address _to,
-        uint256 _amount
-    ) external;
+    function tradeRewardTokensForMorphoTokens(address _to, uint256 _amount) external;
 }

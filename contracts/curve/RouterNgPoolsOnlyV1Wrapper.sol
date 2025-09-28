@@ -52,20 +52,11 @@ contract CurveRouterNgPoolsOnlyV1Wrapper {
         IERC20(tokenIn).approve(address(router), amountIn);
 
         // Execute the swap
-        uint256 amountOut = router.exchange(
-            route,
-            swapParams,
-            amountIn,
-            minAmountOut,
-            msg.sender
-        );
+        uint256 amountOut = router.exchange(route, swapParams, amountIn, minAmountOut, msg.sender);
 
         // Ensure the swap was successful
         if (amountOut < minAmountOut) {
-            revert ICurveRouterWrapper.InsufficientOutputAmount(
-                amountOut,
-                minAmountOut
-            );
+            revert ICurveRouterWrapper.InsufficientOutputAmount(amountOut, minAmountOut);
         }
 
         return amountOut;
@@ -82,15 +73,11 @@ contract CurveRouterNgPoolsOnlyV1Wrapper {
         uint256 estimatedAmountIn = router.get_dx(route, swapParams, amountOut);
 
         // Add a buffer to account for potential slippage
-        uint256 amountIn = (estimatedAmountIn *
-            (Constants.ONE_HUNDRED_PERCENT_BPS + SLIPPAGE_BUFFER_BPS)) /
+        uint256 amountIn = (estimatedAmountIn * (Constants.ONE_HUNDRED_PERCENT_BPS + SLIPPAGE_BUFFER_BPS)) /
             Constants.ONE_HUNDRED_PERCENT_BPS;
 
         if (amountIn > maxAmountIn) {
-            revert ICurveRouterWrapper.InputAmountExceedsMaximum(
-                amountIn,
-                maxAmountIn
-            );
+            revert ICurveRouterWrapper.InputAmountExceedsMaximum(amountIn, maxAmountIn);
         }
 
         // Transfer input tokens from the sender to this contract
@@ -110,10 +97,7 @@ contract CurveRouterNgPoolsOnlyV1Wrapper {
 
         // Ensure the swap was successful
         if (actualAmountOut < amountOut) {
-            revert ICurveRouterWrapper.InsufficientOutputAmount(
-                actualAmountOut,
-                amountOut
-            );
+            revert ICurveRouterWrapper.InsufficientOutputAmount(actualAmountOut, amountOut);
         }
 
         // If there are any unused input tokens, return them to the user

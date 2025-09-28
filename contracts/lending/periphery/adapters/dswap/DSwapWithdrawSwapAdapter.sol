@@ -17,13 +17,13 @@
 
 pragma solidity ^0.8.10;
 
-import {IERC20Detailed} from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
-import {IERC20WithPermit} from "contracts/lending/core/interfaces/IERC20WithPermit.sol";
-import {IPoolAddressesProvider} from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
-import {BaseDSwapSellAdapter} from "./BaseDSwapSellAdapter.sol";
-import {SafeERC20} from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeERC20.sol";
-import {ReentrancyGuard} from "../../dependencies/openzeppelin/ReentrancyGuard.sol";
-import {ISwapRouter} from "./interfaces/ISwapRouter.sol";
+import { IERC20Detailed } from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import { IERC20WithPermit } from "contracts/lending/core/interfaces/IERC20WithPermit.sol";
+import { IPoolAddressesProvider } from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
+import { BaseDSwapSellAdapter } from "./BaseDSwapSellAdapter.sol";
+import { SafeERC20 } from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeERC20.sol";
+import { ReentrancyGuard } from "../../dependencies/openzeppelin/ReentrancyGuard.sol";
+import { ISwapRouter } from "./interfaces/ISwapRouter.sol";
 
 /**
  * @title DSwapWithdrawSwapAdapter
@@ -70,9 +70,7 @@ contract DSwapWithdrawSwapAdapter is BaseDSwapSellAdapter, ReentrancyGuard {
         bytes memory path,
         PermitSignature calldata permitParams
     ) external nonReentrant {
-        IERC20WithPermit aToken = IERC20WithPermit(
-            _getReserveData(address(assetToSwapFrom)).aTokenAddress
-        );
+        IERC20WithPermit aToken = IERC20WithPermit(_getReserveData(address(assetToSwapFrom)).aTokenAddress);
 
         if (swapAllBalanceOffset != 0) {
             uint256 balance = aToken.balanceOf(msg.sender);
@@ -80,21 +78,9 @@ contract DSwapWithdrawSwapAdapter is BaseDSwapSellAdapter, ReentrancyGuard {
             amountToSwap = balance;
         }
 
-        _pullATokenAndWithdraw(
-            address(assetToSwapFrom),
-            aToken,
-            msg.sender,
-            amountToSwap,
-            permitParams
-        );
+        _pullATokenAndWithdraw(address(assetToSwapFrom), aToken, msg.sender, amountToSwap, permitParams);
 
-        uint256 amountReceived = _sellOnDSwap(
-            assetToSwapFrom,
-            assetToSwapTo,
-            amountToSwap,
-            minAmountToReceive,
-            path
-        );
+        uint256 amountReceived = _sellOnDSwap(assetToSwapFrom, assetToSwapTo, amountToSwap, minAmountToReceive, path);
 
         assetToSwapTo.safeTransfer(msg.sender, amountReceived);
     }

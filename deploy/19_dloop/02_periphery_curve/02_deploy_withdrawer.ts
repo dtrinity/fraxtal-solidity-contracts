@@ -46,26 +46,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Skip if no dLOOP configuration
   if (!config.dLoop) {
-    console.log(
-      `No dLOOP configuration defined for network ${hre.network.name}. Skipping Curve withdrawer deployment.`,
-    );
+    console.log(`No dLOOP configuration defined for network ${hre.network.name}. Skipping Curve withdrawer deployment.`);
     return false;
   }
 
   // Skip if no withdrawers section or Curve withdrawer is defined
   if (!config.dLoop.withdrawers || !config.dLoop.withdrawers.curve) {
-    console.log(
-      `Curve withdrawer not defined for network ${hre.network.name}. Skipping.`,
-    );
+    console.log(`Curve withdrawer not defined for network ${hre.network.name}. Skipping.`);
     return false;
   }
 
   const curveConfig = config.dLoop.withdrawers.curve;
 
   if (!curveConfig.defaultSwapParamsList) {
-    console.log(
-      `Curve defaultSwapParamsList not defined for network ${hre.network.name}. Skipping.`,
-    );
+    console.log(`Curve defaultSwapParamsList not defined for network ${hre.network.name}. Skipping.`);
     return false;
   }
 
@@ -79,8 +73,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   // Get the deployed CurveSwapLogic library address
-  const { address: curveSwapLogicAddress } =
-    await hre.deployments.get(CURVE_SWAP_LOGIC_ID);
+  const { address: curveSwapLogicAddress } = await hre.deployments.get(CURVE_SWAP_LOGIC_ID);
 
   // Get the Curve Router address from configuration
   const curveRouterAddress = assertNotEmpty(curveConfig.swapRouter);

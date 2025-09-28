@@ -33,37 +33,19 @@ contract MockObservable {
         uint160[] memory secondsPerLiquidityCumulativeX128s
     ) {
         require(
-            secondsAgos.length == 2 &&
-                tickCumulatives.length == 2 &&
-                secondsPerLiquidityCumulativeX128s.length == 2,
+            secondsAgos.length == 2 && tickCumulatives.length == 2 && secondsPerLiquidityCumulativeX128s.length == 2,
             "Invalid test case size"
         );
 
-        observation0 = Observation(
-            secondsAgos[0],
-            tickCumulatives[0],
-            secondsPerLiquidityCumulativeX128s[0]
-        );
-        observation1 = Observation(
-            secondsAgos[1],
-            tickCumulatives[1],
-            secondsPerLiquidityCumulativeX128s[1]
-        );
+        observation0 = Observation(secondsAgos[0], tickCumulatives[0], secondsPerLiquidityCumulativeX128s[0]);
+        observation1 = Observation(secondsAgos[1], tickCumulatives[1], secondsPerLiquidityCumulativeX128s[1]);
     }
 
     function observe(
         uint32[] calldata secondsAgos
-    )
-        external
-        view
-        returns (
-            int56[] memory tickCumulatives,
-            uint160[] memory secondsPerLiquidityCumulativeX128s
-        )
-    {
+    ) external view returns (int56[] memory tickCumulatives, uint160[] memory secondsPerLiquidityCumulativeX128s) {
         require(
-            secondsAgos[0] == observation0.secondsAgo &&
-                secondsAgos[1] == observation1.secondsAgo,
+            secondsAgos[0] == observation0.secondsAgo && secondsAgos[1] == observation1.secondsAgo,
             "Invalid test case"
         );
 
@@ -72,10 +54,8 @@ contract MockObservable {
         _tickCumulatives[1] = observation1.tickCumulatives;
 
         uint160[] memory _secondsPerLiquidityCumulativeX128s = new uint160[](2);
-        _secondsPerLiquidityCumulativeX128s[0] = observation0
-            .secondsPerLiquidityCumulativeX128s;
-        _secondsPerLiquidityCumulativeX128s[1] = observation1
-            .secondsPerLiquidityCumulativeX128s;
+        _secondsPerLiquidityCumulativeX128s[0] = observation0.secondsPerLiquidityCumulativeX128s;
+        _secondsPerLiquidityCumulativeX128s[1] = observation1.secondsPerLiquidityCumulativeX128s;
 
         return (_tickCumulatives, _secondsPerLiquidityCumulativeX128s);
     }

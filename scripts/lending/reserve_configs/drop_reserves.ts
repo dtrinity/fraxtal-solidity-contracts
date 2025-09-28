@@ -10,9 +10,7 @@ const main = async (): Promise<void> => {
   // List of reserves to drop
   const reservesToDrop = ["FXS", "sfrxETH", "sUSDe", "sDAI"]; // Add more reserve symbols as needed
 
-  const proxyDeployedResult = await hre.deployments.get(
-    POOL_CONFIGURATOR_PROXY_ID,
-  );
+  const proxyDeployedResult = await hre.deployments.get(POOL_CONFIGURATOR_PROXY_ID);
   const configuratorContract = await hre.ethers.getContractAt(
     "PoolConfigurator",
     proxyDeployedResult.address,
@@ -24,9 +22,7 @@ const main = async (): Promise<void> => {
 
   for (const assetSymbol of reservesToDrop) {
     if (!reservesAddresses[assetSymbol]) {
-      console.log(
-        `- Skipping drop of ${assetSymbol} due to token address not being set in markets config`,
-      );
+      console.log(`- Skipping drop of ${assetSymbol} due to token address not being set in markets config`);
       continue;
     }
 

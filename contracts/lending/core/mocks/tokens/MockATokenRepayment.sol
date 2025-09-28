@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.0;
 
-import {AToken} from "../../protocol/tokenization/AToken.sol";
-import {IPool} from "../../interfaces/IPool.sol";
+import { AToken } from "../../protocol/tokenization/AToken.sol";
+import { IPool } from "../../interfaces/IPool.sol";
 
 contract MockATokenRepayment is AToken {
     event MockRepayment(address user, address onBehalfOf, uint256 amount);
@@ -29,11 +29,7 @@ contract MockATokenRepayment is AToken {
         return 0x2;
     }
 
-    function handleRepayment(
-        address user,
-        address onBehalfOf,
-        uint256 amount
-    ) external override onlyPool {
+    function handleRepayment(address user, address onBehalfOf, uint256 amount) external override onlyPool {
         emit MockRepayment(user, onBehalfOf, amount);
     }
 }

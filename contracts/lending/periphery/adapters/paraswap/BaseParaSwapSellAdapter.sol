@@ -17,14 +17,14 @@
 
 pragma solidity ^0.8.10;
 
-import {SafeERC20} from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeERC20.sol";
-import {SafeMath} from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeMath.sol";
-import {PercentageMath} from "contracts/lending/core/protocol/libraries/math/PercentageMath.sol";
-import {IPoolAddressesProvider} from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
-import {IERC20Detailed} from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
-import {IParaSwapAugustus} from "./interfaces/IParaSwapAugustus.sol";
-import {IParaSwapAugustusRegistry} from "./interfaces/IParaSwapAugustusRegistry.sol";
-import {BaseParaSwapAdapter} from "./BaseParaSwapAdapter.sol";
+import { SafeERC20 } from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeERC20.sol";
+import { SafeMath } from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeMath.sol";
+import { PercentageMath } from "contracts/lending/core/protocol/libraries/math/PercentageMath.sol";
+import { IPoolAddressesProvider } from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
+import { IERC20Detailed } from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import { IParaSwapAugustus } from "./interfaces/IParaSwapAugustus.sol";
+import { IParaSwapAugustusRegistry } from "./interfaces/IParaSwapAugustusRegistry.sol";
+import { BaseParaSwapAdapter } from "./BaseParaSwapAdapter.sol";
 
 /**
  * @title BaseParaSwapSellAdapter
@@ -67,10 +67,7 @@ abstract contract BaseParaSwapSellAdapter is BaseParaSwapAdapter {
         uint256 amountToSwap,
         uint256 minAmountToReceive
     ) internal returns (uint256 amountReceived) {
-        require(
-            AUGUSTUS_REGISTRY.isValidAugustus(address(augustus)),
-            "INVALID_AUGUSTUS"
-        );
+        require(AUGUSTUS_REGISTRY.isValidAugustus(address(augustus)), "INVALID_AUGUSTUS");
 
         {
             uint256 fromAssetDecimals = _getDecimals(assetToSwapFrom);
@@ -82,23 +79,13 @@ abstract contract BaseParaSwapSellAdapter is BaseParaSwapAdapter {
             uint256 expectedMinAmountOut = amountToSwap
                 .mul(fromAssetPrice.mul(10 ** toAssetDecimals))
                 .div(toAssetPrice.mul(10 ** fromAssetDecimals))
-                .percentMul(
-                    PercentageMath.PERCENTAGE_FACTOR - MAX_SLIPPAGE_PERCENT
-                );
+                .percentMul(PercentageMath.PERCENTAGE_FACTOR - MAX_SLIPPAGE_PERCENT);
 
-            require(
-                expectedMinAmountOut <= minAmountToReceive,
-                "MIN_AMOUNT_EXCEEDS_MAX_SLIPPAGE"
-            );
+            require(expectedMinAmountOut <= minAmountToReceive, "MIN_AMOUNT_EXCEEDS_MAX_SLIPPAGE");
         }
 
-        uint256 balanceBeforeAssetFrom = assetToSwapFrom.balanceOf(
-            address(this)
-        );
-        require(
-            balanceBeforeAssetFrom >= amountToSwap,
-            "INSUFFICIENT_BALANCE_BEFORE_SWAP"
-        );
+        uint256 balanceBeforeAssetFrom = assetToSwapFrom.balanceOf(address(this));
+        require(balanceBeforeAssetFrom >= amountToSwap, "INSUFFICIENT_BALANCE_BEFORE_SWAP");
         uint256 balanceBeforeAssetTo = assetToSwapTo.balanceOf(address(this));
 
         address tokenTransferProxy = augustus.getTokenTransferProxy();
@@ -109,18 +96,14 @@ abstract contract BaseParaSwapSellAdapter is BaseParaSwapAdapter {
             // Ensure 256 bit (32 bytes) fromAmount value is within bounds of the
             // calldata, not overlapping with the first 4 bytes (function selector).
             require(
-                fromAmountOffset >= 4 &&
-                    fromAmountOffset <= swapCalldata.length.sub(32),
+                fromAmountOffset >= 4 && fromAmountOffset <= swapCalldata.length.sub(32),
                 "FROM_AMOUNT_OFFSET_OUT_OF_RANGE"
             );
             // Overwrite the fromAmount with the correct amount for the swap.
             // In memory, swapCalldata consists of a 256 bit length field, followed by
             // the actual bytes data, that is why 32 is added to the byte offset.
             assembly {
-                mstore(
-                    add(swapCalldata, add(fromAmountOffset, 32)),
-                    amountToSwap
-                )
+                mstore(add(swapCalldata, add(fromAmountOffset, 32)), amountToSwap)
             }
         }
         (bool success, ) = address(augustus).call(swapCalldata);
@@ -132,23 +115,12 @@ abstract contract BaseParaSwapSellAdapter is BaseParaSwapAdapter {
             }
         }
         require(
-            assetToSwapFrom.balanceOf(address(this)) ==
-                balanceBeforeAssetFrom - amountToSwap,
+            assetToSwapFrom.balanceOf(address(this)) == balanceBeforeAssetFrom - amountToSwap,
             "WRONG_BALANCE_AFTER_SWAP"
         );
-        amountReceived = assetToSwapTo.balanceOf(address(this)).sub(
-            balanceBeforeAssetTo
-        );
-        require(
-            amountReceived >= minAmountToReceive,
-            "INSUFFICIENT_AMOUNT_RECEIVED"
-        );
+        amountReceived = assetToSwapTo.balanceOf(address(this)).sub(balanceBeforeAssetTo);
+        require(amountReceived >= minAmountToReceive, "INSUFFICIENT_AMOUNT_RECEIVED");
 
-        emit Swapped(
-            address(assetToSwapFrom),
-            address(assetToSwapTo),
-            amountToSwap,
-            amountReceived
-        );
+        emit Swapped(address(assetToSwapFrom), address(assetToSwapTo), amountToSwap, amountReceived);
     }
 }

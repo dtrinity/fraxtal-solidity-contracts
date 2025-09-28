@@ -26,9 +26,5 @@ interface IEntryPositionsManager {
         uint256 _maxGasForMatching
     ) external;
 
-    function borrowLogic(
-        address _poolToken,
-        uint256 _amount,
-        uint256 _maxGasForMatching
-    ) external;
+    function borrowLogic(address _poolToken, uint256 _amount, uint256 _maxGasForMatching) external;
 }

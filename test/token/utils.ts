@@ -1,15 +1,8 @@
 import { assert } from "chai";
 import hre from "hardhat";
 
-import {
-  TokenSupplyManager,
-  TokenSupplyManagerHarness,
-} from "../../typechain-types";
-import {
-  getTokenAmount,
-  getTokenBalance,
-  getTokenContractForSymbol,
-} from "../ecosystem/utils.token";
+import { TokenSupplyManager, TokenSupplyManagerHarness } from "../../typechain-types";
+import { getTokenAmount, getTokenBalance, getTokenContractForSymbol } from "../ecosystem/utils.token";
 
 /**
  * Get the TokenSupplyManager contract
@@ -17,9 +10,7 @@ import {
  * @param callerAddress - The address of the caller
  * @returns The TokenSupplyManager contract
  */
-export async function getTokenSupplyManagerContract(
-  callerAddress: string,
-): Promise<TokenSupplyManager> {
+export async function getTokenSupplyManagerContract(callerAddress: string): Promise<TokenSupplyManager> {
   const contract = await hre.deployments.get("TokenSupplyManager");
   const tokenSupplyManagerContract = await hre.ethers.getContractAt(
     "TokenSupplyManager",
@@ -35,9 +26,7 @@ export async function getTokenSupplyManagerContract(
  * @param callerAddress - The address of the caller
  * @returns The TokenSupplyManagerHarness contract
  */
-export async function getTokenSupplyManagerHarnessContract(
-  callerAddress: string,
-): Promise<TokenSupplyManagerHarness> {
+export async function getTokenSupplyManagerHarnessContract(callerAddress: string): Promise<TokenSupplyManagerHarness> {
   const contract = await hre.deployments.get("TokenSupplyManagerHarness");
   const tokenSupplyManagerContract = await hre.ethers.getContractAt(
     "TokenSupplyManagerHarness",
@@ -54,15 +43,8 @@ export async function getTokenSupplyManagerHarnessContract(
  * @param tokenSymbol - The symbol of the token
  * @param amount - The amount to assert (in string format, e.g. "100" DUSD)
  */
-export async function assertBalance(
-  callerAddress: string,
-  tokenSymbol: string,
-  amount: string,
-): Promise<void> {
-  assert.equal(
-    await getTokenBalance(callerAddress, tokenSymbol),
-    await getTokenAmount(amount, tokenSymbol),
-  );
+export async function assertBalance(callerAddress: string, tokenSymbol: string, amount: string): Promise<void> {
+  assert.equal(await getTokenBalance(callerAddress, tokenSymbol), await getTokenAmount(amount, tokenSymbol));
 }
 
 /**
@@ -80,57 +62,24 @@ export async function issueWithApproval(
   depositAmount: number,
 ): Promise<void> {
   const supplyManager = await getTokenSupplyManagerContract(callerAddress);
-  const { contract: collateralContract } = await getTokenContractForSymbol(
-    callerAddress,
-    collateralSymbol,
-  );
+  const { contract: collateralContract } = await getTokenContractForSymbol(callerAddress, collateralSymbol);
 
-  const collateralTokenBalanceBefore = await getTokenBalance(
-    callerAddress,
-    collateralSymbol,
-  );
-  const receiptTokenBalanceBefore = await getTokenBalance(
-    callerAddress,
-    receiptSymbol,
-  );
+  const collateralTokenBalanceBefore = await getTokenBalance(callerAddress, collateralSymbol);
+  const receiptTokenBalanceBefore = await getTokenBalance(callerAddress, receiptSymbol);
 
-  await collateralContract.approve(
-    await supplyManager.getAddress(),
-    await getTokenAmount(depositAmount.toString(), collateralSymbol),
-  );
+  await collateralContract.approve(await supplyManager.getAddress(), await getTokenAmount(depositAmount.toString(), collateralSymbol));
 
-  await supplyManager.issue(
-    callerAddress,
-    await getTokenAmount(depositAmount.toString(), collateralSymbol),
-  );
+  await supplyManager.issue(callerAddress, await getTokenAmount(depositAmount.toString(), collateralSymbol));
 
-  const collateralTokenBalanceAfter = await getTokenBalance(
-    callerAddress,
-    collateralSymbol,
-  );
-  const receiptTokenBalanceAfter = await getTokenBalance(
-    callerAddress,
-    receiptSymbol,
-  );
+  const collateralTokenBalanceAfter = await getTokenBalance(callerAddress, collateralSymbol);
+  const receiptTokenBalanceAfter = await getTokenBalance(callerAddress, receiptSymbol);
 
-  const depositAmountBigInt = await getTokenAmount(
-    depositAmount.toString(),
-    collateralSymbol,
-  );
-  const receiptAmountBigInt = await getTokenAmount(
-    depositAmount.toString(),
-    receiptSymbol,
-  );
+  const depositAmountBigInt = await getTokenAmount(depositAmount.toString(), collateralSymbol);
+  const receiptAmountBigInt = await getTokenAmount(depositAmount.toString(), receiptSymbol);
 
   // Make sure the balance is decreased after depositing and the receipt token balance is increased
-  assert.equal(
-    collateralTokenBalanceBefore - depositAmountBigInt,
-    collateralTokenBalanceAfter,
-  );
-  assert.equal(
-    receiptTokenBalanceBefore + receiptAmountBigInt,
-    receiptTokenBalanceAfter,
-  );
+  assert.equal(collateralTokenBalanceBefore - depositAmountBigInt, collateralTokenBalanceAfter);
+  assert.equal(receiptTokenBalanceBefore + receiptAmountBigInt, receiptTokenBalanceAfter);
 }
 
 /**
@@ -148,55 +97,22 @@ export async function redeemWithApproval(
   redeemAmount: number,
 ): Promise<void> {
   const supplyManager = await getTokenSupplyManagerContract(callerAddress);
-  const { contract: receiptContract } = await getTokenContractForSymbol(
-    callerAddress,
-    receiptSymbol,
-  );
+  const { contract: receiptContract } = await getTokenContractForSymbol(callerAddress, receiptSymbol);
 
-  const collateralTokenBalanceBefore = await getTokenBalance(
-    callerAddress,
-    collateralSymbol,
-  );
-  const receiptTokenBalanceBefore = await getTokenBalance(
-    callerAddress,
-    receiptSymbol,
-  );
+  const collateralTokenBalanceBefore = await getTokenBalance(callerAddress, collateralSymbol);
+  const receiptTokenBalanceBefore = await getTokenBalance(callerAddress, receiptSymbol);
 
-  await receiptContract.approve(
-    await supplyManager.getAddress(),
-    await getTokenAmount(redeemAmount.toString(), receiptSymbol),
-  );
+  await receiptContract.approve(await supplyManager.getAddress(), await getTokenAmount(redeemAmount.toString(), receiptSymbol));
 
-  await supplyManager.redeem(
-    callerAddress,
-    await getTokenAmount(redeemAmount.toString(), receiptSymbol),
-  );
+  await supplyManager.redeem(callerAddress, await getTokenAmount(redeemAmount.toString(), receiptSymbol));
 
-  const collateralTokenBalanceAfter = await getTokenBalance(
-    callerAddress,
-    collateralSymbol,
-  );
-  const receiptTokenBalanceAfter = await getTokenBalance(
-    callerAddress,
-    receiptSymbol,
-  );
+  const collateralTokenBalanceAfter = await getTokenBalance(callerAddress, collateralSymbol);
+  const receiptTokenBalanceAfter = await getTokenBalance(callerAddress, receiptSymbol);
 
-  const redeemAmountBigInt = await getTokenAmount(
-    redeemAmount.toString(),
-    receiptSymbol,
-  );
-  const collateralAmountBigInt = await getTokenAmount(
-    redeemAmount.toString(),
-    collateralSymbol,
-  );
+  const redeemAmountBigInt = await getTokenAmount(redeemAmount.toString(), receiptSymbol);
+  const collateralAmountBigInt = await getTokenAmount(redeemAmount.toString(), collateralSymbol);
 
   // Make sure the balance is increased after redeeming and the receipt token balance is decreased
-  assert.equal(
-    collateralTokenBalanceBefore + collateralAmountBigInt,
-    collateralTokenBalanceAfter,
-  );
-  assert.equal(
-    receiptTokenBalanceBefore - redeemAmountBigInt,
-    receiptTokenBalanceAfter,
-  );
+  assert.equal(collateralTokenBalanceBefore + collateralAmountBigInt, collateralTokenBalanceAfter);
+  assert.equal(receiptTokenBalanceBefore - redeemAmountBigInt, receiptTokenBalanceAfter);
 }

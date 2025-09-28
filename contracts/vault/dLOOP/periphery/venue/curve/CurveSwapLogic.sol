@@ -17,11 +17,11 @@
 
 pragma solidity 0.8.20;
 
-import {ERC20, SafeERC20} from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
-import {ICurveRouterNgPoolsOnlyV1} from "contracts/curve/interfaces/ICurveRouterNgPoolsOnlyV1.sol";
-import {ICurveRouterWrapper} from "contracts/curve/interfaces/ICurveRouterWrapper.sol";
-import {CurveHelper} from "contracts/curve/CurveHelper.sol";
-import {Strings} from "@openzeppelin/contracts-5/utils/Strings.sol";
+import { ERC20, SafeERC20 } from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
+import { ICurveRouterNgPoolsOnlyV1 } from "contracts/curve/interfaces/ICurveRouterNgPoolsOnlyV1.sol";
+import { ICurveRouterWrapper } from "contracts/curve/interfaces/ICurveRouterWrapper.sol";
+import { CurveHelper } from "contracts/curve/CurveHelper.sol";
+import { Strings } from "@openzeppelin/contracts-5/utils/Strings.sol";
 
 /**
  * @title CurveSwapLogic
@@ -33,11 +33,7 @@ library CurveSwapLogic {
     /**
      * @dev Error thrown when custom swap data is provided but not supported
      */
-    error NotSupportedCustomSwapData(
-        address _inputToken,
-        address _outputToken,
-        bytes _swapData
-    );
+    error NotSupportedCustomSwapData(address _inputToken, address _outputToken, bytes _swapData);
 
     /**
      * @dev Configuration structure for Curve swap parameters and their reversals
@@ -72,42 +68,32 @@ library CurveSwapLogic {
         address receiver,
         bytes memory extraData,
         ICurveRouterNgPoolsOnlyV1 curveRouter,
-        mapping(string => CurveHelper.CurveSwapExtraParams)
-            storage defaultSwapParams,
+        mapping(string => CurveHelper.CurveSwapExtraParams) storage defaultSwapParams,
         mapping(string => bool) storage isSwapParamsSet
     ) external returns (uint256) {
         // If custom swap data is provided, revert as it's not supported
         if (extraData.length != 0) {
-            revert NotSupportedCustomSwapData(
-                address(inputToken),
-                address(outputToken),
-                extraData
-            );
+            revert NotSupportedCustomSwapData(address(inputToken), address(outputToken), extraData);
         }
 
         // Get the swap parameters for the given input and output tokens
-        CurveHelper.CurveSwapExtraParams
-            memory extraParams = getSwapExtraParams(
-                address(inputToken),
-                address(outputToken),
-                defaultSwapParams,
-                isSwapParamsSet
-            );
+        CurveHelper.CurveSwapExtraParams memory extraParams = getSwapExtraParams(
+            address(inputToken),
+            address(outputToken),
+            defaultSwapParams,
+            isSwapParamsSet
+        );
 
-        CurveHelper.CurveSwapExtraParams
-            memory reverseExtraParams = getSwapExtraParams(
-                address(outputToken),
-                address(inputToken),
-                defaultSwapParams,
-                isSwapParamsSet
-            );
+        CurveHelper.CurveSwapExtraParams memory reverseExtraParams = getSwapExtraParams(
+            address(outputToken),
+            address(inputToken),
+            defaultSwapParams,
+            isSwapParamsSet
+        );
 
         // Double check input token is the first token in the route
         if (address(inputToken) != extraParams.route[0]) {
-            revert ICurveRouterWrapper.InvalidInputTokenInRoute(
-                address(inputToken),
-                extraParams.route
-            );
+            revert ICurveRouterWrapper.InvalidInputTokenInRoute(address(inputToken), extraParams.route);
         }
 
         // Approve the router to spend our tokens
@@ -128,9 +114,7 @@ library CurveSwapLogic {
 
         // If recipient is different from the caller, transfer the output tokens
         if (receiver != address(this)) {
-            address lastToken = CurveHelper.getLastTokenInRoute(
-                extraParams.route
-            );
+            address lastToken = CurveHelper.getLastTokenInRoute(extraParams.route);
             ERC20(lastToken).safeTransfer(receiver, amountOut);
         }
 
@@ -145,8 +129,7 @@ library CurveSwapLogic {
      */
     function initializeDefaultSwapParams(
         CurveSwapExtraParamsDefaultConfig[] memory defaultSwapParamsList,
-        mapping(string => CurveHelper.CurveSwapExtraParams)
-            storage defaultSwapParams,
+        mapping(string => CurveHelper.CurveSwapExtraParams) storage defaultSwapParams,
         mapping(string => bool) storage isSwapParamsSet
     ) external {
         for (uint256 i = 0; i < defaultSwapParamsList.length; i++) {
@@ -178,8 +161,7 @@ library CurveSwapLogic {
                 );
             }
             isSwapParamsSet[reverseKey] = true;
-            defaultSwapParams[reverseKey] = defaultSwapParamsList[i]
-                .reverseSwapExtraParams;
+            defaultSwapParams[reverseKey] = defaultSwapParamsList[i].reverseSwapExtraParams;
         }
     }
 
@@ -191,14 +173,10 @@ library CurveSwapLogic {
      */
     function setSwapExtraParams(
         CurveSwapExtraParamsDefaultConfig memory swapExtraParamsConfig,
-        mapping(string => CurveHelper.CurveSwapExtraParams)
-            storage defaultSwapParams,
+        mapping(string => CurveHelper.CurveSwapExtraParams) storage defaultSwapParams,
         mapping(string => bool) storage isSwapParamsSet
     ) external {
-        string memory key = getSwapExtraParamsKey(
-            swapExtraParamsConfig.inputToken,
-            swapExtraParamsConfig.outputToken
-        );
+        string memory key = getSwapExtraParamsKey(swapExtraParamsConfig.inputToken, swapExtraParamsConfig.outputToken);
         isSwapParamsSet[key] = true;
         defaultSwapParams[key] = swapExtraParamsConfig.swapExtraParams;
 
@@ -207,8 +185,7 @@ library CurveSwapLogic {
             swapExtraParamsConfig.inputToken
         );
         isSwapParamsSet[reverseKey] = true;
-        defaultSwapParams[reverseKey] = swapExtraParamsConfig
-            .reverseSwapExtraParams;
+        defaultSwapParams[reverseKey] = swapExtraParamsConfig.reverseSwapExtraParams;
     }
 
     /**
@@ -217,10 +194,7 @@ library CurveSwapLogic {
      * @param outputToken Address of the output token
      * @return string The key for the swap parameters
      */
-    function getSwapExtraParamsKey(
-        address inputToken,
-        address outputToken
-    ) public pure returns (string memory) {
+    function getSwapExtraParamsKey(address inputToken, address outputToken) public pure returns (string memory) {
         string memory key = string.concat(
             Strings.toHexString(uint160(inputToken), 20),
             "-",
@@ -240,18 +214,13 @@ library CurveSwapLogic {
     function getSwapExtraParams(
         address inputToken,
         address outputToken,
-        mapping(string => CurveHelper.CurveSwapExtraParams)
-            storage defaultSwapParams,
+        mapping(string => CurveHelper.CurveSwapExtraParams) storage defaultSwapParams,
         mapping(string => bool) storage isSwapParamsSet
     ) public view returns (CurveHelper.CurveSwapExtraParams memory) {
         string memory key = getSwapExtraParamsKey(inputToken, outputToken);
         // If the key is not found, revert
         if (!isSwapParamsSet[key]) {
-            revert ICurveRouterWrapper.NotFoundKeyForSwapExtraParams(
-                inputToken,
-                outputToken,
-                key
-            );
+            revert ICurveRouterWrapper.NotFoundKeyForSwapExtraParams(inputToken, outputToken, key);
         }
         return defaultSwapParams[key];
     }

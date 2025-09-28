@@ -34,11 +34,7 @@ library CallbackValidation {
         address tokenB,
         uint24 fee
     ) internal view returns (IUniswapV3Pool pool) {
-        return
-            verifyCallback(
-                factory,
-                PoolAddress.getPoolKey(tokenA, tokenB, fee)
-            );
+        return verifyCallback(factory, PoolAddress.getPoolKey(tokenA, tokenB, fee));
     }
 
     /// @notice Returns the address of a valid Uniswap V3 Pool

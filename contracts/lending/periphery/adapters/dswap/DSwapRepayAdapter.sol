@@ -17,16 +17,16 @@
 
 pragma solidity ^0.8.10;
 
-import {DataTypes} from "contracts/lending/core/protocol/libraries/types/DataTypes.sol";
-import {IERC20Detailed} from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
-import {IERC20} from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
-import {IERC20WithPermit} from "contracts/lending/core/interfaces/IERC20WithPermit.sol";
-import {IPoolAddressesProvider} from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
-import {SafeERC20} from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeERC20.sol";
-import {SafeMath} from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeMath.sol";
-import {BaseDSwapBuyAdapter} from "./BaseDSwapBuyAdapter.sol";
-import {ReentrancyGuard} from "../../dependencies/openzeppelin/ReentrancyGuard.sol";
-import {ISwapRouter} from "./interfaces/ISwapRouter.sol";
+import { DataTypes } from "contracts/lending/core/protocol/libraries/types/DataTypes.sol";
+import { IERC20Detailed } from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import { IERC20 } from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
+import { IERC20WithPermit } from "contracts/lending/core/interfaces/IERC20WithPermit.sol";
+import { IPoolAddressesProvider } from "contracts/lending/core/interfaces/IPoolAddressesProvider.sol";
+import { SafeERC20 } from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeERC20.sol";
+import { SafeMath } from "contracts/lending/core/dependencies/openzeppelin/contracts/SafeMath.sol";
+import { BaseDSwapBuyAdapter } from "./BaseDSwapBuyAdapter.sol";
+import { ReentrancyGuard } from "../../dependencies/openzeppelin/ReentrancyGuard.sol";
+import { ISwapRouter } from "./interfaces/ISwapRouter.sol";
 
 /**
  * @title DSwapRepayAdapter
@@ -86,13 +86,7 @@ contract DSwapRepayAdapter is BaseDSwapBuyAdapter, ReentrancyGuard {
 
         IERC20Detailed collateralAsset = IERC20Detailed(asset);
 
-        _swapAndRepay(
-            params,
-            premium,
-            initiatorLocal,
-            collateralAsset,
-            collateralAmount
-        );
+        _swapAndRepay(params, premium, initiatorLocal, collateralAsset, collateralAmount);
 
         return true;
     }
@@ -121,58 +115,28 @@ contract DSwapRepayAdapter is BaseDSwapBuyAdapter, ReentrancyGuard {
         bytes memory path,
         PermitSignature calldata permitSignature
     ) external nonReentrant {
-        debtRepayAmount = getDebtRepayAmount(
-            debtAsset,
-            debtRateMode,
-            buyAllBalanceOffset,
-            debtRepayAmount,
-            msg.sender
-        );
+        debtRepayAmount = getDebtRepayAmount(debtAsset, debtRateMode, buyAllBalanceOffset, debtRepayAmount, msg.sender);
 
         // Pull aTokens from user
-        _pullATokenAndWithdraw(
-            address(collateralAsset),
-            msg.sender,
-            collateralAmount,
-            permitSignature
-        );
+        _pullATokenAndWithdraw(address(collateralAsset), msg.sender, collateralAmount, permitSignature);
         //buy debt asset using collateral asset
 
-        uint256 amountSold = _buyOnDSwap(
-            collateralAsset,
-            debtAsset,
-            collateralAmount,
-            debtRepayAmount,
-            path
-        );
+        uint256 amountSold = _buyOnDSwap(collateralAsset, debtAsset, collateralAmount, debtRepayAmount, path);
 
         uint256 collateralBalanceLeft = collateralAmount - amountSold;
 
         // deposit collateral back in the pool, if left after the swap(buy)
         if (collateralBalanceLeft > 0) {
             IERC20(collateralAsset).safeApprove(address(POOL), 0);
-            IERC20(collateralAsset).safeApprove(
-                address(POOL),
-                collateralBalanceLeft
-            );
-            POOL.deposit(
-                address(collateralAsset),
-                collateralBalanceLeft,
-                msg.sender,
-                0
-            );
+            IERC20(collateralAsset).safeApprove(address(POOL), collateralBalanceLeft);
+            POOL.deposit(address(collateralAsset), collateralBalanceLeft, msg.sender, 0);
         }
 
         // Repay debt. Approves 0 first to comply with tokens that implement the anti frontrunning approval fix
         IERC20(debtAsset).safeApprove(address(POOL), 0);
         IERC20(debtAsset).safeApprove(address(POOL), debtRepayAmount);
 
-        POOL.repay(
-            address(debtAsset),
-            debtRepayAmount,
-            debtRateMode,
-            msg.sender
-        );
+        POOL.repay(address(debtAsset), debtRepayAmount, debtRateMode, msg.sender);
     }
 
     /**
@@ -197,33 +161,11 @@ contract DSwapRepayAdapter is BaseDSwapBuyAdapter, ReentrancyGuard {
             uint256 rateMode,
             bytes memory path,
             PermitSignature memory permitSignature
-        ) = abi.decode(
-                params,
-                (
-                    IERC20Detailed,
-                    uint256,
-                    uint256,
-                    uint256,
-                    bytes,
-                    PermitSignature
-                )
-            );
+        ) = abi.decode(params, (IERC20Detailed, uint256, uint256, uint256, bytes, PermitSignature));
 
-        debtRepayAmount = getDebtRepayAmount(
-            debtAsset,
-            rateMode,
-            buyAllBalanceOffset,
-            debtRepayAmount,
-            initiator
-        );
+        debtRepayAmount = getDebtRepayAmount(debtAsset, rateMode, buyAllBalanceOffset, debtRepayAmount, initiator);
 
-        uint256 amountSold = _buyOnDSwap(
-            collateralAsset,
-            debtAsset,
-            collateralAmount,
-            debtRepayAmount,
-            path
-        );
+        uint256 amountSold = _buyOnDSwap(collateralAsset, debtAsset, collateralAmount, debtRepayAmount, path);
 
         // Repay debt. Approves for 0 first to comply with tokens that implement the anti frontrunning approval fix.
         IERC20(debtAsset).safeApprove(address(POOL), 0);
@@ -233,19 +175,11 @@ contract DSwapRepayAdapter is BaseDSwapBuyAdapter, ReentrancyGuard {
         uint256 neededForFlashLoanRepay = amountSold.add(premium);
 
         // Pull aTokens from user
-        _pullATokenAndWithdraw(
-            address(collateralAsset),
-            initiator,
-            neededForFlashLoanRepay,
-            permitSignature
-        );
+        _pullATokenAndWithdraw(address(collateralAsset), initiator, neededForFlashLoanRepay, permitSignature);
 
         // Repay flashloan. Approves for 0 first to comply with tokens that implement the anti frontrunning approval fix.
         IERC20(collateralAsset).safeApprove(address(POOL), 0);
-        IERC20(collateralAsset).safeApprove(
-            address(POOL),
-            collateralAmount.add(premium)
-        );
+        IERC20(collateralAsset).safeApprove(address(POOL), collateralAmount.add(premium));
     }
 
     function getDebtRepayAmount(
@@ -255,28 +189,19 @@ contract DSwapRepayAdapter is BaseDSwapBuyAdapter, ReentrancyGuard {
         uint256 debtRepayAmount,
         address initiator
     ) private view returns (uint256) {
-        DataTypes.ReserveData memory debtReserveData = _getReserveData(
-            address(debtAsset)
-        );
+        DataTypes.ReserveData memory debtReserveData = _getReserveData(address(debtAsset));
 
-        address debtToken = DataTypes.InterestRateMode(rateMode) ==
-            DataTypes.InterestRateMode.STABLE
+        address debtToken = DataTypes.InterestRateMode(rateMode) == DataTypes.InterestRateMode.STABLE
             ? debtReserveData.stableDebtTokenAddress
             : debtReserveData.variableDebtTokenAddress;
 
         uint256 currentDebt = IERC20(debtToken).balanceOf(initiator);
 
         if (buyAllBalanceOffset != 0) {
-            require(
-                currentDebt <= debtRepayAmount,
-                "INSUFFICIENT_AMOUNT_TO_REPAY"
-            );
+            require(currentDebt <= debtRepayAmount, "INSUFFICIENT_AMOUNT_TO_REPAY");
             debtRepayAmount = currentDebt;
         } else {
-            require(
-                debtRepayAmount <= currentDebt,
-                "INVALID_DEBT_REPAY_AMOUNT"
-            );
+            require(debtRepayAmount <= currentDebt, "INVALID_DEBT_REPAY_AMOUNT");
         }
 
         return debtRepayAmount;

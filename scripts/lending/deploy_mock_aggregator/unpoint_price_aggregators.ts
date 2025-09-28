@@ -24,11 +24,7 @@ async function main(): Promise<void> {
 
   const { address: aaveOracleAddress } = await hre.deployments.get(ORACLE_ID);
 
-  const aaveOracleContract = await hre.ethers.getContractAt(
-    "AaveOracle",
-    aaveOracleAddress,
-    await hre.ethers.getSigner(lendingDeployer),
-  );
+  const aaveOracleContract = await hre.ethers.getContractAt("AaveOracle", aaveOracleAddress, await hre.ethers.getSigner(lendingDeployer));
 
   await aaveOracleContract.setAssetSources(assetAddresses, aggregatorAddresses);
 

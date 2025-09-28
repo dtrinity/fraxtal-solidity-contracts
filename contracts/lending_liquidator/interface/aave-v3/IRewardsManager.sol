@@ -24,10 +24,7 @@ interface IRewardsManager {
 
     function getUserIndex(address, address) external returns (uint256);
 
-    function getUserUnclaimedRewards(
-        address[] calldata,
-        address
-    ) external view returns (uint256);
+    function getUserUnclaimedRewards(address[] calldata, address) external view returns (uint256);
 
     function claimRewards(
         IAaveIncentivesController _aaveIncentivesController,

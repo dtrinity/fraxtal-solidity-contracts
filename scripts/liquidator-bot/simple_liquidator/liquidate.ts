@@ -33,14 +33,10 @@ export async function executeLiquidation(
 }> {
   const signer = await hre.ethers.getSigner(callerAddress);
 
-  const { tokenInfo: collateralTokenInfo } = await getTokenContractForAddress(
-    callerAddress,
-    collateralTokenAddress,
-  );
+  const { tokenInfo: collateralTokenInfo } = await getTokenContractForAddress(callerAddress, collateralTokenAddress);
 
   // Get debt token contract and info
-  const { contract: debtTokenContract, tokenInfo: debtTokenInfo } =
-    await getTokenContractForAddress(callerAddress, debtTokenAddress);
+  const { contract: debtTokenContract, tokenInfo: debtTokenInfo } = await getTokenContractForAddress(callerAddress, debtTokenAddress);
 
   // Get pool contract
   const addressProvider = await hre.ethers.getContractAt(
@@ -51,27 +47,17 @@ export async function executeLiquidation(
   const poolAddress = await addressProvider.getPool();
   const pool = await hre.ethers.getContractAt("Pool", poolAddress, signer);
 
-  const { toLiquidateAmount } = await getMaxLiquidationAmount(
-    collateralTokenInfo,
-    debtTokenInfo,
-    borrowerAddress,
-    callerAddress,
-  );
+  const { toLiquidateAmount } = await getMaxLiquidationAmount(collateralTokenInfo, debtTokenInfo, borrowerAddress, callerAddress);
 
   const healthFactor = await getUserHealthFactor(borrowerAddress);
 
-  console.log(
-    `Collateral token: ${collateralTokenAddress} ${collateralTokenInfo.symbol}`,
-  );
+  console.log(`Collateral token: ${collateralTokenAddress} ${collateralTokenInfo.symbol}`);
   console.log(`Debt token: ${debtTokenAddress} ${debtTokenInfo.symbol}`);
   console.log(`Borrower: ${borrowerAddress}`);
   console.log(`Health factor: ${healthFactor}`);
   console.log("Debt-to-cover amount:", toLiquidateAmount.toString());
 
-  const debtTokenBalance = await getTokenBalanceFromAddress(
-    callerAddress,
-    debtTokenAddress,
-  );
+  const debtTokenBalance = await getTokenBalanceFromAddress(callerAddress, debtTokenAddress);
   console.log(`Caller debt token balance: ${debtTokenBalance}`);
 
   // Check if the caller has enough debt tokens to liquidate
@@ -81,10 +67,7 @@ export async function executeLiquidation(
 
   // Approve pool to spend debt tokens
   console.log("Approving pool to spend debt tokens");
-  const approveTx = await debtTokenContract.approve(
-    poolAddress,
-    toLiquidateAmount.toBigInt(),
-  );
+  const approveTx = await debtTokenContract.approve(poolAddress, toLiquidateAmount.toBigInt());
   await approveTx.wait();
 
   // Execute liquidation
@@ -123,9 +106,7 @@ export async function executeLiquidation(
 
   return {
     receipt,
-    seizedCollateralAmount: liquidationEvent
-      ? liquidationEvent.args.liquidatedCollateralAmount
-      : null,
+    seizedCollateralAmount: liquidationEvent ? liquidationEvent.args.liquidatedCollateralAmount : null,
   };
 }
 
@@ -142,9 +123,7 @@ async function main(): Promise<void> {
   const { liquidatorBotDeployer } = await hre.getNamedAccounts();
 
   if (!liquidatorBotDeployer) {
-    throw new Error(
-      "Liquidator bot deployer not found, please set the PK_<NETWORK>_LIQUIDATOR_BOT environment variable",
-    );
+    throw new Error("Liquidator bot deployer not found, please set the PK_<NETWORK>_LIQUIDATOR_BOT environment variable");
   }
 
   const { seizedCollateralAmount } = await executeLiquidation(

@@ -32,16 +32,12 @@ async function deployFlashMintLiquidatorBot(
   defaultSwapParamsList: any[],
   proxyContractMap: { [key: string]: string },
 ): Promise<boolean> {
-  const { address: lendingPoolAddressesProviderAddress } =
-    await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
+  const { address: lendingPoolAddressesProviderAddress } = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
 
   // Get the AToken of the quote token
-  const { aTokenAddress } =
-    await getReserveTokensAddressesFromAddress(flashMinter);
+  const { aTokenAddress } = await getReserveTokensAddressesFromAddress(flashMinter);
 
-  const addressProviderDeployedResult = await hre.deployments.get(
-    POOL_ADDRESSES_PROVIDER_ID,
-  );
+  const addressProviderDeployedResult = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
   const addressProviderContract = await hre.ethers.getContractAt(
     "PoolAddressesProvider",
     addressProviderDeployedResult.address,
@@ -51,8 +47,7 @@ async function deployFlashMintLiquidatorBot(
   const poolAddress = await addressProviderContract.getPool();
 
   // Get the deployed CurveHelper library address
-  const { address: curveHelperAddress } =
-    await hre.deployments.get(CURVE_HELPER_ID);
+  const { address: curveHelperAddress } = await hre.deployments.get(CURVE_HELPER_ID);
 
   // The order of parameters in the constructor matches what we're passing:
   await deployContract(
@@ -77,9 +72,7 @@ async function deployFlashMintLiquidatorBot(
   );
 
   // Set the proxy contract
-  const flashMintLiquidatorBotDeployedResult = await hre.deployments.get(
-    FLASH_MINT_LIQUIDATOR_CURVE_ID,
-  );
+  const flashMintLiquidatorBotDeployedResult = await hre.deployments.get(FLASH_MINT_LIQUIDATOR_CURVE_ID);
   const flashMintLiquidatorBotContract = await hre.ethers.getContractAt(
     "FlashMintLiquidatorAaveBorrowRepayCurve",
     flashMintLiquidatorBotDeployedResult.address,
@@ -104,9 +97,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   if (isLocalNetwork(hre.network.name)) {
-    throw new Error(
-      "Curve liquidator bot config cannot be used on local networks",
-    );
+    throw new Error("Curve liquidator bot config cannot be used on local networks");
   }
 
   return deployFlashMintLiquidatorBot(

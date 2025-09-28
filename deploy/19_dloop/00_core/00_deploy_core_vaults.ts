@@ -34,8 +34,7 @@ async function deployDLoopCoreDLend(
   dUSDAddress: string,
   vaultInfo: CoreVaultInfo,
 ): Promise<boolean> {
-  const { address: lendingPoolAddressesProviderAddress } =
-    await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
+  const { address: lendingPoolAddressesProviderAddress } = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
 
   // Get the underlying token symbol to use as the vault name
   const underlyingTokenContract = await hre.ethers.getContractAt(
@@ -84,14 +83,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const dloopConfig = networkConfig.dLoop;
 
   // Skip if no dLOOP configuration or no core vaults are defined
-  if (
-    !dloopConfig ||
-    !dloopConfig.coreVaults ||
-    Object.keys(dloopConfig.coreVaults).length === 0
-  ) {
-    console.log(
-      `No dLOOP core vaults defined for network ${hre.network.name}. Skipping.`,
-    );
+  if (!dloopConfig || !dloopConfig.coreVaults || Object.keys(dloopConfig.coreVaults).length === 0) {
+    console.log(`No dLOOP core vaults defined for network ${hre.network.name}. Skipping.`);
     return;
   }
 
@@ -102,9 +95,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     throw new Error("dUSD token address not found in configuration");
   }
 
-  console.log(
-    `Deploying dLOOP core vaults on network ${hre.network.name} (chainId: ${chainId})`,
-  );
+  console.log(`Deploying dLOOP core vaults on network ${hre.network.name} (chainId: ${chainId})`);
 
   // Deploy each core vault
   for (const [vaultKey, vaultInfo] of Object.entries(dloopConfig.coreVaults)) {

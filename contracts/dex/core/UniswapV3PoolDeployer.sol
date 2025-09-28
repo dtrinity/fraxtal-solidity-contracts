@@ -54,11 +54,7 @@ contract UniswapV3PoolDeployer is IUniswapV3PoolDeployer {
             fee: fee,
             tickSpacing: tickSpacing
         });
-        pool = address(
-            new UniswapV3Pool{
-                salt: keccak256(abi.encode(token0, token1, fee))
-            }()
-        );
+        pool = address(new UniswapV3Pool{ salt: keccak256(abi.encode(token0, token1, fee)) }());
         delete parameters;
     }
 }

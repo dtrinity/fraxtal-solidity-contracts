@@ -11,10 +11,7 @@ import {
   SDUSD_REWARD_MANAGER_ID,
   SDUSD_WRAPPED_DLEND_CONVERSION_ADAPTER_ID,
 } from "../../typescript/deploy-ids";
-import {
-  AAVE_ORACLE_USD_DECIMALS,
-  ONE_PERCENT_BPS,
-} from "../../utils/constants";
+import { AAVE_ORACLE_USD_DECIMALS, ONE_PERCENT_BPS } from "../../utils/constants";
 import { TEST_WETH9_ID } from "../../utils/dex/deploy-ids";
 import {
   rateStrategyDUSD,
@@ -39,9 +36,7 @@ import { Config } from "../types";
  * @param hre - Hardhat Runtime Environment
  * @returns The configuration for the network
  */
-export async function getConfig(
-  hre: HardhatRuntimeEnvironment,
-): Promise<Config> {
+export async function getConfig(hre: HardhatRuntimeEnvironment): Promise<Config> {
   // Allow the deployment to be null as this function maybe called before the deployment of the test tokens
   const WFRXETHDeployment = await hre.deployments.getOrNull(TEST_WETH9_ID);
   // TODO: should be changed to dUSD
@@ -55,28 +50,15 @@ export async function getConfig(
 
   const { dexDeployer, testTokenOwner1 } = await hre.getNamedAccounts();
 
-  const dexOracleWrapperDeployment = await hre.deployments.getOrNull(
-    DEX_ORACLE_WRAPPER_ID,
-  );
+  const dexOracleWrapperDeployment = await hre.deployments.getOrNull(DEX_ORACLE_WRAPPER_ID);
 
   // Fetch dSTAKE related deployments
-  const sdUSDDeployment = await hre.deployments.getOrNull(
-    SDUSD_DSTAKE_TOKEN_ID,
-  );
-  const dUSDStaticATokenDeployment = await hre.deployments.getOrNull(
-    dUSD_A_TOKEN_WRAPPER_ID,
-  );
-  const conversionAdapterDeployment = await hre.deployments.getOrNull(
-    SDUSD_WRAPPED_DLEND_CONVERSION_ADAPTER_ID,
-  );
-  const _rewardManagerDeployment = await hre.deployments.getOrNull(
-    SDUSD_REWARD_MANAGER_ID,
-  );
-  const rewardsControllerDeployment =
-    await hre.deployments.getOrNull(INCENTIVES_PROXY_ID);
-  const dUSDATokenDeployment = await hre.deployments.getOrNull(
-    `${ATOKEN_IMPL_ID}_dUSD`,
-  );
+  const sdUSDDeployment = await hre.deployments.getOrNull(SDUSD_DSTAKE_TOKEN_ID);
+  const dUSDStaticATokenDeployment = await hre.deployments.getOrNull(dUSD_A_TOKEN_WRAPPER_ID);
+  const conversionAdapterDeployment = await hre.deployments.getOrNull(SDUSD_WRAPPED_DLEND_CONVERSION_ADAPTER_ID);
+  const _rewardManagerDeployment = await hre.deployments.getOrNull(SDUSD_REWARD_MANAGER_ID);
+  const rewardsControllerDeployment = await hre.deployments.getOrNull(INCENTIVES_PROXY_ID);
+  const dUSDATokenDeployment = await hre.deployments.getOrNull(`${ATOKEN_IMPL_ID}_dUSD`);
 
   return {
     walletAddresses: {
@@ -216,18 +198,9 @@ export async function getConfig(
       dUSDAddress: emptyIfUndefined(dUSDDeployment?.address, ""),
       dexOracleAssets: {
         // Note that dUSD is already hard pegged to $1, so it's not included in dexOracleAssets
-        [emptyIfUndefined(SFRAXDeployment?.address, "")]: emptyIfUndefined(
-          dexOracleWrapperDeployment?.address,
-          "",
-        ),
-        [emptyIfUndefined(WFRXETHDeployment?.address, "")]: emptyIfUndefined(
-          dexOracleWrapperDeployment?.address,
-          "",
-        ),
-        [emptyIfUndefined(FXSDeployment?.address, "")]: emptyIfUndefined(
-          dexOracleWrapperDeployment?.address,
-          "",
-        ),
+        [emptyIfUndefined(SFRAXDeployment?.address, "")]: emptyIfUndefined(dexOracleWrapperDeployment?.address, ""),
+        [emptyIfUndefined(WFRXETHDeployment?.address, "")]: emptyIfUndefined(dexOracleWrapperDeployment?.address, ""),
+        [emptyIfUndefined(FXSDeployment?.address, "")]: emptyIfUndefined(dexOracleWrapperDeployment?.address, ""),
       },
       api3OracleAssets: {
         plainApi3OracleWrappers: {},
@@ -280,9 +253,7 @@ export async function getConfig(
       },
     },
     dStake:
-      dUSDDeployment &&
-      dUSDStaticATokenDeployment &&
-      dUSDStaticATokenDeployment.address !== ""
+      dUSDDeployment && dUSDStaticATokenDeployment && dUSDStaticATokenDeployment.address !== ""
         ? {
             sdUSD: {
               dStable: dUSDDeployment.address,
@@ -292,9 +263,7 @@ export async function getConfig(
               initialFeeManager: dexDeployer,
               initialWithdrawalFeeBps: 0.1 * ONE_PERCENT_BPS, // 0.1% (1000 in contract terms = 10 basis points)
               adapters:
-                dUSDStaticATokenDeployment &&
-                dUSDStaticATokenDeployment.address !== "" &&
-                conversionAdapterDeployment
+                dUSDStaticATokenDeployment && dUSDStaticATokenDeployment.address !== "" && conversionAdapterDeployment
                   ? [
                       {
                         vaultAsset: dUSDStaticATokenDeployment.address,
@@ -302,27 +271,19 @@ export async function getConfig(
                       },
                     ]
                   : [],
-              defaultDepositVaultAsset: emptyIfUndefined(
-                dUSDStaticATokenDeployment?.address,
-                "",
-              ),
+              defaultDepositVaultAsset: emptyIfUndefined(dUSDStaticATokenDeployment?.address, ""),
               collateralVault: "DStakeCollateralVault_sdUSD",
               collateralExchangers: [dexDeployer],
               dLendRewardManager:
-                dUSDStaticATokenDeployment &&
-                dUSDATokenDeployment &&
-                rewardsControllerDeployment
+                dUSDStaticATokenDeployment && dUSDATokenDeployment && rewardsControllerDeployment
                   ? {
                       managedVaultAsset: dUSDStaticATokenDeployment.address,
                       dLendAssetToClaimFor: dUSDATokenDeployment.address,
-                      dLendRewardsController:
-                        rewardsControllerDeployment.address,
+                      dLendRewardsController: rewardsControllerDeployment.address,
                       treasury: dexDeployer,
                       maxTreasuryFeeBps: 5 * ONE_PERCENT_BPS, // 5%
                       initialTreasuryFeeBps: 1 * ONE_PERCENT_BPS, // 1%
-                      initialExchangeThreshold: ethers
-                        .parseUnits("1", 6)
-                        .toString(), // 1 dUSD (6 decimals)
+                      initialExchangeThreshold: ethers.parseUnits("1", 6).toString(), // 1 dUSD (6 decimals)
                     }
                   : undefined,
             },

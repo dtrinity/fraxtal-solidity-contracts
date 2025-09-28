@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.0;
 
-import {Ownable} from "../../dependencies/openzeppelin/contracts/Ownable.sol";
-import {ISequencerOracle} from "../../interfaces/ISequencerOracle.sol";
+import { Ownable } from "../../dependencies/openzeppelin/contracts/Ownable.sol";
+import { ISequencerOracle } from "../../interfaces/ISequencerOracle.sol";
 
 contract SequencerOracle is ISequencerOracle, Ownable {
     bool internal _isDown;
@@ -47,13 +47,7 @@ contract SequencerOracle is ISequencerOracle, Ownable {
         external
         view
         override
-        returns (
-            uint80 roundId,
-            int256 answer,
-            uint256 startedAt,
-            uint256 updatedAt,
-            uint80 answeredInRound
-        )
+        returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
         int256 isDown;
         if (_isDown) {

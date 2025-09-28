@@ -26,20 +26,14 @@ import "./UniswapV3Pool.sol";
 
 /// @title Canonical Uniswap V3 factory
 /// @notice Deploys Uniswap V3 pools and manages ownership and control over pool protocol fees
-contract UniswapV3Factory is
-    IUniswapV3Factory,
-    UniswapV3PoolDeployer,
-    NoDelegateCall
-{
+contract UniswapV3Factory is IUniswapV3Factory, UniswapV3PoolDeployer, NoDelegateCall {
     /// @inheritdoc IUniswapV3Factory
     address public override owner;
 
     /// @inheritdoc IUniswapV3Factory
     mapping(uint24 => int24) public override feeAmountTickSpacing;
     /// @inheritdoc IUniswapV3Factory
-    mapping(address => mapping(address => mapping(uint24 => address)))
-        public
-        override getPool;
+    mapping(address => mapping(address => mapping(uint24 => address))) public override getPool;
 
     constructor() {
         owner = msg.sender;
@@ -62,9 +56,7 @@ contract UniswapV3Factory is
         uint24 fee
     ) external override noDelegateCall returns (address pool) {
         require(tokenA != tokenB);
-        (address token0, address token1) = tokenA < tokenB
-            ? (tokenA, tokenB)
-            : (tokenB, tokenA);
+        (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0));
         int24 tickSpacing = feeAmountTickSpacing[fee];
         require(tickSpacing != 0);

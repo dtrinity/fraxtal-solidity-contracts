@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.10;
 
-import {IERC20WithPermit} from "contracts/lending/core/interfaces/IERC20WithPermit.sol";
+import { IERC20WithPermit } from "contracts/lending/core/interfaces/IERC20WithPermit.sol";
 
 /**
  * @title IBaseOdosAdapter
@@ -32,12 +32,7 @@ interface IBaseOdosAdapter {
      * @param amountIn The amount of tokens sold
      * @param amountOut The amount of tokens bought
      */
-    event Bought(
-        address indexed tokenIn,
-        address indexed tokenOut,
-        uint256 amountIn,
-        uint256 amountOut
-    );
+    event Bought(address indexed tokenIn, address indexed tokenOut, uint256 amountIn, uint256 amountOut);
 
     /* Custom Errors */
     /**

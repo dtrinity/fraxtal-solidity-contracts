@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.10;
 
-import {IBaseCurveAdapter} from "./IBaseCurveAdapter.sol";
+import { IBaseCurveAdapter } from "./IBaseCurveAdapter.sol";
 
 /**
  * @title ICurveLiquiditySwapAdapter

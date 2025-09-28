@@ -31,13 +31,9 @@ import "../interface/aave-v3/aave/ILendingPool.sol";
 
 import "@openzeppelin/contracts-4-6/security/ReentrancyGuard.sol";
 import "../common/SharedLiquidator.sol";
-import {ERC4626} from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
+import { ERC4626 } from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
 
-abstract contract FlashLoanLiquidatorAaveBase is
-    ReentrancyGuard,
-    SharedLiquidator,
-    IFlashLoanSimpleReceiver
-{
+abstract contract FlashLoanLiquidatorAaveBase is ReentrancyGuard, SharedLiquidator, IFlashLoanSimpleReceiver {
     using SafeTransferLib for ERC20;
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
     using PercentageMath for uint256;
@@ -75,10 +71,7 @@ abstract contract FlashLoanLiquidatorAaveBase is
 
     error InvalidFlashLoanAmount(uint256 flashLoanAmount, uint256 toLiquidate);
 
-    error InsufficientFlashLoanRepayAmount(
-        uint256 balance,
-        uint256 totalToRepay
-    );
+    error InsufficientFlashLoanRepayAmount(uint256 balance, uint256 totalToRepay);
 
     event Liquidated(
         address indexed liquidator,
@@ -106,30 +99,17 @@ abstract contract FlashLoanLiquidatorAaveBase is
         addressesProvider = _addressesProvider;
     }
 
-    function _liquidateInternal(
-        LiquidateParams memory _liquidateParams
-    ) internal returns (uint256 seized_) {
-        uint256 balanceBefore = _liquidateParams.collateralUnderlying.balanceOf(
-            address(this)
-        );
-        _liquidateParams.borrowedUnderlying.safeApprove(
-            address(liquidateLender),
-            _liquidateParams.toRepay
-        );
+    function _liquidateInternal(LiquidateParams memory _liquidateParams) internal returns (uint256 seized_) {
+        uint256 balanceBefore = _liquidateParams.collateralUnderlying.balanceOf(address(this));
+        _liquidateParams.borrowedUnderlying.safeApprove(address(liquidateLender), _liquidateParams.toRepay);
         liquidateLender.liquidationCall(
-            address(
-                _getUnderlying(address(_liquidateParams.poolTokenCollateral))
-            ),
-            address(
-                _getUnderlying(address(_liquidateParams.poolTokenBorrowed))
-            ),
+            address(_getUnderlying(address(_liquidateParams.poolTokenCollateral))),
+            address(_getUnderlying(address(_liquidateParams.poolTokenBorrowed))),
             _liquidateParams.borrower,
             _liquidateParams.toRepay,
             false
         );
-        seized_ =
-            _liquidateParams.collateralUnderlying.balanceOf(address(this)) -
-            balanceBefore;
+        seized_ = _liquidateParams.collateralUnderlying.balanceOf(address(this)) - balanceBefore;
         emit Liquidated(
             msg.sender,
             _liquidateParams.borrower,
@@ -151,9 +131,7 @@ abstract contract FlashLoanLiquidatorAaveBase is
             _flashLoanParams.isUnstakeCollateralToken
         );
 
-        uint256 balanceBefore = ERC20(actualCollateralToken_).balanceOf(
-            address(this)
-        );
+        uint256 balanceBefore = ERC20(actualCollateralToken_).balanceOf(address(this));
 
         // The liquidation is done in the callback at executeOperation()
         // - contracts/lending_liquidator/aave-v3/FlashLoanLiquidatorAaveBorrowRepayUniswapV3.sol
@@ -167,9 +145,7 @@ abstract contract FlashLoanLiquidatorAaveBase is
             0
         );
 
-        uint256 balanceAfter = ERC20(actualCollateralToken_).balanceOf(
-            address(this)
-        );
+        uint256 balanceAfter = ERC20(actualCollateralToken_).balanceOf(address(this));
 
         if (balanceAfter > balanceBefore) {
             seized_ = balanceAfter - balanceBefore;
@@ -181,9 +157,7 @@ abstract contract FlashLoanLiquidatorAaveBase is
         emit FlashLoan(msg.sender, borrowedTokenToFlashLoan);
     }
 
-    function _encodeData(
-        FlashLoanParams memory _flashLoanParams
-    ) internal pure returns (bytes memory data) {
+    function _encodeData(FlashLoanParams memory _flashLoanParams) internal pure returns (bytes memory data) {
         data = abi.encode(
             _flashLoanParams.collateralUnderlying,
             _flashLoanParams.borrowedUnderlying,
@@ -197,9 +171,7 @@ abstract contract FlashLoanLiquidatorAaveBase is
         );
     }
 
-    function _decodeData(
-        bytes calldata data
-    ) internal pure returns (FlashLoanParams memory _flashLoanParams) {
+    function _decodeData(bytes calldata data) internal pure returns (FlashLoanParams memory _flashLoanParams) {
         // Need to split the decode because of stack too deep error
         (
             _flashLoanParams.collateralUnderlying,
@@ -211,20 +183,7 @@ abstract contract FlashLoanLiquidatorAaveBase is
             ,
             ,
 
-        ) = abi.decode(
-            data,
-            (
-                address,
-                address,
-                address,
-                address,
-                address,
-                address,
-                uint256,
-                bool,
-                bytes
-            )
-        );
+        ) = abi.decode(data, (address, address, address, address, address, address, uint256, bool, bytes));
         (
             ,
             ,
@@ -235,25 +194,10 @@ abstract contract FlashLoanLiquidatorAaveBase is
             _flashLoanParams.toLiquidate,
             _flashLoanParams.isUnstakeCollateralToken,
             _flashLoanParams.swapData
-        ) = abi.decode(
-            data,
-            (
-                address,
-                address,
-                address,
-                address,
-                address,
-                address,
-                uint256,
-                bool,
-                bytes
-            )
-        );
+        ) = abi.decode(data, (address, address, address, address, address, address, uint256, bool, bytes));
     }
 
-    function _getUnderlying(
-        address _poolToken
-    ) internal view returns (ERC20 underlying_) {
+    function _getUnderlying(address _poolToken) internal view returns (ERC20 underlying_) {
         underlying_ = ERC20(IAToken(_poolToken).UNDERLYING_ASSET_ADDRESS());
     }
 
@@ -262,12 +206,7 @@ abstract contract FlashLoanLiquidatorAaveBase is
         uint256 _amount,
         address _recipient
     ) public returns (uint256) {
-        return
-            ERC4626(_collateralERC4626Token).redeem(
-                _amount,
-                _recipient,
-                _recipient
-            );
+        return ERC4626(_collateralERC4626Token).redeem(_amount, _recipient, _recipient);
     }
 
     /**
@@ -280,9 +219,5 @@ abstract contract FlashLoanLiquidatorAaveBase is
     function getActualCollateralToken(
         address _collateralUnderlying,
         bool _isUnstakeCollateralToken
-    )
-        public
-        view
-        virtual
-        returns (address actualCollateralToken_, address proxyContract_);
+    ) public view virtual returns (address actualCollateralToken_, address proxyContract_);
 }

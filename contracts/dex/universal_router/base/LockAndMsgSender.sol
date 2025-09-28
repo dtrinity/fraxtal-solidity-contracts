@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.17;
 
-import {Constants} from "../libraries/Constants.sol";
+import { Constants } from "../libraries/Constants.sol";
 
 contract LockAndMsgSender {
     error ContractLocked();

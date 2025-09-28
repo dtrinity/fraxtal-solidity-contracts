@@ -6,10 +6,7 @@ import { deployUiPoolDataProvider } from "../../../utils/lending/deploy/03_perip
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { lendingDeployer } = await hre.getNamedAccounts();
 
-  return deployUiPoolDataProvider(
-    hre,
-    await hre.ethers.getSigner(lendingDeployer),
-  );
+  return deployUiPoolDataProvider(hre, await hre.ethers.getSigner(lendingDeployer));
 };
 
 func.tags = ["lbp", "lbp-periphery-post", "lbp-ui-helpers"];

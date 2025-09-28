@@ -53,21 +53,11 @@ contract CurveRouterWrapper is ICurveRouterWrapper {
         IERC20(tokenIn).approve(address(router), amountIn);
 
         // Execute the swap
-        uint256 amountOut = router.exchange(
-            route,
-            swapParams,
-            amountIn,
-            minAmountOut,
-            pools,
-            msg.sender
-        );
+        uint256 amountOut = router.exchange(route, swapParams, amountIn, minAmountOut, pools, msg.sender);
 
         // Ensure the swap was successful
         if (amountOut < minAmountOut) {
-            revert ICurveRouterWrapper.InsufficientOutputAmount(
-                amountOut,
-                minAmountOut
-            );
+            revert ICurveRouterWrapper.InsufficientOutputAmount(amountOut, minAmountOut);
         }
 
         return amountOut;
@@ -82,23 +72,14 @@ contract CurveRouterWrapper is ICurveRouterWrapper {
         address tokenIn
     ) external returns (uint256) {
         // Calculate the required input amount
-        uint256 estimatedAmountIn = router.get_dx(
-            route,
-            swapParams,
-            amountOut,
-            pools
-        );
+        uint256 estimatedAmountIn = router.get_dx(route, swapParams, amountOut, pools);
 
         // Add a buffer to account for potential slippage
-        uint256 amountIn = (estimatedAmountIn *
-            (Constants.ONE_HUNDRED_PERCENT_BPS + SLIPPAGE_BUFFER_BPS)) /
+        uint256 amountIn = (estimatedAmountIn * (Constants.ONE_HUNDRED_PERCENT_BPS + SLIPPAGE_BUFFER_BPS)) /
             Constants.ONE_HUNDRED_PERCENT_BPS;
 
         if (amountIn > maxAmountIn) {
-            revert ICurveRouterWrapper.InputAmountExceedsMaximum(
-                amountIn,
-                maxAmountIn
-            );
+            revert ICurveRouterWrapper.InputAmountExceedsMaximum(amountIn, maxAmountIn);
         }
 
         // Transfer input tokens from the sender to this contract
@@ -119,10 +100,7 @@ contract CurveRouterWrapper is ICurveRouterWrapper {
 
         // Ensure the swap was successful
         if (actualAmountOut < amountOut) {
-            revert ICurveRouterWrapper.InsufficientOutputAmount(
-                actualAmountOut,
-                amountOut
-            );
+            revert ICurveRouterWrapper.InsufficientOutputAmount(actualAmountOut, amountOut);
         }
 
         // If there are any unused input tokens, return them to the user

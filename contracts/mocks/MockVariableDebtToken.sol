@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.20;
 
-import {IERC20} from "../lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
-import {IERC20Detailed} from "../lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
+import { IERC20 } from "../lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
+import { IERC20Detailed } from "../lending/core/dependencies/openzeppelin/contracts/IERC20Detailed.sol";
 
 // Mock VariableDebtToken with minimal implementation needed for tests
 contract MockVariableDebtToken is IERC20, IERC20Detailed {
@@ -48,16 +48,11 @@ contract MockVariableDebtToken is IERC20, IERC20Detailed {
         return total;
     }
 
-    function balanceOf(
-        address account
-    ) external view override returns (uint256) {
+    function balanceOf(address account) external view override returns (uint256) {
         return _balances[account];
     }
 
-    function transfer(
-        address to,
-        uint256 amount
-    ) external override returns (bool) {
+    function transfer(address to, uint256 amount) external override returns (bool) {
         require(_balances[msg.sender] >= amount, "Insufficient balance");
         _balances[msg.sender] -= amount;
         _balances[to] += amount;
@@ -65,31 +60,18 @@ contract MockVariableDebtToken is IERC20, IERC20Detailed {
         return true;
     }
 
-    function allowance(
-        address owner,
-        address spender
-    ) external view override returns (uint256) {
+    function allowance(address owner, address spender) external view override returns (uint256) {
         return _allowances[owner][spender];
     }
 
-    function approve(
-        address spender,
-        uint256 amount
-    ) external override returns (bool) {
+    function approve(address spender, uint256 amount) external override returns (bool) {
         _allowances[msg.sender][spender] = amount;
         emit Approval(msg.sender, spender, amount);
         return true;
     }
 
-    function transferFrom(
-        address from,
-        address to,
-        uint256 amount
-    ) external override returns (bool) {
-        require(
-            _allowances[from][msg.sender] >= amount,
-            "Insufficient allowance"
-        );
+    function transferFrom(address from, address to, uint256 amount) external override returns (bool) {
+        require(_allowances[from][msg.sender] >= amount, "Insufficient allowance");
         require(_balances[from] >= amount, "Insufficient balance");
         _allowances[from][msg.sender] -= amount;
         _balances[from] -= amount;

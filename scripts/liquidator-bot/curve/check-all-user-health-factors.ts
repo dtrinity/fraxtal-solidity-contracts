@@ -19,9 +19,7 @@ async function main(): Promise<void> {
       try {
         return getUserAccountData(userAddress);
       } catch (error: any) {
-        console.log(
-          `Error occurred while getting account data of user ${userAddress}: ${error.message}`,
-        );
+        console.log(`Error occurred while getting account data of user ${userAddress}: ${error.message}`);
         return undefined;
       }
     },
@@ -59,12 +57,7 @@ async function main(): Promise<void> {
   userDetails.sort((a, b) => b.totalDebt - a.totalDebt);
 
   // Print all user addresses and their data
-  for (const {
-    address,
-    healthFactor,
-    totalCollateral,
-    totalDebt,
-  } of userDetails) {
+  for (const { address, healthFactor, totalCollateral, totalDebt } of userDetails) {
     // if both 0 collateral and debt, skip
     if (totalCollateral === 0 && totalDebt === 0) {
       continue;

@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.0;
 
-import {IPoolAddressesProvider} from "../../interfaces/IPoolAddressesProvider.sol";
+import { IPoolAddressesProvider } from "../../interfaces/IPoolAddressesProvider.sol";
 
 contract MockPool {
     // Reserved storage space to avoid layout collisions.
@@ -43,7 +43,7 @@ contract MockPool {
     }
 }
 
-import {Pool} from "../../protocol/pool/Pool.sol";
+import { Pool } from "../../protocol/pool/Pool.sol";
 
 contract MockPoolInherited is Pool {
     uint16 internal _maxNumberOfReserves = 128;

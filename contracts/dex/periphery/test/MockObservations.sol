@@ -44,9 +44,7 @@ contract MockObservations {
             oracleObservations[i] = Oracle.Observation({
                 blockTimestamp: _blockTimestamps[i],
                 tickCumulative: _tickCumulatives[i],
-                secondsPerLiquidityCumulativeX128: _secondsPerLiquidityCumulativeX128s[
-                    i
-                ],
+                secondsPerLiquidityCumulativeX128: _secondsPerLiquidityCumulativeX128s[i],
                 initialized: _initializeds[i]
             });
         }
@@ -58,31 +56,16 @@ contract MockObservations {
         liquidity = _liquidity;
     }
 
-    function slot0()
-        external
-        view
-        returns (uint160, int24, uint16, uint16, uint16, uint8, bool)
-    {
-        return (
-            0,
-            slot0Tick,
-            slot0ObservationIndex,
-            slot0ObservationCardinality,
-            0,
-            0,
-            false
-        );
+    function slot0() external view returns (uint160, int24, uint16, uint16, uint16, uint8, bool) {
+        return (0, slot0Tick, slot0ObservationIndex, slot0ObservationCardinality, 0, 0, false);
     }
 
-    function observations(
-        uint256 index
-    ) external view returns (uint32, int56, uint160, bool) {
+    function observations(uint256 index) external view returns (uint32, int56, uint160, bool) {
         Oracle.Observation memory observation = oracleObservations[index];
         if (lastObservationCurrentTimestamp) {
             observation.blockTimestamp =
                 uint32(block.timestamp) -
-                (oracleObservations[slot0ObservationIndex].blockTimestamp -
-                    observation.blockTimestamp);
+                (oracleObservations[slot0ObservationIndex].blockTimestamp - observation.blockTimestamp);
         }
         return (
             observation.blockTimestamp,

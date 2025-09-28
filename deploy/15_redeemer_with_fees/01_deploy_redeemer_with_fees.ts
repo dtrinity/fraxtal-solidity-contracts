@@ -16,12 +16,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Check required configuration values (dS removed for Fraxtal)
   if (!config.dStables?.dUSD) {
-    console.log(
-      "⚠️  Skipping RedeemerWithFees deployment - dStables.dUSD configuration not found",
-    );
-    console.log(
-      `☯️  ${__filename.split("/").slice(-2).join("/")}: ⏭️  (skipped)`,
-    );
+    console.log("⚠️  Skipping RedeemerWithFees deployment - dStables.dUSD configuration not found");
+    console.log(`☯️  ${__filename.split("/").slice(-2).join("/")}: ⏭️  (skipped)`);
     return true;
   }
   const dUSDConfig = config.dStables.dUSD;
@@ -29,10 +25,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const missingConfigs: string[] = [];
 
   // Check dUSD configuration
-  if (
-    !dUSDConfig?.initialFeeReceiver ||
-    !isAddress(dUSDConfig.initialFeeReceiver)
-  ) {
+  if (!dUSDConfig?.initialFeeReceiver || !isAddress(dUSDConfig.initialFeeReceiver)) {
     missingConfigs.push("dStables.dUSD.initialFeeReceiver");
   }
 
@@ -42,12 +35,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // If any required config values are missing, skip deployment
   if (missingConfigs.length > 0) {
-    console.log(
-      `⚠️  Skipping RedeemerWithFees deployment - missing configuration values: ${missingConfigs.join(", ")}`,
-    );
-    console.log(
-      `☯️  ${__filename.split("/").slice(-2).join("/")}: ⏭️  (skipped)`,
-    );
+    console.log(`⚠️  Skipping RedeemerWithFees deployment - missing configuration values: ${missingConfigs.join(", ")}`);
+    console.log(`☯️  ${__filename.split("/").slice(-2).join("/")}: ⏭️  (skipped)`);
     return true;
   }
 
@@ -55,32 +44,25 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const dUSDCollateralVaultDeployment = await get(COLLATERAL_VAULT_CONTRACT_ID);
   const usdOracleAggregator = await get(ORACLE_AGGREGATOR_ID);
 
-  const dUSDRedeemerWithFeesDeployment = await deploy(
-    dUSD_REDEEMER_WITH_FEES_CONTRACT_ID,
-    {
-      from: dusdDeployer,
-      contract: "RedeemerWithFees",
-      args: [
-        dUSDCollateralVaultDeployment.address,
-        config.dusd.address,
-        usdOracleAggregator.address,
-        dUSDConfig.initialFeeReceiver,
-        dUSDConfig.initialRedemptionFeeBps,
-      ],
-    },
-  );
+  const dUSDRedeemerWithFeesDeployment = await deploy(dUSD_REDEEMER_WITH_FEES_CONTRACT_ID, {
+    from: dusdDeployer,
+    contract: "RedeemerWithFees",
+    args: [
+      dUSDCollateralVaultDeployment.address,
+      config.dusd.address,
+      usdOracleAggregator.address,
+      dUSDConfig.initialFeeReceiver,
+      dUSDConfig.initialRedemptionFeeBps,
+    ],
+  });
 
   const dUSDCollateralVaultContract = await hre.ethers.getContractAt(
     "CollateralVault",
     dUSDCollateralVaultDeployment.address,
     await hre.ethers.getSigner(dusdDeployer),
   );
-  const dUSDWithdrawerRole =
-    await dUSDCollateralVaultContract.COLLATERAL_WITHDRAWER_ROLE();
-  const dUSDHasRole = await dUSDCollateralVaultContract.hasRole(
-    dUSDWithdrawerRole,
-    dUSDRedeemerWithFeesDeployment.address,
-  );
+  const dUSDWithdrawerRole = await dUSDCollateralVaultContract.COLLATERAL_WITHDRAWER_ROLE();
+  const dUSDHasRole = await dUSDCollateralVaultContract.hasRole(dUSDWithdrawerRole, dUSDRedeemerWithFeesDeployment.address);
   const dUSDDeployerIsAdmin = await dUSDCollateralVaultContract.hasRole(
     await dUSDCollateralVaultContract.DEFAULT_ADMIN_ROLE(),
     dusdDeployer,
@@ -89,10 +71,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if (!dUSDHasRole) {
     if (dUSDDeployerIsAdmin) {
       console.log("Granting role for dUSD RedeemerWithFees.");
-      await dUSDCollateralVaultContract.grantRole(
-        dUSDWithdrawerRole,
-        dUSDRedeemerWithFeesDeployment.address,
-      );
+      await dUSDCollateralVaultContract.grantRole(dUSDWithdrawerRole, dUSDRedeemerWithFeesDeployment.address);
       console.log("Role granted for dUSD RedeemerWithFees.");
     } else {
       manualActions.push(
@@ -105,9 +84,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // After processing, print any manual steps that are required.
   if (manualActions.length > 0) {
-    console.log(
-      "\n⚠️  Manual actions required to finalize RedeemerWithFees deployment:",
-    );
+    console.log("\n⚠️  Manual actions required to finalize RedeemerWithFees deployment:");
     manualActions.forEach((a: string) => console.log(`   - ${a}`));
   }
 

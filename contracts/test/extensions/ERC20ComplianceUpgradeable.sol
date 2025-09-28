@@ -25,11 +25,7 @@ import "@openzeppelin/contracts-upgradeable-493/proxy/utils/Initializable.sol";
  * @dev Extension of {ERC20} that allows a compliance role to freeze and seize
  * tokens for compliance purposes.
  */
-abstract contract ERC20ComplianceUpgradeable is
-    Initializable,
-    ContextUpgradeable,
-    ERC20Upgradeable
-{
+abstract contract ERC20ComplianceUpgradeable is Initializable, ContextUpgradeable, ERC20Upgradeable {
     mapping(address => bool) private _frozen;
 
     function __ERC20Compliance_init() internal onlyInitializing {}

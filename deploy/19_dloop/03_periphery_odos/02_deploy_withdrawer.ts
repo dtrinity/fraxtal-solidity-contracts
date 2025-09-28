@@ -25,26 +25,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Skip if no dLOOP configuration
   if (!config.dLoop) {
-    console.log(
-      `No dLOOP configuration defined for network ${hre.network.name}. Skipping Odos withdrawer deployment.`,
-    );
+    console.log(`No dLOOP configuration defined for network ${hre.network.name}. Skipping Odos withdrawer deployment.`);
     return false;
   }
 
   // Skip if no withdrawers section or Odos withdrawer is defined
   if (!config.dLoop.withdrawers || !config.dLoop.withdrawers.odos) {
-    console.log(
-      `Odos withdrawer not defined for network ${hre.network.name}. Skipping.`,
-    );
+    console.log(`Odos withdrawer not defined for network ${hre.network.name}. Skipping.`);
     return false;
   }
 
   const odosConfig = config.dLoop.withdrawers.odos;
 
   if (!odosConfig.router) {
-    console.log(
-      `Odos router not defined for network ${hre.network.name}. Skipping.`,
-    );
+    console.log(`Odos router not defined for network ${hre.network.name}. Skipping.`);
     return false;
   }
 
@@ -58,8 +52,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   // Get the deployed OdosSwapLogic library address
-  const { address: odosSwapLogicAddress } =
-    await hre.deployments.get(ODOS_SWAP_LOGIC_ID);
+  const { address: odosSwapLogicAddress } = await hre.deployments.get(ODOS_SWAP_LOGIC_ID);
 
   // Get the Odos Router address from configuration
   const odosRouterAddress = odosConfig.router;

@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { fixupPluginRules } from "@eslint/compat";
 import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
@@ -54,20 +55,15 @@ export default [
       "config/**/*.js",
     ],
   },
-  ...compat.extends(
-    "plugin:json/recommended",
-    "plugin:jsdoc/recommended",
-    "plugin:eslint-comments/recommended",
-    "prettier",
-  ),
+  ...compat.extends("plugin:jsdoc/recommended", "plugin:eslint-comments/recommended", "prettier"),
   {
     plugins: {
       "@typescript-eslint": typescriptEslint,
       "unused-imports": unusedImports,
       "simple-import-sort": simpleImportSort,
-      import: _import,
-      json: json,
-      prettier: prettier,
+      import: fixupPluginRules(_import),
+      json,
+      prettier,
     },
     languageOptions: {
       globals: {

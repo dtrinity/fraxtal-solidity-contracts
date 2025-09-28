@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.0;
 
-import {IEIP712} from "./IEIP712.sol";
+import { IEIP712 } from "./IEIP712.sol";
 
 /// @title SignatureTransfer
 /// @notice Handles ERC20 token transfers through signature based actions
@@ -32,11 +32,7 @@ interface ISignatureTransfer is IEIP712 {
     error LengthMismatch();
 
     /// @notice Emits an event when the owner successfully invalidates an unordered nonce.
-    event UnorderedNonceInvalidation(
-        address indexed owner,
-        uint256 word,
-        uint256 mask
-    );
+    event UnorderedNonceInvalidation(address indexed owner, uint256 word, uint256 mask);
 
     /// @notice The token and amount details for a transfer signed in the permit transfer signature
     struct TokenPermissions {

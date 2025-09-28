@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.10;
 
-import {IParaSwapAugustusRegistry} from "../../adapters/paraswap/interfaces/IParaSwapAugustusRegistry.sol";
+import { IParaSwapAugustusRegistry } from "../../adapters/paraswap/interfaces/IParaSwapAugustusRegistry.sol";
 
 contract MockParaSwapAugustusRegistry is IParaSwapAugustusRegistry {
     address immutable AUGUSTUS;
@@ -26,9 +26,7 @@ contract MockParaSwapAugustusRegistry is IParaSwapAugustusRegistry {
         AUGUSTUS = augustus;
     }
 
-    function isValidAugustus(
-        address augustus
-    ) external view override returns (bool) {
+    function isValidAugustus(address augustus) external view override returns (bool) {
         return augustus == AUGUSTUS;
     }
 }

@@ -57,13 +57,8 @@ library NFTDescriptor {
         address poolAddress;
     }
 
-    function constructTokenURI(
-        ConstructTokenURIParams memory params
-    ) public pure returns (string memory) {
-        string memory name = generateName(
-            params,
-            feeToPercentString(params.fee)
-        );
+    function constructTokenURI(ConstructTokenURIParams memory params) public pure returns (string memory) {
+        string memory name = generateName(params, feeToPercentString(params.fee));
         string memory descriptionPartOne = generateDescriptionPartOne(
             escapeQuotes(params.quoteTokenSymbol),
             escapeQuotes(params.baseTokenSymbol),
@@ -101,9 +96,7 @@ library NFTDescriptor {
             );
     }
 
-    function escapeQuotes(
-        string memory symbol
-    ) internal pure returns (string memory) {
+    function escapeQuotes(string memory symbol) internal pure returns (string memory) {
         bytes memory symbolBytes = bytes(symbol);
         uint8 quotesCount = 0;
         for (uint8 i = 0; i < symbolBytes.length; i++) {
@@ -112,9 +105,7 @@ library NFTDescriptor {
             }
         }
         if (quotesCount > 0) {
-            bytes memory escapedBytes = new bytes(
-                symbolBytes.length + (quotesCount)
-            );
+            bytes memory escapedBytes = new bytes(symbolBytes.length + (quotesCount));
             uint256 index;
             for (uint8 i = 0; i < symbolBytes.length; i++) {
                 if (symbolBytes[i] == '"') {
@@ -227,9 +218,7 @@ library NFTDescriptor {
         bool isPercent;
     }
 
-    function generateDecimalString(
-        DecimalStringParams memory params
-    ) private pure returns (string memory) {
+    function generateDecimalString(DecimalStringParams memory params) private pure returns (string memory) {
         bytes memory buffer = new bytes(params.bufferLength);
         if (params.isPercent) {
             buffer[buffer.length - 1] = "%";
@@ -240,24 +229,15 @@ library NFTDescriptor {
         }
 
         // add leading/trailing 0's
-        for (
-            uint256 zerosCursor = params.zerosStartIndex;
-            zerosCursor < params.zerosEndIndex.add(1);
-            zerosCursor++
-        ) {
+        for (uint256 zerosCursor = params.zerosStartIndex; zerosCursor < params.zerosEndIndex.add(1); zerosCursor++) {
             buffer[zerosCursor] = bytes1(uint8(48));
         }
         // add sigfigs
         while (params.sigfigs > 0) {
-            if (
-                params.decimalIndex > 0 &&
-                params.sigfigIndex == params.decimalIndex
-            ) {
+            if (params.decimalIndex > 0 && params.sigfigIndex == params.decimalIndex) {
                 buffer[params.sigfigIndex--] = ".";
             }
-            buffer[params.sigfigIndex--] = bytes1(
-                uint8(uint256(48).add(params.sigfigs % 10))
-            );
+            buffer[params.sigfigIndex--] = bytes1(uint8(uint256(48).add(params.sigfigs % 10)));
             params.sigfigs /= 10;
         }
         return string(buffer);
@@ -279,19 +259,11 @@ library NFTDescriptor {
             if (flipRatio) {
                 sqrtRatioX96 = uint160(uint256(1 << 192).div(sqrtRatioX96));
             }
-            return
-                fixedPointToDecimalString(
-                    sqrtRatioX96,
-                    baseTokenDecimals,
-                    quoteTokenDecimals
-                );
+            return fixedPointToDecimalString(sqrtRatioX96, baseTokenDecimals, quoteTokenDecimals);
         }
     }
 
-    function sigfigsRounded(
-        uint256 value,
-        uint8 digits
-    ) private pure returns (uint256, bool) {
+    function sigfigsRounded(uint256 value, uint8 digits) private pure returns (uint256, bool) {
         bool extraDigit;
         if (digits > 5) {
             value = value.div((10 ** (digits - 5)));
@@ -314,31 +286,17 @@ library NFTDescriptor {
         uint8 baseTokenDecimals,
         uint8 quoteTokenDecimals
     ) private pure returns (uint256 adjustedSqrtRatioX96) {
-        uint256 difference = abs(
-            int256(baseTokenDecimals).sub(int256(quoteTokenDecimals))
-        );
+        uint256 difference = abs(int256(baseTokenDecimals).sub(int256(quoteTokenDecimals)));
         if (difference > 0 && difference <= 18) {
             if (baseTokenDecimals > quoteTokenDecimals) {
-                adjustedSqrtRatioX96 = sqrtRatioX96.mul(
-                    10 ** (difference.div(2))
-                );
+                adjustedSqrtRatioX96 = sqrtRatioX96.mul(10 ** (difference.div(2)));
                 if (difference % 2 == 1) {
-                    adjustedSqrtRatioX96 = FullMath.mulDiv(
-                        adjustedSqrtRatioX96,
-                        sqrt10X128,
-                        1 << 128
-                    );
+                    adjustedSqrtRatioX96 = FullMath.mulDiv(adjustedSqrtRatioX96, sqrt10X128, 1 << 128);
                 }
             } else {
-                adjustedSqrtRatioX96 = sqrtRatioX96.div(
-                    10 ** (difference.div(2))
-                );
+                adjustedSqrtRatioX96 = sqrtRatioX96.div(10 ** (difference.div(2)));
                 if (difference % 2 == 1) {
-                    adjustedSqrtRatioX96 = FullMath.mulDiv(
-                        adjustedSqrtRatioX96,
-                        1 << 128,
-                        sqrt10X128
-                    );
+                    adjustedSqrtRatioX96 = FullMath.mulDiv(adjustedSqrtRatioX96, 1 << 128, sqrt10X128);
                 }
             }
         } else {
@@ -357,16 +315,8 @@ library NFTDescriptor {
         uint8 baseTokenDecimals,
         uint8 quoteTokenDecimals
     ) internal pure returns (string memory) {
-        uint256 adjustedSqrtRatioX96 = adjustForDecimalPrecision(
-            sqrtRatioX96,
-            baseTokenDecimals,
-            quoteTokenDecimals
-        );
-        uint256 value = FullMath.mulDiv(
-            adjustedSqrtRatioX96,
-            adjustedSqrtRatioX96,
-            1 << 64
-        );
+        uint256 adjustedSqrtRatioX96 = adjustForDecimalPrecision(sqrtRatioX96, baseTokenDecimals, quoteTokenDecimals);
+        uint256 value = FullMath.mulDiv(adjustedSqrtRatioX96, adjustedSqrtRatioX96, 1 << 64);
 
         bool priceBelow1 = adjustedSqrtRatioX96 < 2 ** 96;
         if (priceBelow1) {
@@ -421,9 +371,7 @@ library NFTDescriptor {
 
     // @notice Returns string as decimal percentage of fee amount.
     // @param fee fee amount
-    function feeToPercentString(
-        uint24 fee
-    ) internal pure returns (string memory) {
+    function feeToPercentString(uint24 fee) internal pure returns (string memory) {
         if (fee == 0) {
             return "0%";
         }
@@ -446,26 +394,16 @@ library NFTDescriptor {
         if (digits >= 5) {
             // if decimal > 1 (5th digit is the ones place)
             uint256 decimalPlace = digits.sub(numSigfigs) >= 4 ? 0 : 1;
-            nZeros = digits.sub(5) < (numSigfigs.sub(1))
-                ? 0
-                : digits.sub(5).sub(numSigfigs.sub(1));
+            nZeros = digits.sub(5) < (numSigfigs.sub(1)) ? 0 : digits.sub(5).sub(numSigfigs.sub(1));
             params.zerosStartIndex = numSigfigs;
-            params.zerosEndIndex = uint8(
-                params.zerosStartIndex.add(nZeros).sub(1)
-            );
-            params.sigfigIndex = uint8(
-                params.zerosStartIndex.sub(1).add(decimalPlace)
-            );
-            params.bufferLength = uint8(
-                nZeros.add(numSigfigs.add(1)).add(decimalPlace)
-            );
+            params.zerosEndIndex = uint8(params.zerosStartIndex.add(nZeros).sub(1));
+            params.sigfigIndex = uint8(params.zerosStartIndex.sub(1).add(decimalPlace));
+            params.bufferLength = uint8(nZeros.add(numSigfigs.add(1)).add(decimalPlace));
         } else {
             // else if decimal < 1
             nZeros = uint256(5).sub(digits);
             params.zerosStartIndex = 2;
-            params.zerosEndIndex = uint8(
-                nZeros.add(params.zerosStartIndex).sub(1)
-            );
+            params.zerosEndIndex = uint8(nZeros.add(params.zerosStartIndex).sub(1));
             params.bufferLength = uint8(nZeros.add(numSigfigs.add(2)));
             params.sigfigIndex = uint8((params.bufferLength).sub(2));
             params.isLessThanOne = true;
@@ -477,15 +415,11 @@ library NFTDescriptor {
         return generateDecimalString(params);
     }
 
-    function addressToString(
-        address addr
-    ) internal pure returns (string memory) {
+    function addressToString(address addr) internal pure returns (string memory) {
         return (uint256(addr)).toHexString(20);
     }
 
-    function generateSVGImage(
-        ConstructTokenURIParams memory params
-    ) internal pure returns (string memory svg) {
+    function generateSVGImage(ConstructTokenURIParams memory params) internal pure returns (string memory svg) {
         NFTSVG.SVGParams memory svgParams = NFTSVG.SVGParams({
             quoteToken: addressToString(params.quoteTokenAddress),
             baseToken: addressToString(params.baseTokenAddress),
@@ -496,92 +430,24 @@ library NFTDescriptor {
             tickLower: params.tickLower,
             tickUpper: params.tickUpper,
             tickSpacing: params.tickSpacing,
-            overRange: overRange(
-                params.tickLower,
-                params.tickUpper,
-                params.tickCurrent
-            ),
+            overRange: overRange(params.tickLower, params.tickUpper, params.tickCurrent),
             tokenId: params.tokenId,
             color0: tokenToColorHex(uint256(params.quoteTokenAddress), 136),
             color1: tokenToColorHex(uint256(params.baseTokenAddress), 136),
             color2: tokenToColorHex(uint256(params.quoteTokenAddress), 0),
             color3: tokenToColorHex(uint256(params.baseTokenAddress), 0),
-            x1: scale(
-                getCircleCoord(
-                    uint256(params.quoteTokenAddress),
-                    16,
-                    params.tokenId
-                ),
-                0,
-                255,
-                16,
-                274
-            ),
-            y1: scale(
-                getCircleCoord(
-                    uint256(params.baseTokenAddress),
-                    16,
-                    params.tokenId
-                ),
-                0,
-                255,
-                100,
-                484
-            ),
-            x2: scale(
-                getCircleCoord(
-                    uint256(params.quoteTokenAddress),
-                    32,
-                    params.tokenId
-                ),
-                0,
-                255,
-                16,
-                274
-            ),
-            y2: scale(
-                getCircleCoord(
-                    uint256(params.baseTokenAddress),
-                    32,
-                    params.tokenId
-                ),
-                0,
-                255,
-                100,
-                484
-            ),
-            x3: scale(
-                getCircleCoord(
-                    uint256(params.quoteTokenAddress),
-                    48,
-                    params.tokenId
-                ),
-                0,
-                255,
-                16,
-                274
-            ),
-            y3: scale(
-                getCircleCoord(
-                    uint256(params.baseTokenAddress),
-                    48,
-                    params.tokenId
-                ),
-                0,
-                255,
-                100,
-                484
-            )
+            x1: scale(getCircleCoord(uint256(params.quoteTokenAddress), 16, params.tokenId), 0, 255, 16, 274),
+            y1: scale(getCircleCoord(uint256(params.baseTokenAddress), 16, params.tokenId), 0, 255, 100, 484),
+            x2: scale(getCircleCoord(uint256(params.quoteTokenAddress), 32, params.tokenId), 0, 255, 16, 274),
+            y2: scale(getCircleCoord(uint256(params.baseTokenAddress), 32, params.tokenId), 0, 255, 100, 484),
+            x3: scale(getCircleCoord(uint256(params.quoteTokenAddress), 48, params.tokenId), 0, 255, 16, 274),
+            y3: scale(getCircleCoord(uint256(params.baseTokenAddress), 48, params.tokenId), 0, 255, 100, 484)
         });
 
         return NFTSVG.generateSVG(svgParams);
     }
 
-    function overRange(
-        int24 tickLower,
-        int24 tickUpper,
-        int24 tickCurrent
-    ) private pure returns (int8) {
+    function overRange(int24 tickLower, int24 tickUpper, int24 tickCurrent) private pure returns (int8) {
         if (tickCurrent < tickLower) {
             return -1;
         } else if (tickCurrent > tickUpper) {
@@ -598,30 +464,18 @@ library NFTDescriptor {
         uint256 outMn,
         uint256 outMx
     ) private pure returns (string memory) {
-        return
-            (n.sub(inMn).mul(outMx.sub(outMn)).div(inMx.sub(inMn)).add(outMn))
-                .toString();
+        return (n.sub(inMn).mul(outMx.sub(outMn)).div(inMx.sub(inMn)).add(outMn)).toString();
     }
 
-    function tokenToColorHex(
-        uint256 token,
-        uint256 offset
-    ) internal pure returns (string memory str) {
+    function tokenToColorHex(uint256 token, uint256 offset) internal pure returns (string memory str) {
         return string((token >> offset).toHexStringNoPrefix(3));
     }
 
-    function getCircleCoord(
-        uint256 tokenAddress,
-        uint256 offset,
-        uint256 tokenId
-    ) internal pure returns (uint256) {
+    function getCircleCoord(uint256 tokenAddress, uint256 offset, uint256 tokenId) internal pure returns (uint256) {
         return (sliceTokenHex(tokenAddress, offset) * tokenId) % 255;
     }
 
-    function sliceTokenHex(
-        uint256 token,
-        uint256 offset
-    ) internal pure returns (uint256) {
+    function sliceTokenHex(uint256 token, uint256 offset) internal pure returns (uint256) {
         return uint256(uint8(token >> offset));
     }
 }

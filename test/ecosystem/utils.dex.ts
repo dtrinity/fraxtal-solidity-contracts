@@ -1,22 +1,10 @@
 import { ethers } from "ethers";
 import hre from "hardhat";
 
-import {
-  AaveOracle,
-  MockStaticOracleWrapper,
-  StaticOracleWrapper,
-} from "../../typechain-types";
+import { AaveOracle, MockStaticOracleWrapper, StaticOracleWrapper } from "../../typechain-types";
 import { deployContract } from "../../utils/deploy";
-import {
-  SWAP_ROUTER_ID,
-  UNISWAP_STATIC_ORACLE_WRAPPER_ID,
-} from "../../utils/dex/deploy-ids";
-import {
-  addPoolLiquidity,
-  deployPool,
-  getDEXPoolAddress,
-  getDEXPoolAddressForPair,
-} from "../../utils/dex/pool";
+import { SWAP_ROUTER_ID, UNISWAP_STATIC_ORACLE_WRAPPER_ID } from "../../utils/dex/deploy-ids";
+import { addPoolLiquidity, deployPool, getDEXPoolAddress, getDEXPoolAddressForPair } from "../../utils/dex/pool";
 import { convertToSwapPath } from "../../utils/dex/utils";
 import { ORACLE_ID } from "../../utils/lending/deploy-ids";
 import { getDecimals } from "../../utils/maths/utils";
@@ -72,14 +60,8 @@ export async function createPoolAddLiquidityWithApproval(
     throw new Error("Pool deployment failed");
   }
 
-  const { tokenInfo: token0Info } = await getTokenContractForAddress(
-    callerAddress,
-    token0Address,
-  );
-  const { tokenInfo: token1Info } = await getTokenContractForAddress(
-    callerAddress,
-    token1Address,
-  );
+  const { tokenInfo: token0Info } = await getTokenContractForAddress(callerAddress, token0Address);
+  const { tokenInfo: token1Info } = await getTokenContractForAddress(callerAddress, token1Address);
 
   const addLiquidityResult = await addPoolLiquidity(
     hre,
@@ -119,33 +101,19 @@ export async function swapExactInputSingleWithApproval(
   const { address: routerAddress } = await hre.deployments.get(SWAP_ROUTER_ID);
   const signer = await hre.ethers.getSigner(callerAddress);
 
-  const { contract: inputTokenContract, tokenInfo: inputTokenInfo } =
-    await getTokenContractForAddress(callerAddress, inputTokenAddress);
+  const { contract: inputTokenContract, tokenInfo: inputTokenInfo } = await getTokenContractForAddress(callerAddress, inputTokenAddress);
 
   // Approve the router to spend the token
   await inputTokenContract.approve(routerAddress, ethers.MaxUint256);
 
-  const routerContract = await hre.ethers.getContractAt(
-    SWAP_ROUTER_ID,
-    routerAddress,
-    signer,
-  );
+  const routerContract = await hre.ethers.getContractAt(SWAP_ROUTER_ID, routerAddress, signer);
 
-  const inputTokenAmountOnChainInt = ethers.parseUnits(
-    inputTokenAmount.toString(),
-    inputTokenInfo.decimals,
-  );
+  const inputTokenAmountOnChainInt = ethers.parseUnits(inputTokenAmount.toString(), inputTokenInfo.decimals);
 
-  const dexPoolAddress = await getDEXPoolAddress(
-    inputTokenAddress,
-    outputTokenAddress,
-    feeTier,
-  );
+  const dexPoolAddress = await getDEXPoolAddress(inputTokenAddress, outputTokenAddress, feeTier);
 
   if (dexPoolAddress == hre.ethers.ZeroAddress) {
-    throw new Error(
-      `Pool does not exist for ${inputTokenAddress} and ${outputTokenAddress} with fee tier ${feeTier}`,
-    );
+    throw new Error(`Pool does not exist for ${inputTokenAddress} and ${outputTokenAddress} with fee tier ${feeTier}`);
   }
 
   const swapTxn = await routerContract.exactInputSingle({
@@ -186,39 +154,20 @@ export async function swapExactOutputSingleWithApproval(
   const { address: routerAddress } = await hre.deployments.get(SWAP_ROUTER_ID);
   const signer = await hre.ethers.getSigner(callerAddress);
 
-  const { contract: inputTokenContract } = await getTokenContractForAddress(
-    callerAddress,
-    inputTokenAddress,
-  );
-  const { tokenInfo: outputTokenInfo } = await getTokenContractForAddress(
-    callerAddress,
-    outputTokenAddress,
-  );
+  const { contract: inputTokenContract } = await getTokenContractForAddress(callerAddress, inputTokenAddress);
+  const { tokenInfo: outputTokenInfo } = await getTokenContractForAddress(callerAddress, outputTokenAddress);
 
   // Approve the router to spend the token
   await inputTokenContract.approve(routerAddress, ethers.MaxUint256);
 
-  const routerContract = await hre.ethers.getContractAt(
-    SWAP_ROUTER_ID,
-    routerAddress,
-    signer,
-  );
+  const routerContract = await hre.ethers.getContractAt(SWAP_ROUTER_ID, routerAddress, signer);
 
-  const outputTokenAmountOnChainInt = ethers.parseUnits(
-    outputTokenAmount.toString(),
-    outputTokenInfo.decimals,
-  );
+  const outputTokenAmountOnChainInt = ethers.parseUnits(outputTokenAmount.toString(), outputTokenInfo.decimals);
 
-  const dexPoolAddress = await getDEXPoolAddress(
-    inputTokenAddress,
-    outputTokenAddress,
-    feeTier,
-  );
+  const dexPoolAddress = await getDEXPoolAddress(inputTokenAddress, outputTokenAddress, feeTier);
 
   if (dexPoolAddress == hre.ethers.ZeroAddress) {
-    throw new Error(
-      `Pool does not exist for ${inputTokenAddress} and ${outputTokenAddress} with fee tier ${feeTier}`,
-    );
+    throw new Error(`Pool does not exist for ${inputTokenAddress} and ${outputTokenAddress} with fee tier ${feeTier}`);
   }
 
   const swapTxn = await routerContract.exactOutputSingle({
@@ -257,24 +206,16 @@ export async function swapExactInputMultiWithApproval(
   const { address: routerAddress } = await hre.deployments.get(SWAP_ROUTER_ID);
   const signer = await hre.ethers.getSigner(callerAddress);
 
-  const routerContract = await hre.ethers.getContractAt(
-    SWAP_ROUTER_ID,
-    routerAddress,
-    signer,
-  );
+  const routerContract = await hre.ethers.getContractAt(SWAP_ROUTER_ID, routerAddress, signer);
 
   if (tokenPaths.length < 2) {
     throw new Error(`Token paths must have at least 2 tokens: ${tokenPaths}`);
   }
 
   const inputTokenAddress = tokenPaths[0];
-  const { contract: inputTokenContract, tokenInfo: inputTokenInfo } =
-    await getTokenContractForAddress(callerAddress, inputTokenAddress);
+  const { contract: inputTokenContract, tokenInfo: inputTokenInfo } = await getTokenContractForAddress(callerAddress, inputTokenAddress);
 
-  const inputTokenAmountOnChainInt = ethers.parseUnits(
-    inputTokenAmount.toString(),
-    inputTokenInfo.decimals,
-  );
+  const inputTokenAmountOnChainInt = ethers.parseUnits(inputTokenAmount.toString(), inputTokenInfo.decimals);
 
   const feePaths: number[] = [];
 
@@ -283,10 +224,7 @@ export async function swapExactInputMultiWithApproval(
     const token0 = tokenPaths[i];
     const token1 = tokenPaths[i + 1];
 
-    const { poolAddress: dexPoolAddress, fee } = await getDEXPoolAddressForPair(
-      token0,
-      token1,
-    );
+    const { poolAddress: dexPoolAddress, fee } = await getDEXPoolAddressForPair(token0, token1);
 
     if (dexPoolAddress == hre.ethers.ZeroAddress) {
       throw new Error(`Pool does not exist for ${token0} and ${token1}`);
@@ -321,14 +259,8 @@ export async function getStaticOracleContract(): Promise<StaticOracleWrapper> {
   const { dexDeployer } = await hre.getNamedAccounts();
   const signer = await hre.ethers.getSigner(dexDeployer);
 
-  const oracleDeployedResult = await hre.deployments.get(
-    UNISWAP_STATIC_ORACLE_WRAPPER_ID,
-  );
-  const oracleContract = await hre.ethers.getContractAt(
-    "StaticOracleWrapper",
-    oracleDeployedResult.address,
-    signer,
-  );
+  const oracleDeployedResult = await hre.deployments.get(UNISWAP_STATIC_ORACLE_WRAPPER_ID);
+  const oracleContract = await hre.ethers.getContractAt("StaticOracleWrapper", oracleDeployedResult.address, signer);
 
   return oracleContract;
 }
@@ -343,11 +275,7 @@ export async function getAaveOracleContract(): Promise<AaveOracle> {
   const signer = await hre.ethers.getSigner(lendingDeployer);
 
   const oracleDeployedResult = await hre.deployments.get(ORACLE_ID);
-  const oracleContract = await hre.ethers.getContractAt(
-    "AaveOracle",
-    oracleDeployedResult.address,
-    signer,
-  );
+  const oracleContract = await hre.ethers.getContractAt("AaveOracle", oracleDeployedResult.address, signer);
 
   return oracleContract;
 }
@@ -381,9 +309,7 @@ export async function useMockStaticOracleWrapper(
 
   const previousFallbackOracle = await aaveOracleContract.getFallbackOracle();
 
-  const res = await aaveOracleContract.setFallbackOracle(
-    mockStaticOracleWrapperAddress,
-  );
+  const res = await aaveOracleContract.setFallbackOracle(mockStaticOracleWrapperAddress);
   await res.wait();
 
   return {
@@ -400,14 +326,8 @@ export async function getMockStaticOracleWrapperContract(): Promise<MockStaticOr
   const { dexDeployer } = await hre.getNamedAccounts();
   const signer = await hre.ethers.getSigner(dexDeployer);
 
-  const oracleDeployedResult = await hre.deployments.get(
-    "MockStaticOracleWrapper",
-  );
-  const oracleContract = await hre.ethers.getContractAt(
-    "MockStaticOracleWrapper",
-    oracleDeployedResult.address,
-    signer,
-  );
+  const oracleDeployedResult = await hre.deployments.get("MockStaticOracleWrapper");
+  const oracleContract = await hre.ethers.getContractAt("MockStaticOracleWrapper", oracleDeployedResult.address, signer);
 
   return oracleContract;
 }
@@ -418,17 +338,11 @@ export async function getMockStaticOracleWrapperContract(): Promise<MockStaticOr
  * @param tokenAddress - The address of the token
  * @param price - The price of the token
  */
-export async function setMockStaticOracleWrapperPrice(
-  tokenAddress: string,
-  price: number,
-): Promise<void> {
+export async function setMockStaticOracleWrapperPrice(tokenAddress: string, price: number): Promise<void> {
   const oracleContract = await getMockStaticOracleWrapperContract();
   const priceUnit = await oracleContract.BASE_CURRENCY_UNIT();
   const priceDecimals = getDecimals(priceUnit);
-  await oracleContract.setAssetPrice(
-    tokenAddress,
-    ethers.parseUnits(price.toString(), priceDecimals),
-  );
+  await oracleContract.setAssetPrice(tokenAddress, ethers.parseUnits(price.toString(), priceDecimals));
 }
 
 /**
@@ -437,9 +351,7 @@ export async function setMockStaticOracleWrapperPrice(
  * @param tokenAddress - The address of the token
  * @returns - The price of the token
  */
-export async function getMockStaticOracleWrapperPrice(
-  tokenAddress: string,
-): Promise<bigint> {
+export async function getMockStaticOracleWrapperPrice(tokenAddress: string): Promise<bigint> {
   const oracleContract = await getMockStaticOracleWrapperContract();
   const price = await oracleContract.getAssetPrice(tokenAddress);
   return price;
@@ -451,8 +363,7 @@ export async function getMockStaticOracleWrapperPrice(
  * @param tickSpacing The spacing between ticks.
  * @returns The minimum tick value that is a multiple of the given tick spacing.
  */
-export const getMinTick = (tickSpacing: number): number =>
-  Math.ceil(-887272 / tickSpacing) * tickSpacing;
+export const getMinTick = (tickSpacing: number): number => Math.ceil(-887272 / tickSpacing) * tickSpacing;
 
 /**
  * Calculates the maximum tick value for a given tick spacing.
@@ -460,5 +371,4 @@ export const getMinTick = (tickSpacing: number): number =>
  * @param tickSpacing The spacing between ticks.
  * @returns The maximum tick value that is a multiple of the given tick spacing.
  */
-export const getMaxTick = (tickSpacing: number): number =>
-  Math.floor(887272 / tickSpacing) * tickSpacing;
+export const getMaxTick = (tickSpacing: number): number => Math.floor(887272 / tickSpacing) * tickSpacing;

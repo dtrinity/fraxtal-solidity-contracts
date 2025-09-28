@@ -2,10 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../../config/config";
-import {
-  LENDING_CORE_VERSION,
-  MARKET_NAME,
-} from "../../../utils/lending/constants";
+import { LENDING_CORE_VERSION, MARKET_NAME } from "../../../utils/lending/constants";
 import { initReserves } from "../../../utils/lending/deploy/02_market/09_init_reserves";
 import { getReserveTokenAddresses } from "../../../utils/lending/token";
 

@@ -1,8 +1,7 @@
 import { ONE_BPS_UNIT } from "../../../utils/constants";
 import { LiquidatorBotCurveConfig } from "../../types";
 
-export const CURVE_SWAP_ROUTER_ADDRESS =
-  "0x9f2Fa7709B30c75047980a0d70A106728f0Ef2db";
+export const CURVE_SWAP_ROUTER_ADDRESS = "0x9f2Fa7709B30c75047980a0d70A106728f0Ef2db";
 
 export const TOKEN_INFO = {
   wfrxETH: {

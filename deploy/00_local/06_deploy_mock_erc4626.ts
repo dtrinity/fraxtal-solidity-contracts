@@ -43,13 +43,10 @@ async function deployERC4626Token(
     "contracts/token/MockERC4626Token.sol:MockERC4626Token",
   );
 
-  const { address: vaultTokenAddress } =
-    await hre.deployments.get(vaultTokenSymbol);
+  const { address: vaultTokenAddress } = await hre.deployments.get(vaultTokenSymbol);
 
   if (!vaultTokenAddress) {
-    throw new Error(
-      `Vault token address for ${underlyingTokenSymbol} is not found`,
-    );
+    throw new Error(`Vault token address for ${underlyingTokenSymbol} is not found`);
   }
 
   return {
@@ -71,8 +68,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // Deploy ERC4626 vault tokens for each asset
   for (const assetSymbol of assetSymbols) {
     // Get the underlying asset address
-    const { address: underlyingAssetAddress } =
-      await hre.deployments.get(assetSymbol);
+    const { address: underlyingAssetAddress } = await hre.deployments.get(assetSymbol);
 
     // Deploy the ERC4626 vault token
     await deployERC4626Token(hre, underlyingAssetAddress, dexDeployer);

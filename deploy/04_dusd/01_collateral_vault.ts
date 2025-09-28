@@ -8,8 +8,7 @@ import { ORACLE_AGGREGATOR_ID } from "../../utils/oracle/deploy-ids";
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { dusdDeployer } = await hre.getNamedAccounts();
 
-  const { address: oracleAggregatorAddress } =
-    await hre.deployments.get(ORACLE_AGGREGATOR_ID);
+  const { address: oracleAggregatorAddress } = await hre.deployments.get(ORACLE_AGGREGATOR_ID);
 
   await deployContract(
     hre,

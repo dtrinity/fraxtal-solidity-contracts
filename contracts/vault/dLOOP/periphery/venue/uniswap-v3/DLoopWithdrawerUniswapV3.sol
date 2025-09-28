@@ -17,8 +17,8 @@
 
 pragma solidity 0.8.20;
 
-import {DLoopWithdrawerBase, ERC20, IERC3156FlashLender} from "../../DLoopWithdrawerBase.sol";
-import {UniswapV3SwapLogic, ISwapRouter} from "./UniswapV3SwapLogic.sol";
+import { DLoopWithdrawerBase, ERC20, IERC3156FlashLender } from "../../DLoopWithdrawerBase.sol";
+import { UniswapV3SwapLogic, ISwapRouter } from "./UniswapV3SwapLogic.sol";
 
 /**
  * @title DLoopWithdrawerUniswapV3
@@ -32,10 +32,7 @@ contract DLoopWithdrawerUniswapV3 is DLoopWithdrawerBase {
      * @param _flashLender Address of the flash loan provider
      * @param _swapRouter Address of the Uniswap V3 swap router
      */
-    constructor(
-        IERC3156FlashLender _flashLender,
-        ISwapRouter _swapRouter
-    ) DLoopWithdrawerBase(_flashLender) {
+    constructor(IERC3156FlashLender _flashLender, ISwapRouter _swapRouter) DLoopWithdrawerBase(_flashLender) {
         swapRouter = _swapRouter;
     }
 

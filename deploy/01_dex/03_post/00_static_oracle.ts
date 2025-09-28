@@ -3,10 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../../config/config";
 import { deployContract } from "../../../utils/deploy";
-import {
-  UNISWAP_STATIC_ORACLE_ID,
-  UNISWAP_V3_FACTORY_ID,
-} from "../../../utils/dex/deploy-ids";
+import { UNISWAP_STATIC_ORACLE_ID, UNISWAP_V3_FACTORY_ID } from "../../../utils/dex/deploy-ids";
 import { isMainnetNetwork } from "../../../utils/utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -31,9 +28,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { dexDeployer } = await hre.getNamedAccounts();
 
-  const { address: factoryAddress } = await hre.deployments.get(
-    UNISWAP_V3_FACTORY_ID,
-  );
+  const { address: factoryAddress } = await hre.deployments.get(UNISWAP_V3_FACTORY_ID);
 
   await deployContract(
     hre,

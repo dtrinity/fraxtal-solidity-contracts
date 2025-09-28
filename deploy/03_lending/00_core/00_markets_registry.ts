@@ -4,8 +4,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { deployPoolAddressesProviderRegistry } from "../../../utils/lending/deploy/00_core/00_markets_registry";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { lendingDeployer, lendingAddressesProviderRegistryOwner } =
-    await hre.getNamedAccounts();
+  const { lendingDeployer, lendingAddressesProviderRegistryOwner } = await hre.getNamedAccounts();
 
   return deployPoolAddressesProviderRegistry(
     hre,

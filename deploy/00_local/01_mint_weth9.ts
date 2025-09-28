@@ -21,11 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   // Get the WETH9 instance
-  const weth9Contract = await hre.ethers.getContractAt(
-    TEST_WETH9_ID,
-    weth9Deployment?.address,
-    await hre.ethers.getSigner(dexDeployer),
-  );
+  const weth9Contract = await hre.ethers.getContractAt(TEST_WETH9_ID, weth9Deployment?.address, await hre.ethers.getSigner(dexDeployer));
 
   console.log("-----------------");
   console.log("Minting WETH for the deployer and liquidity adder");
@@ -38,10 +34,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log("Minted WETH for the deployer: ", dexDeployer);
 
   // Transfer half WETH9 to the liquidity adder
-  await weth9Contract.transfer(
-    dexLiquidityAdder,
-    hre.ethers.parseEther((100 / 2).toString()),
-  );
+  await weth9Contract.transfer(dexLiquidityAdder, hre.ethers.parseEther((100 / 2).toString()));
 
   console.log("Minted WETH for the liquidity adder: ", dexLiquidityAdder);
   console.log("-----------------");

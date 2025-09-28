@@ -17,23 +17,19 @@
 
 pragma solidity ^0.8.17;
 
-import {V3Path} from "./V3Path.sol";
-import {BytesLib} from "./BytesLib.sol";
-import {SafeCast} from "@uniswap/v3-core/contracts/libraries/SafeCast.sol";
-import {IUniswapV3Pool} from "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
-import {IUniswapV3SwapCallback} from "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol";
-import {Constants} from "../../../libraries/Constants.sol";
-import {Permit2Payments} from "../../Permit2Payments.sol";
-import {UniswapImmutables} from "../UniswapImmutables.sol";
-import {Constants} from "../../../libraries/Constants.sol";
-import {ERC20} from "solmate/src/tokens/ERC20.sol";
+import { V3Path } from "./V3Path.sol";
+import { BytesLib } from "./BytesLib.sol";
+import { SafeCast } from "@uniswap/v3-core/contracts/libraries/SafeCast.sol";
+import { IUniswapV3Pool } from "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
+import { IUniswapV3SwapCallback } from "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol";
+import { Constants } from "../../../libraries/Constants.sol";
+import { Permit2Payments } from "../../Permit2Payments.sol";
+import { UniswapImmutables } from "../UniswapImmutables.sol";
+import { Constants } from "../../../libraries/Constants.sol";
+import { ERC20 } from "solmate/src/tokens/ERC20.sol";
 
 /// @title Router for Uniswap v3 Trades
-abstract contract V3SwapRouter is
-    UniswapImmutables,
-    Permit2Payments,
-    IUniswapV3SwapCallback
-{
+abstract contract V3SwapRouter is UniswapImmutables, Permit2Payments, IUniswapV3SwapCallback {
     using V3Path for bytes;
     using BytesLib for bytes;
     using SafeCast for uint256;
@@ -55,24 +51,17 @@ abstract contract V3SwapRouter is
     uint160 internal constant MIN_SQRT_RATIO = 4295128739;
 
     /// @dev The maximum value that can be returned from #getSqrtRatioAtTick. Equivalent to getSqrtRatioAtTick(MAX_TICK)
-    uint160 internal constant MAX_SQRT_RATIO =
-        1461446703485210103287273052203988822378723970342;
+    uint160 internal constant MAX_SQRT_RATIO = 1461446703485210103287273052203988822378723970342;
 
-    function uniswapV3SwapCallback(
-        int256 amount0Delta,
-        int256 amount1Delta,
-        bytes calldata data
-    ) external {
+    function uniswapV3SwapCallback(int256 amount0Delta, int256 amount1Delta, bytes calldata data) external {
         if (amount0Delta <= 0 && amount1Delta <= 0) revert V3InvalidSwap(); // swaps entirely within 0-liquidity regions are not supported
         (, address payer) = abi.decode(data, (bytes, address));
         bytes calldata path = data.toBytes(0);
 
         // because exact output swaps are executed in reverse order, in this case tokenOut is actually tokenIn
-        (address tokenIn, uint24 fee, address tokenOut) = path
-            .decodeFirstPool();
+        (address tokenIn, uint24 fee, address tokenOut) = path.decodeFirstPool();
 
-        if (computePoolAddress(tokenIn, tokenOut, fee) != msg.sender)
-            revert V3InvalidCaller();
+        if (computePoolAddress(tokenIn, tokenOut, fee) != msg.sender) revert V3InvalidCaller();
 
         (bool isExactInput, uint256 amountToPay) = amount0Delta > 0
             ? (tokenIn < tokenOut, uint256(amount0Delta))
@@ -88,8 +77,7 @@ abstract contract V3SwapRouter is
                 path = path.skipToken();
                 _swap(-amountToPay.toInt256(), msg.sender, path, payer, false);
             } else {
-                if (amountToPay > maxAmountInCached)
-                    revert V3TooMuchRequested();
+                if (amountToPay > maxAmountInCached) revert V3TooMuchRequested();
                 // note that because exact output swaps are executed in reverse order, tokenOut is actually tokenIn
                 payOrPermit2Transfer(tokenOut, payer, msg.sender, amountToPay);
             }
@@ -165,9 +153,7 @@ abstract contract V3SwapRouter is
             false
         );
 
-        uint256 amountOutReceived = zeroForOne
-            ? uint256(-amount1Delta)
-            : uint256(-amount0Delta);
+        uint256 amountOutReceived = zeroForOne ? uint256(-amount1Delta) : uint256(-amount0Delta);
 
         if (amountOutReceived != amountOut) revert V3InvalidAmountOut();
 
@@ -182,31 +168,21 @@ abstract contract V3SwapRouter is
         bytes calldata path,
         address payer,
         bool isExactIn
-    )
-        private
-        returns (int256 amount0Delta, int256 amount1Delta, bool zeroForOne)
-    {
-        (address tokenIn, uint24 fee, address tokenOut) = path
-            .decodeFirstPool();
+    ) private returns (int256 amount0Delta, int256 amount1Delta, bool zeroForOne) {
+        (address tokenIn, uint24 fee, address tokenOut) = path.decodeFirstPool();
 
         zeroForOne = isExactIn ? tokenIn < tokenOut : tokenOut < tokenIn;
 
-        (amount0Delta, amount1Delta) = IUniswapV3Pool(
-            computePoolAddress(tokenIn, tokenOut, fee)
-        ).swap(
-                recipient,
-                zeroForOne,
-                amount,
-                (zeroForOne ? MIN_SQRT_RATIO + 1 : MAX_SQRT_RATIO - 1),
-                abi.encode(path, payer)
-            );
+        (amount0Delta, amount1Delta) = IUniswapV3Pool(computePoolAddress(tokenIn, tokenOut, fee)).swap(
+            recipient,
+            zeroForOne,
+            amount,
+            (zeroForOne ? MIN_SQRT_RATIO + 1 : MAX_SQRT_RATIO - 1),
+            abi.encode(path, payer)
+        );
     }
 
-    function computePoolAddress(
-        address tokenA,
-        address tokenB,
-        uint24 fee
-    ) private view returns (address pool) {
+    function computePoolAddress(address tokenA, address tokenB, uint24 fee) private view returns (address pool) {
         if (tokenA > tokenB) (tokenA, tokenB) = (tokenB, tokenA);
         pool = address(
             uint160(

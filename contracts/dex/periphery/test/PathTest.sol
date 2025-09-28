@@ -24,15 +24,11 @@ contract PathTest {
         return Path.hasMultiplePools(path);
     }
 
-    function decodeFirstPool(
-        bytes memory path
-    ) public pure returns (address tokenA, address tokenB, uint24 fee) {
+    function decodeFirstPool(bytes memory path) public pure returns (address tokenA, address tokenB, uint24 fee) {
         return Path.decodeFirstPool(path);
     }
 
-    function getFirstPool(
-        bytes memory path
-    ) public pure returns (bytes memory) {
+    function getFirstPool(bytes memory path) public pure returns (bytes memory) {
         return Path.getFirstPool(path);
     }
 
@@ -41,9 +37,7 @@ contract PathTest {
     }
 
     // gas funcs
-    function getGasCostOfDecodeFirstPool(
-        bytes memory path
-    ) public view returns (uint256) {
+    function getGasCostOfDecodeFirstPool(bytes memory path) public view returns (uint256) {
         uint256 gasBefore = gasleft();
         Path.decodeFirstPool(path);
         return gasBefore - gasleft();

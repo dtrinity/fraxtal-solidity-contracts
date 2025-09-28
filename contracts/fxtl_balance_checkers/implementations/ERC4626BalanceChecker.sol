@@ -71,21 +71,10 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
      */
     function _validateTokenAndGetDetails(
         address token
-    )
-        internal
-        view
-        override
-        returns (
-            address validToken,
-            address originalToken,
-            bool isExternalToken
-        )
-    {
+    ) internal view override returns (address validToken, address originalToken, bool isExternalToken) {
         originalToken = token;
         address mappedVaultToken = externalSourceToInternalToken[token];
-        isExternalToken =
-            mappedVaultToken != address(0) &&
-            mappedVaultToken != token;
+        isExternalToken = mappedVaultToken != address(0) && mappedVaultToken != token;
         validToken = isExternalToken ? mappedVaultToken : token;
 
         // Validate that the token is a valid ERC4626 vault
@@ -106,16 +95,9 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
      * @param user The user address
      * @return The calculated balance (normalized to 18 decimals)
      */
-    function _calculateTokenBalance(
-        address token,
-        address user
-    ) internal view override returns (uint256) {
+    function _calculateTokenBalance(address token, address user) internal view override returns (uint256) {
         // Validate token and get necessary details
-        (
-            address validToken,
-            address originalToken,
-            bool isExternalToken
-        ) = _validateTokenAndGetDetails(token);
+        (address validToken, address originalToken, bool isExternalToken) = _validateTokenAndGetDetails(token);
 
         uint256 balance;
 
@@ -134,9 +116,7 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
         }
 
         // Get decimals for normalization
-        uint256 tokenDecimals = isExternalToken
-            ? _getTokenDecimals(originalToken)
-            : _getTokenDecimals(validToken);
+        uint256 tokenDecimals = isExternalToken ? _getTokenDecimals(originalToken) : _getTokenDecimals(validToken);
 
         // Normalize to 18 decimals
         return _normalizeToDecimals18(balance, tokenDecimals);
@@ -147,9 +127,7 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
      * @param vaultToken The vault token address
      * @return The underlying asset address
      */
-    function getUnderlyingAsset(
-        address vaultToken
-    ) external view returns (address) {
+    function getUnderlyingAsset(address vaultToken) external view returns (address) {
         return IERC4626(vaultToken).asset();
     }
 
@@ -159,10 +137,7 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
      * @param shares The amount of shares to convert
      * @return The equivalent amount of underlying assets
      */
-    function convertSharesToAssets(
-        address vaultToken,
-        uint256 shares
-    ) external view returns (uint256) {
+    function convertSharesToAssets(address vaultToken, uint256 shares) external view returns (uint256) {
         return IERC4626(vaultToken).convertToAssets(shares);
     }
 
@@ -172,10 +147,7 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
      * @param assets The amount of assets to convert
      * @return The equivalent amount of shares
      */
-    function convertAssetsToShares(
-        address vaultToken,
-        uint256 assets
-    ) external view returns (uint256) {
+    function convertAssetsToShares(address vaultToken, uint256 assets) external view returns (uint256) {
         return IERC4626(vaultToken).convertToShares(assets);
     }
 
@@ -184,9 +156,7 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
      * @param vaultToken The vault token address
      * @return The total amount of underlying assets managed by the vault
      */
-    function getTotalAssets(
-        address vaultToken
-    ) external view returns (uint256) {
+    function getTotalAssets(address vaultToken) external view returns (uint256) {
         return IERC4626(vaultToken).totalAssets();
     }
 
@@ -195,9 +165,7 @@ contract ERC4626BalanceChecker is BaseBalanceChecker {
      * @param vaultToken The vault token address
      * @return The total supply of vault shares
      */
-    function getTotalSupply(
-        address vaultToken
-    ) external view returns (uint256) {
+    function getTotalSupply(address vaultToken) external view returns (uint256) {
         return IERC20(vaultToken).totalSupply();
     }
 }

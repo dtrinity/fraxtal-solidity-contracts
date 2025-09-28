@@ -1,16 +1,12 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.20;
 
-import {DataTypes} from "../lending/core/protocol/libraries/types/DataTypes.sol";
+import { DataTypes } from "../lending/core/protocol/libraries/types/DataTypes.sol";
 
 contract MockPool {
     mapping(address => DataTypes.ReserveData) private reserves;
 
-    function setReserveData(
-        address asset,
-        address aToken,
-        address debtToken
-    ) external {
+    function setReserveData(address asset, address aToken, address debtToken) external {
         DataTypes.ReserveData memory newReserve = DataTypes.ReserveData({
             configuration: DataTypes.ReserveConfigurationMap(0),
             liquidityIndex: 1e27, // Initial liquidity index
@@ -31,9 +27,7 @@ contract MockPool {
         reserves[asset] = newReserve;
     }
 
-    function getReserveData(
-        address asset
-    ) external view returns (DataTypes.ReserveData memory) {
+    function getReserveData(address asset) external view returns (DataTypes.ReserveData memory) {
         return reserves[asset];
     }
 }

@@ -17,10 +17,10 @@
 
 pragma solidity ^0.8.10;
 
-import {IParaSwapAugustus} from "../../adapters/paraswap/interfaces/IParaSwapAugustus.sol";
-import {MockParaSwapTokenTransferProxy} from "./MockParaSwapTokenTransferProxy.sol";
-import {IERC20} from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
-import {MintableERC20} from "contracts/lending/core/mocks/tokens/MintableERC20.sol";
+import { IParaSwapAugustus } from "../../adapters/paraswap/interfaces/IParaSwapAugustus.sol";
+import { MockParaSwapTokenTransferProxy } from "./MockParaSwapTokenTransferProxy.sol";
+import { IERC20 } from "contracts/lending/core/dependencies/openzeppelin/contracts/IERC20.sol";
+import { MintableERC20 } from "contracts/lending/core/mocks/tokens/MintableERC20.sol";
 
 contract MockParaSwapAugustus is IParaSwapAugustus {
     MockParaSwapTokenTransferProxy immutable TOKEN_TRANSFER_PROXY;
@@ -74,60 +74,29 @@ contract MockParaSwapAugustus is IParaSwapAugustus {
         _expectedToAmountMax = toAmountMax;
     }
 
-    function swap(
-        address fromToken,
-        address toToken,
-        uint256 fromAmount,
-        uint256 toAmount
-    ) external returns (uint256) {
+    function swap(address fromToken, address toToken, uint256 fromAmount, uint256 toAmount) external returns (uint256) {
         require(_expectingSwap, "Not expecting swap");
         require(fromToken == _expectedFromToken, "Unexpected from token");
         require(toToken == _expectedToToken, "Unexpected to token");
         require(
-            fromAmount >= _expectedFromAmountMin &&
-                fromAmount <= _expectedFromAmountMax,
+            fromAmount >= _expectedFromAmountMin && fromAmount <= _expectedFromAmountMax,
             "From amount out of range"
         );
-        require(
-            _receivedAmount >= toAmount,
-            "Received amount of tokens are less than expected"
-        );
-        TOKEN_TRANSFER_PROXY.transferFrom(
-            fromToken,
-            msg.sender,
-            address(this),
-            fromAmount
-        );
+        require(_receivedAmount >= toAmount, "Received amount of tokens are less than expected");
+        TOKEN_TRANSFER_PROXY.transferFrom(fromToken, msg.sender, address(this), fromAmount);
         MintableERC20(toToken).mint(_receivedAmount);
         IERC20(toToken).transfer(msg.sender, _receivedAmount);
         _expectingSwap = false;
         return _receivedAmount;
     }
 
-    function buy(
-        address fromToken,
-        address toToken,
-        uint256 fromAmount,
-        uint256 toAmount
-    ) external returns (uint256) {
+    function buy(address fromToken, address toToken, uint256 fromAmount, uint256 toAmount) external returns (uint256) {
         require(_expectingSwap, "Not expecting swap");
         require(fromToken == _expectedFromToken, "Unexpected from token");
         require(toToken == _expectedToToken, "Unexpected to token");
-        require(
-            toAmount >= _expectedToAmountMin &&
-                toAmount <= _expectedToAmountMax,
-            "To amount out of range"
-        );
-        require(
-            _fromAmount <= fromAmount,
-            "From amount of tokens are higher than expected"
-        );
-        TOKEN_TRANSFER_PROXY.transferFrom(
-            fromToken,
-            msg.sender,
-            address(this),
-            _fromAmount
-        );
+        require(toAmount >= _expectedToAmountMin && toAmount <= _expectedToAmountMax, "To amount out of range");
+        require(_fromAmount <= fromAmount, "From amount of tokens are higher than expected");
+        TOKEN_TRANSFER_PROXY.transferFrom(fromToken, msg.sender, address(this), _fromAmount);
         MintableERC20(toToken).mint(toAmount);
         IERC20(toToken).transfer(msg.sender, toAmount);
         _expectingSwap = false;

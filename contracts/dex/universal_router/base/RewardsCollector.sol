@@ -17,10 +17,10 @@
 
 pragma solidity ^0.8.15;
 
-import {ERC20} from "solmate/src/tokens/ERC20.sol";
-import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
-import {NFTImmutables} from "../modules/NFTImmutables.sol";
-import {IRewardsCollector} from "../interfaces/IRewardsCollector.sol";
+import { ERC20 } from "solmate/src/tokens/ERC20.sol";
+import { SafeTransferLib } from "solmate/src/utils/SafeTransferLib.sol";
+import { NFTImmutables } from "../modules/NFTImmutables.sol";
+import { IRewardsCollector } from "../interfaces/IRewardsCollector.sol";
 
 abstract contract RewardsCollector is IRewardsCollector, NFTImmutables {
     using SafeTransferLib for ERC20;

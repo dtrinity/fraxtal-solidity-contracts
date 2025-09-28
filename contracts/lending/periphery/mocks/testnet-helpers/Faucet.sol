@@ -17,9 +17,9 @@
 
 pragma solidity ^0.8.0;
 
-import {Ownable} from "contracts/lending/core/dependencies/openzeppelin/contracts/Ownable.sol";
-import {TestnetERC20} from "./TestnetERC20.sol";
-import {IFaucet} from "./IFaucet.sol";
+import { Ownable } from "contracts/lending/core/dependencies/openzeppelin/contracts/Ownable.sol";
+import { TestnetERC20 } from "./TestnetERC20.sol";
+import { IFaucet } from "./IFaucet.sol";
 
 /**
  * @title Faucet
@@ -47,10 +47,7 @@ contract Faucet is IFaucet, Ownable {
      */
     modifier onlyOwnerIfPermissioned() {
         if (_permissioned == true) {
-            require(
-                owner() == _msgSender(),
-                "Ownable: caller is not the owner"
-            );
+            require(owner() == _msgSender(), "Ownable: caller is not the owner");
         }
         _;
     }
@@ -63,8 +60,7 @@ contract Faucet is IFaucet, Ownable {
     ) external override onlyOwnerIfPermissioned returns (uint256) {
         require(!_nonMintable[token], "Error: not mintable");
         require(
-            amount <=
-                maximumMintAmount * (10 ** TestnetERC20(token).decimals()),
+            amount <= maximumMintAmount * (10 ** TestnetERC20(token).decimals()),
             "Error: Mint limit transaction exceeded"
         );
 
@@ -83,10 +79,7 @@ contract Faucet is IFaucet, Ownable {
     }
 
     /// @inheritdoc IFaucet
-    function setMintable(
-        address asset,
-        bool active
-    ) external override onlyOwner {
+    function setMintable(address asset, bool active) external override onlyOwner {
         _nonMintable[asset] = !active;
     }
 
@@ -96,29 +89,21 @@ contract Faucet is IFaucet, Ownable {
     }
 
     /// @inheritdoc IFaucet
-    function transferOwnershipOfChild(
-        address[] calldata childContracts,
-        address newOwner
-    ) external override onlyOwner {
+    function transferOwnershipOfChild(address[] calldata childContracts, address newOwner) external override onlyOwner {
         for (uint256 i = 0; i < childContracts.length; i++) {
             Ownable(childContracts[i]).transferOwnership(newOwner);
         }
     }
 
     /// @inheritdoc IFaucet
-    function setProtectedOfChild(
-        address[] calldata childContracts,
-        bool state
-    ) external override onlyOwner {
+    function setProtectedOfChild(address[] calldata childContracts, bool state) external override onlyOwner {
         for (uint256 i = 0; i < childContracts.length; i++) {
             TestnetERC20(childContracts[i]).setProtected(state);
         }
     }
 
     /// @inheritdoc IFaucet
-    function setMaximumMintAmount(
-        uint256 newMaxMintAmount
-    ) external override onlyOwner {
+    function setMaximumMintAmount(uint256 newMaxMintAmount) external override onlyOwner {
         maximumMintAmount = newMaxMintAmount;
     }
 

@@ -92,11 +92,7 @@ describe("Decimal Utilities", () => {
       const dusdValue = parseUnits("200", DUSD_DECIMALS); // $200 dUSD
       const oraclePrice = parseUnits("2", ORACLE_DECIMALS); // $2.00 per token
 
-      const tokenAmount = calculateTokenAmountForDUSDValue(
-        dusdValue,
-        18,
-        oraclePrice,
-      );
+      const tokenAmount = calculateTokenAmountForDUSDValue(dusdValue, 18, oraclePrice);
       const expected = parseUnits("100", 18); // $200 / $2 = 100 tokens
 
       expect(tokenAmount).to.equal(expected);
@@ -106,11 +102,7 @@ describe("Decimal Utilities", () => {
       const dusdValue = parseUnits("100", DUSD_DECIMALS); // $100 dUSD
       const oraclePrice = parseUnits("1", ORACLE_DECIMALS); // $1.00 per token
 
-      const tokenAmount = calculateTokenAmountForDUSDValue(
-        dusdValue,
-        6,
-        oraclePrice,
-      );
+      const tokenAmount = calculateTokenAmountForDUSDValue(dusdValue, 6, oraclePrice);
       const expected = parseUnits("100", 6); // $100 / $1 = 100 tokens with 6 decimals
 
       expect(tokenAmount).to.equal(expected);
@@ -163,15 +155,9 @@ describe("Decimal Utilities", () => {
       expect(TestAmounts.dusd.large).to.be.greaterThan(TestAmounts.dusd.medium);
 
       // Oracle prices
-      expect(TestAmounts.oraclePrice.oneDollar).to.equal(
-        parseUnits("1", ORACLE_DECIMALS),
-      );
-      expect(TestAmounts.oraclePrice.fiftyDollars).to.equal(
-        parseUnits("50", ORACLE_DECIMALS),
-      );
-      expect(TestAmounts.oraclePrice.thousandDollars).to.equal(
-        parseUnits("1000", ORACLE_DECIMALS),
-      );
+      expect(TestAmounts.oraclePrice.oneDollar).to.equal(parseUnits("1", ORACLE_DECIMALS));
+      expect(TestAmounts.oraclePrice.fiftyDollars).to.equal(parseUnits("50", ORACLE_DECIMALS));
+      expect(TestAmounts.oraclePrice.thousandDollars).to.equal(parseUnits("1000", ORACLE_DECIMALS));
 
       // Fee rates using dTRINITY's system (100 = 1 bps)
       expect(TestAmounts.fees.zeroPercent).to.equal(0n);
@@ -187,11 +173,7 @@ describe("Decimal Utilities", () => {
       const oraclePrice = parseUnits("1", ORACLE_DECIMALS);
 
       // Convert to token amount and back
-      const tokenAmount = calculateTokenAmountForDUSDValue(
-        originalAmount,
-        18,
-        oraclePrice,
-      );
+      const tokenAmount = calculateTokenAmountForDUSDValue(originalAmount, 18, oraclePrice);
       const backToDUSD = calculateValueInDUSD(tokenAmount, 18, oraclePrice);
 
       // Should be very close (allowing for small rounding differences)
@@ -211,11 +193,7 @@ describe("Decimal Utilities", () => {
       const _smallAmount = 1n; // 1 wei in 6-decimal precision
       const smallPrice = parseUnits("0.0001", ORACLE_DECIMALS); // $0.0001
 
-      const smallValue = calculateValueInDUSD(
-        parseUnits("1", 18),
-        18,
-        smallPrice,
-      );
+      const smallValue = calculateValueInDUSD(parseUnits("1", 18), 18, smallPrice);
       expect(smallValue).to.be.greaterThanOrEqual(0);
     });
   });

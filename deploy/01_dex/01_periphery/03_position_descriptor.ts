@@ -4,10 +4,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../../config/config";
 import { deployContract } from "../../../utils/deploy";
-import {
-  NFT_DESCRIPTOR_ID,
-  NONFUNGIBLE_TOKEN_POSITION_DESCRIPTOR_ID,
-} from "../../../utils/dex/deploy-ids";
+import { NFT_DESCRIPTOR_ID, NONFUNGIBLE_TOKEN_POSITION_DESCRIPTOR_ID } from "../../../utils/dex/deploy-ids";
 import { isMainnetNetwork } from "../../../utils/utils";
 import { getWETH9Address } from "../../../utils/weth9";
 
@@ -21,9 +18,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Skip deployment if dex config is not populated
   if (!config.dex) {
-    console.log(
-      "Skipping Position Descriptor deployment - dex config not populated",
-    );
+    console.log("Skipping Position Descriptor deployment - dex config not populated");
     return false;
   }
   const { dexDeployer } = await hre.getNamedAccounts();
@@ -31,8 +26,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const weth9Address = await getWETH9Address(hre);
 
-  const nftDescriptorLibraryDeployedResult =
-    await hre.deployments.get(NFT_DESCRIPTOR_ID);
+  const nftDescriptorLibraryDeployedResult = await hre.deployments.get(NFT_DESCRIPTOR_ID);
 
   // The NonfungibleTokenPositionDescriptor will be automatically found in contracts/dex/periphery/NonfungibleTokenPositionDescriptor.sol
   await deployContract(

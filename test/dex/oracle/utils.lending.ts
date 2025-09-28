@@ -1,10 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-import {
-  AaveOracle,
-  PoolAddressesProviderRegistry,
-  StaticOracleWrapper,
-} from "../../../typechain-types";
+import { AaveOracle, PoolAddressesProviderRegistry, StaticOracleWrapper } from "../../../typechain-types";
 import { deployContract } from "../../../utils/deploy";
 import { ORACLE_ID } from "../../../utils/lending/deploy-ids";
 
@@ -52,11 +48,7 @@ export async function deployLending(
   );
 
   return {
-    oracle: await hre.ethers.getContractAt(
-      "AaveOracle",
-      oracleResult.address,
-      deployer,
-    ),
+    oracle: await hre.ethers.getContractAt("AaveOracle", oracleResult.address, deployer),
     poolAddressesProviderRegistry: await hre.ethers.getContractAt(
       REGISTRY_CONTRACT_NAME,
       poolAddressesProviderRegistryDeployedResult.address,

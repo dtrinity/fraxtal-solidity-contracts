@@ -32,13 +32,9 @@ import "../interface/aave-v3/aave/ILendingPool.sol";
 
 import "@openzeppelin/contracts-4-6/security/ReentrancyGuard.sol";
 import "../common/SharedLiquidator.sol";
-import {ERC4626} from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
+import { ERC4626 } from "@openzeppelin/contracts-5/token/ERC20/extensions/ERC4626.sol";
 
-abstract contract FlashMintLiquidatorAaveBase is
-    ReentrancyGuard,
-    SharedLiquidator,
-    IERC3156FlashBorrower
-{
+abstract contract FlashMintLiquidatorAaveBase is ReentrancyGuard, SharedLiquidator, IERC3156FlashBorrower {
     using SafeTransferLib for ERC20;
     using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
     using PercentageMath for uint256;
@@ -86,8 +82,7 @@ abstract contract FlashMintLiquidatorAaveBase is
 
     event FlashLoan(address indexed initiator, uint256 amount);
 
-    bytes32 public constant FLASHLOAN_CALLBACK =
-        keccak256("ERC3156FlashBorrower.onFlashLoan");
+    bytes32 public constant FLASHLOAN_CALLBACK = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     IERC3156FlashLender public immutable flashMinter;
     ILendingPool public immutable liquidateLender;
@@ -110,30 +105,17 @@ abstract contract FlashMintLiquidatorAaveBase is
         DUSD_DECIMALS = dusd.decimals();
     }
 
-    function _liquidateInternal(
-        LiquidateParams memory _liquidateParams
-    ) internal returns (uint256 seized_) {
-        uint256 balanceBefore = _liquidateParams.collateralUnderlying.balanceOf(
-            address(this)
-        );
-        _liquidateParams.borrowedUnderlying.safeApprove(
-            address(liquidateLender),
-            _liquidateParams.toRepay
-        );
+    function _liquidateInternal(LiquidateParams memory _liquidateParams) internal returns (uint256 seized_) {
+        uint256 balanceBefore = _liquidateParams.collateralUnderlying.balanceOf(address(this));
+        _liquidateParams.borrowedUnderlying.safeApprove(address(liquidateLender), _liquidateParams.toRepay);
         liquidateLender.liquidationCall(
-            address(
-                _getUnderlying(address(_liquidateParams.poolTokenCollateral))
-            ),
-            address(
-                _getUnderlying(address(_liquidateParams.poolTokenBorrowed))
-            ),
+            address(_getUnderlying(address(_liquidateParams.poolTokenCollateral))),
+            address(_getUnderlying(address(_liquidateParams.poolTokenBorrowed))),
             _liquidateParams.borrower,
             _liquidateParams.toRepay,
             false
         );
-        seized_ =
-            _liquidateParams.collateralUnderlying.balanceOf(address(this)) -
-            balanceBefore;
+        seized_ = _liquidateParams.collateralUnderlying.balanceOf(address(this)) - balanceBefore;
         emit Liquidated(
             msg.sender,
             _liquidateParams.borrower,
@@ -150,12 +132,7 @@ abstract contract FlashMintLiquidatorAaveBase is
         uint256 _amount,
         address _recipient
     ) public returns (uint256) {
-        return
-            ERC4626(_collateralERC4626Token).redeem(
-                _amount,
-                _recipient,
-                _recipient
-            );
+        return ERC4626(_collateralERC4626Token).redeem(_amount, _recipient, _recipient);
     }
 
     function _liquidateWithFlashLoan(
@@ -168,29 +145,21 @@ abstract contract FlashMintLiquidatorAaveBase is
             _flashLoanParams.toLiquidate
         );
 
-        dusd.safeApprove(
-            address(flashMinter),
-            dusdToFlashLoan +
-                flashMinter.flashFee(address(dusd), dusdToFlashLoan)
-        );
+        dusd.safeApprove(address(flashMinter), dusdToFlashLoan + flashMinter.flashFee(address(dusd), dusdToFlashLoan));
 
         (actualCollateralToken_, ) = getActualCollateralToken(
             _flashLoanParams.collateralUnderlying,
             _flashLoanParams.isUnstakeCollateralToken
         );
 
-        uint256 balanceBefore = ERC20(actualCollateralToken_).balanceOf(
-            address(this)
-        );
+        uint256 balanceBefore = ERC20(actualCollateralToken_).balanceOf(address(this));
 
         // The liquidation is done in the callback at onFlashLoan()
         // - contracts/lending_liquidator/aave-v3/FlashMintLiquidatorAaveBorrowRepayUniswapV3.sol
         // - The flashLoan() of the minter will call the onFlashLoan() function of the receiver (IERC3156FlashBorrower)
         flashMinter.flashLoan(this, address(dusd), dusdToFlashLoan, data);
 
-        uint256 balanceAfter = ERC20(actualCollateralToken_).balanceOf(
-            address(this)
-        );
+        uint256 balanceAfter = ERC20(actualCollateralToken_).balanceOf(address(this));
 
         if (balanceAfter > balanceBefore) {
             seized_ = balanceAfter - balanceBefore;
@@ -212,16 +181,9 @@ abstract contract FlashMintLiquidatorAaveBase is
     function getActualCollateralToken(
         address _collateralUnderlying,
         bool _isUnstakeCollateralToken
-    )
-        public
-        view
-        virtual
-        returns (address actualCollateralToken_, address proxyContract_);
+    ) public view virtual returns (address actualCollateralToken_, address proxyContract_);
 
-    function _getDUSDToFlashloan(
-        address,
-        uint256
-    ) internal view returns (uint256 amountToFlashLoan_) {
+    function _getDUSDToFlashloan(address, uint256) internal view returns (uint256 amountToFlashLoan_) {
         // As there is no fee for flash minting DUSD, we can flash mint the maximum amount
         // Maximum value of uint256
         amountToFlashLoan_ = flashMinter.maxFlashLoan(address(dusd));
@@ -251,9 +213,7 @@ abstract contract FlashMintLiquidatorAaveBase is
         // }
     }
 
-    function _encodeData(
-        FlashLoanParams memory _flashLoanParams
-    ) internal pure returns (bytes memory data) {
+    function _encodeData(FlashLoanParams memory _flashLoanParams) internal pure returns (bytes memory data) {
         data = abi.encode(
             _flashLoanParams.collateralUnderlying,
             _flashLoanParams.borrowedUnderlying,
@@ -267,9 +227,7 @@ abstract contract FlashMintLiquidatorAaveBase is
         );
     }
 
-    function _decodeData(
-        bytes calldata data
-    ) internal pure returns (FlashLoanParams memory _flashLoanParams) {
+    function _decodeData(bytes calldata data) internal pure returns (FlashLoanParams memory _flashLoanParams) {
         // Need to split the decode because of stack too deep error
         (
             _flashLoanParams.collateralUnderlying,
@@ -281,20 +239,7 @@ abstract contract FlashMintLiquidatorAaveBase is
             ,
             ,
 
-        ) = abi.decode(
-            data,
-            (
-                address,
-                address,
-                address,
-                address,
-                address,
-                address,
-                uint256,
-                bool,
-                bytes
-            )
-        );
+        ) = abi.decode(data, (address, address, address, address, address, address, uint256, bool, bytes));
         (
             ,
             ,
@@ -305,25 +250,10 @@ abstract contract FlashMintLiquidatorAaveBase is
             _flashLoanParams.toLiquidate,
             _flashLoanParams.isUnstakeCollateralToken,
             _flashLoanParams.swapData
-        ) = abi.decode(
-            data,
-            (
-                address,
-                address,
-                address,
-                address,
-                address,
-                address,
-                uint256,
-                bool,
-                bytes
-            )
-        );
+        ) = abi.decode(data, (address, address, address, address, address, address, uint256, bool, bytes));
     }
 
-    function _getUnderlying(
-        address _poolToken
-    ) internal view returns (ERC20 underlying_) {
+    function _getUnderlying(address _poolToken) internal view returns (ERC20 underlying_) {
         underlying_ = ERC20(IAToken(_poolToken).UNDERLYING_ASSET_ADDRESS());
     }
 }

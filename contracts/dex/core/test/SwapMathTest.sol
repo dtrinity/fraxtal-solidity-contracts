@@ -26,24 +26,8 @@ contract SwapMathTest {
         uint128 liquidity,
         int256 amountRemaining,
         uint24 feePips
-    )
-        external
-        pure
-        returns (
-            uint160 sqrtQ,
-            uint256 amountIn,
-            uint256 amountOut,
-            uint256 feeAmount
-        )
-    {
-        return
-            SwapMath.computeSwapStep(
-                sqrtP,
-                sqrtPTarget,
-                liquidity,
-                amountRemaining,
-                feePips
-            );
+    ) external pure returns (uint160 sqrtQ, uint256 amountIn, uint256 amountOut, uint256 feeAmount) {
+        return SwapMath.computeSwapStep(sqrtP, sqrtPTarget, liquidity, amountRemaining, feePips);
     }
 
     function getGasCostOfComputeSwapStep(
@@ -54,13 +38,7 @@ contract SwapMathTest {
         uint24 feePips
     ) external view returns (uint256) {
         uint256 gasBefore = gasleft();
-        SwapMath.computeSwapStep(
-            sqrtP,
-            sqrtPTarget,
-            liquidity,
-            amountRemaining,
-            feePips
-        );
+        SwapMath.computeSwapStep(sqrtP, sqrtPTarget, liquidity, amountRemaining, feePips);
         return gasBefore - gasleft();
     }
 }

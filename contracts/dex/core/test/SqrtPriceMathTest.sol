@@ -26,13 +26,7 @@ contract SqrtPriceMathTest {
         uint256 amountIn,
         bool zeroForOne
     ) external pure returns (uint160 sqrtQ) {
-        return
-            SqrtPriceMath.getNextSqrtPriceFromInput(
-                sqrtP,
-                liquidity,
-                amountIn,
-                zeroForOne
-            );
+        return SqrtPriceMath.getNextSqrtPriceFromInput(sqrtP, liquidity, amountIn, zeroForOne);
     }
 
     function getGasCostOfGetNextSqrtPriceFromInput(
@@ -42,12 +36,7 @@ contract SqrtPriceMathTest {
         bool zeroForOne
     ) external view returns (uint256) {
         uint256 gasBefore = gasleft();
-        SqrtPriceMath.getNextSqrtPriceFromInput(
-            sqrtP,
-            liquidity,
-            amountIn,
-            zeroForOne
-        );
+        SqrtPriceMath.getNextSqrtPriceFromInput(sqrtP, liquidity, amountIn, zeroForOne);
         return gasBefore - gasleft();
     }
 
@@ -57,13 +46,7 @@ contract SqrtPriceMathTest {
         uint256 amountOut,
         bool zeroForOne
     ) external pure returns (uint160 sqrtQ) {
-        return
-            SqrtPriceMath.getNextSqrtPriceFromOutput(
-                sqrtP,
-                liquidity,
-                amountOut,
-                zeroForOne
-            );
+        return SqrtPriceMath.getNextSqrtPriceFromOutput(sqrtP, liquidity, amountOut, zeroForOne);
     }
 
     function getGasCostOfGetNextSqrtPriceFromOutput(
@@ -73,12 +56,7 @@ contract SqrtPriceMathTest {
         bool zeroForOne
     ) external view returns (uint256) {
         uint256 gasBefore = gasleft();
-        SqrtPriceMath.getNextSqrtPriceFromOutput(
-            sqrtP,
-            liquidity,
-            amountOut,
-            zeroForOne
-        );
+        SqrtPriceMath.getNextSqrtPriceFromOutput(sqrtP, liquidity, amountOut, zeroForOne);
         return gasBefore - gasleft();
     }
 
@@ -88,13 +66,7 @@ contract SqrtPriceMathTest {
         uint128 liquidity,
         bool roundUp
     ) external pure returns (uint256 amount0) {
-        return
-            SqrtPriceMath.getAmount0Delta(
-                sqrtLower,
-                sqrtUpper,
-                liquidity,
-                roundUp
-            );
+        return SqrtPriceMath.getAmount0Delta(sqrtLower, sqrtUpper, liquidity, roundUp);
     }
 
     function getAmount1Delta(
@@ -103,13 +75,7 @@ contract SqrtPriceMathTest {
         uint128 liquidity,
         bool roundUp
     ) external pure returns (uint256 amount1) {
-        return
-            SqrtPriceMath.getAmount1Delta(
-                sqrtLower,
-                sqrtUpper,
-                liquidity,
-                roundUp
-            );
+        return SqrtPriceMath.getAmount1Delta(sqrtLower, sqrtUpper, liquidity, roundUp);
     }
 
     function getGasCostOfGetAmount0Delta(

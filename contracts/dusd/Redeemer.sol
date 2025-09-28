@@ -35,8 +35,7 @@ contract Redeemer is AccessControl, OracleAware {
 
     /* Roles */
 
-    bytes32 public constant REDEMPTION_MANAGER_ROLE =
-        keccak256("REDEMPTION_MANAGER_ROLE");
+    bytes32 public constant REDEMPTION_MANAGER_ROLE = keccak256("REDEMPTION_MANAGER_ROLE");
 
     /* Errors */
     error DUSDTransferFailed();
@@ -86,20 +85,13 @@ contract Redeemer is AccessControl, OracleAware {
 
         // Calculate collateral amount
         uint256 dusdValue = dusdAmountToUsdValue(dusdAmount);
-        uint256 collateralAmount = collateralVault.assetAmountFromValue(
-            dusdValue,
-            collateralAsset
-        );
+        uint256 collateralAmount = collateralVault.assetAmountFromValue(dusdValue, collateralAsset);
         if (collateralAmount < minCollateral) {
             revert SlippageTooHigh(collateralAmount, minCollateral);
         }
 
         // Withdraw collateral from the vault
-        collateralVault.withdrawTo(
-            msg.sender,
-            collateralAmount,
-            collateralAsset
-        );
+        collateralVault.withdrawTo(msg.sender, collateralAmount, collateralAsset);
     }
 
     /**
@@ -107,9 +99,7 @@ contract Redeemer is AccessControl, OracleAware {
      * @param dusdAmount The amount of dUSD tokens to convert
      * @return The equivalent USD value
      */
-    function dusdAmountToUsdValue(
-        uint256 dusdAmount
-    ) public view returns (uint256) {
+    function dusdAmountToUsdValue(uint256 dusdAmount) public view returns (uint256) {
         return (dusdAmount * USD_UNIT) / (10 ** dusdDecimals);
     }
 
@@ -119,9 +109,7 @@ contract Redeemer is AccessControl, OracleAware {
      * @notice Sets the collateral vault address
      * @param _collateralVault The address of the new collateral vault
      */
-    function setCollateralVault(
-        address _collateralVault
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setCollateralVault(address _collateralVault) external onlyRole(DEFAULT_ADMIN_ROLE) {
         collateralVault = CollateralVault(_collateralVault);
     }
 }

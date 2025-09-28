@@ -88,18 +88,14 @@ describe("ERC20VestingNFT (dBOOST)", () => {
         const user = fixture.accounts.testAccount1;
         const depositAmount = fixture.vestingAmounts.medium; // 100 dSTAKE
 
-        console.log(
-          `Testing deposit of ${formatUnits(depositAmount, DUSD_DECIMALS)} dSTAKE`,
-        );
+        console.log(`Testing deposit of ${formatUnits(depositAmount, DUSD_DECIMALS)} dSTAKE`);
 
         // Check initial balances
         const initialDStakeBalance = await fixture.dStakeToken.balanceOf(user);
         const initialNFTBalance = await fixture.vestingNFT.balanceOf(user);
         const initialTotalSupply = await fixture.vestingNFT.totalSupply();
 
-        console.log(
-          `User dSTAKE balance: ${formatUnits(initialDStakeBalance, DUSD_DECIMALS)}`,
-        );
+        console.log(`User dSTAKE balance: ${formatUnits(initialDStakeBalance, DUSD_DECIMALS)}`);
         console.log(`User NFT balance: ${initialNFTBalance}`);
         console.log(`NFT total supply: ${initialTotalSupply}`);
 
@@ -115,12 +111,8 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           console.log("Deposits disabled - attempting to enable for test");
 
           try {
-            const deployerSigner = await hre.ethers.getSigner(
-              fixture.accounts.dusdDeployer,
-            );
-            await fixture.vestingNFT
-              .connect(deployerSigner)
-              .setDepositsEnabled(true);
+            const deployerSigner = await hre.ethers.getSigner(fixture.accounts.dusdDeployer);
+            await fixture.vestingNFT.connect(deployerSigner).setDepositsEnabled(true);
             console.log("Deposits enabled successfully");
           } catch (error) {
             console.log("Cannot enable deposits - admin permissions required");
@@ -149,19 +141,13 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           // Check vesting position details
           try {
             const position = await fixture.vestingNFT.positions(tokenId);
-            console.log(
-              `Position amount: ${formatUnits(position.amount, DUSD_DECIMALS)} dSTAKE`,
-            );
-            console.log(
-              `Position start time: ${new Date(Number(position.startTime) * 1000).toISOString()}`,
-            );
+            console.log(`Position amount: ${formatUnits(position.amount, DUSD_DECIMALS)} dSTAKE`);
+            console.log(`Position start time: ${new Date(Number(position.startTime) * 1000).toISOString()}`);
 
             expect(position.amount).to.equal(depositAmount);
             expect(position.startTime).to.be.greaterThan(0);
           } catch (positionError) {
-            console.log(
-              "Position details not accessible or different structure",
-            );
+            console.log("Position details not accessible or different structure");
           }
         }
 
@@ -196,12 +182,8 @@ describe("ERC20VestingNFT (dBOOST)", () => {
 
         if (userBalance < excessiveAmount) {
           try {
-            await fixture.vestingNFT
-              .connect(userSigner)
-              .deposit(excessiveAmount, user);
-            console.log(
-              "WARNING: Excessive deposit was allowed without sufficient balance",
-            );
+            await fixture.vestingNFT.connect(userSigner).deposit(excessiveAmount, user);
+            console.log("WARNING: Excessive deposit was allowed without sufficient balance");
           } catch (error) {
             console.log("Insufficient balance deposit correctly rejected");
             expect(error).to.exist;
@@ -214,17 +196,11 @@ describe("ERC20VestingNFT (dBOOST)", () => {
 
           if (depositsEnabled) {
             // Disable deposits for test
-            const deployerSigner = await hre.ethers.getSigner(
-              fixture.accounts.dusdDeployer,
-            );
-            await fixture.vestingNFT
-              .connect(deployerSigner)
-              .setDepositsEnabled(false);
+            const deployerSigner = await hre.ethers.getSigner(fixture.accounts.dusdDeployer);
+            await fixture.vestingNFT.connect(deployerSigner).setDepositsEnabled(false);
 
             // Try deposit
-            await fixture.vestingNFT
-              .connect(userSigner)
-              .deposit(fixture.vestingAmounts.small, user);
+            await fixture.vestingNFT.connect(userSigner).deposit(fixture.vestingAmounts.small, user);
             console.log("WARNING: Deposit allowed when disabled");
           } else {
             console.log("Deposits already disabled - good");
@@ -257,12 +233,8 @@ describe("ERC20VestingNFT (dBOOST)", () => {
         const depositsEnabled = await fixture.vestingNFT.depositsEnabled();
 
         if (!depositsEnabled) {
-          const deployerSigner = await hre.ethers.getSigner(
-            fixture.accounts.dusdDeployer,
-          );
-          await fixture.vestingNFT
-            .connect(deployerSigner)
-            .setDepositsEnabled(true);
+          const deployerSigner = await hre.ethers.getSigner(fixture.accounts.dusdDeployer);
+          await fixture.vestingNFT.connect(deployerSigner).setDepositsEnabled(true);
         }
 
         // Create vesting position
@@ -281,9 +253,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
 
         // Attempt early redemption
         try {
-          const tx = await fixture.vestingNFT
-            .connect(userSigner)
-            .redeemEarly(tokenId);
+          const tx = await fixture.vestingNFT.connect(userSigner).redeemEarly(tokenId);
           await tx.wait();
 
           console.log("Early redemption successful");
@@ -303,14 +273,9 @@ describe("ERC20VestingNFT (dBOOST)", () => {
             console.log("NFT correctly burned after redemption");
           }
 
-          console.log(
-            `Redeemed ${formatUnits(finalDStakeBalance - initialDStakeBalance, DUSD_DECIMALS)} dSTAKE`,
-          );
+          console.log(`Redeemed ${formatUnits(finalDStakeBalance - initialDStakeBalance, DUSD_DECIMALS)} dSTAKE`);
         } catch (redemptionError) {
-          console.log(
-            "Early redemption failed:",
-            redemptionError.message.substring(0, 100),
-          );
+          console.log("Early redemption failed:", redemptionError.message.substring(0, 100));
 
           // Early redemption might be restricted or have different function name
           console.log("Early redemption may have different implementation");
@@ -341,9 +306,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
 
         // Try to redeem as unauthorized user
         try {
-          await fixture.vestingNFT
-            .connect(unauthorizedSigner)
-            .redeemEarly(tokenId);
+          await fixture.vestingNFT.connect(unauthorizedSigner).redeemEarly(tokenId);
           console.log("WARNING: Unauthorized user could redeem");
           expect.fail("Should have reverted");
         } catch (error) {
@@ -375,12 +338,8 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           const depositsEnabled = await fixture.vestingNFT.depositsEnabled();
 
           if (!depositsEnabled) {
-            const deployerSigner = await hre.ethers.getSigner(
-              fixture.accounts.dusdDeployer,
-            );
-            await fixture.vestingNFT
-              .connect(deployerSigner)
-              .setDepositsEnabled(true);
+            const deployerSigner = await hre.ethers.getSigner(fixture.accounts.dusdDeployer);
+            await fixture.vestingNFT.connect(deployerSigner).setDepositsEnabled(true);
           }
         } catch (error) {
           console.log("Could not enable deposits");
@@ -408,17 +367,13 @@ describe("ERC20VestingNFT (dBOOST)", () => {
         try {
           const initialBalance = await fixture.dStakeToken.balanceOf(user);
 
-          const tx = await fixture.vestingNFT
-            .connect(userSigner)
-            .withdrawMatured(tokenId);
+          const tx = await fixture.vestingNFT.connect(userSigner).withdrawMatured(tokenId);
           await tx.wait();
 
           const finalBalance = await fixture.dStakeToken.balanceOf(user);
           const withdrawn = finalBalance - initialBalance;
 
-          console.log(
-            `Withdrew ${formatUnits(withdrawn, DUSD_DECIMALS)} dSTAKE after maturity`,
-          );
+          console.log(`Withdrew ${formatUnits(withdrawn, DUSD_DECIMALS)} dSTAKE after maturity`);
           expect(withdrawn).to.be.greaterThan(0);
 
           // NFT should still exist but be soul-bound
@@ -430,9 +385,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           const recipient = fixture.accounts.testAccount2;
 
           try {
-            await fixture.vestingNFT
-              .connect(userSigner)
-              .transferFrom(user, recipient, tokenId);
+            await fixture.vestingNFT.connect(userSigner).transferFrom(user, recipient, tokenId);
             console.log("WARNING: Matured NFT was transferable");
           } catch (transferError) {
             console.log("Matured NFT correctly soul-bound (not transferable)");
@@ -441,21 +394,14 @@ describe("ERC20VestingNFT (dBOOST)", () => {
 
           // Try approve and transfer
           try {
-            await fixture.vestingNFT
-              .connect(userSigner)
-              .approve(recipient, tokenId);
+            await fixture.vestingNFT.connect(userSigner).approve(recipient, tokenId);
             console.log("WARNING: Matured NFT could be approved for transfer");
           } catch (approveError) {
             console.log("Matured NFT approve correctly rejected");
           }
         } catch (withdrawError) {
-          console.log(
-            "Matured withdrawal failed:",
-            withdrawError.message.substring(0, 100),
-          );
-          console.log(
-            "Withdraw function might have different name or not be implemented",
-          );
+          console.log("Matured withdrawal failed:", withdrawError.message.substring(0, 100));
+          console.log("Withdraw function might have different name or not be implemented");
         }
       } catch (error) {
         console.log("Vesting maturity test completed with constraints");
@@ -510,10 +456,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
         if (initialBalance > 0n) {
           // Test tokenOfOwnerByIndex if available
           try {
-            const tokenId = await fixture.vestingNFT.tokenOfOwnerByIndex(
-              user,
-              0,
-            );
+            const tokenId = await fixture.vestingNFT.tokenOfOwnerByIndex(user, 0);
             console.log(`First NFT ID: ${tokenId}`);
             expect(tokenId).to.be.greaterThanOrEqual(0);
 
@@ -525,28 +468,21 @@ describe("ERC20VestingNFT (dBOOST)", () => {
               console.log(`Global first NFT ID: ${globalTokenId}`);
             }
           } catch (enumError) {
-            console.log(
-              "NFT enumeration functions not available or different implementation",
-            );
+            console.log("NFT enumeration functions not available or different implementation");
           }
         }
 
         // Test metadata if available
         try {
           if (initialBalance > 0n) {
-            const tokenId = await fixture.vestingNFT.tokenOfOwnerByIndex(
-              user,
-              0,
-            );
+            const tokenId = await fixture.vestingNFT.tokenOfOwnerByIndex(user, 0);
             const tokenURI = await fixture.vestingNFT.tokenURI(tokenId);
             console.log(`Token URI: ${tokenURI.substring(0, 100)}...`);
 
             expect(tokenURI).to.be.a("string");
           }
         } catch (metadataError) {
-          console.log(
-            "Token metadata not available or different implementation",
-          );
+          console.log("Token metadata not available or different implementation");
         }
       } catch (error) {
         console.log("NFT enumeration test completed");
@@ -567,12 +503,8 @@ describe("ERC20VestingNFT (dBOOST)", () => {
 
         // Test setDepositsEnabled protection
         try {
-          await fixture.vestingNFT
-            .connect(unauthorizedSigner)
-            .setDepositsEnabled(false);
-          console.log(
-            "WARNING: Unauthorized user could change deposits setting",
-          );
+          await fixture.vestingNFT.connect(unauthorizedSigner).setDepositsEnabled(false);
+          console.log("WARNING: Unauthorized user could change deposits setting");
         } catch (error) {
           console.log("Deposits setting properly protected");
           expect(error).to.exist;

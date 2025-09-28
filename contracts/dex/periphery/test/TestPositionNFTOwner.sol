@@ -26,10 +26,7 @@ contract TestPositionNFTOwner is IERC1271 {
         owner = _owner;
     }
 
-    function isValidSignature(
-        bytes32 hash,
-        bytes memory signature
-    ) external view override returns (bytes4 magicValue) {
+    function isValidSignature(bytes32 hash, bytes memory signature) external view override returns (bytes4 magicValue) {
         bytes32 r;
         bytes32 s;
         uint8 v;

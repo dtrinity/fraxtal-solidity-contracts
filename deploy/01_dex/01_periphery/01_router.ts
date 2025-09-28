@@ -3,10 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../../config/config";
 import { deployContract } from "../../../utils/deploy";
-import {
-  SWAP_ROUTER_ID,
-  UNISWAP_V3_FACTORY_ID,
-} from "../../../utils/dex/deploy-ids";
+import { SWAP_ROUTER_ID, UNISWAP_V3_FACTORY_ID } from "../../../utils/dex/deploy-ids";
 import { isMainnetNetwork } from "../../../utils/utils";
 import { getWETH9Address } from "../../../utils/weth9";
 
@@ -28,9 +25,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const weth9Address = await getWETH9Address(hre);
 
-  const { address: factoryAddress } = await hre.deployments.get(
-    UNISWAP_V3_FACTORY_ID,
-  );
+  const { address: factoryAddress } = await hre.deployments.get(UNISWAP_V3_FACTORY_ID);
 
   // The SwapRouter will be automatically found in contracts/dex/periphery/SwapRouter.sol
   await deployContract(

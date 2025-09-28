@@ -17,10 +17,10 @@
 
 pragma solidity ^0.8.17;
 
-import {IAllowanceTransfer} from "../../permit2/interfaces/IAllowanceTransfer.sol";
-import {SafeCast160} from "../../permit2/libraries/SafeCast160.sol";
-import {Payments} from "./Payments.sol";
-import {Constants} from "../libraries/Constants.sol";
+import { IAllowanceTransfer } from "../../permit2/interfaces/IAllowanceTransfer.sol";
+import { SafeCast160 } from "../../permit2/libraries/SafeCast160.sol";
+import { Payments } from "./Payments.sol";
+import { Constants } from "../libraries/Constants.sol";
 
 /// @title Payments through Permit2
 /// @notice Performs interactions with Permit2 to transfer tokens
@@ -34,12 +34,7 @@ abstract contract Permit2Payments is Payments {
     /// @param from The address to transfer from
     /// @param to The recipient of the transfer
     /// @param amount The amount to transfer
-    function permit2TransferFrom(
-        address token,
-        address from,
-        address to,
-        uint160 amount
-    ) internal {
+    function permit2TransferFrom(address token, address from, address to, uint160 amount) internal {
         PERMIT2.transferFrom(from, to, amount, token);
     }
 
@@ -61,12 +56,7 @@ abstract contract Permit2Payments is Payments {
     /// @param payer The address to pay for the transfer
     /// @param recipient The recipient of the transfer
     /// @param amount The amount to transfer
-    function payOrPermit2Transfer(
-        address token,
-        address payer,
-        address recipient,
-        uint256 amount
-    ) internal {
+    function payOrPermit2Transfer(address token, address payer, address recipient, uint256 amount) internal {
         if (payer == address(this)) pay(token, recipient, amount);
         else permit2TransferFrom(token, payer, recipient, amount.toUint160());
     }

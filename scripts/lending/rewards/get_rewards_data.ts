@@ -35,9 +35,7 @@ const main = async (): Promise<void> => {
   const { assets, rewards } = jsonData;
 
   if (!Array.isArray(assets) || !Array.isArray(rewards)) {
-    console.error(
-      "Invalid JSON structure. 'assets' and 'rewards' should be arrays.",
-    );
+    console.error("Invalid JSON structure. 'assets' and 'rewards' should be arrays.");
     process.exit(1);
   }
 

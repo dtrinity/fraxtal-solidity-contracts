@@ -5,17 +5,11 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { getConfig } from "../../config/config";
 import { GovernanceExecutor } from "../../typescript/hardhat/governance";
 import { SafeTransactionData } from "../../typescript/safe/types";
-import {
-  AMO_MANAGER_ID,
-  COLLATERAL_VAULT_CONTRACT_ID,
-  ISSUER_CONTRACT_ID,
-  ISSUER_V2_CONTRACT_ID,
-} from "../../utils/deploy-ids";
+import { AMO_MANAGER_ID, COLLATERAL_VAULT_CONTRACT_ID, ISSUER_CONTRACT_ID, ISSUER_V2_CONTRACT_ID } from "../../utils/deploy-ids";
 import { ensureDefaultAdminExistsAndRevokeFrom } from "../../utils/hardhat/access_control";
 import { ORACLE_AGGREGATOR_ID } from "../../utils/oracle/deploy-ids";
 
-const ZERO_BYTES_32 =
-  "0x0000000000000000000000000000000000000000000000000000000000000000";
+const ZERO_BYTES_32 = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 /**
  * Build Safe transaction data for AccessControl.grantRole.
@@ -26,12 +20,7 @@ const ZERO_BYTES_32 =
  * @param contractInterface Interface used to encode the function call
  * @returns Safe transaction data for grantRole
  */
-function createGrantRoleTransaction(
-  contractAddress: string,
-  role: string,
-  grantee: string,
-  contractInterface: any,
-): SafeTransactionData {
+function createGrantRoleTransaction(contractAddress: string, role: string, grantee: string, contractInterface: any): SafeTransactionData {
   return {
     to: contractAddress,
     value: "0",
@@ -48,12 +37,7 @@ function createGrantRoleTransaction(
  * @param contractInterface Interface used to encode the function call
  * @returns Safe transaction data for revokeRole
  */
-function createRevokeRoleTransaction(
-  contractAddress: string,
-  role: string,
-  account: string,
-  contractInterface: any,
-): SafeTransactionData {
+function createRevokeRoleTransaction(contractAddress: string, role: string, account: string, contractInterface: any): SafeTransactionData {
   return {
     to: contractAddress,
     value: "0",
@@ -78,10 +62,7 @@ async function ensureMinterRole(
   executor: GovernanceExecutor,
 ): Promise<boolean> {
   // Attach to an AccessControl-enabled token (dUSD)
-  const stable = await hre.ethers.getContractAt(
-    "ERC20StablecoinUpgradeable",
-    stableAddress,
-  );
+  const stable = await hre.ethers.getContractAt("ERC20StablecoinUpgradeable", stableAddress);
   const MINTER_ROLE = await stable.MINTER_ROLE();
 
   if (!(await stable.hasRole(MINTER_ROLE, grantee))) {
@@ -90,13 +71,7 @@ async function ensureMinterRole(
         await stable.grantRole(MINTER_ROLE, grantee);
         console.log(`    ➕ Granted MINTER_ROLE to ${grantee}`);
       },
-      () =>
-        createGrantRoleTransaction(
-          stableAddress,
-          MINTER_ROLE,
-          grantee,
-          stable.interface,
-        ),
+      () => createGrantRoleTransaction(stableAddress, MINTER_ROLE, grantee, stable.interface),
     );
     return complete;
   } else {
@@ -126,11 +101,7 @@ async function migrateIssuerRolesIdempotent(
   governanceMultisig: string,
   executor: GovernanceExecutor,
 ): Promise<boolean> {
-  const issuer = await hre.ethers.getContractAt(
-    "IssuerV2",
-    issuerAddress,
-    deployerSigner,
-  );
+  const issuer = await hre.ethers.getContractAt("IssuerV2", issuerAddress, deployerSigner);
 
   const DEFAULT_ADMIN_ROLE = ZERO_BYTES_32;
   const AMO_MANAGER_ROLE = await issuer.AMO_MANAGER_ROLE();
@@ -155,19 +126,11 @@ async function migrateIssuerRolesIdempotent(
           await issuer.grantRole(role.hash, governanceMultisig);
           console.log(`    ➕ Granted ${role.name} to ${governanceMultisig}`);
         },
-        () =>
-          createGrantRoleTransaction(
-            issuerAddress,
-            role.hash,
-            governanceMultisig,
-            issuer.interface,
-          ),
+        () => createGrantRoleTransaction(issuerAddress, role.hash, governanceMultisig, issuer.interface),
       );
       if (!complete) allComplete = false;
     } else {
-      console.log(
-        `    ✓ ${role.name} already granted to ${governanceMultisig}`,
-      );
+      console.log(`    ✓ ${role.name} already granted to ${governanceMultisig}`);
     }
   }
 
@@ -182,13 +145,7 @@ async function migrateIssuerRolesIdempotent(
           await issuer.revokeRole(role, deployerAddress);
           console.log(`    ➖ Revoked ${role} from deployer`);
         },
-        () =>
-          createRevokeRoleTransaction(
-            issuerAddress,
-            role,
-            deployerAddress,
-            issuer.interface,
-          ),
+        () => createRevokeRoleTransaction(issuerAddress, role, deployerAddress, issuer.interface),
       );
       if (!complete) allComplete = false;
     }
@@ -218,11 +175,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { dusdDeployer } = await hre.getNamedAccounts();
   const deployerSigner = await ethers.getSigner(dusdDeployer);
   const config = await getConfig(hre);
-  const executor = new GovernanceExecutor(
-    hre,
-    deployerSigner,
-    config.safeConfig,
-  );
+  const executor = new GovernanceExecutor(hre, deployerSigner, config.safeConfig);
   await executor.initialize();
 
   console.log(`\n=== Upgrading Issuer for dUSD ===`);
@@ -230,30 +183,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const oldDeployment = await deployments.getOrNull(ISSUER_CONTRACT_ID);
 
   if (!oldDeployment) {
-    console.log(
-      `  ⚠️ Old issuer ${ISSUER_CONTRACT_ID} not found. Skipping deployment.`,
-    );
+    console.log(`  ⚠️ Old issuer ${ISSUER_CONTRACT_ID} not found. Skipping deployment.`);
     return true;
   }
 
   // Resolve dependency addresses
-  const { address: oracleAggregatorAddress } =
-    await deployments.get(ORACLE_AGGREGATOR_ID);
-  const { address: collateralVaultAddress } = await deployments.get(
-    COLLATERAL_VAULT_CONTRACT_ID,
-  );
+  const { address: oracleAggregatorAddress } = await deployments.get(ORACLE_AGGREGATOR_ID);
+  const { address: collateralVaultAddress } = await deployments.get(COLLATERAL_VAULT_CONTRACT_ID);
   const { address: amoManagerAddress } = await deployments.get(AMO_MANAGER_ID);
   const tokenAddress = config.dusd.address;
 
   // Deploy new IssuerV2 if not already deployed
   const result = await deployments.deploy(ISSUER_V2_CONTRACT_ID, {
     from: dusdDeployer,
-    args: [
-      collateralVaultAddress,
-      tokenAddress,
-      oracleAggregatorAddress,
-      amoManagerAddress,
-    ],
+    args: [collateralVaultAddress, tokenAddress, oracleAggregatorAddress, amoManagerAddress],
     contract: "IssuerV2",
     autoMine: true,
     log: false,
@@ -262,27 +205,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if (result.newlyDeployed) {
     console.log(`  ✅ Deployed ${ISSUER_V2_CONTRACT_ID} at ${result.address}`);
   } else {
-    console.log(
-      `  ✓ ${ISSUER_V2_CONTRACT_ID} already deployed at ${result.address}`,
-    );
+    console.log(`  ✓ ${ISSUER_V2_CONTRACT_ID} already deployed at ${result.address}`);
   }
 
   const newIssuerAddress = result.address;
 
   // Grant MINTER_ROLE on the token to the new issuer (idempotent)
-  const minterComplete = await ensureMinterRole(
-    hre,
-    tokenAddress,
-    newIssuerAddress,
-    executor,
-  );
+  const minterComplete = await ensureMinterRole(hre, tokenAddress, newIssuerAddress, executor);
 
   // Revoke MINTER_ROLE from the old issuer, but only after the new issuer has it
   try {
-    const stable = await hre.ethers.getContractAt(
-      "ERC20StablecoinUpgradeable",
-      tokenAddress,
-    );
+    const stable = await hre.ethers.getContractAt("ERC20StablecoinUpgradeable", tokenAddress);
     const MINTER_ROLE = await stable.MINTER_ROLE();
 
     if (
@@ -292,31 +225,19 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       const complete = await executor.tryOrQueue(
         async () => {
           await stable.revokeRole(MINTER_ROLE, oldDeployment.address);
-          console.log(
-            `    ➖ Revoked MINTER_ROLE from old issuer ${oldDeployment.address}`,
-          );
+          console.log(`    ➖ Revoked MINTER_ROLE from old issuer ${oldDeployment.address}`);
         },
-        () =>
-          createRevokeRoleTransaction(
-            tokenAddress,
-            MINTER_ROLE,
-            oldDeployment.address,
-            stable.interface,
-          ),
+        () => createRevokeRoleTransaction(tokenAddress, MINTER_ROLE, oldDeployment.address, stable.interface),
       );
 
       if (!complete) {
         // pending governance
       }
     } else {
-      console.log(
-        `    ✓ Old issuer ${oldDeployment.address} does not have MINTER_ROLE or equals new issuer`,
-      );
+      console.log(`    ✓ Old issuer ${oldDeployment.address} does not have MINTER_ROLE or equals new issuer`);
     }
   } catch (e) {
-    console.log(
-      `    ⚠️ Could not check/revoke MINTER_ROLE on old issuer: ${(e as Error).message}`,
-    );
+    console.log(`    ⚠️ Could not check/revoke MINTER_ROLE on old issuer: ${(e as Error).message}`);
   }
 
   // Migrate roles to governance multisig (always idempotent)
@@ -330,22 +251,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // Optional: keep old issuer operational until governance flips references
-  console.log(
-    `  ℹ️ New issuer ${ISSUER_V2_CONTRACT_ID} deployed and permissioned. Ensure dApp/services reference ${newIssuerAddress}.`,
-  );
+  console.log(`  ℹ️ New issuer ${ISSUER_V2_CONTRACT_ID} deployed and permissioned. Ensure dApp/services reference ${newIssuerAddress}.`);
 
   // Print manual actions, if any
   if (!(minterComplete && rolesComplete)) {
     await executor.flush("Setup IssuerV2: governance operations");
-    console.log(
-      "\n⏳ Some operations require governance signatures to complete.",
-    );
-    console.log(
-      "   Re-run the script after the Safe batch is executed to finalize.",
-    );
-    console.log(
-      `\n≻ ${__filename.split("/").slice(-2).join("/")}: pending governance ⏳`,
-    );
+    console.log("\n⏳ Some operations require governance signatures to complete.");
+    console.log("   Re-run the script after the Safe batch is executed to finalize.");
+    console.log(`\n≻ ${__filename.split("/").slice(-2).join("/")}: pending governance ⏳`);
     return false;
   }
 
@@ -355,11 +268,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 func.id = "22_1_setup_issuerv2";
 func.tags = ["setup-issuerv2"];
-func.dependencies = [
-  COLLATERAL_VAULT_CONTRACT_ID,
-  "dUSD",
-  ORACLE_AGGREGATOR_ID,
-  AMO_MANAGER_ID,
-];
+func.dependencies = [COLLATERAL_VAULT_CONTRACT_ID, "dUSD", ORACLE_AGGREGATOR_ID, AMO_MANAGER_ID];
 
 export default func;

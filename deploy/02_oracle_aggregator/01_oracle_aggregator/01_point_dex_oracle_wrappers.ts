@@ -2,10 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../../config/config";
-import {
-  DEX_ORACLE_WRAPPER_ID,
-  ORACLE_AGGREGATOR_ID,
-} from "../../../utils/oracle/deploy-ids";
+import { DEX_ORACLE_WRAPPER_ID, ORACLE_AGGREGATOR_ID } from "../../../utils/oracle/deploy-ids";
 import { isLocalNetwork } from "../../../utils/utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -19,8 +16,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const config = await getConfig(hre);
 
   // Get OracleAggregator contract
-  const { address: oracleAggregatorAddress } =
-    await hre.deployments.get(ORACLE_AGGREGATOR_ID);
+  const { address: oracleAggregatorAddress } = await hre.deployments.get(ORACLE_AGGREGATOR_ID);
   const oracleAggregatorContract = await hre.ethers.getContractAt(
     "OracleAggregator",
     oracleAggregatorAddress,
@@ -28,9 +24,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // Set the oracle wrapper for DEX assets
-  const { address: dexOracleWrapperAddress } = await hre.deployments.get(
-    DEX_ORACLE_WRAPPER_ID,
-  );
+  const { address: dexOracleWrapperAddress } = await hre.deployments.get(DEX_ORACLE_WRAPPER_ID);
   const dexOracleWrapperContract = await hre.ethers.getContractAt(
     "DexOracleWrapper",
     dexOracleWrapperAddress,
@@ -39,32 +33,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   for (const assetAddress in config.oracleAggregator.dexOracleAssets) {
     if (assetAddress == config.oracleAggregator.dUSDAddress) {
-      throw new Error(
-        `The asset address ${assetAddress} is already set for dUSD`,
-      );
+      throw new Error(`The asset address ${assetAddress} is already set for dUSD`);
     }
 
     // Check that the DEX oracle wrapper has indeed been set for this asset
     if (!isLocalNetwork(hre.network.name)) {
       // Note that we don't check for local networks because the DEX pools aren't initially set
-      const testPrice =
-        await dexOracleWrapperContract.getAssetPrice(assetAddress);
+      const testPrice = await dexOracleWrapperContract.getAssetPrice(assetAddress);
 
       if (testPrice == 0n) {
-        throw new Error(
-          `The DEX oracle wrapper has not been set for ${assetAddress}`,
-        );
+        throw new Error(`The DEX oracle wrapper has not been set for ${assetAddress}`);
       }
     }
 
-    console.log(
-      `Setting DEX oracle wrapper for ${assetAddress} to`,
-      dexOracleWrapperAddress,
-    );
-    await oracleAggregatorContract.setOracle(
-      assetAddress,
-      dexOracleWrapperAddress,
-    );
+    console.log(`Setting DEX oracle wrapper for ${assetAddress} to`, dexOracleWrapperAddress);
+    await oracleAggregatorContract.setOracle(assetAddress, dexOracleWrapperAddress);
   }
 
   return true;

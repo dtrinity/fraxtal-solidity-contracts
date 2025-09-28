@@ -18,13 +18,8 @@ let dswapLiquiditySwapAdapter: DSwapLiquiditySwapAdapter;
 
 const setupDSwapAdapter = async (): Promise<DSwapLiquiditySwapAdapter> => {
   await standardUniswapV3DEXLBPLiquidityFixture();
-  const { lendingDeployer, addressesProvider, swapRouter } =
-    await loadTestEnv();
-  return await deployDSwapLiquiditySwapAdapter(
-    await addressesProvider.getAddress(),
-    swapRouter.address,
-    lendingDeployer,
-  );
+  const { lendingDeployer, addressesProvider, swapRouter } = await loadTestEnv();
+  return await deployDSwapLiquiditySwapAdapter(await addressesProvider.getAddress(), swapRouter.address, lendingDeployer);
 };
 
 describe("DSwapLiquiditySwapAdapter", () => {
@@ -32,55 +27,26 @@ describe("DSwapLiquiditySwapAdapter", () => {
     dswapLiquiditySwapAdapter = await setupDSwapAdapter();
     const { users, sfrax, lendingDeployer } = await loadTestEnv();
     const userAddress = users[0].address;
-    let sfraxAmount = await parseUnitsFromToken(
-      await sfrax.getAddress(),
-      "100",
-    );
+    let sfraxAmount = await parseUnitsFromToken(await sfrax.getAddress(), "100");
     await sfrax.mint(lendingDeployer, sfraxAmount);
-    await depositCollateralWithApproval(
-      lendingDeployer,
-      await sfrax.getAddress(),
-      100,
-    );
+    await depositCollateralWithApproval(lendingDeployer, await sfrax.getAddress(), 100);
 
     // Make a deposit for user
     sfraxAmount = await parseUnitsFromToken(await sfrax.getAddress(), "1000");
     await sfrax.mint(userAddress, sfraxAmount);
-    await depositCollateralWithApproval(
-      userAddress,
-      await sfrax.getAddress(),
-      1000,
-    );
+    await depositCollateralWithApproval(userAddress, await sfrax.getAddress(), 1000);
   });
 
   describe("swapAndDeposit", () => {
     it("should correctly swap tokens and deposit the out tokens in the pool", async () => {
-      const {
-        users,
-        sfrax,
-        oracle,
-        fxs,
-        aFXS,
-        aSFRAX,
-        swapPoolFee,
-        dusd,
-        pool,
-      } = await loadTestEnv();
+      const { users, sfrax, oracle, fxs, aFXS, aSFRAX, swapPoolFee, dusd, pool } = await loadTestEnv();
       const user = users[0];
       const userAddress = users[0].address;
       // Open user Debt
-      const debtAmount = await parseUnitsFromToken(
-        await dusd.getAddress(),
-        "1",
-      );
-      await pool
-        .connect(user)
-        .borrow(await dusd.getAddress(), debtAmount, 2, 0, userAddress);
+      const debtAmount = await parseUnitsFromToken(await dusd.getAddress(), "1");
+      await pool.connect(user).borrow(await dusd.getAddress(), debtAmount, 2, 0, userAddress);
 
-      const amountToSwap = await parseUnitsFromToken(
-        await sfrax.getAddress(),
-        "11",
-      );
+      const amountToSwap = await parseUnitsFromToken(await sfrax.getAddress(), "11");
 
       const sfraxPrice = await oracle.getAssetPrice(await sfrax.getAddress());
       const fxsPrice = await oracle.getAssetPrice(await fxs.getAddress());
@@ -97,64 +63,35 @@ describe("DSwapLiquiditySwapAdapter", () => {
 
       // User will swap liquidity aSFRAX to aFXS
       const userASFRAXBalanceBefore = await aSFRAX.balanceOf(userAddress);
-      await aSFRAX
-        .connect(user)
-        .approve(await dswapLiquiditySwapAdapter.getAddress(), amountToSwap);
+      await aSFRAX.connect(user).approve(await dswapLiquiditySwapAdapter.getAddress(), amountToSwap);
 
       const path = solidityPacked(
         ["address", "uint24", "address", "uint24", "address"],
-        [
-          await sfrax.getAddress(),
-          swapPoolFee,
-          await dusd.getAddress(),
-          swapPoolFee,
-          await fxs.getAddress(),
-        ],
+        [await sfrax.getAddress(), swapPoolFee, await dusd.getAddress(), swapPoolFee, await fxs.getAddress()],
       );
       await expect(
         dswapLiquiditySwapAdapter
           .connect(user)
-          .swapAndDeposit(
-            await sfrax.getAddress(),
-            await fxs.getAddress(),
-            amountToSwap,
-            minimumFxsAmountToRecieve,
-            0,
-            path,
-            {
-              amount: 0,
-              deadline: 0,
-              v: 0,
-              r: "0x0000000000000000000000000000000000000000000000000000000000000000",
-              s: "0x0000000000000000000000000000000000000000000000000000000000000000",
-            },
-          ),
+          .swapAndDeposit(await sfrax.getAddress(), await fxs.getAddress(), amountToSwap, minimumFxsAmountToRecieve, 0, path, {
+            amount: 0,
+            deadline: 0,
+            v: 0,
+            r: "0x0000000000000000000000000000000000000000000000000000000000000000",
+            s: "0x0000000000000000000000000000000000000000000000000000000000000000",
+          }),
       )
         .to.emit(dswapLiquiditySwapAdapter, "Swapped")
-        .withArgs(
-          await sfrax.getAddress(),
-          await fxs.getAddress(),
-          amountToSwap,
-          (value: bigint) => value >= minimumFxsAmountToRecieve,
-        );
+        .withArgs(await sfrax.getAddress(), await fxs.getAddress(), amountToSwap, (value: bigint) => value >= minimumFxsAmountToRecieve);
 
-      const adapterSFRAXBalance = await sfrax.balanceOf(
-        await dswapLiquiditySwapAdapter.getAddress(),
-      );
-      const adapterFXSBalance = await fxs.balanceOf(
-        await dswapLiquiditySwapAdapter.getAddress(),
-      );
+      const adapterSFRAXBalance = await sfrax.balanceOf(await dswapLiquiditySwapAdapter.getAddress());
+      const adapterFXSBalance = await fxs.balanceOf(await dswapLiquiditySwapAdapter.getAddress());
       const userAFXSBalance = await aFXS.balanceOf(userAddress);
       const userASFRAXBalance = await aSFRAX.balanceOf(userAddress);
 
       expect(adapterSFRAXBalance).to.be.eq("0");
       expect(adapterFXSBalance).to.be.eq("0");
-      expect(userAFXSBalance).to.be.greaterThanOrEqual(
-        minimumFxsAmountToRecieve,
-      );
-      expect(userASFRAXBalance).to.be.eq(
-        userASFRAXBalanceBefore - amountToSwap,
-      );
+      expect(userAFXSBalance).to.be.greaterThanOrEqual(minimumFxsAmountToRecieve);
+      expect(userASFRAXBalance).to.be.eq(userASFRAXBalanceBefore - amountToSwap);
     });
   });
 });
@@ -173,9 +110,5 @@ async function deployDSwapLiquiditySwapAdapter(
   owner: tEthereumAddress,
 ): Promise<DSwapLiquiditySwapAdapter> {
   const signer = await hre.ethers.getSigner(owner);
-  return await new DSwapLiquiditySwapAdapter__factory(signer).deploy(
-    poolAddressesProvider,
-    routerAddress,
-    owner,
-  );
+  return await new DSwapLiquiditySwapAdapter__factory(signer).deploy(poolAddressesProvider, routerAddress, owner);
 }

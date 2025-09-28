@@ -59,14 +59,7 @@ contract OracleTest {
     // write an observation, then change tick and liquidity
     function update(UpdateParams calldata params) external {
         advanceTime(params.advanceTimeBy);
-        (index, cardinality) = observations.write(
-            index,
-            time,
-            tick,
-            liquidity,
-            cardinality,
-            cardinalityNext
-        );
+        (index, cardinality) = observations.write(index, time, tick, liquidity, cardinality, cardinalityNext);
         tick = params.tick;
         liquidity = params.liquidity;
     }
@@ -108,43 +101,14 @@ contract OracleTest {
 
     function observe(
         uint32[] calldata secondsAgos
-    )
-        external
-        view
-        returns (
-            int56[] memory tickCumulatives,
-            uint160[] memory secondsPerLiquidityCumulativeX128s
-        )
-    {
-        return
-            observations.observe(
-                time,
-                secondsAgos,
-                tick,
-                index,
-                liquidity,
-                cardinality
-            );
+    ) external view returns (int56[] memory tickCumulatives, uint160[] memory secondsPerLiquidityCumulativeX128s) {
+        return observations.observe(time, secondsAgos, tick, index, liquidity, cardinality);
     }
 
-    function getGasCostOfObserve(
-        uint32[] calldata secondsAgos
-    ) external view returns (uint256) {
-        (uint32 _time, int24 _tick, uint128 _liquidity, uint16 _index) = (
-            time,
-            tick,
-            liquidity,
-            index
-        );
+    function getGasCostOfObserve(uint32[] calldata secondsAgos) external view returns (uint256) {
+        (uint32 _time, int24 _tick, uint128 _liquidity, uint16 _index) = (time, tick, liquidity, index);
         uint256 gasBefore = gasleft();
-        observations.observe(
-            _time,
-            secondsAgos,
-            _tick,
-            _index,
-            _liquidity,
-            cardinality
-        );
+        observations.observe(_time, secondsAgos, _tick, _index, _liquidity, cardinality);
         return gasBefore - gasleft();
     }
 }

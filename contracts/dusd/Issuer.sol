@@ -51,20 +51,13 @@ contract Issuer is AccessControl, OracleAware {
     /* Roles */
 
     bytes32 public constant AMO_MANAGER_ROLE = keccak256("AMO_MANAGER_ROLE");
-    bytes32 public constant INCENTIVES_MANAGER_ROLE =
-        keccak256("INCENTIVES_MANAGER_ROLE");
+    bytes32 public constant INCENTIVES_MANAGER_ROLE = keccak256("INCENTIVES_MANAGER_ROLE");
 
     /* Errors */
 
     error SlippageTooHigh(uint256 minDUSD, uint256 dusdAmount);
-    error IssuanceSurpassesExcessCollateral(
-        uint256 collateralInDusd,
-        uint256 circulatingDusd
-    );
-    error MintingToAmoShouldNotIncreaseSupply(
-        uint256 circulatingDusdBefore,
-        uint256 circulatingDusdAfter
-    );
+    error IssuanceSurpassesExcessCollateral(uint256 collateralInDusd, uint256 circulatingDusd);
+    error MintingToAmoShouldNotIncreaseSupply(uint256 circulatingDusdBefore, uint256 circulatingDusdAfter);
 
     /**
      * @notice Initializes the Issuer contract with core dependencies
@@ -99,25 +92,16 @@ contract Issuer is AccessControl, OracleAware {
      * @param collateralAsset The address of the collateral asset
      * @param minDUSD The minimum amount of dUSD to receive, used for slippage protection
      */
-    function issue(
-        uint256 collateralAmount,
-        address collateralAsset,
-        uint256 minDUSD
-    ) external {
+    function issue(uint256 collateralAmount, address collateralAsset, uint256 minDUSD) external {
         uint8 collateralDecimals = IERC20Metadata(collateralAsset).decimals();
-        uint256 usdValue = (oracle.getAssetPrice(collateralAsset) *
-            collateralAmount) / (10 ** collateralDecimals);
+        uint256 usdValue = (oracle.getAssetPrice(collateralAsset) * collateralAmount) / (10 ** collateralDecimals);
         uint256 dusdAmount = usdValueToDusdAmount(usdValue);
         if (dusdAmount < minDUSD) {
             revert SlippageTooHigh(minDUSD, dusdAmount);
         }
 
         // Transfer collateral directly to vault
-        IERC20Metadata(collateralAsset).safeTransferFrom(
-            msg.sender,
-            address(collateralVault),
-            collateralAmount
-        );
+        IERC20Metadata(collateralAsset).safeTransferFrom(msg.sender, address(collateralVault), collateralAmount);
 
         dusd.mint(msg.sender, dusdAmount);
     }
@@ -137,10 +121,7 @@ contract Issuer is AccessControl, OracleAware {
         uint256 _circulatingDusd = circulatingDusd();
         uint256 _collateralInDusd = collateralInDusd();
         if (_collateralInDusd < _circulatingDusd) {
-            revert IssuanceSurpassesExcessCollateral(
-                _collateralInDusd,
-                _circulatingDusd
-            );
+            revert IssuanceSurpassesExcessCollateral(_collateralInDusd, _circulatingDusd);
         }
     }
 
@@ -148,9 +129,7 @@ contract Issuer is AccessControl, OracleAware {
      * @notice Increases the AMO supply by minting new dUSD tokens
      * @param dusdAmount The amount of dUSD to mint and send to the AMO Manager
      */
-    function increaseAmoSupply(
-        uint256 dusdAmount
-    ) external onlyRole(AMO_MANAGER_ROLE) {
+    function increaseAmoSupply(uint256 dusdAmount) external onlyRole(AMO_MANAGER_ROLE) {
         uint256 _circulatingDusdBefore = circulatingDusd();
 
         dusd.mint(address(amoManager), dusdAmount);
@@ -159,10 +138,7 @@ contract Issuer is AccessControl, OracleAware {
 
         // Sanity check that we are sending to the active AMO Manager
         if (_circulatingDusdAfter != _circulatingDusdBefore) {
-            revert MintingToAmoShouldNotIncreaseSupply(
-                _circulatingDusdBefore,
-                _circulatingDusdAfter
-            );
+            revert MintingToAmoShouldNotIncreaseSupply(_circulatingDusdBefore, _circulatingDusdAfter);
         }
     }
 
@@ -190,9 +166,7 @@ contract Issuer is AccessControl, OracleAware {
      * @param usdValue The amount of USD value to convert
      * @return The equivalent amount of dUSD tokens
      */
-    function usdValueToDusdAmount(
-        uint256 usdValue
-    ) public view returns (uint256) {
+    function usdValueToDusdAmount(uint256 usdValue) public view returns (uint256) {
         return (usdValue * (10 ** dusdDecimals)) / USD_UNIT;
     }
 
@@ -202,9 +176,7 @@ contract Issuer is AccessControl, OracleAware {
      * @notice Sets the AMO Manager address
      * @param _amoManager The address of the AMO Manager
      */
-    function setAmoManager(
-        address _amoManager
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setAmoManager(address _amoManager) external onlyRole(DEFAULT_ADMIN_ROLE) {
         amoManager = AmoManager(_amoManager);
         grantRole(AMO_MANAGER_ROLE, _amoManager);
         emit AmoManagerSet(_amoManager);
@@ -214,9 +186,7 @@ contract Issuer is AccessControl, OracleAware {
      * @notice Sets the collateral vault address
      * @param _collateralVault The address of the collateral vault
      */
-    function setCollateralVault(
-        address _collateralVault
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setCollateralVault(address _collateralVault) external onlyRole(DEFAULT_ADMIN_ROLE) {
         collateralVault = CollateralVault(_collateralVault);
         emit CollateralVaultSet(_collateralVault);
     }

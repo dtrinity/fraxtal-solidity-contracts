@@ -24,10 +24,7 @@ contract LiquidityMathTest {
         return LiquidityMath.addDelta(x, y);
     }
 
-    function getGasCostOfAddDelta(
-        uint128 x,
-        int128 y
-    ) external view returns (uint256) {
+    function getGasCostOfAddDelta(uint128 x, int128 y) external view returns (uint256) {
         uint256 gasBefore = gasleft();
         LiquidityMath.addDelta(x, y);
         return gasBefore - gasleft();

@@ -2,11 +2,7 @@ import { expect } from "chai";
 import hre, { getNamedAccounts } from "hardhat";
 import { Address } from "hardhat-deploy/types";
 
-import {
-  CurveAPI3CompositeWrapperWithThresholding,
-  MockAPI3Oracle,
-  MockCurveStableNGPool,
-} from "../../typechain-types";
+import { CurveAPI3CompositeWrapperWithThresholding, MockAPI3Oracle, MockCurveStableNGPool } from "../../typechain-types";
 import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
 import { API3_PRICE_DECIMALS } from "../../utils/oracle_aggregator/constants";
 import { TokenInfo } from "../../utils/token";
@@ -21,13 +17,8 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
   let dusdDeployer: Address;
 
   beforeEach(async () => {
-    const {
-      curveAPI3CompositeWrapperWithThresholdingAddress,
-      mockPoolAddress,
-      mockAPI3OracleUSDCAddress,
-      usdcToken,
-      cusdcToken,
-    } = await curveOracleFixture();
+    const { curveAPI3CompositeWrapperWithThresholdingAddress, mockPoolAddress, mockAPI3OracleUSDCAddress, usdcToken, cusdcToken } =
+      await curveOracleFixture();
     ({ dusdDeployer } = await getNamedAccounts());
     usdcInfo = usdcToken;
     cusdcInfo = cusdcToken;
@@ -38,11 +29,7 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
       await hre.ethers.getSigner(dusdDeployer),
     );
 
-    mockPool = await hre.ethers.getContractAt(
-      "MockCurveStableNGPool",
-      mockPoolAddress,
-      await hre.ethers.getSigner(dusdDeployer),
-    );
+    mockPool = await hre.ethers.getContractAt("MockCurveStableNGPool", mockPoolAddress, await hre.ethers.getSigner(dusdDeployer));
 
     mockAPI3OracleUSDCContract = await hre.ethers.getContractAt(
       "MockAPI3Oracle",
@@ -55,10 +42,7 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
     if (!currentTimestamp) {
       throw new Error("Failed to get current block");
     }
-    await mockAPI3OracleUSDCContract.setMock(
-      hre.ethers.parseUnits("1", API3_PRICE_DECIMALS),
-      currentTimestamp.timestamp,
-    );
+    await mockAPI3OracleUSDCContract.setMock(hre.ethers.parseUnits("1", API3_PRICE_DECIMALS), currentTimestamp.timestamp);
   });
 
   describe("Composite price functionality", () => {
@@ -67,10 +51,7 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
       await wrapper.setAssetConfig(cusdcInfo.address, mockPool.target);
 
       // Set initial stored rates and price oracle values
-      const rates = [
-        hre.ethers.parseUnits("1.0", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.0", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.0", 18));
 
@@ -88,17 +69,11 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
 
     it("should calculate composite price correctly", async () => {
       // Set stored rates and price oracle for 1.1 price
-      const rates = [
-        hre.ethers.parseUnits("1.1", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.1", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.1", 18));
 
-      const expectedPrice = hre.ethers.parseUnits(
-        "1.1",
-        AAVE_ORACLE_USD_DECIMALS,
-      );
+      const expectedPrice = hre.ethers.parseUnits("1.1", AAVE_ORACLE_USD_DECIMALS);
 
       const [price, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
       expect(price).to.equal(expectedPrice);
@@ -114,10 +89,7 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
 
     it("should apply thresholds to both Curve and API3 prices", async () => {
       // Set Curve price above threshold
-      const rates = [
-        hre.ethers.parseUnits("1.2", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.2", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.2", 18));
 
@@ -130,18 +102,13 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
       const [price, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
 
       // Both prices should be capped at their fixed prices (1.0 * 1.0)
-      expect(price).to.equal(
-        hre.ethers.parseUnits("1.0", AAVE_ORACLE_USD_DECIMALS),
-      );
+      expect(price).to.equal(hre.ethers.parseUnits("1.0", AAVE_ORACLE_USD_DECIMALS));
       expect(isAlive).to.be.true;
     });
 
     it("should handle when only Curve price exceeds threshold", async () => {
       // Set Curve price above threshold
-      const rates = [
-        hre.ethers.parseUnits("1.2", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.2", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.2", 18));
 
@@ -154,27 +121,20 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
       const [price, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
 
       // Curve price should be capped, API3 price should be unchanged (1.0 * 1.0)
-      expect(price).to.equal(
-        hre.ethers.parseUnits("1.0", AAVE_ORACLE_USD_DECIMALS),
-      );
+      expect(price).to.equal(hre.ethers.parseUnits("1.0", AAVE_ORACLE_USD_DECIMALS));
       expect(isAlive).to.be.true;
     });
 
     it("should handle stored rates from Curve pool", async () => {
       // Set stored rates in mock pool
-      const rates = [
-        hre.ethers.parseUnits("1.1", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.1", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.1", 18));
 
       const [price, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
       expect(isAlive).to.be.true;
       // Price should reflect both the stored rate and price oracle value
-      expect(price).to.equal(
-        hre.ethers.parseUnits("1.1", AAVE_ORACLE_USD_DECIMALS),
-      );
+      expect(price).to.equal(hre.ethers.parseUnits("1.1", AAVE_ORACLE_USD_DECIMALS));
     });
 
     it("should handle price oracle values from Curve pool", async () => {
@@ -188,18 +148,13 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
         hre.ethers.parseUnits("0", AAVE_ORACLE_USD_DECIMALS),
       );
       // Set stored rates and price oracle value
-      const rates = [
-        hre.ethers.parseUnits("1.2", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.2", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.2", 18));
 
       const [price, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
       expect(isAlive).to.be.true;
-      expect(price).to.equal(
-        hre.ethers.parseUnits("1.2", AAVE_ORACLE_USD_DECIMALS),
-      );
+      expect(price).to.equal(hre.ethers.parseUnits("1.2", AAVE_ORACLE_USD_DECIMALS));
     });
   });
 
@@ -213,10 +168,7 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
       const fixedPrice = hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS);
 
       // Set high price using stored rates and price oracle
-      const rates = [
-        hre.ethers.parseUnits("1.2", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.2", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.2", 18));
 
@@ -230,9 +182,7 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
         0, // no API3 fixed price
       );
 
-      const [actualPrice, isAlive] = await wrapper.getPriceInfo(
-        cusdcInfo.address,
-      );
+      const [actualPrice, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
       expect(actualPrice).to.equal(fixedPrice);
       expect(isAlive).to.be.true;
     });
@@ -240,84 +190,44 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
     it("should return original price when price is below threshold", async () => {
       const threshold = hre.ethers.parseUnits("1.1", AAVE_ORACLE_USD_DECIMALS);
       const fixedPrice = hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS);
-      const expectedPrice = hre.ethers.parseUnits(
-        "1.0",
-        AAVE_ORACLE_USD_DECIMALS,
-      );
+      const expectedPrice = hre.ethers.parseUnits("1.0", AAVE_ORACLE_USD_DECIMALS);
 
       // Set price below threshold
-      const rates = [
-        hre.ethers.parseUnits("1.0", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.0", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.0", 18));
 
-      await wrapper.setCompositeFeed(
-        cusdcInfo.address,
-        usdcInfo.address,
-        mockAPI3OracleUSDCContract.target,
-        threshold,
-        fixedPrice,
-        0,
-        0,
-      );
+      await wrapper.setCompositeFeed(cusdcInfo.address, usdcInfo.address, mockAPI3OracleUSDCContract.target, threshold, fixedPrice, 0, 0);
 
-      const [actualPrice, isAlive] = await wrapper.getPriceInfo(
-        cusdcInfo.address,
-      );
+      const [actualPrice, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
       expect(actualPrice).to.equal(expectedPrice);
       expect(isAlive).to.be.true;
     });
 
     it("should not apply thresholds when no composite feed is configured", async () => {
-      const expectedPrice = hre.ethers.parseUnits(
-        "1.2",
-        AAVE_ORACLE_USD_DECIMALS,
-      );
+      const expectedPrice = hre.ethers.parseUnits("1.2", AAVE_ORACLE_USD_DECIMALS);
 
       // Set high price
-      const rates = [
-        hre.ethers.parseUnits("1.2", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.2", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.2", 18));
 
-      const [actualPrice, isAlive] = await wrapper.getPriceInfo(
-        cusdcInfo.address,
-      );
+      const [actualPrice, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
       expect(actualPrice).to.equal(expectedPrice);
       expect(isAlive).to.be.true;
     });
 
     it("should disable thresholds by setting them to zero", async () => {
-      const expectedPrice = hre.ethers.parseUnits(
-        "1.2",
-        AAVE_ORACLE_USD_DECIMALS,
-      );
+      const expectedPrice = hre.ethers.parseUnits("1.2", AAVE_ORACLE_USD_DECIMALS);
 
       // Set high price
-      const rates = [
-        hre.ethers.parseUnits("1.2", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.2", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.2", 18));
 
-      await wrapper.setCompositeFeed(
-        cusdcInfo.address,
-        usdcInfo.address,
-        mockAPI3OracleUSDCContract.target,
-        0,
-        0,
-        0,
-        0,
-      );
+      await wrapper.setCompositeFeed(cusdcInfo.address, usdcInfo.address, mockAPI3OracleUSDCContract.target, 0, 0, 0, 0);
 
-      const [actualPrice, isAlive] = await wrapper.getPriceInfo(
-        cusdcInfo.address,
-      );
+      const [actualPrice, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
       expect(actualPrice).to.equal(expectedPrice);
       expect(isAlive).to.be.true;
     });
@@ -361,9 +271,7 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
     });
 
     it("should emit event when removing composite feed", async () => {
-      await expect(wrapper.removeCompositeFeed(cusdcInfo.address))
-        .to.emit(wrapper, "CompositeFeedRemoved")
-        .withArgs(cusdcInfo.address);
+      await expect(wrapper.removeCompositeFeed(cusdcInfo.address)).to.emit(wrapper, "CompositeFeedRemoved").withArgs(cusdcInfo.address);
     });
   });
 
@@ -383,10 +291,7 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
           hre.ethers.parseUnits("1.0", AAVE_ORACLE_USD_DECIMALS), // api3 fixed price
         ),
       )
-        .to.be.revertedWithCustomError(
-          wrapper,
-          "AccessControlUnauthorizedAccount",
-        )
+        .to.be.revertedWithCustomError(wrapper, "AccessControlUnauthorizedAccount")
         .withArgs(testAccount1, await wrapper.ORACLE_MANAGER_ROLE());
     });
 
@@ -394,15 +299,8 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
       const { testAccount1 } = await getNamedAccounts();
       const unauthorizedSigner = await hre.ethers.getSigner(testAccount1);
 
-      await expect(
-        wrapper
-          .connect(unauthorizedSigner)
-          .removeCompositeFeed(cusdcInfo.address),
-      )
-        .to.be.revertedWithCustomError(
-          wrapper,
-          "AccessControlUnauthorizedAccount",
-        )
+      await expect(wrapper.connect(unauthorizedSigner).removeCompositeFeed(cusdcInfo.address))
+        .to.be.revertedWithCustomError(wrapper, "AccessControlUnauthorizedAccount")
         .withArgs(testAccount1, await wrapper.ORACLE_MANAGER_ROLE());
     });
   });
@@ -424,10 +322,7 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
 
     it("should handle when both prices are below thresholds", async () => {
       // Set prices below their respective thresholds
-      const rates = [
-        hre.ethers.parseUnits("1.05", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.05", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.05", 18));
 
@@ -437,18 +332,13 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
       );
 
       const [price, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
-      expect(price).to.equal(
-        hre.ethers.parseUnits("1.2075", AAVE_ORACLE_USD_DECIMALS),
-      );
+      expect(price).to.equal(hre.ethers.parseUnits("1.2075", AAVE_ORACLE_USD_DECIMALS));
       expect(isAlive).to.be.true;
     });
 
     it("should handle when both prices are above thresholds", async () => {
       // Set both prices above their thresholds
-      const rates = [
-        hre.ethers.parseUnits("1.15", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.15", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.15", 18));
 
@@ -458,18 +348,13 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
       );
 
       const [price, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
-      expect(price).to.equal(
-        hre.ethers.parseUnits("1.1", AAVE_ORACLE_USD_DECIMALS),
-      );
+      expect(price).to.equal(hre.ethers.parseUnits("1.1", AAVE_ORACLE_USD_DECIMALS));
       expect(isAlive).to.be.true;
     });
 
     it("should handle when Curve price is above but API3 price is below threshold", async () => {
       // Set high Curve price using stored rates and price oracle
-      const rates = [
-        hre.ethers.parseUnits("1.15", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.15", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.15", 18));
 
@@ -481,18 +366,13 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
       const [price, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
 
       // Curve price capped at 1.0, API3 price unchanged: 1.0 * 1.15 = 1.15
-      expect(price).to.equal(
-        hre.ethers.parseUnits("1.15", AAVE_ORACLE_USD_DECIMALS),
-      );
+      expect(price).to.equal(hre.ethers.parseUnits("1.15", AAVE_ORACLE_USD_DECIMALS));
       expect(isAlive).to.be.true;
     });
 
     it("should handle when API3 price is above but Curve price is below threshold", async () => {
       // Set low Curve price using stored rates and price oracle
-      const rates = [
-        hre.ethers.parseUnits("1.05", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.05", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.05", 18));
 
@@ -504,18 +384,13 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
       const [price, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
 
       // Curve price unchanged, API3 price capped: 1.05 * 1.1 = 1.155
-      expect(price).to.equal(
-        hre.ethers.parseUnits("1.155", AAVE_ORACLE_USD_DECIMALS),
-      );
+      expect(price).to.equal(hre.ethers.parseUnits("1.155", AAVE_ORACLE_USD_DECIMALS));
       expect(isAlive).to.be.true;
     });
 
     it("should handle edge cases at exactly threshold values", async () => {
       // Set Curve price at threshold
-      const rates = [
-        hre.ethers.parseUnits("1.1", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.1", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.1", 18));
       await wrapper.setCompositeFeed(
@@ -536,9 +411,7 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
       const [price, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
 
       // Both prices at lower threshold should acted as upper threshold: 1.1 * 1.2 = 1.32
-      expect(price).to.equal(
-        hre.ethers.parseUnits("1.32", AAVE_ORACLE_USD_DECIMALS),
-      );
+      expect(price).to.equal(hre.ethers.parseUnits("1.32", AAVE_ORACLE_USD_DECIMALS));
       expect(isAlive).to.be.true;
     });
   });
@@ -549,18 +422,13 @@ describe("CurveAPI3CompositeWrapperWithThresholding", () => {
       await wrapper.setAssetConfig(cusdcInfo.address, mockPool.target);
 
       // Set price with 6 decimals
-      const rates = [
-        hre.ethers.parseUnits("1.0", 18),
-        hre.ethers.parseUnits("1.0", 18),
-      ];
+      const rates = [hre.ethers.parseUnits("1.0", 18), hre.ethers.parseUnits("1.0", 18)];
       await mockPool.setStoredRates(rates);
       await mockPool.setPriceOracle(0, hre.ethers.parseUnits("1.0", 18));
 
       const [price, isAlive] = await wrapper.getPriceInfo(cusdcInfo.address);
       expect(isAlive).to.be.true;
-      expect(price).to.equal(
-        hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS),
-      );
+      expect(price).to.equal(hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS));
     });
 
     it("should correctly set and retrieve pool coins", async () => {

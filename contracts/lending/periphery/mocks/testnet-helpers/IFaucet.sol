@@ -25,11 +25,7 @@ interface IFaucet {
      * @param amount The amount of tokens to mint
      * @return The amount minted
      **/
-    function mint(
-        address token,
-        address to,
-        uint256 amount
-    ) external returns (uint256);
+    function mint(address token, address to, uint256 amount) external returns (uint256);
 
     /**
      * @notice Enable or disable the need of authentication to call `mint` function
@@ -62,20 +58,14 @@ interface IFaucet {
      * @param childContracts A list of child contract addresses
      * @param newOwner The address of the new owner
      */
-    function transferOwnershipOfChild(
-        address[] calldata childContracts,
-        address newOwner
-    ) external;
+    function transferOwnershipOfChild(address[] calldata childContracts, address newOwner) external;
 
     /**
      * @notice Updates protection of minting feature of child token contracts
      * @param childContracts A list of child token contract addresses
      * @param state True if tokens are only mintable through Faucet, false otherwise
      */
-    function setProtectedOfChild(
-        address[] calldata childContracts,
-        bool state
-    ) external;
+    function setProtectedOfChild(address[] calldata childContracts, bool state) external;
 
     /**
      * @notice Updates the maximum amount of tokens per mint allowed

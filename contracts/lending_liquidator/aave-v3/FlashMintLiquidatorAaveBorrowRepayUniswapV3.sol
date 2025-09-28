@@ -4,9 +4,7 @@ pragma solidity 0.8.20;
 import "../../dex/periphery/interfaces/ISwapRouter.sol";
 import "./FlashMintLiquidatorAaveBorrowRepayBase.sol";
 
-contract FlashMintLiquidatorAaveBorrowRepayUniswapV3 is
-    FlashMintLiquidatorAaveBorrowRepayBase
-{
+contract FlashMintLiquidatorAaveBorrowRepayUniswapV3 is FlashMintLiquidatorAaveBorrowRepayBase {
     using SafeTransferLib for ERC20;
 
     ISwapRouter public immutable uniswapV3Router;
@@ -40,13 +38,7 @@ contract FlashMintLiquidatorAaveBorrowRepayUniswapV3 is
     ) internal override returns (uint256 amountIn) {
         ERC20(_inputToken).safeApprove(address(uniswapV3Router), _maxIn);
         amountIn = uniswapV3Router.exactOutput(
-            ISwapRouter.ExactOutputParams(
-                _swapData,
-                address(this),
-                block.timestamp,
-                _amount,
-                _maxIn
-            )
+            ISwapRouter.ExactOutputParams(_swapData, address(this), block.timestamp, _amount, _maxIn)
         );
     }
 }

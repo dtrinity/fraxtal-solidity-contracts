@@ -3,10 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../../config/config";
 import { deployContract } from "../../../utils/deploy";
-import {
-  SWAP_ROUTER_ID,
-  UNISWAP_V3_SWAP_LOGIC_ID,
-} from "../../../utils/dex/deploy-ids";
+import { SWAP_ROUTER_ID, UNISWAP_V3_SWAP_LOGIC_ID } from "../../../utils/dex/deploy-ids";
 import { isLocalNetwork } from "../../../utils/utils";
 import { DLOOP_DEPOSITOR_UNISWAP_V3_ID } from "../../../utils/vault/deploy-ids";
 
@@ -28,17 +25,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Skip if no dLOOP configuration
   if (!config.dLoop) {
-    console.log(
-      `No dLOOP configuration defined for network ${hre.network.name}. Skipping UniswapV3 depositor deployment.`,
-    );
+    console.log(`No dLOOP configuration defined for network ${hre.network.name}. Skipping UniswapV3 depositor deployment.`);
     return false;
   }
 
   // Skip if no depositors section or UniswapV3 depositor is defined
   if (!config.dLoop.depositors || !config.dLoop.depositors.uniswapV3) {
-    console.log(
-      `UniswapV3 depositor not defined for network ${hre.network.name}. Skipping.`,
-    );
+    console.log(`UniswapV3 depositor not defined for network ${hre.network.name}. Skipping.`);
     return false;
   }
 
@@ -52,9 +45,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   // Get the deployed UniswapV3SwapLogic library address
-  const { address: uniswapV3SwapLogicAddress } = await hre.deployments.get(
-    UNISWAP_V3_SWAP_LOGIC_ID,
-  );
+  const { address: uniswapV3SwapLogicAddress } = await hre.deployments.get(UNISWAP_V3_SWAP_LOGIC_ID);
 
   // Get the Swap Router address from Uniswap configuration
   // This is the Swap Router v2 which is needed for Uniswap V3 operations
