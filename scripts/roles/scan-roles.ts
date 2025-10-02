@@ -4,7 +4,7 @@ import { scanRolesAndOwnership } from "./lib/scan";
 async function main() {
   const hre = require("hardhat");
   const { getNamedAccounts } = hre;
-  const { dUSDDeployer: deployer } = await getNamedAccounts();
+  const { dusdDeployer: deployer } = await getNamedAccounts();
   const config = await getConfig(hre);
   const governance = config.walletAddresses.governanceMultisig;
 
@@ -26,12 +26,15 @@ async function main() {
 
   console.log(`\nOwnable contracts: ${result.ownableContracts.length}`);
   for (const c of result.ownableContracts) {
-    console.log(`- ${c.name} (${c.address}) owner=${c.owner} deployerIsOwner=${c.deployerIsOwner}`);
+    console.log(
+      `- ${c.name} (${c.address}) owner=${c.owner} deployerIsOwner=${c.deployerIsOwner} governanceIsOwner=${c.governanceIsOwner}`,
+    );
   }
 
   // Final exposure summary
   const exposureRoles = result.rolesContracts.filter((c) => c.rolesHeldByDeployer.length > 0);
   const exposureOwnable = result.ownableContracts.filter((c) => c.deployerIsOwner);
+  const governanceOwnableMismatches = result.ownableContracts.filter((c) => !c.governanceIsOwner);
 
   console.log("\n--- Deployer Exposure Summary ---");
   if (exposureRoles.length > 0) {
@@ -53,6 +56,15 @@ async function main() {
     }
   } else {
     console.log("\nDeployer owns no Ownable contracts.");
+  }
+
+  if (governanceOwnableMismatches.length > 0) {
+    console.log(`\nOwnable contracts NOT owned by governance multisig: ${governanceOwnableMismatches.length}`);
+    for (const c of governanceOwnableMismatches) {
+      console.log(`- ${c.name} (${c.address}) owner=${c.owner}`);
+    }
+  } else {
+    console.log("\nAll Ownable contracts are governed by the multisig.");
   }
 }
 

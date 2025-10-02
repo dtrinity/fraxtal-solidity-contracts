@@ -25,6 +25,7 @@ export interface OwnableContractInfo {
   abi: AbiItem[];
   owner: string;
   deployerIsOwner: boolean;
+  governanceIsOwner: boolean;
 }
 
 export interface ScanResult {
@@ -155,16 +156,20 @@ export async function scanRolesAndOwnership(
         try {
           const contract = await ethers.getContractAt(abi as any, contractAddress);
           const owner: string = await (contract as any).owner();
+          const ownerLower = owner.toLowerCase();
+          const deployerLower = deployer?.toLowerCase?.();
+          const governanceLower = governanceMultisig?.toLowerCase?.();
           log(`  Contract ${contractName} appears to be Ownable. owner=${owner}`);
           ownableContracts.push({
             name: contractName,
             address: contractAddress,
             abi,
             owner,
-            deployerIsOwner: owner.toLowerCase() === deployer.toLowerCase(),
+            deployerIsOwner: deployerLower ? ownerLower === deployerLower : false,
+            governanceIsOwner: governanceLower ? ownerLower === governanceLower : false,
           });
-        } catch {
-          // ignore owner resolution failures
+        } catch (error) {
+          log(`    Failed to resolve owner for ${contractName}: ${error}`);
         }
       }
     } catch {
