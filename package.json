@@ -16,7 +16,10 @@
     "lint:prettier": "ts-node .shared/scripts/linting/prettier.ts",
     "lint:all": "ts-node .shared/scripts/linting/run-all.ts",
     "guardrails:check": "ts-node .shared/scripts/guardrails/check.ts",
-    "shared:update": "bash .shared/scripts/subtree/update.sh"
+    "shared:update": "bash .shared/scripts/subtree/update.sh",
+    "roles:scan": "ts-node node_modules/@dtrinity/shared-hardhat-tools/scripts/roles/scan-roles.ts",
+    "roles:transfer": "ts-node node_modules/@dtrinity/shared-hardhat-tools/scripts/roles/transfer-roles.ts",
+    "roles:revoke": "ts-node node_modules/@dtrinity/shared-hardhat-tools/scripts/roles/revoke-roles.ts"
   },
   "devDependencies": {
     "@curvefi/api": "2.30.1",
