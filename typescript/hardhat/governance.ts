@@ -1,9 +1,8 @@
+import { SafeConfig, SafeManager, SafeTransactionBatch, SafeTransactionData } from "@dtrinity/shared-hardhat-tools";
 import { Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 import { isMainnetNetwork } from "../../utils/utils";
-import { SafeManager } from "../safe/SafeManager";
-import { SafeConfig, SafeTransactionBatch, SafeTransactionData } from "../safe/types";
 
 /**
  * GovernanceExecutor decides whether to execute operations directly
