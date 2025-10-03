@@ -12,7 +12,7 @@ export interface Config {
     | undefined;
   readonly walletAddresses: WalletAddresses;
   // Optional Safe configuration for multisig governance
-  readonly safeConfig?: import("../typescript/safe/types").SafeConfig;
+  readonly safeConfig?: import("@dtrinity/shared-hardhat-tools").SafeConfig;
   readonly dex?: DEXConfig;
   readonly lending: LendingConfig;
   readonly dusd: DUSDConfig;

@@ -33,16 +33,20 @@ export interface ScanResult {
   ownableContracts: OwnableContractInfo[];
 }
 
-export async function scanRolesAndOwnership(
-  hre: HardhatRuntimeEnvironment,
-  deployer: string,
-  governanceMultisig: string,
-  logger?: (message: string) => void,
-): Promise<ScanResult> {
+export interface ScanOptions {
+  hre: HardhatRuntimeEnvironment;
+  deployer: string;
+  governanceMultisig: string;
+  deploymentsPath?: string;
+  logger?: (message: string) => void;
+}
+
+export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanResult> {
+  const { hre, deployer, governanceMultisig, logger } = options;
   const { ethers, network } = hre;
   const log = logger || (() => {});
 
-  const deploymentsPath = path.join(hre.config.paths.deployments, network.name);
+  const deploymentsPath = options.deploymentsPath || path.join(hre.config.paths.deployments, network.name);
   if (!fs.existsSync(deploymentsPath)) {
     throw new Error(`Deployments directory not found for network ${network.name}: ${deploymentsPath}`);
   }

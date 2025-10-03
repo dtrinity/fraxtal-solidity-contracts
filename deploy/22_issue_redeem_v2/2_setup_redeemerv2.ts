@@ -1,10 +1,10 @@
+import { SafeTransactionData } from "@dtrinity/shared-hardhat-tools";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../config/config";
 import { dUSD_REDEEMER_WITH_FEES_CONTRACT_ID } from "../../typescript/deploy-ids";
 import { GovernanceExecutor } from "../../typescript/hardhat/governance";
-import { SafeTransactionData } from "../../typescript/safe/types";
 import { COLLATERAL_VAULT_CONTRACT_ID, REDEEMER_CONTRACT_ID, REDEEMER_V2_CONTRACT_ID } from "../../utils/deploy-ids";
 import { ensureDefaultAdminExistsAndRevokeFrom } from "../../utils/hardhat/access_control";
 import { ORACLE_AGGREGATOR_ID } from "../../utils/oracle/deploy-ids";

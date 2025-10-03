@@ -1,10 +1,10 @@
+import { SafeTransactionData } from "@dtrinity/shared-hardhat-tools";
 import { Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../config/config";
 import { GovernanceExecutor } from "../../typescript/hardhat/governance";
-import { SafeTransactionData } from "../../typescript/safe/types";
 import { AMO_MANAGER_ID, COLLATERAL_VAULT_CONTRACT_ID, ISSUER_CONTRACT_ID, ISSUER_V2_CONTRACT_ID } from "../../utils/deploy-ids";
 import { ensureDefaultAdminExistsAndRevokeFrom } from "../../utils/hardhat/access_control";
 import { ORACLE_AGGREGATOR_ID } from "../../utils/oracle/deploy-ids";
@@ -163,7 +163,7 @@ async function migrateIssuerRolesIdempotent(
       undefined,
       executor,
     );
-  } catch (e) {
+  } catch {
     // In Safe mode, consider admin migration pending
     allComplete = false;
   }
