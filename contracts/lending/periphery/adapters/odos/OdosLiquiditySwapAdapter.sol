@@ -40,6 +40,8 @@ contract OdosLiquiditySwapAdapter is
 {
     using SafeERC20 for IERC20;
 
+    error UnauthorizedUser(address caller, address expectedUser);
+
     // unique identifier to track usage via flashloan events
     uint16 public constant REFERRER = 43980; // uint16(uint256(keccak256(abi.encode('liquidity-swap-adapter'))) / type(uint16).max)
 
@@ -82,7 +84,10 @@ contract OdosLiquiditySwapAdapter is
     function swapLiquidity(
         LiquiditySwapParams memory liquiditySwapParams,
         PermitInput memory collateralATokenPermit
-    ) external nonReentrant {
+    ) external virtual nonReentrant {
+        if (msg.sender != liquiditySwapParams.user) {
+            revert UnauthorizedUser(msg.sender, liquiditySwapParams.user);
+        }
         // true if flashloan is needed to swap liquidity
         if (!liquiditySwapParams.withFlashLoan) {
             _swapAndDeposit(liquiditySwapParams, collateralATokenPermit);
