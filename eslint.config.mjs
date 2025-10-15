@@ -88,7 +88,20 @@ export default [
           ignoreComments: true,
         },
       ],
-      "prettier/prettier": ["error"],
+      "prettier/prettier": [
+        "error",
+        {
+          printWidth: 140,
+          tabWidth: 2,
+          useTabs: false,
+          singleQuote: false,
+          semi: true,
+          trailingComma: "all",
+          bracketSpacing: true,
+          arrowParens: "always",
+          endOfLine: "auto",
+        },
+      ],
       camelcase: "off", // Disabled because constants should use UPPER_SNAKE_CASE
       "@typescript-eslint/explicit-function-return-type": "error",
       "eslint-comments/require-description": ["error"],
