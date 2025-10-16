@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "network": "fraxtal_testnet",
+  "deployer": "0x0f5e3D9AEe7Ab5fDa909Af1ef147D98a7f4B3022",
+  "governance": "0x9E0c8376940aBE845A89b7304147a95c72644f59",
+  "defaults": {
+    "ownable": {
+      "newOwner": "{{governance}}",
+      "execution": "direct"
+    },
+    "defaultAdmin": {
+      "newAdmin": "{{governance}}",
+      "grantExecution": "direct"
+    }
+  },
+  "autoInclude": {
+    "ownable": true,
+    "defaultAdmin": true
+  },
+  "exclusions": [],
+  "overrides": [],
+  "safe": {
+    "safeAddress": "0x9E0c8376940aBE845A89b7304147a95c72644f59",
+    "threshold": 1,
+    "chainId": 2522,
+    "rpcUrl": "https://rpc.testnet.frax.com",
+    "description": "Fraxtal testnet governance Safe"
+  },
+  "output": {
+    "json": "reports/roles/fraxtal-testnet-latest.json"
+  }
+}
+
