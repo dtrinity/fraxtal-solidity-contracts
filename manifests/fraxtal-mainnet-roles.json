@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "network": "fraxtal_mainnet",
+  "deployer": "0x0f5e3D9AEe7Ab5fDa909Af1ef147D98a7f4B3022",
+  "governance": "0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9",
+  "defaults": {
+    "ownable": {
+      "newOwner": "{{governance}}",
+      "execution": "direct"
+    },
+    "defaultAdmin": {
+      "newAdmin": "{{governance}}",
+      "grantExecution": "direct"
+    }
+  },
+  "autoInclude": {
+    "ownable": true,
+    "defaultAdmin": true
+  },
+  "exclusions": [],
+  "overrides": [],
+  "safe": {
+    "safeAddress": "0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9",
+    "threshold": 2,
+    "chainId": 252,
+    "rpcUrl": "https://rpc.frax.com",
+    "description": "Fraxtal mainnet governance Safe"
+  },
+  "output": {
+    "json": "reports/roles/fraxtal-mainnet-latest.json"
+  }
+}
+
