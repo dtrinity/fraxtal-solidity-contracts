@@ -201,6 +201,43 @@ async function ensureVaultWithdrawerRole(
 }
 
 /**
+ * Ensure the debt token is configured as supported collateral in the vault.
+ *
+ * @param hre Hardhat runtime environment
+ * @param vaultAddress Address of the collateral vault
+ * @param debtTokenAddress Address of the AMO debt token
+ * @param executor Governance executor helper for direct/queued execution
+ * @returns True if complete, false if pending governance
+ */
+async function ensureDebtTokenCollateral(
+  hre: HardhatRuntimeEnvironment,
+  vaultAddress: string,
+  debtTokenAddress: string,
+  executor: GovernanceExecutor,
+): Promise<boolean> {
+  const vault = await hre.ethers.getContractAt("CollateralHolderVault", vaultAddress);
+
+  if (await vault.isCollateralSupported(debtTokenAddress)) {
+    console.log(`    ✓ Debt token already supported as collateral in vault`);
+    return true;
+  }
+
+  const complete = await executor.tryOrQueue(
+    async () => {
+      await vault.allowCollateral(debtTokenAddress);
+      console.log(`    ➕ Enabled debt token ${debtTokenAddress} as vault collateral`);
+    },
+    () => ({
+      to: vaultAddress,
+      value: "0",
+      data: vault.interface.encodeFunctionData("allowCollateral", [debtTokenAddress]),
+    }),
+  );
+
+  return complete;
+}
+
+/**
  * Migrate AmoManagerV2 administrative and operator roles to governance.
  * Grants roles to governance first, then revokes them from the deployer.
  *
@@ -409,6 +446,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // Migrate debt token admin to governance
   if (debtTokenDeployment) {
     console.log(`  📦 Configuring AmoDebtToken at ${debtTokenDeployment.address}`);
+    const collateralComplete = await ensureDebtTokenCollateral(hre, vaultAddress, debtTokenDeployment.address, executor);
     const debtAdminComplete = await migrateAmoDebtTokenAdmin(
       hre,
       debtTokenDeployment.address,
@@ -417,7 +455,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       executor,
     );
 
-    if (!debtAdminComplete) {
+    if (!(collateralComplete && debtAdminComplete)) {
       allComplete = false;
     }
   } else {
