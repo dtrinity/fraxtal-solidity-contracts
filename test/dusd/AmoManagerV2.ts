@@ -41,6 +41,7 @@ describe("AmoManagerV2", () => {
 
     // Ensure the oracle can price the debt token for peg guard checks
     const oracleAggregator = await hre.ethers.getContractAt("OracleAggregator", oracleAddress, await hre.ethers.getSigner(dusdDeployer));
+
     if ((await oracleAggregator.assetOracles(await debtToken.getAddress())) === hre.ethers.ZeroAddress) {
       const { address: hardPegOracleWrapperAddress } = await hre.deployments.get("HardPegOracleWrapper");
       await oracleAggregator.setOracle(await debtToken.getAddress(), hardPegOracleWrapperAddress);

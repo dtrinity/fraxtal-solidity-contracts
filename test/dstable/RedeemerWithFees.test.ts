@@ -147,7 +147,7 @@ describe("RedeemerWithFees", () => {
             console.log("Access control working correctly");
           }
         }
-      } catch (error) {
+      } catch {
         console.log("Default fee setting test completed with constraints");
       }
     });
@@ -180,7 +180,7 @@ describe("RedeemerWithFees", () => {
         } else {
           console.log("Admin role required for fee setting - this is expected in production");
         }
-      } catch (error) {
+      } catch {
         console.log("Specific fee setting test completed with constraints");
       }
     });
@@ -212,7 +212,7 @@ describe("RedeemerWithFees", () => {
             expect(error).to.exist;
           }
         }
-      } catch (error) {
+      } catch {
         console.log("Fee validation test completed");
       }
     });
@@ -235,7 +235,7 @@ describe("RedeemerWithFees", () => {
         // Try to mint dUSD first
         try {
           await dusdContract.connect(deployerSigner).mint(user, redeemAmount);
-        } catch (mintError) {
+        } catch {
           // If minting fails, try to grant minter role first
           await dusdContract.connect(deployerSigner).grantRole(
             "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6", // MINTER_ROLE hash

@@ -2,13 +2,7 @@ import { assert, expect } from "chai";
 import hre, { getNamedAccounts } from "hardhat";
 import { Address } from "hardhat-deploy/types";
 
-import {
-  CollateralHolderVault,
-  ERC20Test,
-  IssuerV2_2,
-  MintableERC20,
-  MockOracleAggregator,
-} from "../../typechain-types";
+import { CollateralHolderVault, ERC20Test, IssuerV2_2, MintableERC20, MockOracleAggregator } from "../../typechain-types";
 import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
 import { getTokenContractForSymbol } from "../ecosystem/utils.token";
 import { standaloneMinimalFixture } from "./fixtures";

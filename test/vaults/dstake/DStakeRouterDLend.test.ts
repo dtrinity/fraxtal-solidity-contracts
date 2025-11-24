@@ -140,7 +140,7 @@ describe("DStakeRouterDLend Integration", () => {
         // Test conversion functions with accrued yield
         const currentAssetValue = await fixture.dStakeToken.convertToAssets(initialShares);
         expect(currentAssetValue).to.be.greaterThanOrEqual(initialAssets);
-      } catch (error) {
+      } catch {
         console.log("Yield simulation not available in test environment");
       }
     });
@@ -175,7 +175,7 @@ describe("DStakeRouterDLend Integration", () => {
         try {
           // Attempt router operation
           console.log("Testing router functionality...");
-        } catch (routerError) {
+        } catch {
           console.log("Router operation failed - this is acceptable in test environment");
           console.log("Router dependencies may not be fully configured");
         }
@@ -192,7 +192,7 @@ describe("DStakeRouterDLend Integration", () => {
       try {
         // Test with zero deposit
         await expect(fixture.dStakeToken.connect(userSigner).deposit(0, user)).to.be.revertedWith("ERC4626: deposit more than max");
-      } catch (error) {
+      } catch {
         // Different revert message is acceptable
         console.log("Zero deposit handled (specific error message may vary)");
       }
@@ -200,7 +200,7 @@ describe("DStakeRouterDLend Integration", () => {
       // Test withdrawal when no balance
       try {
         await expect(fixture.dStakeToken.connect(userSigner).withdraw(parseUnits("100", DUSD_DECIMALS), user, user)).to.be.reverted;
-      } catch (error) {
+      } catch {
         console.log("Empty balance withdrawal properly rejected");
       }
     });

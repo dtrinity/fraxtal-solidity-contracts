@@ -73,7 +73,7 @@ describe("DStake Security", () => {
 
           // Victim should own significant portion given their large deposit
           expect(victimProportion).to.be.greaterThan(50n); // At least 0.5%
-        } catch (transferError) {
+        } catch {
           console.log("Direct transfer to vault failed - this is good for security");
         }
       } catch (error) {
@@ -289,11 +289,11 @@ describe("DStake Security", () => {
           try {
             await fixture.dStakeToken.connect(unauthorizedSigner).pause();
             console.log("WARNING: Unauthorized user could pause contract!");
-          } catch (pauseError) {
+          } catch {
             console.log("Pause function properly protected");
           }
         }
-      } catch (error) {
+      } catch {
         console.log("Pause role not implemented or different name");
       }
     });

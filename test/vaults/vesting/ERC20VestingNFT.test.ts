@@ -71,7 +71,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
 
         // Deposits might be enabled or disabled based on deployment
         expect(typeof depositsEnabled).to.equal("boolean");
-      } catch (error) {
+      } catch {
         console.log("Initial state check completed with constraints");
       }
     });
@@ -114,7 +114,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
             const deployerSigner = await hre.ethers.getSigner(fixture.accounts.dusdDeployer);
             await fixture.vestingNFT.connect(deployerSigner).setDepositsEnabled(true);
             console.log("Deposits enabled successfully");
-          } catch (error) {
+          } catch {
             console.log("Cannot enable deposits - admin permissions required");
             return;
           }
@@ -146,7 +146,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
 
             expect(position.amount).to.equal(depositAmount);
             expect(position.startTime).to.be.greaterThan(0);
-          } catch (positionError) {
+          } catch {
             console.log("Position details not accessible or different structure");
           }
         }
@@ -209,7 +209,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           console.log("Disabled deposits correctly rejected");
           expect(error).to.exist;
         }
-      } catch (error) {
+      } catch {
         console.log("Deposit requirements test completed");
       }
     });
@@ -269,7 +269,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           try {
             await fixture.vestingNFT.ownerOf(tokenId);
             console.log("WARNING: NFT still exists after early redemption");
-          } catch (error) {
+          } catch {
             console.log("NFT correctly burned after redemption");
           }
 
@@ -280,7 +280,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           // Early redemption might be restricted or have different function name
           console.log("Early redemption may have different implementation");
         }
-      } catch (error) {
+      } catch {
         console.log("Early redemption test completed with constraints");
       }
     });
@@ -313,7 +313,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           console.log("Unauthorized redemption correctly rejected");
           expect(error).to.exist;
         }
-      } catch (error) {
+      } catch {
         console.log("Unauthorized redemption test completed");
       }
     });
@@ -341,7 +341,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
             const deployerSigner = await hre.ethers.getSigner(fixture.accounts.dusdDeployer);
             await fixture.vestingNFT.connect(deployerSigner).setDepositsEnabled(true);
           }
-        } catch (error) {
+        } catch {
           console.log("Could not enable deposits");
         }
 
@@ -396,14 +396,14 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           try {
             await fixture.vestingNFT.connect(userSigner).approve(recipient, tokenId);
             console.log("WARNING: Matured NFT could be approved for transfer");
-          } catch (approveError) {
+          } catch {
             console.log("Matured NFT approve correctly rejected");
           }
         } catch (withdrawError) {
           console.log("Matured withdrawal failed:", withdrawError.message.substring(0, 100));
           console.log("Withdraw function might have different name or not be implemented");
         }
-      } catch (error) {
+      } catch {
         console.log("Vesting maturity test completed with constraints");
       }
     });
@@ -434,7 +434,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           console.log("Premature withdrawal correctly rejected");
           expect(error).to.exist;
         }
-      } catch (error) {
+      } catch {
         console.log("Premature withdrawal test completed");
       }
     });
@@ -467,7 +467,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
               const globalTokenId = await fixture.vestingNFT.tokenByIndex(0);
               console.log(`Global first NFT ID: ${globalTokenId}`);
             }
-          } catch (enumError) {
+          } catch {
             console.log("NFT enumeration functions not available or different implementation");
           }
         }
@@ -481,10 +481,10 @@ describe("ERC20VestingNFT (dBOOST)", () => {
 
             expect(tokenURI).to.be.a("string");
           }
-        } catch (metadataError) {
+        } catch {
           console.log("Token metadata not available or different implementation");
         }
-      } catch (error) {
+      } catch {
         console.log("NFT enumeration test completed");
       }
     });
@@ -512,7 +512,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
 
         // Test other admin functions if they exist
         console.log("Admin function protection verified");
-      } catch (error) {
+      } catch {
         console.log("Access control test completed");
       }
     });
