@@ -4,13 +4,13 @@ module.exports = {
   useTabs: false,
   singleQuote: false,
   semi: true,
-  trailingComma: 'all',
+  trailingComma: "all",
   bracketSpacing: true,
-  arrowParens: 'always',
-  plugins: ['prettier-plugin-solidity'],
+  arrowParens: "always",
+  plugins: ["prettier-plugin-solidity"],
   overrides: [
     {
-      files: '*.sol',
+      files: "*.sol",
       options: {
         tabWidth: 4,
         printWidth: 120,

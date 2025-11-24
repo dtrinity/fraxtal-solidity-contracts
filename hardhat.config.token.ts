@@ -13,7 +13,6 @@ import { getDefaultNamedAccounts, getDefaultPrivateKeys } from "./utils/hardhat-
  * - We only want the core contracts to be re-deployed when running the reset command and not the test tokens
  */
 
-/* eslint-disable camelcase -- Use camelcase for network config  */
 const config: HardhatUserConfig = {
   solidity: getDefaultSolidityCompilersConfig(),
   networks: {
@@ -35,6 +34,5 @@ const config: HardhatUserConfig = {
   },
   namedAccounts: getDefaultNamedAccounts(),
 };
-/* eslint-enable camelcase -- Use camelcase for network config */
 
 export default config;

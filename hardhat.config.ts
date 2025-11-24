@@ -12,7 +12,6 @@ import { getDefaultDeployScriptPaths } from "./utils/deploy";
 import { getDefaultSolidityCompilersConfig } from "./utils/hardhat-config/compilers";
 import { getDefaultNamedAccounts, getDefaultPrivateKeys } from "./utils/hardhat-config/named_accounts";
 
-/* eslint-disable camelcase -- Use camelcase for network config  */
 const config: HardhatUserConfig = {
   solidity: getDefaultSolidityCompilersConfig(),
   networks: {
@@ -84,6 +83,5 @@ const config: HardhatUserConfig = {
     enabled: true,
   },
 };
-/* eslint-enable camelcase -- Use camelcase for network config */
 
 export default config;

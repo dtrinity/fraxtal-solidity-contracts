@@ -37,7 +37,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     UNISWAP_UNIVERSAL_ROUTER_ID,
     [
       {
-        /* eslint-disable camelcase -- Use camelcase for params  */
         permit2: permit2Address,
         weth9: weth9Address,
         seaportV1_5: ZeroAddress,
@@ -56,7 +55,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         looksRareToken: ZeroAddress,
         v3Factory: dexFactoryAddress,
         poolInitCodeHash: poolInitCodeHash,
-        /* eslint-enable camelcase -- Use camelcase for params */
       },
     ],
     undefined, // auto-filling gas limit

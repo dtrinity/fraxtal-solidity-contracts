@@ -3,11 +3,7 @@ import { expect } from "chai";
 import { solidityPacked } from "ethers";
 import hre from "hardhat";
 
-import {
-  DSwapRepayAdapter,
-  // eslint-disable-next-line camelcase -- This is a generated typechain import
-  DSwapRepayAdapter__factory,
-} from "../../../typechain-types";
+import { DSwapRepayAdapter, DSwapRepayAdapter__factory } from "../../../typechain-types";
 import { standardUniswapV3DEXLBPLiquidityFixture } from "../../ecosystem/fixtures";
 import { loadTestEnv } from "../../ecosystem/test-env";
 import { depositCollateralWithApproval } from "../../ecosystem/utils.lbp";

@@ -21,8 +21,8 @@ import "@openzeppelin/contracts-5/access/AccessControl.sol";
 import "@openzeppelin/contracts-5/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts-5/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts-5/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts-5/utils/math/Math.sol";
 
-import "contracts/shared/Constants.sol";
 import "contracts/lending/core/interfaces/IPriceOracleGetter.sol";
 import "contracts/dusd/OracleAware.sol";
 
@@ -63,7 +63,7 @@ abstract contract CollateralVault is AccessControl, OracleAware {
      * @dev Grants all roles to the contract deployer initially
      * @param oracle The price oracle to use for collateral valuation
      */
-    constructor(IPriceOracleGetter oracle) OracleAware(oracle, Constants.ORACLE_BASE_CURRENCY_UNIT) {
+    constructor(IPriceOracleGetter oracle) OracleAware(oracle, oracle.BASE_CURRENCY_UNIT()) {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender); // This is the super admin
         grantRole(COLLATERAL_MANAGER_ROLE, msg.sender);
         grantRole(COLLATERAL_WITHDRAWER_ROLE, msg.sender);
@@ -137,7 +137,7 @@ abstract contract CollateralVault is AccessControl, OracleAware {
     function assetValueFromAmount(uint256 assetAmount, address asset) public view returns (uint256 usdValue) {
         uint256 assetPrice = oracle.getAssetPrice(asset);
         uint8 assetDecimals = IERC20Metadata(asset).decimals();
-        return (assetPrice * assetAmount) / (10 ** assetDecimals);
+        return Math.mulDiv(assetPrice, assetAmount, 10 ** assetDecimals);
     }
 
     /**
@@ -149,7 +149,7 @@ abstract contract CollateralVault is AccessControl, OracleAware {
     function assetAmountFromValue(uint256 usdValue, address asset) public view returns (uint256 assetAmount) {
         uint256 assetPrice = oracle.getAssetPrice(asset);
         uint8 assetDecimals = IERC20Metadata(asset).decimals();
-        return (usdValue * (10 ** assetDecimals)) / assetPrice;
+        return Math.mulDiv(usdValue, 10 ** assetDecimals, assetPrice);
     }
 
     /* Collateral management */
@@ -218,8 +218,11 @@ abstract contract CollateralVault is AccessControl, OracleAware {
             address collateral = _supportedCollaterals.at(i);
             uint256 collateralPrice = oracle.getAssetPrice(collateral);
             uint8 collateralDecimals = IERC20Metadata(collateral).decimals();
-            uint256 collateralValue = (collateralPrice * IERC20Metadata(collateral).balanceOf(address(this))) /
-                (10 ** collateralDecimals);
+            uint256 collateralValue = Math.mulDiv(
+                collateralPrice,
+                IERC20Metadata(collateral).balanceOf(address(this)),
+                10 ** collateralDecimals
+            );
             totalUsdValue += collateralValue;
         }
         return totalUsdValue;
