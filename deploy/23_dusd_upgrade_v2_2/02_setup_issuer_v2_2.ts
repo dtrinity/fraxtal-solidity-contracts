@@ -7,6 +7,7 @@ import { getConfig } from "../../config/config";
 import { GovernanceExecutor } from "../../typescript/hardhat/governance";
 import {
   AMO_DEBT_TOKEN_ID,
+  AMO_MANAGER_ID,
   AMO_MANAGER_V2_ID,
   COLLATERAL_VAULT_CONTRACT_ID,
   ISSUER_V2_2_CONTRACT_ID,
@@ -238,6 +239,68 @@ async function ensureDebtTokenCollateral(
 }
 
 /**
+ * Mirror asset-level minting pauses from a legacy IssuerV2 to the new IssuerV2_2.
+ *
+ * @param hre Hardhat runtime environment
+ * @param vaultAddress Address of the collateral vault to enumerate supported assets
+ * @param legacyIssuer Address of IssuerV2
+ * @param newIssuerAddress Address of IssuerV2_2
+ * @param deployerSigner Deployer signer with PAUSER_ROLE on new issuer
+ * @param executor Governance executor helper for direct/queued execution
+ * @param configuredCollaterals Fallback collateral list from config if vault cannot enumerate
+ * @returns True if complete, false if pending governance
+ */
+async function mirrorLegacyAssetPauses(
+  hre: HardhatRuntimeEnvironment,
+  vaultAddress: string,
+  legacyIssuer: string,
+  newIssuerAddress: string,
+  deployerSigner: Signer,
+  executor: GovernanceExecutor,
+  configuredCollaterals: string[] = [],
+): Promise<boolean> {
+  const vault = await hre.ethers.getContractAt("CollateralHolderVault", vaultAddress);
+  const legacy = await hre.ethers.getContractAt("IssuerV2", legacyIssuer);
+  const issuerV2_2 = await hre.ethers.getContractAt("IssuerV2_2", newIssuerAddress, deployerSigner);
+  let collaterals: string[] = [];
+
+  if (typeof (vault as any).getSupportedCollaterals === "function") {
+    collaterals = await (vault as any).getSupportedCollaterals();
+  } else if (configuredCollaterals.length > 0) {
+    collaterals = configuredCollaterals;
+  } else {
+    console.log(`    ⚠️ Could not enumerate vault collaterals; skipping pause mirroring`);
+    return true;
+  }
+
+  let allComplete = true;
+
+  for (const asset of collaterals) {
+    const legacyPaused = await legacy.assetMintingPaused(asset);
+    if (!legacyPaused) continue;
+
+    const newPaused = await issuerV2_2.assetMintingPaused(asset);
+    if (newPaused) continue;
+
+    const complete = await executor.tryOrQueue(
+      async () => {
+        await issuerV2_2.setAssetMintingPause(asset, true);
+        console.log(`    ➕ Mirrored pause for ${asset} from IssuerV2 to IssuerV2_2`);
+      },
+      () => ({
+        to: newIssuerAddress,
+        value: "0",
+        data: issuerV2_2.interface.encodeFunctionData("setAssetMintingPause", [asset, true]),
+      }),
+    );
+
+    if (!complete) allComplete = false;
+  }
+
+  return allComplete;
+}
+
+/**
  * Migrate AmoManagerV2 administrative and operator roles to governance.
  * Grants roles to governance first, then revokes them from the deployer.
  *
@@ -397,6 +460,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const minterComplete = await ensureMinterRole(hre, tokenAddress, issuerDeployment.address, executor);
   if (!minterComplete) allComplete = false;
 
+  // Mirror per-asset pauses from legacy issuer (if it exists)
+  if (legacyIssuer && legacyIssuer.address.toLowerCase() !== issuerDeployment.address.toLowerCase()) {
+    const pauseMirrorComplete = await mirrorLegacyAssetPauses(
+      hre,
+      vaultAddress,
+      legacyIssuer.address,
+      issuerDeployment.address,
+      deployerSigner,
+      executor,
+      config.dStables?.dUSD?.collaterals ?? [],
+    );
+    if (!pauseMirrorComplete) allComplete = false;
+  }
+
   if (legacyIssuer && legacyIssuer.address.toLowerCase() !== issuerDeployment.address.toLowerCase()) {
     try {
       const stable = await hre.ethers.getContractAt("ERC20StablecoinUpgradeable", tokenAddress);
@@ -434,9 +511,33 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if (managerDeployment) {
     console.log(`  📦 Configuring AmoManagerV2 at ${managerDeployment.address}`);
     const vaultRoleComplete = await ensureVaultWithdrawerRole(hre, vaultAddress, managerDeployment.address, executor);
+    const managerMinterComplete = await ensureMinterRole(hre, tokenAddress, managerDeployment.address, executor);
     const managerRolesComplete = await migrateAmoManagerRoles(hre, managerDeployment.address, deployerSigner, governanceMultisig, executor);
+    const legacyManager = await deployments.getOrNull(AMO_MANAGER_ID);
+    let legacyRevokeComplete = true;
 
-    if (!(vaultRoleComplete && managerRolesComplete)) {
+    if (legacyManager && legacyManager.address.toLowerCase() !== managerDeployment.address.toLowerCase()) {
+      try {
+        const vault = await hre.ethers.getContractAt("CollateralHolderVault", vaultAddress, deployerSigner);
+        const WITHDRAWER_ROLE = await vault.COLLATERAL_WITHDRAWER_ROLE();
+
+        if (await vault.hasRole(WITHDRAWER_ROLE, legacyManager.address)) {
+          const revoked = await executor.tryOrQueue(
+            async () => {
+              await vault.revokeRole(WITHDRAWER_ROLE, legacyManager.address);
+              console.log(`    ➖ Revoked COLLATERAL_WITHDRAWER_ROLE from legacy AmoManager at ${legacyManager.address}`);
+            },
+            () => createRevokeRoleTransaction(vaultAddress, WITHDRAWER_ROLE, legacyManager.address, vault.interface),
+          );
+          if (!revoked) legacyRevokeComplete = false;
+        }
+      } catch (e) {
+        console.log(`    ⚠️ Could not revoke vault withdrawer role from legacy AmoManager: ${(e as Error).message}`);
+        legacyRevokeComplete = false;
+      }
+    }
+
+    if (!(vaultRoleComplete && managerMinterComplete && managerRolesComplete && legacyRevokeComplete)) {
       allComplete = false;
     }
   } else {
