@@ -194,15 +194,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const tokenAddress = config.dusd.address;
 
   // Deploy new IssuerV2 if not already deployed
+  const existingV2 = await deployments.getOrNull(ISSUER_V2_CONTRACT_ID);
   const result = await deployments.deploy(ISSUER_V2_CONTRACT_ID, {
     from: dusdDeployer,
     args: [collateralVaultAddress, tokenAddress, oracleAggregatorAddress, amoManagerAddress],
     contract: "IssuerV2",
     autoMine: true,
     log: false,
+    skipIfAlreadyDeployed: true,
   });
 
-  if (result.newlyDeployed) {
+  if (result.newlyDeployed && !existingV2) {
     console.log(`  ✅ Deployed ${ISSUER_V2_CONTRACT_ID} at ${result.address}`);
   } else {
     console.log(`  ✓ ${ISSUER_V2_CONTRACT_ID} already deployed at ${result.address}`);
