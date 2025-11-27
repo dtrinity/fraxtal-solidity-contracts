@@ -21,6 +21,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // Get config for current network
   const _config = await getConfig(hre);
 
+  // If we already have a recorded deployment, short-circuit to keep this script idempotent
+  const existingDeployment = await deployments.getOrNull(STATIC_ATOKEN_FACTORY_ID);
+
+  if (existingDeployment) {
+    console.log(`StaticATokenFactory already deployed at ${existingDeployment.address}`);
+    console.log(`🎁 ${__filename.split("/").slice(-2).join("/")}: ✅`);
+    return;
+  }
+
   // Get the Pool contract
   const poolDeployment = await get(POOL_PROXY_ID);
   console.log(`Pool address: ${poolDeployment.address}`);
@@ -31,6 +40,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     contract: "StaticATokenFactory",
     args: [poolDeployment.address],
     log: true,
+    skipIfAlreadyDeployed: true,
   });
 
   if (staticATokenFactoryDeployment.newlyDeployed) {
@@ -45,3 +55,4 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 export default func;
 func.tags = ["StaticATokenFactory", "aTokenWrapper"];
 func.dependencies = ["lbp-init-reserves"];
+func.id = STATIC_ATOKEN_FACTORY_ID;

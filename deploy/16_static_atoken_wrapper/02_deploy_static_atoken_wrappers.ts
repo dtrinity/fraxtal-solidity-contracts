@@ -114,3 +114,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 export default func;
 func.tags = ["StaticATokenWrappers", "aTokenWrapper", "dUSD-aTokenWrapper"];
 func.dependencies = ["StaticATokenFactory", "lbp-init-reserves", "dStable"];
+func.id = "StaticATokenLMWrappers";
+func.skip = async (hre) => {
+  const existingWrapper = await hre.deployments.getOrNull(DUSD_STATIC_ATOKEN_ID);
+
+  if (existingWrapper) {
+    console.log(`StaticATokenLM wrappers already deployed, skipping creation script.`);
+    return true;
+  }
+
+  return false;
+};
