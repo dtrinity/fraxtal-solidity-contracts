@@ -10,6 +10,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   console.log(`Deploying ${ERC4626_BALANCE_CHECKER_ID} with admin: ${deployer}`);
 
+  const existing = await deployments.getOrNull(ERC4626_BALANCE_CHECKER_ID);
+  if (existing) {
+    console.log(`${ERC4626_BALANCE_CHECKER_ID} already deployed at ${existing.address}, skipping...`);
+    console.log(`🥩 ${__filename.split("/").slice(-2).join("/")}: ✅`);
+    return true;
+  }
+
   // Fetch sdUSD token address from deployment artifacts
   const sdUSDTokenDeployment = await deployments.get("DStakeToken_sdUSD");
   const SD_USD_TOKEN_ADDRESS = sdUSDTokenDeployment.address;
@@ -21,6 +28,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     contract: "contracts/fxtl_balance_checkers/implementations/ERC4626BalanceChecker.sol:ERC4626BalanceChecker",
     args: [deployer, SD_USD_TOKEN_ADDRESS], // initialAdmin and vaultToken parameters
     log: false, // We handle our own logging
+    skipIfAlreadyDeployed: true,
   });
 
   console.log("-----------------");

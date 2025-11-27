@@ -132,6 +132,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
           },
         },
         log: false,
+        skipIfAlreadyDeployed: true,
       });
       console.log(`  ✅ DStakeToken deployed: ${DStakeTokenDeployment.address}`);
     } else {
@@ -147,6 +148,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         contract: "DStakeCollateralVault",
         args: [DStakeTokenDeployment.address, instanceConfig.dStable],
         log: false,
+        skipIfAlreadyDeployed: true,
       });
       console.log(`  ✅ CollateralVault deployed: ${collateralVaultDeployment.address}`);
     } else {
@@ -160,6 +162,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         contract: "DStakeRouterDLend",
         args: [DStakeTokenDeployment.address, collateralVaultDeployment.address],
         log: false,
+        skipIfAlreadyDeployed: true,
       });
       console.log(`  ✅ Router deployed: ${routerDeployment.address}`);
     } else {

@@ -44,6 +44,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const dUSDCollateralVaultDeployment = await get(COLLATERAL_VAULT_CONTRACT_ID);
   const usdOracleAggregator = await get(ORACLE_AGGREGATOR_ID);
 
+  const existingRedeemer = await hre.deployments.getOrNull(dUSD_REDEEMER_WITH_FEES_CONTRACT_ID);
+
+  if (existingRedeemer) {
+    console.log(`✅ RedeemerWithFees already deployed at ${existingRedeemer.address}, skipping...`);
+    console.log(`☯️  ${__filename.split("/").slice(-2).join("/")}: ✅`);
+    return true;
+  }
+
   const dUSDRedeemerWithFeesDeployment = await deploy(dUSD_REDEEMER_WITH_FEES_CONTRACT_ID, {
     from: dusdDeployer,
     contract: "RedeemerWithFees",
@@ -54,6 +62,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       dUSDConfig.initialFeeReceiver,
       dUSDConfig.initialRedemptionFeeBps,
     ],
+    skipIfAlreadyDeployed: true,
   });
 
   const dUSDCollateralVaultContract = await hre.ethers.getContractAt(

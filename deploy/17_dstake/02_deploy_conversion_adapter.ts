@@ -58,6 +58,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const deploymentName = `WrappedDLendConversionAdapter_${instanceKey}`;
     console.log(`Deploying ${deploymentName}...`);
 
+    // Skip if already deployed
+    const existingAdapter = await deployments.getOrNull(deploymentName);
+    if (existingAdapter) {
+      console.log(`Conversion adapter ${deploymentName} already deployed at ${existingAdapter.address}, skipping...`);
+      continue;
+    }
+
     const adapterDeployment = await deploy(deploymentName, {
       from: deployer,
       contract: "WrappedDLendConversionAdapter",
@@ -67,6 +74,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         collateralVault.address, // collateralVault address
       ],
       log: true,
+      skipIfAlreadyDeployed: true,
     });
 
     console.log(`WrappedDLendConversionAdapter for ${instanceKey} deployed at ${adapterDeployment.address}`);
