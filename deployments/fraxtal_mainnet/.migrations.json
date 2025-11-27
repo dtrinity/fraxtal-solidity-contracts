@@ -60,5 +60,6 @@
   "verify_redeemer_with_fees": 1753869522,
   "configure_redeemer_fees": 1753869590,
   "transfer_dstake_roles_to_multisig": 1753871975,
-  "deploy_erc4626_balance_checker_sdusd": 1754557868
+  "deploy_erc4626_balance_checker_sdusd": 1754557868,
+  "22_1_setup_issuerv2": 1764220578
 }
