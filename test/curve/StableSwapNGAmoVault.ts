@@ -3,11 +3,16 @@ import { expect } from "chai";
 import hre, { ethers } from "hardhat";
 
 import { ICurveStableSwapNG, IERC20 } from "../../typechain-types";
-import { POOLS, TOKENS } from "./registry";
+import { POOLS, TOKENS, WHALES } from "./registry";
 
 describe("Curve StableSwapNG", function () {
   let owner: SignerWithAddress;
-  let stableSwap: ICurveStableSwapNG;
+  let stableSwap: ICurveStableSwapNG & {
+    add_liquidity: (...args: any[]) => Promise<any>;
+    remove_liquidity: (...args: any[]) => Promise<any>;
+    remove_liquidity_one_coin: (...args: any[]) => Promise<any>;
+    remove_liquidity_imbalance: (...args: any[]) => Promise<any>;
+  };
   let USDe: IERC20;
   let USDC: IERC20;
 
@@ -21,7 +26,7 @@ describe("Curve StableSwapNG", function () {
     [owner] = await ethers.getSigners();
 
     // Connect to the StableSwapNG contract
-    stableSwap = (await ethers.getContractAt("ICurveStableSwapNG", POOLS.stableswapng.USDe_USDC.address)) as ICurveStableSwapNG;
+    stableSwap = (await ethers.getContractAt("ICurveStableSwapNG", POOLS.stableswapng.USDe_USDC.address)) as typeof stableSwap;
 
     // Connect to the token contracts
     USDe = (await ethers.getContractAt(
@@ -56,7 +61,10 @@ describe("Curve StableSwapNG", function () {
     await USDC.connect(owner).approve(POOLS.stableswapng.USDe_USDC.address, USDCAmount);
 
     // The LP token is the same as the pool address
-    const lpToken = await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20", await stableSwap.getAddress());
+    const lpToken = (await ethers.getContractAt(
+      "@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20",
+      await stableSwap.getAddress(),
+    )) as unknown as IERC20;
 
     // Snapshot the starting LP token balance
     const lpBalanceBefore = await lpToken.balanceOf(owner.address);
@@ -92,7 +100,10 @@ describe("Curve StableSwapNG", function () {
     const lpTokensToRemove = ethers.parseUnits("10", 18); // Assuming 18 decimals for LP token
 
     // The LP token is the same as the pool address
-    const lpToken = await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20", await stableSwap.getAddress());
+    const lpToken = (await ethers.getContractAt(
+      "@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20",
+      await stableSwap.getAddress(),
+    )) as unknown as IERC20;
 
     // Snapshot the starting balances
     const lpBalanceBefore = await lpToken.balanceOf(owner.address);
@@ -131,7 +142,10 @@ describe("Curve StableSwapNG", function () {
     const lpTokensToRemove = ethers.parseUnits("10", 18); // Assuming 18 decimals for LP token
 
     // The LP token is the same as the pool address
-    const lpToken = await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20", await stableSwap.getAddress());
+    const lpToken = (await ethers.getContractAt(
+      "@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20",
+      await stableSwap.getAddress(),
+    )) as unknown as IERC20;
 
     // Snapshot the starting balances
     const lpBalanceBefore = await lpToken.balanceOf(owner.address);
@@ -167,7 +181,10 @@ describe("Curve StableSwapNG", function () {
     const amounts = [USDeAmount, USDCAmount];
 
     // The LP token is the same as the pool address
-    const lpToken = await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20", await stableSwap.getAddress());
+    const lpToken = (await ethers.getContractAt(
+      "@openzeppelin/contracts-5/token/ERC20/IERC20.sol:IERC20",
+      await stableSwap.getAddress(),
+    )) as unknown as IERC20;
 
     // Snapshot the starting balances
     const lpBalanceBefore = await lpToken.balanceOf(owner.address);

@@ -1,5 +1,4 @@
 import curve from "@curvefi/api";
-import { fileURLToPath } from "url";
 
 interface NetworkConfig {
   name: string;
@@ -121,12 +120,13 @@ export async function getBestRouteArgs(tokenIn: string, tokenOut: string, amount
 
   console.log("Getting best route");
   const { route } = await curve.router.getBestRouteAndOutput(tokenIn, tokenOut, amountIn);
-
-  return curve.router.getArgs(route);
+  const router: any = curve.router;
+  return router.getArgs ? router.getArgs(route) : route;
 }
 
 // Check if this module is being run directly
-const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const isMainModule = require.main === module;
 
 if (isMainModule) {
   console.log("Running directly from CLI");

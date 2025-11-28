@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import express from "express";
+import express, { Request, Response } from "express";
 
 import { getBestRouteArgs } from "./main";
 
@@ -16,7 +16,14 @@ interface RouteRequest {
 }
 
 // Network configurations
-const NETWORK_CONFIGS = {
+const NETWORK_CONFIGS: Record<
+  string,
+  {
+    name: string;
+    chainId: number;
+    rpcUrl: string;
+  }
+> = {
   /* eslint-disable camelcase -- Naming convention is disabled for the pool names */
   mainnet: {
     name: "Ethereum Mainnet",
@@ -63,7 +70,7 @@ export async function getTokenDecimals(provider: ethers.Provider, tokenAddress: 
   return await tokenContract.decimals();
 }
 
-app.post("/get-best-route-args", async (req, res) => {
+app.post("/get-best-route-args", async (req: Request, res: Response) => {
   try {
     const { inputTokenAddress, outputTokenAddress, inputAmount, network } = req.body as RouteRequest;
 

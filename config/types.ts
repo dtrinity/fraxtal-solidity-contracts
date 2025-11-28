@@ -26,8 +26,21 @@ export interface Config {
   readonly dStake?: DStakeConfig;
   readonly vesting?: VestingConfig;
   readonly dStables?: DStablesConfig;
+  // Legacy compatibility configs used by older scripts/tests
+  readonly dLoopCurve?: LegacyDLoopVaultConfig;
+  readonly dLoopUniswapV3?: LegacyDLoopVaultConfig;
   // Optional: Override token registry for specific networks
   readonly tokenRegistry?: TokenRegistryConfig;
+}
+
+export interface LegacyDLoopVaultConfig {
+  readonly dUSDAddress: string;
+  readonly vaults: {
+    readonly underlyingAssetAddress: string;
+    readonly targetLeverageBps: number;
+    readonly defaultDusdToUnderlyingSwapPath?: any;
+    readonly defaultUnderlyingToDusdSwapPath?: any;
+  }[];
 }
 
 export interface TokenRegistryConfig {

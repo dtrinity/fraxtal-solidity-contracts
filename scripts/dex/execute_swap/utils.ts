@@ -21,7 +21,7 @@ export async function executeSwap(
   outputTokenAddress: string,
   inputTokenAmount: number,
   deadlineInSeconds: number,
-): Promise<ethers.ContractTransaction> {
+): Promise<ethers.ContractTransactionResponse> {
   const { dexDeployer } = await hre.getNamedAccounts();
 
   const { address: routerAddress } = await hre.deployments.get(SWAP_ROUTER_ID);

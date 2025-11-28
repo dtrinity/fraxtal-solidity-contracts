@@ -108,6 +108,6 @@ describe("IssuerV2_2", () => {
 
     const totalSupply = await dusd.totalSupply();
     const collateralCover = await issuer.collateralInDusd();
-    assert.isAtLeast(collateralCover, totalSupply);
+    assert.isTrue(collateralCover >= totalSupply);
   });
 });

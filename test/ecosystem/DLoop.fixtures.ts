@@ -25,14 +25,15 @@ export const standardDLoopUniswapV3WithMockOracleFixture = deployments.createFix
 
   // Make sure the swap path exists for all vaults
   for (const vaultConfig of config.dLoopUniswapV3.vaults) {
+    const vault = vaultConfig as any;
     // Make sure the swap path exists
     await checkIfSwapPathExists(
-      vaultConfig.defaultDusdToUnderlyingSwapPath.tokenAddressesPath,
-      vaultConfig.defaultDusdToUnderlyingSwapPath.poolFeeSchemaPath,
+      vault.defaultDusdToUnderlyingSwapPath.tokenAddressesPath,
+      vault.defaultDusdToUnderlyingSwapPath.poolFeeSchemaPath,
     );
     await checkIfSwapPathExists(
-      vaultConfig.defaultUnderlyingToDusdSwapPath.tokenAddressesPath,
-      vaultConfig.defaultUnderlyingToDusdSwapPath.poolFeeSchemaPath,
+      vault.defaultUnderlyingToDusdSwapPath.tokenAddressesPath,
+      vault.defaultUnderlyingToDusdSwapPath.poolFeeSchemaPath,
     );
   }
 });
@@ -52,14 +53,15 @@ export const standardDLoopUniswapV3Fixture = deployments.createFixture(async ({ 
 
   // Make sure the swap path exists for all vaults
   for (const vaultConfig of config.dLoopUniswapV3.vaults) {
+    const vault = vaultConfig as any;
     // Make sure the swap path exists
     await checkIfSwapPathExists(
-      vaultConfig.defaultDusdToUnderlyingSwapPath.tokenAddressesPath,
-      vaultConfig.defaultDusdToUnderlyingSwapPath.poolFeeSchemaPath,
+      vault.defaultDusdToUnderlyingSwapPath.tokenAddressesPath,
+      vault.defaultDusdToUnderlyingSwapPath.poolFeeSchemaPath,
     );
     await checkIfSwapPathExists(
-      vaultConfig.defaultUnderlyingToDusdSwapPath.tokenAddressesPath,
-      vaultConfig.defaultUnderlyingToDusdSwapPath.poolFeeSchemaPath,
+      vault.defaultUnderlyingToDusdSwapPath.tokenAddressesPath,
+      vault.defaultUnderlyingToDusdSwapPath.poolFeeSchemaPath,
     );
   }
 });

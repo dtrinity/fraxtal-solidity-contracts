@@ -28,7 +28,7 @@ describe("DStakeRouterDLend Integration", () => {
 
       try {
         // Attempt to deposit through router (this integrates with dLEND)
-        const tx = await fixture.router.connect(userSigner).depositAndSupply(depositAmount, user);
+        const tx = await (fixture.router as any).connect(userSigner).depositAndSupply(depositAmount, user);
         await tx.wait();
 
         // Verify balances changed

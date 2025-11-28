@@ -360,7 +360,8 @@ describe("CurveStableSwapNGAmoVault", () => {
       await USDeContract.connect(whale).transfer(await curveAmoVault.getAddress(), amountIn);
 
       // Get expected output
-      const expectedOutput = await curveAmoVault.getExpectedOutput(route, swapParams, amountIn, pools);
+      const curveAmoVaultAny = curveAmoVault as unknown as any;
+      const expectedOutput = await curveAmoVaultAny.getExpectedOutput(route, swapParams, amountIn, pools);
       const minAmountOut = (expectedOutput * 99n) / 100n; // 99% of expected output, 1% max slippage
 
       // Snapshot balances before swap
@@ -368,7 +369,7 @@ describe("CurveStableSwapNGAmoVault", () => {
       const USDCBalanceBefore = await USDCContract.balanceOf(await curveAmoVault.getAddress());
 
       // Perform the swap
-      await curveAmoVault.connect(await ethers.getSigner(dusdAmoTrader)).swapExactIn(route, swapParams, amountIn, minAmountOut, pools);
+      await curveAmoVaultAny.connect(await ethers.getSigner(dusdAmoTrader)).swapExactIn(route, swapParams, amountIn, minAmountOut, pools);
 
       // Check balances after swap
       const USDeBalanceAfter = await USDeContract.balanceOf(await curveAmoVault.getAddress());

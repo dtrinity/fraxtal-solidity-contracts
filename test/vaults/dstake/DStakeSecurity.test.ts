@@ -125,8 +125,9 @@ describe("DStake Security", () => {
               await fixture.dStakeToken.connect(userSigner).redeem(actualShares, user, user);
             }
           }
-        } catch (error) {
-          console.log(`Deposit of ${formatUnits(amount, DUSD_DECIMALS)} dUSD rejected:`, error.message.substring(0, 100));
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : String(error);
+          console.log(`Deposit of ${formatUnits(amount, DUSD_DECIMALS)} dUSD rejected:`, message.substring(0, 100));
         }
 
         console.log("---");
@@ -176,8 +177,9 @@ describe("DStake Security", () => {
             console.log(`Expected net after fees: ${formatUnits(expectedNet, DUSD_DECIMALS)} dUSD`);
             console.log(`Fee: ${formatUnits(expectedFee, DUSD_DECIMALS)} dUSD`);
           }
-        } catch (error) {
-          console.log(`Amount ${formatUnits(amount, DUSD_DECIMALS)} dUSD failed:`, error.message.substring(0, 100));
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : String(error);
+          console.log(`Amount ${formatUnits(amount, DUSD_DECIMALS)} dUSD failed:`, message.substring(0, 100));
         }
       }
     });
@@ -229,8 +231,9 @@ describe("DStake Security", () => {
         // Allow small tolerance for rounding
         const tolerance = parseUnits("1", DUSD_DECIMALS); // 1 dUSD tolerance
         expect(actualWithdrawn).to.be.closeTo(expectedNet, tolerance);
-      } catch (error) {
-        console.log("Large operation failed:", error.message);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.log("Large operation failed:", message);
         // Large operations might fail due to liquidity or other constraints
       }
     });
@@ -274,20 +277,22 @@ describe("DStake Security", () => {
         await fixture.dStakeToken.connect(unauthorizedSigner).setWithdrawalFee(500n);
         console.log("WARNING: Unauthorized user could set fees!");
         expect.fail("Access control failed");
-      } catch (error) {
+      } catch (error: unknown) {
         console.log("Fee setting properly protected");
-        expect(error.message).to.include("AccessControl");
+        const message = error instanceof Error ? error.message : String(error);
+        expect(message).to.include("AccessControl");
       }
 
       // Test other privileged functions if they exist
       try {
-        const pauserRole = await fixture.dStakeToken.PAUSER_ROLE();
-        const hasPauser = await fixture.dStakeToken.hasRole(pauserRole, unauthorizedUser);
+        const dStakeTokenAny = fixture.dStakeToken as any;
+        const pauserRole = await dStakeTokenAny.PAUSER_ROLE();
+        const hasPauser = await dStakeTokenAny.hasRole(pauserRole, unauthorizedUser);
 
         if (!hasPauser) {
           // Try to pause (should fail)
           try {
-            await fixture.dStakeToken.connect(unauthorizedSigner).pause();
+            await dStakeTokenAny.connect(unauthorizedSigner).pause();
             console.log("WARNING: Unauthorized user could pause contract!");
           } catch {
             console.log("Pause function properly protected");

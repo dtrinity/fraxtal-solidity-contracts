@@ -2,7 +2,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import hre from "hardhat";
 
 import { QUOTER_V2_ID } from "../../utils/dex/deploy-ids";
-import { getSwapPath } from "../../utils/liquidator-bot/utils";
+import { getUniswapV3SwapPath } from "../../utils/liquidator-bot/uniswap-v3/utils";
 import { fetchTokenInfo } from "../../utils/token";
 
 /**
@@ -18,7 +18,7 @@ async function main(): Promise<void> {
   const inputTokenInfo = await fetchTokenInfo(hre, "0x0Dbf64462FEC588df32FC5C9941421F7d93e0Fb3");
   const outputTokenInfo = await fetchTokenInfo(hre, "0x05A09C8BF515D0035e1Af22b24487928913475Bd");
 
-  const swapPath = await getSwapPath(inputTokenInfo, outputTokenInfo, false);
+  const swapPath = await getUniswapV3SwapPath(inputTokenInfo, outputTokenInfo, false);
 
   const { amountIn, gasEstimate } = await quoterV2Contract.quoteExactOutput.staticCall(
     swapPath,

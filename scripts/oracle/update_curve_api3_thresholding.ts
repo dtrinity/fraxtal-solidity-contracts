@@ -81,7 +81,14 @@ async function main(): Promise<void> {
     console.log("\nVerifying updates:");
 
     for (const config of THRESHOLD_CONFIG) {
-      const feed = await wrapper.compositeFeeds(config.asset);
+      const feed = (await wrapper.compositeFeeds(config.asset)) as unknown as {
+        api3Asset: string;
+        api3Wrapper: string;
+        thresholds: {
+          primary: { lowerThresholdInBase: bigint; fixedPriceInBase: bigint };
+          secondary: { lowerThresholdInBase: bigint; fixedPriceInBase: bigint };
+        };
+      };
       console.log(`Asset ${config.asset}:`);
       console.log(`  API3 Asset: ${feed.api3Asset}`);
       console.log(`  API3 Wrapper: ${feed.api3Wrapper}`);
