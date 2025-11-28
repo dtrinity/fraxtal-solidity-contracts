@@ -61,8 +61,7 @@ async function rebalance(vault: any, index: number): Promise<void> {
     const leverageGapBps =
       currentLeverageBps > targetLeverageBps ? currentLeverageBps - targetLeverageBps : targetLeverageBps - currentLeverageBps;
     const dusdAmount =
-      (((totalAssets * BigInt(leverageGapBps) * assetPriceBigInt) / BigInt(ONE_HUNDRED_PERCENT_BPS)) * 10n ** dusdDecimals) /
-      10n ** 18n; // Normalize decimals
+      (((totalAssets * BigInt(leverageGapBps) * assetPriceBigInt) / BigInt(ONE_HUNDRED_PERCENT_BPS)) * 10n ** dusdDecimals) / 10n ** 18n; // Normalize decimals
 
     // Add 5% buffer to max price for slippage protection
     const maxPriceInBase = (assetPriceBigInt * 105n) / 100n;
