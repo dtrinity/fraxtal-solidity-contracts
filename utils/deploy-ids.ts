@@ -34,6 +34,21 @@ export const CURVE_STABLESWAPNG_AMO_VAULT_ID = "CurveStableSwapNGAmoVault";
 export const ISSUER_V2_CONTRACT_ID = "IssuerV2";
 
 /**
+ * The actual contract name is `IssuerV2_2`
+ */
+export const ISSUER_V2_2_CONTRACT_ID = "IssuerV2_2";
+
+/**
  * The actual contract name is `RedeemerV2`
  */
 export const REDEEMER_V2_CONTRACT_ID = "RedeemerV2";
+
+/**
+ * The actual contract name is `AmoDebtToken`
+ */
+export const AMO_DEBT_TOKEN_ID = "AmoDebtToken";
+
+/**
+ * The actual contract name is `AmoManagerV2`
+ */
+export const AMO_MANAGER_V2_ID = "AmoManagerV2";

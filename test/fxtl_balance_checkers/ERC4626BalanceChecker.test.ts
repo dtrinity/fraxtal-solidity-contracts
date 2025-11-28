@@ -12,7 +12,11 @@ import { MockERC4626Token__factory as MockERC4626TokenFactory } from "../../type
 
 describe("ERC4626BalanceChecker", () => {
   let balanceChecker: ERC4626BalanceChecker;
-  let mockVaultToken: MockERC4626Token;
+  let mockVaultToken: MockERC4626Token & {
+    setBalance: (...args: any[]) => Promise<any>;
+    setTotalSupply: (...args: any[]) => Promise<any>;
+    setTotalAssets: (...args: any[]) => Promise<any>;
+  };
   let mockUnderlyingToken: TestnetERC20;
   let mockExternalToken: TestnetERC20;
   let _deployer: SignerWithAddress;
@@ -39,7 +43,11 @@ describe("ERC4626BalanceChecker", () => {
     const MockERC4626Token = (await ethers.getContractFactory(
       "contracts/token/MockERC4626Token.sol:MockERC4626Token",
     )) as MockERC4626TokenFactory;
-    mockVaultToken = await MockERC4626Token.deploy(await mockUnderlyingToken.getAddress(), "Mock Vault Token", "MVT");
+    mockVaultToken = (await MockERC4626Token.deploy(
+      await mockUnderlyingToken.getAddress(),
+      "Mock Vault Token",
+      "MVT",
+    )) as typeof mockVaultToken;
 
     // Deploy balance checker
     const ERC4626BalanceChecker = (await ethers.getContractFactory(
@@ -189,9 +197,9 @@ describe("ERC4626BalanceChecker", () => {
         await ethers.getContractFactory("contracts/lending/periphery/mocks/testnet-helpers/TestnetERC20.sol:TestnetERC20")
       ).deploy("Mock dUSD 2", "dUSD2", 6, _deployer.address);
 
-      const mockVault2 = await (
+      const mockVault2 = (await (
         await ethers.getContractFactory("contracts/token/MockERC4626Token.sol:MockERC4626Token")
-      ).deploy(await mockUnderlying2.getAddress(), "Mock Vault 2", "MVT2");
+      ).deploy(await mockUnderlying2.getAddress(), "Mock Vault 2", "MVT2")) as typeof mockVaultToken;
 
       // Setup first vault token: 100 shares -> 150 assets (1.5:1 ratio)
       await mockVaultToken.setBalance(users[0].address, parseUnits("100", 6));

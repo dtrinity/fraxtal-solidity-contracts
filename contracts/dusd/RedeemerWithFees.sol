@@ -20,8 +20,8 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts-5/access/AccessControl.sol";
 import "@openzeppelin/contracts-5/token/ERC20/IERC20.sol";
 import "contracts/common/IMintableERC20.sol";
-import "../dusd/CollateralVault.sol";
-import "../dusd/OracleAware.sol";
+import "./CollateralVault.sol";
+import "./OracleAware.sol";
 import "contracts/common/BasisPointConstants.sol";
 import { Math } from "@openzeppelin/contracts-5/utils/math/Math.sol";
 

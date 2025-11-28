@@ -97,7 +97,7 @@ export async function deployTreasury(
   let isProxyInitialized = false;
   try {
     // Check if proxy has been initialized by trying to get the implementation
-    const implementation = await proxy.implementation();
+    const implementation = (await proxy.implementation()) as unknown as string;
     isProxyInitialized = implementation !== "0x0000000000000000000000000000000000000000";
   } catch (error) {
     // If call fails, proxy might not be initialized

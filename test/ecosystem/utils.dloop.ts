@@ -4,13 +4,14 @@ import { ethers } from "ethers";
 import hre from "hardhat";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-import { DLoopVaultBase } from "../../typechain-types";
 import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
 import { getEventFromTransaction } from "../../utils/event";
 import { fetchTokenInfo, fetchTokenInfoFromAddress } from "../../utils/token";
 import { getDLoopVaultCurveDeploymentName, getDLoopVaultUniswapV3DeploymentName } from "../../utils/vault/dloop.utils";
 import { getMockStaticOracleWrapperPrice } from "./utils.dex";
 import { approveTokenByAddress, approveTokenByAddressRaw, getTokenAmountFromAddress, getTokenContractForSymbol } from "./utils.token";
+
+type DLoopVaultContract = any;
 
 /**
  * Get the DLoopVaultUniswapV3 contract object
@@ -26,7 +27,7 @@ export async function getDLoopVaultUniswapV3Contract(
   underlyingTokenSymbol: string,
   targetLeverageBps: number,
   callerAddress: string,
-): Promise<DLoopVaultBase> {
+): Promise<DLoopVaultContract> {
   const { tokenInfo } = await getTokenContractForSymbol(callerAddress, underlyingTokenSymbol);
   return getDLoopVaultUniswapV3ContractFromAddress(hre, tokenInfo.address, targetLeverageBps, callerAddress);
 }
@@ -45,11 +46,11 @@ export async function getDLoopVaultUniswapV3ContractFromAddress(
   underlyingTokenAddress: string,
   targetLeverageBps: number,
   callerAddress: string,
-): Promise<DLoopVaultBase> {
+): Promise<DLoopVaultContract> {
   const { symbol: underlyingTokenSymbol } = await fetchTokenInfoFromAddress(underlyingTokenAddress);
   const deploymentName = getDLoopVaultUniswapV3DeploymentName(underlyingTokenSymbol, targetLeverageBps);
   const { address: deployedAddress } = await hre.deployments.get(deploymentName);
-  return hre.ethers.getContractAt("DLoopVaultBase", deployedAddress, await hre.ethers.getSigner(callerAddress));
+  return hre.ethers.getContractAt("DLoopVaultContract", deployedAddress, await hre.ethers.getSigner(callerAddress));
 }
 
 /**
@@ -66,7 +67,7 @@ export async function getDLoopVaultCurveContract(
   underlyingTokenSymbol: string,
   targetLeverageBps: number,
   callerAddress: string,
-): Promise<DLoopVaultBase> {
+): Promise<DLoopVaultContract> {
   const tokenInfo = await fetchTokenInfo(hre, underlyingTokenSymbol);
   return getDLoopVaultCurveContractFromAddress(hre, tokenInfo.address, targetLeverageBps, callerAddress);
 }
@@ -85,11 +86,11 @@ export async function getDLoopVaultCurveContractFromAddress(
   underlyingTokenAddress: string,
   targetLeverageBps: number,
   callerAddress: string,
-): Promise<DLoopVaultBase> {
+): Promise<DLoopVaultContract> {
   const { symbol: underlyingTokenSymbol } = await fetchTokenInfoFromAddress(underlyingTokenAddress);
   const deploymentName = getDLoopVaultCurveDeploymentName(underlyingTokenSymbol, targetLeverageBps);
   const { address: deployedAddress } = await hre.deployments.get(deploymentName);
-  return hre.ethers.getContractAt("DLoopVaultBase", deployedAddress, await hre.ethers.getSigner(callerAddress));
+  return hre.ethers.getContractAt("DLoopVaultContract", deployedAddress, await hre.ethers.getSigner(callerAddress));
 }
 
 /**
@@ -109,7 +110,7 @@ export async function getDLoopSharesBalance(
   value: bigint;
   decimals: number;
 }> {
-  const vaultContract = await hre.ethers.getContractAt("DLoopVaultBase", vaultAddress, await hre.ethers.getSigner(ownerAddress));
+  const vaultContract = await hre.ethers.getContractAt("DLoopVaultContract", vaultAddress, await hre.ethers.getSigner(ownerAddress));
   const rawValue = await vaultContract.balanceOf(ownerAddress);
   const decimals = await vaultContract.decimals();
   return {
@@ -145,7 +146,7 @@ export async function assertSharesBalance(
  * @param dLOOPsFRAX300Contract - The DLoopVault contract
  * @param expectedLeverageBps - The expected leverage in bps (i.e. 30000 means 300% leverage or 3x)
  */
-export async function assertCurrentLeverageBps(dLOOPsFRAX300Contract: DLoopVaultBase, expectedLeverageBps: bigint): Promise<void> {
+export async function assertCurrentLeverageBps(dLOOPsFRAX300Contract: DLoopVaultContract, expectedLeverageBps: bigint): Promise<void> {
   const currentLeverageBps = await dLOOPsFRAX300Contract.getCurrentLeverageBps();
   assert.equal(currentLeverageBps, expectedLeverageBps);
 }
@@ -156,7 +157,7 @@ export async function assertCurrentLeverageBps(dLOOPsFRAX300Contract: DLoopVault
  * @param dLOOPsFRAX300Contract - The DLoopVault contract
  * @param reverted - Whether the transaction should be reverted
  */
-export async function assertCheckIsTooImbalanced(dLOOPsFRAX300Contract: DLoopVaultBase, reverted: boolean): Promise<void> {
+export async function assertCheckIsTooImbalanced(dLOOPsFRAX300Contract: DLoopVaultContract, reverted: boolean): Promise<void> {
   if (!reverted) {
     await dLOOPsFRAX300Contract.checkIsTooImbalanced();
   } else {
@@ -172,7 +173,7 @@ export async function assertCheckIsTooImbalanced(dLOOPsFRAX300Contract: DLoopVau
  * @param tolerance - The tolerance for float imprecision (default: 1e-6)
  */
 export async function assertTotalAssets(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   expectedTotalAssets: number,
   tolerance: number = 1e-6,
 ): Promise<void> {
@@ -191,7 +192,7 @@ export async function assertTotalAssets(
  * @param tolerance - The tolerance for float imprecision (default: 1e-6)
  */
 export async function assertTotalSupply(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   expectedTotalSupply: number,
   tolerance: number = 1e-6,
 ): Promise<void> {
@@ -210,7 +211,7 @@ export async function assertTotalSupply(
  * @param tolerance - The tolerance for float imprecision (default: 1e-6)
  */
 export async function assertTotalAssetAndSupply(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   expectedTotalAssets: number,
   expectedTotalSupply: number,
   tolerance: number = 1e-6,
@@ -228,7 +229,7 @@ export async function assertTotalAssetAndSupply(
  * @param tolerance - The tolerance for float imprecision (default: 1e-6)
  */
 export async function assertTotalAssetAndSupplyBigInt(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   expectedTotalAssets: bigint,
   expectedTotalSupply: bigint,
   tolerance: number = 1e-6,
@@ -271,7 +272,7 @@ export async function assertOraclePrice(tokenAddress: string, expectedPrice: num
  * @param assetAmount - The amount of assets to deposit
  */
 export async function depositWithApprovalToDLoop(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   underlyingTokenSymbol: string,
   callerAddress: string,
   assetAmount: number,
@@ -290,7 +291,7 @@ export async function depositWithApprovalToDLoop(
  * @param assetAmount - The amount of assets to deposit
  */
 export async function depositWithApprovalToDLoopFromTokenAddress(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   underlyingTokenAddress: string,
   callerAddress: string,
   assetAmount: number,
@@ -308,7 +309,7 @@ export async function depositWithApprovalToDLoopFromTokenAddress(
  * @param assetAmountRaw - The amount of assets to deposit in raw format
  */
 export async function depositWithApprovalToDLoopFromTokenAddressRaw(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   underlyingTokenAddress: string,
   callerAddress: string,
   assetAmountRaw: bigint,
@@ -339,7 +340,7 @@ export async function depositWithApprovalToDLoopFromTokenAddressRaw(
  * @param sharesAmount - The amount of shares to redeem
  */
 export async function redeemWithApprovalFromDLoop(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   callerAddress: string,
   sharesAmount: number,
 ): Promise<void> {
@@ -380,7 +381,7 @@ export async function redeemWithApprovalFromDLoop(
  * @param maxUnderlyingTokenPrice - The maximum price of the underlying token
  */
 export async function decreaseLeverageWithApproval(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   callerAddress: string,
   dUSDSymbol: string,
   dUSDAmount: number,
@@ -407,7 +408,7 @@ export async function decreaseLeverageWithApproval(
  * @param maxUnderlyingTokenPrice - The maximum price of the underlying token
  */
 export async function decreaseLeverageWithApprovalFromTokenAddress(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   callerAddress: string,
   dUSDTokenAddress: string,
   dUSDAmount: number,
@@ -443,7 +444,7 @@ export async function decreaseLeverageWithApprovalFromTokenAddress(
  * @param minUnderlyingTokenPrice - The minimum price of the underlying token
  */
 export async function increaseLeverageWithApproval(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   callerAddress: string,
   underlyingTokenSymbol: string,
   underlyingTokenAmount: number,
@@ -470,7 +471,7 @@ export async function increaseLeverageWithApproval(
  * @param minUnderlyingTokenPrice - The minimum price of the underlying token
  */
 export async function increaseLeverageWithApprovalFromTokenAddress(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   callerAddress: string,
   underlyingTokenAddress: string,
   underlyingTokenAmount: number,
@@ -506,7 +507,7 @@ export async function increaseLeverageWithApprovalFromTokenAddress(
  * @param sharesAmount - The amount of shares to mint
  */
 export async function mintWithApprovalToDLoop(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   underlyingTokenSymbol: string,
   callerAddress: string,
   sharesAmount: number,
@@ -525,7 +526,7 @@ export async function mintWithApprovalToDLoop(
  * @param sharesAmount - The amount of shares to mint
  */
 export async function mintWithApprovalToDLoopFromTokenAddress(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   underlyingTokenAddress: string,
   callerAddress: string,
   sharesAmount: number,
@@ -569,7 +570,7 @@ export async function mintWithApprovalToDLoopFromTokenAddress(
  * @param assetAmount - The amount of assets to withdraw
  */
 export async function withdrawWithApprovalFromDLoop(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   callerAddress: string,
   assetAmount: number,
 ): Promise<void> {
@@ -588,7 +589,7 @@ export async function withdrawWithApprovalFromDLoop(
  * @param assetAmountRaw - The amount of assets to withdraw in raw format
  */
 export async function withdrawWithApprovalFromDLoopRaw(
-  dLOOPsFRAX300Contract: DLoopVaultBase,
+  dLOOPsFRAX300Contract: DLoopVaultContract,
   callerAddress: string,
   assetAmountRaw: bigint,
 ): Promise<void> {

@@ -140,15 +140,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const initialRedemptionFeeBps =
     config.dStables?.dUSD?.initialRedemptionFeeBps !== undefined ? config.dStables.dUSD.initialRedemptionFeeBps : 0;
 
+  const existingRedeemerV2 = await deployments.getOrNull(REDEEMER_V2_CONTRACT_ID);
+
   const result = await deployments.deploy(REDEEMER_V2_CONTRACT_ID, {
     from: dusdDeployer,
     args: [vault, tokenAddress, oracle, initialFeeReceiver, initialRedemptionFeeBps],
     contract: "RedeemerV2",
     autoMine: true,
     log: false,
+    skipIfAlreadyDeployed: true,
   });
 
-  if (result.newlyDeployed) {
+  if (result.newlyDeployed && !existingRedeemerV2) {
     console.log(`  ✅ Deployed ${REDEEMER_V2_CONTRACT_ID} at ${result.address}`);
   } else {
     console.log(`  ✓ ${REDEEMER_V2_CONTRACT_ID} already at ${result.address}`);

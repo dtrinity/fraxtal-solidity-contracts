@@ -163,7 +163,7 @@ describe("DStakeToken", () => {
         } else {
           console.log("Deployer doesn't have fee manager role - this is expected in production");
         }
-      } catch (error) {
+      } catch {
         console.log("Fee setting requires proper permissions - this is expected");
       }
     });

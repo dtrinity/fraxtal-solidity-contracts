@@ -64,7 +64,7 @@ export const createVestingNFTFixture = deployments.createFixture(async ({ deploy
         // Try to enable deposits if we have admin rights
         try {
           await vestingNFT.setDepositsEnabled(true);
-        } catch (error) {
+        } catch {
           console.log("Cannot enable deposits - admin rights required");
         }
       }

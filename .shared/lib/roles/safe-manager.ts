@@ -68,6 +68,19 @@ export class SafeManager {
         // Use an explicitly typed async IIFE to satisfy the linter's explicit return type rule
         signer: signerAddress,
         safeAddress: this.config.safeAddress,
+        contractNetworks:
+          this.config.multiSendAddress || this.config.multiSendCallOnlyAddress
+            ? {
+                [this.config.chainId.toString()]: {
+                  // Cast to any to allow partial updates (we only want to override MultiSend)
+                  // The SDK type requires all fields, but we rely on the SDK merging or not needing others for this operation
+                  ...(this.config.multiSendAddress ? { multiSendAddress: this.config.multiSendAddress } : {}),
+                  ...(this.config.multiSendCallOnlyAddress
+                    ? { multiSendCallOnlyAddress: this.config.multiSendCallOnlyAddress }
+                    : {}),
+                } as any,
+              }
+            : undefined,
       });
 
       // Verify Safe configuration

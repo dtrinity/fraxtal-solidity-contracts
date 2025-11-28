@@ -35,6 +35,13 @@ describe("CollateralHolderVault", () => {
     // Allow the collateral vault to use FRAX and USDC
     await collateralVaultContract.allowCollateral(fraxInfo.address);
     await collateralVaultContract.allowCollateral(usdcInfo.address);
+
+    // Explicitly remove AMO debt token collateral if the upgrade scripts added it; test expects exactly two collaterals
+    const debtTokenDeployment = await hre.deployments.getOrNull("AmoDebtToken");
+
+    if (debtTokenDeployment && (await collateralVaultContract.isCollateralSupported(debtTokenDeployment.address))) {
+      await collateralVaultContract.disallowCollateral(debtTokenDeployment.address);
+    }
   });
 
   describe("Depositing collateral", () => {

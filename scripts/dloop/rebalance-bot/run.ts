@@ -1,6 +1,5 @@
 import hre from "hardhat";
 
-import { DLoopVaultBase, DLoopVaultCurve } from "../../../typechain-types";
 import { printLog } from "./utils";
 
 const ONE_HUNDRED_PERCENT_BPS = 10000;
@@ -11,7 +10,7 @@ const ONE_HUNDRED_PERCENT_BPS = 10000;
  * @param vault The DLoop vault contract
  * @param index The iteration index for logging
  */
-async function rebalance(vault: DLoopVaultBase | DLoopVaultCurve, index: number): Promise<void> {
+async function rebalance(vault: any, index: number): Promise<void> {
   const currentLeverageBps = await vault.getCurrentLeverageBps();
   const targetLeverageBps = await vault.TARGET_LEVERAGE_BPS();
   const lowerBoundBps = await vault.LOWER_BOUND_TARGET_LEVERAGE_BPS();
@@ -26,22 +25,23 @@ async function rebalance(vault: DLoopVaultBase | DLoopVaultCurve, index: number)
   const oracle = await hre.ethers.getContractAt("IPriceOracleGetter", await vault.getOracleAddress());
   const underlyingAsset = await vault.getUnderlyingAssetAddress();
   const assetPriceInBase = await oracle.getAssetPrice(underlyingAsset);
+  const assetPriceBigInt = BigInt(assetPriceInBase);
 
   if (currentLeverageBps < lowerBoundBps) {
     // Need to increase leverage
     printLog(index, "Position is underleveraged, increasing leverage...");
 
     // Calculate amount to increase leverage back to target
-    const totalAssets = await vault.totalAssets();
+    const totalAssets = BigInt(await vault.totalAssets());
     const leverageGapBps =
       targetLeverageBps > currentLeverageBps
         ? targetLeverageBps - currentLeverageBps // For increase leverage
         : currentLeverageBps - targetLeverageBps; // For decrease leverage
 
-    const assetAmount = (totalAssets * leverageGapBps) / BigInt(ONE_HUNDRED_PERCENT_BPS);
+    const assetAmount = (totalAssets * BigInt(leverageGapBps)) / BigInt(ONE_HUNDRED_PERCENT_BPS);
 
     // Add 5% buffer to min price for slippage protection
-    const minPriceInBase = (assetPriceInBase * BigInt(95)) / BigInt(100);
+    const minPriceInBase = (assetPriceBigInt * 95n) / 100n;
 
     try {
       const tx = await vault.increaseLeverage(assetAmount, minPriceInBase);
@@ -56,16 +56,15 @@ async function rebalance(vault: DLoopVaultBase | DLoopVaultCurve, index: number)
 
     // Calculate dUSD amount to decrease leverage back to target
     const dusd = await hre.ethers.getContractAt("ERC20", await vault.getDUSDAddress());
-    const dusdDecimals = await dusd.decimals();
-    const totalAssets = await vault.totalAssets();
+    const dusdDecimals = BigInt(await dusd.decimals());
+    const totalAssets = BigInt(await vault.totalAssets());
     const leverageGapBps =
       currentLeverageBps > targetLeverageBps ? currentLeverageBps - targetLeverageBps : targetLeverageBps - currentLeverageBps;
     const dusdAmount =
-      (((totalAssets * leverageGapBps * assetPriceInBase) / BigInt(ONE_HUNDRED_PERCENT_BPS)) * BigInt(10 ** Number(dusdDecimals))) /
-      BigInt(10 ** 18); // Normalize decimals
+      (((totalAssets * BigInt(leverageGapBps) * assetPriceBigInt) / BigInt(ONE_HUNDRED_PERCENT_BPS)) * 10n ** dusdDecimals) / 10n ** 18n; // Normalize decimals
 
     // Add 5% buffer to max price for slippage protection
-    const maxPriceInBase = (assetPriceInBase * BigInt(105)) / BigInt(100);
+    const maxPriceInBase = (assetPriceBigInt * 105n) / 100n;
 
     try {
       const tx = await vault.decreaseLeverage(dusdAmount, maxPriceInBase);
@@ -101,7 +100,7 @@ async function main(): Promise<void> {
   while (true) {
     try {
       for (const vaultAddress of vaultAddresses) {
-        const vault = await hre.ethers.getContractAt("DLoopVaultBase", vaultAddress);
+        const vault = (await hre.ethers.getContractAt("DLoopVaultBase", vaultAddress)) as any;
 
         // Check if rebalancing is needed
         const isTooImbalanced = await vault.isTooImbalanced();

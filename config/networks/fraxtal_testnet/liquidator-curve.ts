@@ -19,7 +19,6 @@ export const TOKEN_INFO = {
 
 export const CURVE_POOLS = {
   stableswapng: {
-    /* eslint-disable camelcase -- Naming convention is disabled for the pool names */
     dUSD_FRAX: {
       address: "0x93f785642837e082ff95bB69E64e5B6967857c74",
       tokens: [TOKEN_INFO.dUSD, TOKEN_INFO.FRAX],
@@ -28,7 +27,6 @@ export const CURVE_POOLS = {
       address: "0x6a7173EA306983f3721Cc9A3c6EA7f0a3a2f3c13",
       tokens: [TOKEN_INFO.FRAX, TOKEN_INFO.sFRAX],
     },
-    /* eslint-enable camelcase -- Re-enable naming convention at the end of the file */
   },
 };
 

@@ -1,9 +1,6 @@
 {
   "extends": "solhint:default",
   "rules": {
-    "max-line-length": [
-      "error",
-      250
-    ]
+    "max-line-length": ["error", 250]
   }
 }

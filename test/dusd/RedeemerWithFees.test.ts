@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { formatUnits, parseUnits, ZeroAddress } from "ethers";
 import hre, { deployments } from "hardhat";
 
-import { ERC20StablecoinUpgradeable, MockOracleAggregator, RedeemerWithFees } from "../../typechain-types";
+import { MockOracleAggregator, RedeemerWithFees } from "../../typechain-types";
 import { dUSD_REDEEMER_WITH_FEES_CONTRACT_ID } from "../../typescript/deploy-ids";
 import { AAVE_ORACLE_USD_DECIMALS } from "../../utils/constants";
 import { ORACLE_AGGREGATOR_ID } from "../../utils/oracle/deploy-ids";
@@ -12,7 +12,7 @@ import { calculateFeeAmount, DUSD_DECIMALS, ORACLE_DECIMALS } from "../utils/dec
 
 describe("RedeemerWithFees", () => {
   let redeemer: RedeemerWithFees;
-  let dUSD: ERC20StablecoinUpgradeable;
+  let dUSD: any;
   let oracle: MockOracleAggregator;
   let frax: any;
   let usdc: any;
@@ -142,12 +142,13 @@ describe("RedeemerWithFees", () => {
           try {
             await redeemer.connect(deployerSigner).setDefaultRedemptionFee(newDefaultFee);
             expect.fail("Should have reverted due to lack of permissions");
-          } catch (error) {
-            expect(error.message).to.include("AccessControl");
+          } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            expect(message).to.include("AccessControl");
             console.log("Access control working correctly");
           }
         }
-      } catch (error) {
+      } catch {
         console.log("Default fee setting test completed with constraints");
       }
     });
@@ -180,7 +181,7 @@ describe("RedeemerWithFees", () => {
         } else {
           console.log("Admin role required for fee setting - this is expected in production");
         }
-      } catch (error) {
+      } catch {
         console.log("Specific fee setting test completed with constraints");
       }
     });
@@ -207,12 +208,12 @@ describe("RedeemerWithFees", () => {
             } else {
               console.log("Fee setting has reasonable limits");
             }
-          } catch (error) {
+          } catch (error: unknown) {
             console.log("Unreasonable fee correctly rejected");
             expect(error).to.exist;
           }
         }
-      } catch (error) {
+      } catch {
         console.log("Fee validation test completed");
       }
     });
@@ -228,14 +229,14 @@ describe("RedeemerWithFees", () => {
 
       // First, user needs dUSD to redeem
       // Mint some dUSD to the user (in real scenario, they would have minted it through issuer)
-      const dusdContract = dUSD as ERC20StablecoinUpgradeable;
+      const dusdContract = dUSD as any;
       const deployerSigner = await hre.ethers.getSigner(accounts.dusdDeployer);
 
       try {
         // Try to mint dUSD first
         try {
           await dusdContract.connect(deployerSigner).mint(user, redeemAmount);
-        } catch (mintError) {
+        } catch {
           // If minting fails, try to grant minter role first
           await dusdContract.connect(deployerSigner).grantRole(
             "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6", // MINTER_ROLE hash
@@ -287,14 +288,16 @@ describe("RedeemerWithFees", () => {
 
           const tolerance = parseUnits("1", 18); // 1 FRAX tolerance
           expect(fraxReceived).to.be.closeTo(expectedFraxNet, tolerance);
-        } catch (redemptionError) {
+        } catch (redemptionError: unknown) {
           console.log("Redemption failed - this might be due to missing collateral in the system");
-          console.log("Error:", redemptionError.message.substring(0, 200));
+          const message = redemptionError instanceof Error ? redemptionError.message : String(redemptionError);
+          console.log("Error:", message.substring(0, 200));
 
           // This is acceptable in test environment if collateral vault is empty
         }
-      } catch (setupError) {
-        console.log("Test setup failed:", setupError.message);
+      } catch (setupError: unknown) {
+        const message = setupError instanceof Error ? setupError.message : String(setupError);
+        console.log("Test setup failed:", message);
       }
     });
 
@@ -363,8 +366,9 @@ describe("RedeemerWithFees", () => {
       try {
         await redeemer.connect(unauthorizedSigner).setDefaultRedemptionFee(100n);
         expect.fail("Unauthorized user should not be able to set default fee");
-      } catch (error) {
-        expect(error.message).to.include("AccessControlUnauthorizedAccount");
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        expect(message).to.include("AccessControlUnauthorizedAccount");
         console.log("Default fee setting properly protected");
       }
 
@@ -373,8 +377,9 @@ describe("RedeemerWithFees", () => {
         const fraxAddress = await frax.getAddress();
         await redeemer.connect(unauthorizedSigner).setCollateralRedemptionFee(fraxAddress, 100n);
         expect.fail("Unauthorized user should not be able to set specific fee");
-      } catch (error) {
-        expect(error.message).to.include("AccessControlUnauthorizedAccount");
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        expect(message).to.include("AccessControlUnauthorizedAccount");
         console.log("Specific fee setting properly protected");
       }
     });
@@ -401,7 +406,7 @@ describe("RedeemerWithFees", () => {
       try {
         await redeemer.connect(userSigner).redeem(0n, fraxAddress, user);
         expect.fail("Zero redemption should be rejected");
-      } catch (error) {
+      } catch (error: unknown) {
         console.log("Zero redemption properly rejected");
         expect(error).to.exist;
       }
@@ -415,7 +420,7 @@ describe("RedeemerWithFees", () => {
       try {
         await redeemer.connect(userSigner).redeem(redeemAmount, ZeroAddress, user);
         expect.fail("Invalid collateral address should be rejected");
-      } catch (error) {
+      } catch (error: unknown) {
         console.log("Invalid collateral address properly rejected");
         expect(error).to.exist;
       }

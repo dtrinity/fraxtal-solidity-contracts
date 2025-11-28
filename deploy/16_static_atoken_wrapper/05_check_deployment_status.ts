@@ -117,3 +117,4 @@ export default func;
 func.tags = ["CheckStaticATokenStatus"];
 func.dependencies = [];
 func.runAtTheEnd = true;
+func.id = "CheckStaticATokenStatus";

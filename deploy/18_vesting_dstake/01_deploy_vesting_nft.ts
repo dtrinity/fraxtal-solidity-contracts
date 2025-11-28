@@ -17,6 +17,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     return;
   }
 
+  const existing = await deployments.getOrNull(ERC20_VESTING_NFT_ID);
+
+  if (existing) {
+    console.log(`Vesting NFT already deployed at ${existing.address}, skipping...`);
+    return;
+  }
+
   // Validate configuration
   if (!config.vesting.name || config.vesting.name.trim() === "") {
     throw new Error("Missing or invalid name in vesting configuration");
@@ -56,6 +63,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       config.vesting.initialOwner,
     ],
     log: false,
+    skipIfAlreadyDeployed: true,
   });
 
   console.log(`🔒 ${__filename.split("/").slice(-2).join("/")}: ✅`);

@@ -1,5 +1,4 @@
 import curve from "@curvefi/api";
-import { fileURLToPath } from "url";
 
 interface NetworkConfig {
   name: string;
@@ -77,20 +76,33 @@ async function initializeCurve(network: string): Promise<void> {
   // Fetch factory pools if required
   if (config.requiresFactoryFetch) {
     console.log("Fetching factory pools");
-    await curve.factory.fetchPools();
-    await curve.crvUSDFactory.fetchPools();
-    await curve.EYWAFactory.fetchPools();
-    await curve.cryptoFactory.fetchPools();
-    await curve.twocryptoFactory.fetchPools();
-    await curve.tricryptoFactory.fetchPools();
-    await curve.stableNgFactory.fetchPools();
+    const curveAny = curve as Record<string, any>;
+    const fetchFactories = [
+      curveAny.factory,
+      curveAny.crvUSDFactory,
+      curveAny.EYWAFactory,
+      curveAny.cryptoFactory,
+      curveAny.twocryptoFactory,
+      curveAny.tricryptoFactory,
+      curveAny.stableNgFactory,
+    ].filter(Boolean);
+
+    for (const factory of fetchFactories) {
+      await factory.fetchPools?.();
+    }
 
     console.log("Fetching new factory pools");
-    await curve.factory.fetchNewPools();
-    await curve.cryptoFactory.fetchNewPools();
-    await curve.twocryptoFactory.fetchNewPools();
-    await curve.tricryptoFactory.fetchNewPools();
-    await curve.stableNgFactory.fetchNewPools();
+    const newPoolFactories = [
+      curveAny.factory,
+      curveAny.cryptoFactory,
+      curveAny.twocryptoFactory,
+      curveAny.tricryptoFactory,
+      curveAny.stableNgFactory,
+    ].filter(Boolean);
+
+    for (const factory of newPoolFactories) {
+      await factory.fetchNewPools?.();
+    }
   }
 }
 
@@ -108,12 +120,13 @@ export async function getBestRouteArgs(tokenIn: string, tokenOut: string, amount
 
   console.log("Getting best route");
   const { route } = await curve.router.getBestRouteAndOutput(tokenIn, tokenOut, amountIn);
-
-  return curve.router.getArgs(route);
+  const router: any = curve.router;
+  return router.getArgs ? router.getArgs(route) : route;
 }
 
 // Check if this module is being run directly
-const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const isMainModule = require.main === module;
 
 if (isMainModule) {
   console.log("Running directly from CLI");

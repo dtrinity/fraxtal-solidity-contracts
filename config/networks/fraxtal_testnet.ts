@@ -30,6 +30,8 @@ import { API3_PRICE_DECIMALS } from "../../utils/oracle_aggregator/constants";
 import { Config } from "../types";
 import { CURVE_POOLS, CURVE_SWAP_ROUTER_ADDRESS, liquidatorBotCurve } from "./fraxtal_testnet/liquidator-curve";
 
+export { CURVE_POOLS } from "./fraxtal_testnet/liquidator-curve";
+
 // Must be an oracle that conforms to the Chainlink aggregator interface, e.g. Redstone classic
 const ETH_CHAINLINK_ORACLE_ADDRESS = "0x2fB93C42D7727C6A69B66943008C26Ec7701eAd1";
 

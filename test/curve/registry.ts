@@ -1,5 +1,3 @@
-/* eslint-disable camelcase -- Disable camelcase rule for external contract and token names */
-
 export const CURVE_CONTRACTS = {
   addressProvider: "0x5ffe7FB82894076ECB99A30D6A32e969e6e35E98",
   router: "0x16C6521Dff6baB339122a0FE25a9116693265353",
@@ -74,5 +72,3 @@ export const FRAXTAL_TESTNET_TOKENS = {
     address: "0x0Dbf64462FEC588df32FC5C9941421F7d93e0Fb3",
   },
 };
-
-/* eslint-enable camelcase -- Re-enable camelcase rule at the end of the file */

@@ -3,7 +3,10 @@ import { formatUnits, parseUnits, ZeroAddress } from "ethers";
 import hre from "hardhat";
 
 import { increaseTime } from "../../ecosystem/utils.chain";
+import { DUSD_DECIMALS } from "../../utils/decimal-utils";
 import { createVestingNFTFixture } from "./fixtures";
+
+const toMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
 describe("ERC20VestingNFT (dBOOST)", () => {
   let fixture: Awaited<ReturnType<typeof createVestingNFTFixture>>;
@@ -48,8 +51,8 @@ describe("ERC20VestingNFT (dBOOST)", () => {
         if (token === (await fixture.dStakeToken.getAddress())) {
           console.log("Vesting NFT uses dSTAKE token as expected");
         }
-      } catch (error) {
-        console.log("Vesting NFT initialization test failed:", error.message);
+      } catch (error: unknown) {
+        console.log("Vesting NFT initialization test failed:", toMessage(error));
       }
     });
 
@@ -71,7 +74,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
 
         // Deposits might be enabled or disabled based on deployment
         expect(typeof depositsEnabled).to.equal("boolean");
-      } catch (error) {
+      } catch {
         console.log("Initial state check completed with constraints");
       }
     });
@@ -114,7 +117,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
             const deployerSigner = await hre.ethers.getSigner(fixture.accounts.dusdDeployer);
             await fixture.vestingNFT.connect(deployerSigner).setDepositsEnabled(true);
             console.log("Deposits enabled successfully");
-          } catch (error) {
+          } catch {
             console.log("Cannot enable deposits - admin permissions required");
             return;
           }
@@ -146,14 +149,15 @@ describe("ERC20VestingNFT (dBOOST)", () => {
 
             expect(position.amount).to.equal(depositAmount);
             expect(position.startTime).to.be.greaterThan(0);
-          } catch (positionError) {
+          } catch {
             console.log("Position details not accessible or different structure");
           }
         }
 
         console.log("Deposit and NFT minting test completed successfully");
-      } catch (error) {
-        console.log("Deposit test failed:", error.message.substring(0, 200));
+      } catch (error: unknown) {
+        const message = toMessage(error);
+        console.log("Deposit test failed:", message.substring(0, 200));
       }
     });
 
@@ -171,7 +175,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
         try {
           await fixture.vestingNFT.connect(userSigner).deposit(0, user);
           console.log("WARNING: Zero deposit was allowed");
-        } catch (error) {
+        } catch (error: unknown) {
           console.log("Zero deposit correctly rejected");
           expect(error).to.exist;
         }
@@ -184,7 +188,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           try {
             await fixture.vestingNFT.connect(userSigner).deposit(excessiveAmount, user);
             console.log("WARNING: Excessive deposit was allowed without sufficient balance");
-          } catch (error) {
+          } catch (error: unknown) {
             console.log("Insufficient balance deposit correctly rejected");
             expect(error).to.exist;
           }
@@ -205,11 +209,11 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           } else {
             console.log("Deposits already disabled - good");
           }
-        } catch (error) {
+        } catch (error: unknown) {
           console.log("Disabled deposits correctly rejected");
           expect(error).to.exist;
         }
-      } catch (error) {
+      } catch {
         console.log("Deposit requirements test completed");
       }
     });
@@ -269,18 +273,19 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           try {
             await fixture.vestingNFT.ownerOf(tokenId);
             console.log("WARNING: NFT still exists after early redemption");
-          } catch (error) {
+          } catch {
             console.log("NFT correctly burned after redemption");
           }
 
           console.log(`Redeemed ${formatUnits(finalDStakeBalance - initialDStakeBalance, DUSD_DECIMALS)} dSTAKE`);
-        } catch (redemptionError) {
-          console.log("Early redemption failed:", redemptionError.message.substring(0, 100));
+        } catch (redemptionError: unknown) {
+          const message = toMessage(redemptionError);
+          console.log("Early redemption failed:", message.substring(0, 100));
 
           // Early redemption might be restricted or have different function name
           console.log("Early redemption may have different implementation");
         }
-      } catch (error) {
+      } catch {
         console.log("Early redemption test completed with constraints");
       }
     });
@@ -309,11 +314,11 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           await fixture.vestingNFT.connect(unauthorizedSigner).redeemEarly(tokenId);
           console.log("WARNING: Unauthorized user could redeem");
           expect.fail("Should have reverted");
-        } catch (error) {
+        } catch (error: unknown) {
           console.log("Unauthorized redemption correctly rejected");
           expect(error).to.exist;
         }
-      } catch (error) {
+      } catch {
         console.log("Unauthorized redemption test completed");
       }
     });
@@ -341,7 +346,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
             const deployerSigner = await hre.ethers.getSigner(fixture.accounts.dusdDeployer);
             await fixture.vestingNFT.connect(deployerSigner).setDepositsEnabled(true);
           }
-        } catch (error) {
+        } catch {
           console.log("Could not enable deposits");
         }
 
@@ -396,14 +401,15 @@ describe("ERC20VestingNFT (dBOOST)", () => {
           try {
             await fixture.vestingNFT.connect(userSigner).approve(recipient, tokenId);
             console.log("WARNING: Matured NFT could be approved for transfer");
-          } catch (approveError) {
+          } catch {
             console.log("Matured NFT approve correctly rejected");
           }
-        } catch (withdrawError) {
-          console.log("Matured withdrawal failed:", withdrawError.message.substring(0, 100));
+        } catch (withdrawError: unknown) {
+          const message = toMessage(withdrawError);
+          console.log("Matured withdrawal failed:", message.substring(0, 100));
           console.log("Withdraw function might have different name or not be implemented");
         }
-      } catch (error) {
+      } catch {
         console.log("Vesting maturity test completed with constraints");
       }
     });
@@ -430,11 +436,11 @@ describe("ERC20VestingNFT (dBOOST)", () => {
         try {
           await fixture.vestingNFT.connect(userSigner).withdrawMatured(tokenId);
           console.log("WARNING: Premature withdrawal was allowed");
-        } catch (error) {
+        } catch (error: unknown) {
           console.log("Premature withdrawal correctly rejected");
           expect(error).to.exist;
         }
-      } catch (error) {
+      } catch {
         console.log("Premature withdrawal test completed");
       }
     });
@@ -467,7 +473,7 @@ describe("ERC20VestingNFT (dBOOST)", () => {
               const globalTokenId = await fixture.vestingNFT.tokenByIndex(0);
               console.log(`Global first NFT ID: ${globalTokenId}`);
             }
-          } catch (enumError) {
+          } catch {
             console.log("NFT enumeration functions not available or different implementation");
           }
         }
@@ -481,10 +487,10 @@ describe("ERC20VestingNFT (dBOOST)", () => {
 
             expect(tokenURI).to.be.a("string");
           }
-        } catch (metadataError) {
+        } catch {
           console.log("Token metadata not available or different implementation");
         }
-      } catch (error) {
+      } catch {
         console.log("NFT enumeration test completed");
       }
     });
@@ -505,14 +511,14 @@ describe("ERC20VestingNFT (dBOOST)", () => {
         try {
           await fixture.vestingNFT.connect(unauthorizedSigner).setDepositsEnabled(false);
           console.log("WARNING: Unauthorized user could change deposits setting");
-        } catch (error) {
+        } catch (error: unknown) {
           console.log("Deposits setting properly protected");
           expect(error).to.exist;
         }
 
         // Test other admin functions if they exist
         console.log("Admin function protection verified");
-      } catch (error) {
+      } catch {
         console.log("Access control test completed");
       }
     });
