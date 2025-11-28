@@ -24,6 +24,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { address: collateralVaultAddress } = await deployments.get(COLLATERAL_VAULT_CONTRACT_ID);
 
   let allComplete = true;
+  let prereqsComplete = true;
 
   // Deploy AmoDebtToken if absent
   const existingDebtToken = await deployments.getOrNull(AMO_DEBT_TOKEN_ID);
@@ -55,51 +56,68 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       console.log(`  ➕ Pointed oracle for debt token ${debtTokenAddress} to HardPegOracleWrapper at ${hardPegOracleWrapperAddress}`);
     }, setOracleTx);
 
-    if (!oracleComplete) allComplete = false;
+    if (!oracleComplete) {
+      allComplete = false;
+      prereqsComplete = false;
+    }
   }
 
   // Deploy AmoManagerV2 if absent
   const existingManager = await deployments.getOrNull(AMO_MANAGER_V2_ID);
-  const managerAddress =
-    existingManager?.address ??
-    (
-      await deployContract(
-        hre,
-        AMO_MANAGER_V2_ID,
-        [oracleAggregatorAddress, debtTokenAddress, dusdAddress, collateralVaultAddress],
-        undefined,
-        deployer,
-        undefined,
-        "AmoManagerV2",
-      )
-    ).address;
+  let managerAddress = existingManager?.address;
+
+  if (!managerAddress && !prereqsComplete) {
+    console.log("  ⏳ Skipping AmoManagerV2 deployment until prerequisites are satisfied (likely Safe-set oracle).");
+  } else if (!managerAddress) {
+    try {
+      managerAddress = (
+        await deployContract(
+          hre,
+          AMO_MANAGER_V2_ID,
+          [oracleAggregatorAddress, debtTokenAddress, dusdAddress, collateralVaultAddress],
+          undefined,
+          deployer,
+          undefined,
+          "AmoManagerV2",
+        )
+      ).address;
+    } catch (error) {
+      console.log(`  ⚠️ AmoManagerV2 deployment failed: ${(error as Error).message}`);
+      allComplete = false;
+      prereqsComplete = false;
+    }
+  }
 
   // Wire roles/allowlists for debt token
-  const debtToken = await ethers.getContractAt("AmoDebtToken", debtTokenAddress, deployer);
+  if (managerAddress) {
+    const debtToken = await ethers.getContractAt("AmoDebtToken", debtTokenAddress, deployer);
 
-  const DEFAULT_ADMIN_ROLE = await debtToken.DEFAULT_ADMIN_ROLE();
-  const AMO_MANAGER_ROLE = await debtToken.AMO_MANAGER_ROLE();
+    const DEFAULT_ADMIN_ROLE = await debtToken.DEFAULT_ADMIN_ROLE();
+    const AMO_MANAGER_ROLE = await debtToken.AMO_MANAGER_ROLE();
 
-  // Ensure deployer retains admin for configuration (only on fresh deploy to avoid re-introducing deployer admin later)
-  if (debtTokenNewlyDeployed && !(await debtToken.hasRole(DEFAULT_ADMIN_ROLE, deployer.address))) {
-    await (await debtToken.grantRole(DEFAULT_ADMIN_ROLE, deployer.address)).wait();
-  }
-
-  if (!(await debtToken.hasRole(AMO_MANAGER_ROLE, managerAddress))) {
-    await (await debtToken.grantRole(AMO_MANAGER_ROLE, managerAddress)).wait();
-    console.log(`  ➕ Granted AMO_MANAGER_ROLE to AmoManagerV2 at ${managerAddress}`);
-  } else {
-    console.log(`  ✓ AmoManagerV2 already has AMO_MANAGER_ROLE`);
-  }
-
-  // Allowlist the vault and manager for debt token transfers
-  const allowlistTargets = [collateralVaultAddress, managerAddress];
-
-  for (const target of allowlistTargets) {
-    if (!(await debtToken.isAllowlisted(target))) {
-      await (await debtToken.setAllowlisted(target, true)).wait();
-      console.log(`  ➕ Allowlisted ${target} on AmoDebtToken`);
+    // Ensure deployer retains admin for configuration (only on fresh deploy to avoid re-introducing deployer admin later)
+    if (debtTokenNewlyDeployed && !(await debtToken.hasRole(DEFAULT_ADMIN_ROLE, deployer.address))) {
+      await (await debtToken.grantRole(DEFAULT_ADMIN_ROLE, deployer.address)).wait();
     }
+
+    if (!(await debtToken.hasRole(AMO_MANAGER_ROLE, managerAddress))) {
+      await (await debtToken.grantRole(AMO_MANAGER_ROLE, managerAddress)).wait();
+      console.log(`  ➕ Granted AMO_MANAGER_ROLE to AmoManagerV2 at ${managerAddress}`);
+    } else {
+      console.log(`  ✓ AmoManagerV2 already has AMO_MANAGER_ROLE`);
+    }
+
+    // Allowlist the vault and manager for debt token transfers
+    const allowlistTargets = [collateralVaultAddress, managerAddress];
+
+    for (const target of allowlistTargets) {
+      if (!(await debtToken.isAllowlisted(target))) {
+        await (await debtToken.setAllowlisted(target, true)).wait();
+        console.log(`  ➕ Allowlisted ${target} on AmoDebtToken`);
+      }
+    }
+  } else {
+    console.log("  ℹ️ AmoManagerV2 not deployed yet; skipping role and allowlist wiring.");
   }
 
   if (!allComplete) {
