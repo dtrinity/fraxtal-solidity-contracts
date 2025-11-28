@@ -36,6 +36,15 @@ jobs:
             npm ci
           fi
 
+      - name: Generate TypeChain artifacts
+        run: |
+          set -eo pipefail
+          if [ -x "node_modules/.bin/hardhat" ]; then
+            node_modules/.bin/hardhat compile --quiet
+          else
+            echo "::warning::Hardhat not installed; skipping TypeChain generation step."
+          fi
+
       - name: Ensure reports directory
         run: mkdir -p "${{ env.REPORTS_DIR }}"
 

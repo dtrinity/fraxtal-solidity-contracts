@@ -77,20 +77,33 @@ async function initializeCurve(network: string): Promise<void> {
   // Fetch factory pools if required
   if (config.requiresFactoryFetch) {
     console.log("Fetching factory pools");
-    await curve.factory.fetchPools();
-    await curve.crvUSDFactory.fetchPools();
-    await curve.EYWAFactory.fetchPools();
-    await curve.cryptoFactory.fetchPools();
-    await curve.twocryptoFactory.fetchPools();
-    await curve.tricryptoFactory.fetchPools();
-    await curve.stableNgFactory.fetchPools();
+    const curveAny = curve as Record<string, any>;
+    const fetchFactories = [
+      curveAny.factory,
+      curveAny.crvUSDFactory,
+      curveAny.EYWAFactory,
+      curveAny.cryptoFactory,
+      curveAny.twocryptoFactory,
+      curveAny.tricryptoFactory,
+      curveAny.stableNgFactory,
+    ].filter(Boolean);
+
+    for (const factory of fetchFactories) {
+      await factory.fetchPools?.();
+    }
 
     console.log("Fetching new factory pools");
-    await curve.factory.fetchNewPools();
-    await curve.cryptoFactory.fetchNewPools();
-    await curve.twocryptoFactory.fetchNewPools();
-    await curve.tricryptoFactory.fetchNewPools();
-    await curve.stableNgFactory.fetchNewPools();
+    const newPoolFactories = [
+      curveAny.factory,
+      curveAny.cryptoFactory,
+      curveAny.twocryptoFactory,
+      curveAny.tricryptoFactory,
+      curveAny.stableNgFactory,
+    ].filter(Boolean);
+
+    for (const factory of newPoolFactories) {
+      await factory.fetchNewPools?.();
+    }
   }
 }
 

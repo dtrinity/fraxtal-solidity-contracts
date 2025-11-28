@@ -44,7 +44,7 @@ async function main(): Promise<void> {
     network: cli.network as string | undefined,
     deploymentsDir: cli.deploymentsDir as string | undefined,
     only: cli.only ? new Set((cli.only as string).split(",").map((s) => s.trim()).filter(Boolean)) : undefined,
-    match: cli.match ? new RegExp(cli.match as string) : undefined,
+    match: cli.match ? new RegExp(escapeRegExp(cli.match as string)) : undefined,
     force: Boolean(cli.force),
     dryRun: Boolean(cli.dryRun),
     hardhatConfig: cli.hardhatConfig as string | undefined,
@@ -134,3 +134,7 @@ function extractFullyQualifiedName(metadata?: string): string | undefined {
 }
 
 void main();
+
+function escapeRegExp(input: string): string {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}

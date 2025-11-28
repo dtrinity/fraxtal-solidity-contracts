@@ -66,7 +66,7 @@ function parseArgs(argv: string[]): VerifyOptions {
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--match" && argv[i + 1]) {
-      opts.match = new RegExp(argv[i + 1]);
+      opts.match = new RegExp(escapeRegExp(argv[i + 1]));
       i += 1;
     } else if (arg === "--only" && argv[i + 1]) {
       opts.only = new Set(argv[i + 1].split(","));
@@ -113,6 +113,10 @@ function resolveApiKey(network: string, apiKey: unknown): string | undefined {
     return (apiKey as Record<string, string>)[network];
   }
   return undefined;
+}
+
+function escapeRegExp(input: string): string {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 void main();
