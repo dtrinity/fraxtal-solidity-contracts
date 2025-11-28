@@ -80,7 +80,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
           undefined,
           "AmoManagerV2",
         )
-      ).address;
+      ).address as string;
     } catch (error) {
       console.log(`  ⚠️ AmoManagerV2 deployment failed: ${(error as Error).message}`);
       allComplete = false;

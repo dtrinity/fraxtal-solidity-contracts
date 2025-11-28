@@ -115,7 +115,8 @@ export default func;
 func.tags = ["StaticATokenWrappers", "aTokenWrapper", "dUSD-aTokenWrapper"];
 func.dependencies = ["StaticATokenFactory", "lbp-init-reserves", "dStable"];
 func.id = "StaticATokenLMWrappers";
-func.skip = async (hre) => {
+
+func.skip = async (hre: HardhatRuntimeEnvironment): Promise<boolean> => {
   const existingWrapper = await hre.deployments.getOrNull(DUSD_STATIC_ATOKEN_ID);
 
   if (existingWrapper) {

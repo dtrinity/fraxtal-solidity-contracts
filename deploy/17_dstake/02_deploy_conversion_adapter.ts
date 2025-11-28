@@ -60,6 +60,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     // Skip if already deployed
     const existingAdapter = await deployments.getOrNull(deploymentName);
+
     if (existingAdapter) {
       console.log(`Conversion adapter ${deploymentName} already deployed at ${existingAdapter.address}, skipping...`);
       continue;

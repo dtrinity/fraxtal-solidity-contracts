@@ -10,6 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { dusdDeployer } = await hre.getNamedAccounts();
 
   const existingIssuer = await hre.deployments.getOrNull(ISSUER_V2_2_CONTRACT_ID);
+
   if (existingIssuer) {
     console.log(`IssuerV2 already deployed at ${existingIssuer.address}, skipping...`);
     return;

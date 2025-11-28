@@ -11,6 +11,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Deploying ${ERC4626_BALANCE_CHECKER_ID} with admin: ${deployer}`);
 
   const existing = await deployments.getOrNull(ERC4626_BALANCE_CHECKER_ID);
+
   if (existing) {
     console.log(`${ERC4626_BALANCE_CHECKER_ID} already deployed at ${existing.address}, skipping...`);
     console.log(`🥩 ${__filename.split("/").slice(-2).join("/")}: ✅`);
