@@ -10,6 +10,8 @@ export interface SafeConfig {
   readonly chainId: number;
   readonly rpcUrl?: string;
   readonly txServiceUrl?: string;
+  readonly multiSendAddress?: string;
+  readonly multiSendCallOnlyAddress?: string;
 }
 
 /**

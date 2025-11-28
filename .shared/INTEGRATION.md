@@ -124,7 +124,7 @@ node_modules/.bin/ts-node .shared/scripts/setup.ts --hooks                      
 node_modules/.bin/ts-node .shared/scripts/setup.ts --hooks --include-pre-commit-hook # opt into the pre-commit hook
 ```
 
-The pre-push hook executes the shared guardrail suite with `--fail-fast`, runs Prettier/ESLint/Solhint, and
+The pre-push hook executes the shared guardrail suite with `--fail-fast`, runs Prettier/ESLint/TypeScript/Solhint, and
 executes `npx hardhat test` by default. Because the hook scripts live inside `.shared`, future updates to the tooling
 automatically flow into every repository. Add `--include-pre-commit-hook` whenever you want the additional
 staged-file linting and compile guard that the shared pre-commit hook provides.

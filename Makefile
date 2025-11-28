@@ -792,12 +792,20 @@ curve-tools.generate-swap-params:
 
 ## ---------- Block explorer ----------
 explorer.verify.fraxtal_testnet:
+	@if [ -z "$(ETHERSCAN_API_KEY)" ]; then \
+		echo "ETHERSCAN_API_KEY environment variable must be set"; \
+		exit 1; \
+	fi
 	@echo "Verifying contracts on fraxtal testnet..."
-	@yarn hardhat --network fraxtal_testnet etherscan-verify --api-key AMT6AWIRDZV3RVNSSU6T2638K59QSX4Q89 --api-url https://api-holesky.fraxscan.com
+	@ETHERSCAN_API_KEY="$(ETHERSCAN_API_KEY)" yarn hardhat --network fraxtal_testnet run scripts/verify-deployments.ts $(ARGS)
 
 explorer.verify.fraxtal_mainnet:
+	@if [ -z "$(ETHERSCAN_API_KEY)" ]; then \
+		echo "ETHERSCAN_API_KEY environment variable must be set"; \
+		exit 1; \
+	fi
 	@echo "Verifying contracts on fraxtal mainnet..."
-	@yarn hardhat --network fraxtal_mainnet etherscan-verify --api-key AMT6AWIRDZV3RVNSSU6T2638K59QSX4Q89 --api-url https://api.fraxscan.com
+	@ETHERSCAN_API_KEY="$(ETHERSCAN_API_KEY)" yarn hardhat --network fraxtal_mainnet run scripts/verify-deployments.ts $(ARGS)
 
 check-all-users-health-factor:
 	@if [ "$(network)" = "" ]; then \

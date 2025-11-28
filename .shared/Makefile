@@ -130,6 +130,46 @@ shared.sanity.oracle-addresses: ## Print oracle source addresses for provided ke
 	fi
 	@$(TS_NODE) $(SHARED_ROOT)/scripts/deployments/print-oracle-sources.ts --keywords "$(deployment_keywords)" --network "$(network)"
 
+explorer.verify.sonic_testnet: ## Verify contracts on sonic testnet
+	@echo "Verifying contracts on sonic testnet..."
+	@if [ -z "$(ETHERSCAN_API_KEY)" ]; then \
+		echo "ETHERSCAN_API_KEY environment variable must be set"; \
+		exit 1; \
+	fi
+	@ETHERSCAN_API_KEY="$(ETHERSCAN_API_KEY)" yarn hardhat --network sonic_testnet etherscan-verify
+
+explorer.verify.sonic_mainnet: ## Verify contracts on sonic mainnet
+	@echo "Verifying contracts on sonic mainnet..."
+	@if [ -z "$(ETHERSCAN_API_KEY)" ]; then \
+		echo "ETHERSCAN_API_KEY environment variable must be set"; \
+		exit 1; \
+	fi
+	@ETHERSCAN_API_KEY="$(ETHERSCAN_API_KEY)" yarn hardhat --network sonic_mainnet etherscan-verify
+
+explorer.verify.focused: ## Verify a single contract on specified network (usage: make explorer.verify.focused network=sonic_testnet contract=ContractName)
+	@if [ -z "$(ETHERSCAN_API_KEY)" ]; then \
+		echo "ETHERSCAN_API_KEY environment variable must be set"; \
+		exit 1; \
+	fi
+	@if [ "$(network)" = "" ]; then \
+		echo "Must provide 'network' argument. Example: 'make explorer.verify.focused network=sonic_testnet contract=MyContract'"; \
+		exit 1; \
+	fi
+	@if [ "$(contract)" = "" ]; then \
+		echo "Must provide 'contract' argument. Example: 'make explorer.verify.focused network=sonic_testnet contract=MyContract'"; \
+		exit 1; \
+	fi
+	@if [ "$(network)" = "sonic_testnet" ]; then \
+		echo "Verifying $(contract) on sonic testnet..."; \
+		ETHERSCAN_API_KEY="$(ETHERSCAN_API_KEY)" yarn hardhat --network sonic_testnet etherscan-verify --contract-name $(contract); \
+	elif [ "$(network)" = "sonic_mainnet" ]; then \
+		echo "Verifying $(contract) on sonic mainnet..."; \
+		ETHERSCAN_API_KEY="$(ETHERSCAN_API_KEY)" yarn hardhat --network sonic_mainnet etherscan-verify --contract-name $(contract); \
+	else \
+		echo "Unsupported network: $(network). Use 'sonic_testnet' or 'sonic_mainnet'"; \
+		exit 1; \
+	fi
+
 shared.metrics.nsloc: ## Generate Solidity non-comment SLOC metrics
 	@$(TS_NODE) $(SHARED_ROOT)/scripts/deployments/nsloc.ts
 

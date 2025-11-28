@@ -12,6 +12,8 @@ import { getDefaultDeployScriptPaths } from "./utils/deploy";
 import { getDefaultSolidityCompilersConfig } from "./utils/hardhat-config/compilers";
 import { getDefaultNamedAccounts, getDefaultPrivateKeys } from "./utils/hardhat-config/named_accounts";
 
+const etherscanApiKey = process.env.ETHERSCAN_API_KEY ?? "";
+
 const config: HardhatUserConfig = {
   solidity: getDefaultSolidityCompilersConfig(),
   networks: {
@@ -57,15 +59,15 @@ const config: HardhatUserConfig = {
   namedAccounts: getDefaultNamedAccounts(),
   etherscan: {
     apiKey: {
-      fraxtal_mainnet: "AMT6AWIRDZV3RVNSSU6T2638K59QSX4Q89",
-      fraxtal_testnet: "AMT6AWIRDZV3RVNSSU6T2638K59QSX4Q89",
+      fraxtal_mainnet: etherscanApiKey,
+      fraxtal_testnet: etherscanApiKey,
     },
     customChains: [
       {
         network: "fraxtal_mainnet",
         chainId: 252,
         urls: {
-          apiURL: "https://api.fraxscan.com/api",
+          apiURL: "https://api.etherscan.io/v2/api?chainid=252",
           browserURL: "https://fraxscan.com",
         },
       },
@@ -73,8 +75,8 @@ const config: HardhatUserConfig = {
         network: "fraxtal_testnet",
         chainId: 2522,
         urls: {
-          apiURL: "https://api-holesky.fraxscan.com/api",
-          browserURL: "https://holesky.fraxscan.com",
+          apiURL: "https://api.etherscan.io/v2/api?chainid=2523",
+          browserURL: "https://hoodi.fraxscan.com",
         },
       },
     ],
