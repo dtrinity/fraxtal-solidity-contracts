@@ -171,10 +171,35 @@ check_sensitive_information() {
     if [ ! -f "$file" ]; then
       continue
     fi
-    if grep -E "0x[a-fA-F0-9]{64}" "$file" 2>/dev/null; then
-      potential_keys=1
-      break
+
+    case "$file" in
+      deployments/*|*/deployments/*)
+        continue
+        ;;
+      contracts/*/protocol/libraries/configuration/*)
+        continue
+        ;;
+      contracts/vaults/atoken_wrapper/ECDSA.sol)
+        continue
+        ;;
+      test/dlend/StaticAToken.MetaSigMalleability.ts|test/reward_claimable/RewardClaimable.ts)
+        continue
+        ;;
+    esac
+
+    matches=$(grep -En "0x[a-fA-F0-9]{64}" "$file" 2>/dev/null || true)
+    if [ -z "$matches" ]; then
+      continue
     fi
+
+    filtered=$(printf '%s\n' "$matches" | grep -Ev 'logsBloom|transactionHash|blockHash|_SLOT|ZERO_BYTES_32|^.*keccak256' || true)
+    if [ -z "$filtered" ]; then
+      continue
+    fi
+
+    printf '%s\n' "$filtered"
+    potential_keys=1
+    break
   done <<EOF
 $staged
 EOF

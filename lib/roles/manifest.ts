@@ -282,6 +282,12 @@ export function resolveRoleManifest(manifest: RoleManifest): ResolvedRoleManifes
       threshold: manifest.safe.threshold,
       chainId: manifest.safe.chainId,
       description: manifest.safe.description,
+      multiSendAddress: manifest.safe.multiSendAddress
+        ? resolveAddress(manifest.safe.multiSendAddress, context, "manifest.safe.multiSendAddress")
+        : undefined,
+      multiSendCallOnlyAddress: manifest.safe.multiSendCallOnlyAddress
+        ? resolveAddress(manifest.safe.multiSendCallOnlyAddress, context, "manifest.safe.multiSendCallOnlyAddress")
+        : undefined,
     };
   }
 
