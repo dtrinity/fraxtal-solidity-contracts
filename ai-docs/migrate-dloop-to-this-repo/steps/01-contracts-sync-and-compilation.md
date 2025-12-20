@@ -10,7 +10,7 @@ This step is “contracts only”: do not port deploy scripts or tests yet beyon
 
 Unless Step 00 decided otherwise, keep Fraxtal’s existing root:
 
-- **Target root**: `fraxtal-solidity-contracts/contracts/vault/dLOOP/**`
+- **Target root**: `fraxtal-solidity-contracts/contracts/vaults/dLOOP/**`
 
 ### Source of truth
 
@@ -77,7 +77,7 @@ If Sonic dLOOP imports internal files that don’t exist in Fraxtal, copy them *
 
 Common fixes needed when moving between repos:
 
-- `contracts/vaults/dloop/...` → `contracts/vault/dLOOP/...` (if keeping Fraxtal layout)
+- `contracts/vaults/dloop/...` → `contracts/vaults/dLOOP/...` (if keeping Fraxtal layout)
 - `contracts/common/...` vs `contracts/shared/...` differences
 - OpenZeppelin major version differences (Sonic might have OZ v4/v5 mix; Fraxtal is OZ v5)
 

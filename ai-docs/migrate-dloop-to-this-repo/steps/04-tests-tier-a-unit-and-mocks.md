@@ -38,8 +38,8 @@ If Sonic tests depend on contracts that Fraxtal does not have, port them under `
 Minimum expected test-only roots (based on Sonic):
 
 - `contracts/testing/dloop/**` (core/periphery harnesses if needed)
-- `contracts/vault/dLOOP/core/venue/mock/**` (core mocks)
-- `contracts/vault/dLOOP/periphery/venue/mock/**` (periphery mocks)
+- `contracts/vaults/dLOOP/core/venue/mock/**` (core mocks)
+- `contracts/vaults/dLOOP/periphery/venue/mock/**` (periphery mocks)
 
 Port only what tests require; keep production vs testing boundaries clean.
 

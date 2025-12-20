@@ -26,7 +26,7 @@ Fraxtal repo is located at [fraxtal-solidity-contracts](/Users/dinosaurchi/Deskt
 
 Fraxtal repo already contains **partial / parallel dLOOP work**:
 
-- **Contracts exist** under `contracts/vault/dLOOP/**` (note `vault/` singular, and `dLOOP` casing).
+- **Contracts exist** under `contracts/vaults/dLOOP/**` (note `vaults/` plural, and `dLOOP` casing).
 - **Deploy scripts exist** under `deploy/19_dloop/**`.
 - **Config types already include** `dLoop: DLoopConfig` in `config/types.ts`.
 
@@ -36,7 +36,7 @@ Sonic repo’s dLOOP canonical module is here:
 - `sonic-solidity-contracts-2/deploy/12_dloop/**`
 - `sonic-solidity-contracts-2/test/dloop/**`
 
-**Key gap**: Fraxtal’s `contracts/vault/dLOOP/**` is missing multiple Sonic contracts (notably `DLoopCoreLogic`, `DLoopQuoter`, `DLoopRedeemerBase`, `DLoopIncreaseLeverageBase`, `DLoopDecreaseLeverageBase`, and mock venues).
+**Key gap**: Fraxtal’s `contracts/vaults/dLOOP/**` is missing multiple Sonic contracts (notably `DLoopCoreLogic`, `DLoopQuoter`, `DLoopRedeemerBase`, `DLoopIncreaseLeverageBase`, `DLoopDecreaseLeverageBase`, and mock venues).
 
 So this migration is **not** “copy a folder and done”; it is a **reconciliation + completion** task.
 

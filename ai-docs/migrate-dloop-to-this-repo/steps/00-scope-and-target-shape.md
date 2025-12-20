@@ -13,7 +13,7 @@ This step is primarily **decision + documentation**; do not start large code mov
   - `sonic-solidity-contracts-2/deploy/12_dloop/**`
   - `sonic-solidity-contracts-2/test/dloop/**`
 - **Fraxtal current state**:
-  - Contracts: `fraxtal-solidity-contracts/contracts/vault/dLOOP/**` (partial)
+  - Contracts: `fraxtal-solidity-contracts/contracts/vaults/dLOOP/**` (partial)
   - Deploy scripts: `fraxtal-solidity-contracts/deploy/19_dloop/**` (core + periphery for UniswapV3/Curve/Odos)
   - Config typing: `fraxtal-solidity-contracts/config/types.ts` includes `dLoop: DLoopConfig`
 
@@ -21,14 +21,14 @@ This step is primarily **decision + documentation**; do not start large code mov
 
 #### 1) Folder / import root decision
 
-Sonic uses `contracts/vaults/dloop/**`. Fraxtal currently uses `contracts/vault/dLOOP/**`.
+Sonic uses `contracts/vaults/dloop/**`. Fraxtal currently uses `contracts/vaults/dLOOP/**`.
 
-- **Recommended for lowest churn**: keep Fraxtal’s existing path (`contracts/vault/dLOOP/**`) and map Sonic files into it.
+- **Recommended for lowest churn**: keep Fraxtal’s existing path (`contracts/vaults/dLOOP/**`) and map Sonic files into it.
 - **Optional cleanup later**: move to `contracts/vaults/dloop/**` only after parity is achieved, because it forces import-path churn across deploy scripts and tests.
 
 Decision:
 
-- [x] Keep `contracts/vault/dLOOP/**` as the canonical path in Fraxtal for now
+- [x] Keep `contracts/vaults/dLOOP/**` as the canonical path in Fraxtal for now
 - [ ] Or migrate to `contracts/vaults/dloop/**` immediately (expect bigger refactor)
 
 #### 2) Feature parity decision (what must be ported)
