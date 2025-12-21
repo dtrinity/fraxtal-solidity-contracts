@@ -19,7 +19,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-5/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts-5/token/ERC20/utils/SafeERC20.sol";
-import "contracts/vault/reward_management/RewardClaimable.sol";
+import "contracts/vaults/rewards_claimable/RewardClaimable.sol";
 
 /**
  * @title MockRewardClaimableVault
