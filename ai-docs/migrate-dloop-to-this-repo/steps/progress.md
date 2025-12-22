@@ -12,7 +12,7 @@
 
 - [x] Step 00 complete — scope decisions + target shape agreed (incl. reconciliation with existing Fraxtal dLOOP)
 - [x] Step 01 complete — contracts synced from Sonic + `yarn hardhat compile` passes
-- [ ] Step 02 complete — config types updated + network-agnostic config loader implemented + example configs added
+- [x] Step 02 complete — config types updated + network-agnostic config loader implemented + example configs added
 - [ ] Step 03 complete — deploy scripts complete (core logic + quoter + periphery) and idempotent
 - [ ] Step 04 complete — Tier A tests ported + passing
 - [ ] Step 05 complete (optional) — Tier B DLend integration tests ported + passing
@@ -20,8 +20,8 @@
 
 ### Current step
 
-- **In progress**: Step 01 (ready for review)
-- **Blocked on**: Review of Step 01
+- **In progress**: Step 02 (ready for review)
+- **Blocked on**: Review of Step 02
 
 ### Session log
 
@@ -44,3 +44,14 @@
     - `./node_modules/.bin/hardhat compile`
   - Notes / follow-ups:
     - Hardhat compile succeeded via local binary (see warnings about Node 22 + missing env vars).
+- 2025-12-22: Step 02
+  - What changed:
+    - Added network-agnostic config loader with FRACTAL_CONFIG_PATH override + profile selection support.
+    - Expanded dLOOP config typing (core params + Odos periphery types) and added a typed example config.
+    - Filled testnet dLOOP core vault config with minDeviation/withdrawal fee and DLend extra params.
+  - Commands run:
+    - `yarn ts-lint` (failed: fastqueue concurrency must be greater than 1)
+    - `./node_modules/.bin/eslint .`
+    - `./node_modules/.bin/hardhat compile`
+  - Notes / follow-ups:
+    - Hardhat compile warns about Node 22 and missing env vars, but completes.

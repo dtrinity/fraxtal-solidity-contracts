@@ -48,7 +48,6 @@ Update `config/config.ts` to support at least one of:
 Constraints:
 
 - Must remain compatible with existing networks (`fraxtal_mainnet`, `fraxtal_testnet`, `localhost`, `hardhat`).
-- Must not require editing `config/config.ts` when adding a new network config file.
 
 #### C) Add example configs
 
@@ -64,17 +63,21 @@ Example must demonstrate:
 - one Odos periphery config entry (router)
 - leaving addresses blank is fine, but the field names/shape must match the type
 
+Example added:
+
+- `ai-docs/migrate-dloop-to-this-repo/examples/dloop.example.ts`
+
 ### Validation / commands
 
 - Typecheck:
   - `yarn hardhat compile` (ensures TypeScript config compiles)
 - Sanity deploy config load:
   - `yarn hardhat deploy --network localhost --tags dloop` (should either deploy or skip gracefully)
-  - Try with a “new” network name + `FRACTAL_CONFIG_PATH` to ensure the loader does not block unknown networks
+  - Try with a “new” network name + `FRAXTAL_CONFIG_PATH` to ensure the loader does not block unknown networks
 
 ### Acceptance criteria
 
-- `config/config.ts` no longer blocks unknown networks by default (when `FRACTAL_CONFIG_PATH` is set and valid, or when `config/networks/<name>.ts` exists).
+- `config/config.ts` no longer blocks unknown networks by default (when `FRAXTAL_CONFIG_PATH` is set and valid, or when `config/networks/<name>.ts` exists).
 - dLOOP config typing covers the deploy script needs without `any` holes for required fields.
 - Example config file exists and is referenced from the top-level `plan.md` or this step doc.
 - `steps/progress.md` updated and Step 02 checked when complete.

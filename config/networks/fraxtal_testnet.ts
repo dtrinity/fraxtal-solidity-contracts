@@ -199,7 +199,15 @@ export async function getConfig(hre: HardhatRuntimeEnvironment): Promise<Config>
           lowerBoundTargetLeverageBps: 200 * 100 * ONE_BPS_UNIT, // 200% leverage, meaning 2x leverage
           upperBoundTargetLeverageBps: 400 * 100 * ONE_BPS_UNIT, // 400% leverage, meaning 4x leverage
           maxSubsidyBps: 2 * 100 * ONE_BPS_UNIT, // 2% subsidy
-          extraParams: {},
+          minDeviationBps: 2 * ONE_PERCENT_BPS, // 2% deviation
+          withdrawalFeeBps: 0.4 * ONE_PERCENT_BPS, // 0.4% withdrawal fee
+          extraParams: {
+            targetStaticATokenWrapper: emptyIfUndefined(dUSDStaticATokenDeployment?.address, ""),
+            treasury: lendingDeployer,
+            maxTreasuryFeeBps: 5 * ONE_PERCENT_BPS, // 5%
+            initialTreasuryFeeBps: 1 * ONE_PERCENT_BPS, // 1%
+            initialExchangeThreshold: ethers.parseUnits("1", 6),
+          },
         },
       },
       depositors: {

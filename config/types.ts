@@ -176,6 +176,7 @@ export interface DUSDConfig {
 
 export interface DLoopConfig {
   readonly dUSDAddress: string;
+  readonly flashLenderAddress?: string;
   readonly coreVaults?: { [vaultName: string]: DLoopCoreConfig };
   readonly depositors?: {
     uniswapV3?: DLoopDepositorUniswapV3Config;
@@ -187,6 +188,27 @@ export interface DLoopConfig {
     curve?: DLoopWithdrawerCurveConfig;
     odos?: DLoopWithdrawerOdosConfig;
   };
+  readonly redeemers?: {
+    odos?: DLoopRedeemerOdosConfig;
+  };
+  readonly decreaseLeverage?: {
+    odos?: DLoopDecreaseLeverageOdosConfig;
+  };
+  readonly increaseLeverage?: {
+    odos?: DLoopIncreaseLeverageOdosConfig;
+  };
+}
+
+export interface DLoopCoreDLendExtraParams {
+  readonly targetStaticATokenWrapper?: string;
+  readonly treasury: string;
+  readonly maxTreasuryFeeBps: BigNumberish;
+  readonly initialTreasuryFeeBps?: BigNumberish;
+  readonly initialExchangeThreshold?: BigNumberish;
+  readonly lendingPoolAddressesProvider?: string;
+  readonly poolDataProvider?: string;
+  readonly rewardsController?: string;
+  readonly dLendAssetToClaimFor?: string;
 }
 
 export interface DLoopCoreConfig {
@@ -199,7 +221,9 @@ export interface DLoopCoreConfig {
   readonly lowerBoundTargetLeverageBps: number;
   readonly upperBoundTargetLeverageBps: number;
   readonly maxSubsidyBps: number;
-  readonly extraParams: { [key: string]: any }; // Add more params here
+  readonly minDeviationBps: number;
+  readonly withdrawalFeeBps: number;
+  readonly extraParams: DLoopCoreDLendExtraParams;
 }
 
 export interface UniswapV3SwapPath {
@@ -250,6 +274,18 @@ export interface DLoopWithdrawerCurveConfig {
 }
 
 export interface DLoopWithdrawerOdosConfig {
+  readonly router: string;
+}
+
+export interface DLoopRedeemerOdosConfig {
+  readonly router: string;
+}
+
+export interface DLoopDecreaseLeverageOdosConfig {
+  readonly router: string;
+}
+
+export interface DLoopIncreaseLeverageOdosConfig {
   readonly router: string;
 }
 

@@ -2,22 +2,10 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../../config/config";
+import { DLoopCoreConfig } from "../../../config/types";
 import { deployContract } from "../../../utils/deploy";
 import { POOL_ADDRESSES_PROVIDER_ID } from "../../../utils/lending/deploy-ids";
 import { DLOOP_CORE_DLEND_ID } from "../../../utils/vault/deploy-ids";
-
-interface CoreVaultInfo {
-  venue: string;
-  name: string;
-  symbol: string;
-  underlyingAsset: string;
-  dStable: string;
-  targetLeverageBps: number;
-  lowerBoundTargetLeverageBps: number;
-  upperBoundTargetLeverageBps: number;
-  maxSubsidyBps: number;
-  extraParams: Record<string, unknown>;
-}
 
 /**
  * Deploy dLOOP Core DLend contract
@@ -32,7 +20,7 @@ async function deployDLoopCoreDLend(
   hre: HardhatRuntimeEnvironment,
   dloopDeployer: string,
   dUSDAddress: string,
-  vaultInfo: CoreVaultInfo,
+  vaultInfo: DLoopCoreConfig,
 ): Promise<boolean> {
   const { address: lendingPoolAddressesProviderAddress } = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
 
