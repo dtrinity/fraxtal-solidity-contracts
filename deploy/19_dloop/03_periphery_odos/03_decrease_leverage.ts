@@ -5,7 +5,7 @@ import { getConfig } from "../../../config/config";
 import { deployContract } from "../../../utils/deploy";
 import { ODOS_SWAP_LOGIC_ID } from "../../../utils/dex/deploy-ids";
 import { isLocalNetwork } from "../../../utils/utils";
-import { DLOOP_WITHDRAWER_ODOS_ID } from "../../../utils/vault/deploy-ids";
+import { DLOOP_DECREASE_LEVERAGE_ODOS_ID } from "../../../utils/vault/deploy-ids";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { dloopDeployer } = await hre.getNamedAccounts();
@@ -16,7 +16,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Skip local networks
   if (isLocalNetwork(hre.network.name)) {
-    console.log("Skipping DLoopWithdrawerOdos deployment on local network");
+    console.log("Skipping DLoopDecreaseLeverageOdos deployment on local network");
     return false;
   }
 
@@ -25,24 +25,24 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Skip if no dLOOP configuration
   if (!config.dLoop) {
-    console.log(`No dLOOP configuration defined for network ${hre.network.name}. Skipping Odos withdrawer deployment.`);
+    console.log(`No dLOOP configuration defined for network ${hre.network.name}. Skipping Odos decrease leverage deployment.`);
     return false;
   }
 
-  // Skip if no withdrawers section or Odos withdrawer is defined
-  if (!config.dLoop.withdrawers || !config.dLoop.withdrawers.odos) {
-    console.log(`Odos withdrawer not defined for network ${hre.network.name}. Skipping.`);
+  // Skip if no decrease leverage section or Odos decrease leverage is defined
+  if (!config.dLoop.decreaseLeverage || !config.dLoop.decreaseLeverage.odos) {
+    console.log(`Odos decrease leverage not defined for network ${hre.network.name}. Skipping.`);
     return false;
   }
 
-  const odosConfig = config.dLoop.withdrawers.odos;
+  const odosConfig = config.dLoop.decreaseLeverage.odos;
 
   if (!odosConfig.router) {
     console.log(`Odos router not defined for network ${hre.network.name}. Skipping.`);
     return false;
   }
 
-  console.log("Deploying DLoopWithdrawerOdos...");
+  console.log("Deploying DLoopDecreaseLeverageOdos...");
 
   // Get the dUSD token address from the configuration
   const dUSDAddress = config.dLoop.dUSDAddress;
@@ -57,10 +57,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // Get the Odos Router address from configuration
   const odosRouterAddress = odosConfig.router;
 
-  // Deploy DLoopWithdrawerOdos
+  // Deploy DLoopDecreaseLeverageOdos
   await deployContract(
     hre,
-    DLOOP_WITHDRAWER_ODOS_ID,
+    DLOOP_DECREASE_LEVERAGE_ODOS_ID,
     [
       dUSDAddress, // flashLenderAddress (dUSD is the flash lender)
       odosRouterAddress,
@@ -70,15 +70,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     {
       OdosSwapLogic: odosSwapLogicAddress,
     },
-    "DLoopWithdrawerOdos",
+    "DLoopDecreaseLeverageOdos",
   );
 
-  console.log("DLoopWithdrawerOdos deployed successfully");
+  console.log("DLoopDecreaseLeverageOdos deployed successfully");
   return true;
 };
 
-func.id = DLOOP_WITHDRAWER_ODOS_ID;
-func.tags = ["dloop", "periphery", "odos", "withdrawer"];
+func.id = DLOOP_DECREASE_LEVERAGE_ODOS_ID;
+func.tags = ["dloop", "periphery", "odos", "decrease-leverage"];
 func.dependencies = [ODOS_SWAP_LOGIC_ID];
 
 export default func;

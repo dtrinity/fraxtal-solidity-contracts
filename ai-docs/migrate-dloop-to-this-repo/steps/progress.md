@@ -13,15 +13,15 @@
 - [x] Step 00 complete — scope decisions + target shape agreed (incl. reconciliation with existing Fraxtal dLOOP)
 - [x] Step 01 complete — contracts synced from Sonic + `yarn hardhat compile` passes
 - [x] Step 02 complete — config types updated + network-agnostic config loader implemented + example configs added
-- [ ] Step 03 complete — deploy scripts complete (core logic + quoter + periphery) and idempotent
+- [x] Step 03 complete — deploy scripts complete (core logic + quoter + periphery) and idempotent
 - [ ] Step 04 complete — Tier A tests ported + passing
 - [ ] Step 05 complete (optional) — Tier B DLend integration tests ported + passing
 - [ ] Step 06 complete (optional) — CI green
 
 ### Current step
 
-- **In progress**: Step 02 (ready for review)
-- **Blocked on**: Review of Step 02
+- **In progress**: Step 03 (ready for review)
+- **Blocked on**: Review of Step 03
 
 ### Session log
 
@@ -55,3 +55,19 @@
     - `./node_modules/.bin/hardhat compile`
   - Notes / follow-ups:
     - Hardhat compile warns about Node 22 and missing env vars, but completes.
+- 2025-12-23: Step 03
+  - What changed:
+    - Added dLOOP deploy IDs for core logic, quoter, and Odos redeemer/increase/decrease leverage.
+    - Added deploy scripts for DLoopCoreLogic + DLoopQuoter and Odos redeemer/increase/decrease leverage.
+    - Updated Odos swap logic deploy gating and aligned fraxtal_testnet dLOOP config to Odos-only periphery sections.
+  - Commands run:
+    - `./node_modules/.bin/eslint deploy/19_dloop config/networks/fraxtal_testnet.ts`
+  - Notes / follow-ups:
+    - Awaiting review before starting Step 04.
+- 2025-12-23: Step 03 follow-up
+  - What changed:
+    - Aligned core DLend deploy script with Sonic parity (struct args, library linking, rewards/aToken resolution).
+  - Commands run:
+    - `./node_modules/.bin/eslint deploy/19_dloop/00_core/00_deploy_core_vaults.ts`
+  - Notes / follow-ups:
+    - Awaiting review before starting Step 04.
