@@ -99,3 +99,10 @@
     - `./node_modules/.bin/eslint .`
   - Notes / follow-ups:
     - Awaiting review before concluding migration steps.
+- 2025-12-26: Step 06 follow-up
+  - What changed:
+    - Fixed dLOOP CI job to expand test files instead of passing the test directory to Hardhat.
+  - Commands run:
+    - `./node_modules/.bin/eslint .`
+  - Notes / follow-ups:
+    - Awaiting review before concluding migration steps.

@@ -185,7 +185,8 @@ jobs:
         run: |
           set -eo pipefail
           if [ -x "node_modules/.bin/hardhat" ]; then
-            node_modules/.bin/hardhat test test/dloop
+            shopt -s globstar
+            node_modules/.bin/hardhat test test/dloop/**/*.ts
           else
             echo "::warning::Hardhat not installed; skipping dLOOP tests."
           fi

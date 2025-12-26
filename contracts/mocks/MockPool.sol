@@ -10,11 +10,21 @@ contract MockPool {
         _setReserveData(asset, aToken, address(0), debtToken);
     }
 
-    function setReserveData(address asset, address aToken, address stableDebtToken, address variableDebtToken) external {
+    function setReserveData(
+        address asset,
+        address aToken,
+        address stableDebtToken,
+        address variableDebtToken
+    ) external {
         _setReserveData(asset, aToken, stableDebtToken, variableDebtToken);
     }
 
-    function _setReserveData(address asset, address aToken, address stableDebtToken, address variableDebtToken) internal {
+    function _setReserveData(
+        address asset,
+        address aToken,
+        address stableDebtToken,
+        address variableDebtToken
+    ) internal {
         DataTypes.ReserveData memory newReserve = DataTypes.ReserveData({
             configuration: DataTypes.ReserveConfigurationMap(0),
             liquidityIndex: 1e27, // Initial liquidity index
