@@ -28,7 +28,7 @@ import {
 import { DEX_ORACLE_WRAPPER_ID } from "../../utils/oracle/deploy-ids";
 import { API3_PRICE_DECIMALS } from "../../utils/oracle_aggregator/constants";
 import { Config } from "../types";
-import { CURVE_POOLS, CURVE_SWAP_ROUTER_ADDRESS, liquidatorBotCurve } from "./fraxtal_testnet/liquidator-curve";
+import { liquidatorBotCurve } from "./fraxtal_testnet/liquidator-curve";
 
 export { CURVE_POOLS } from "./fraxtal_testnet/liquidator-curve";
 
@@ -199,147 +199,33 @@ export async function getConfig(hre: HardhatRuntimeEnvironment): Promise<Config>
           lowerBoundTargetLeverageBps: 200 * 100 * ONE_BPS_UNIT, // 200% leverage, meaning 2x leverage
           upperBoundTargetLeverageBps: 400 * 100 * ONE_BPS_UNIT, // 400% leverage, meaning 4x leverage
           maxSubsidyBps: 2 * 100 * ONE_BPS_UNIT, // 2% subsidy
-          extraParams: {},
+          minDeviationBps: 2 * ONE_PERCENT_BPS, // 2% deviation
+          withdrawalFeeBps: 0.4 * ONE_PERCENT_BPS, // 0.4% withdrawal fee
+          extraParams: {
+            targetStaticATokenWrapper: emptyIfUndefined(dUSDStaticATokenDeployment?.address, ""),
+            treasury: lendingDeployer,
+            maxTreasuryFeeBps: 5 * ONE_PERCENT_BPS, // 5%
+            initialTreasuryFeeBps: 1 * ONE_PERCENT_BPS, // 1%
+            initialExchangeThreshold: ethers.parseUnits("1", 6),
+          },
         },
       },
       depositors: {
-        uniswapV3: {
-          defaultDusdToUnderlyingSwapPath: {
-            tokenAddressesPath: [TOKEN_INFO.dUSD.address, TOKEN_INFO.sFRAX.address],
-            poolFeeSchemaPath: [FeeAmount.MEDIUM],
-          },
-          defaultUnderlyingToDusdSwapPath: {
-            tokenAddressesPath: [TOKEN_INFO.sFRAX.address, TOKEN_INFO.dUSD.address],
-            poolFeeSchemaPath: [FeeAmount.MEDIUM],
-          },
-        },
-        curve: {
-          swapRouter: CURVE_SWAP_ROUTER_ADDRESS,
-          defaultSwapParamsList: [
-            // dUSD -> sFRAX (and sFRAX -> dUSD)
-            {
-              inputToken: TOKEN_INFO.dUSD.address,
-              outputToken: TOKEN_INFO.sFRAX.address,
-              swapExtraParams: {
-                route: [
-                  TOKEN_INFO.dUSD.address,
-                  CURVE_POOLS.stableswapng.dUSD_FRAX.address,
-                  TOKEN_INFO.FRAX.address,
-                  CURVE_POOLS.stableswapng.FRAX_sFRAX.address,
-                  TOKEN_INFO.sFRAX.address,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                ],
-                swapParams: [
-                  [0, 1, 1, 2],
-                  [0, 1, 1, 2],
-                  [0, 0, 0, 0],
-                  [0, 0, 0, 0],
-                  [0, 0, 0, 0],
-                ],
-                swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
-              },
-              reverseSwapExtraParams: {
-                route: [
-                  TOKEN_INFO.sFRAX.address,
-                  CURVE_POOLS.stableswapng.FRAX_sFRAX.address,
-                  TOKEN_INFO.FRAX.address,
-                  CURVE_POOLS.stableswapng.dUSD_FRAX.address,
-                  TOKEN_INFO.dUSD.address,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                ],
-                swapParams: [
-                  [1, 0, 1, 2],
-                  [1, 0, 1, 2],
-                  [0, 0, 0, 0],
-                  [0, 0, 0, 0],
-                  [0, 0, 0, 0],
-                ],
-                swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
-              },
-            },
-          ],
-        },
         odos: {
           router: "0x56c85a254DD12eE8D9C04049a4ab62769Ce98210", // Dummy address
         },
       },
-      withdrawers: {
-        uniswapV3: {
-          defaultDusdToUnderlyingSwapPath: {
-            tokenAddressesPath: [TOKEN_INFO.dUSD.address, TOKEN_INFO.sFRAX.address],
-            poolFeeSchemaPath: [FeeAmount.MEDIUM],
-          },
-          defaultUnderlyingToDusdSwapPath: {
-            tokenAddressesPath: [TOKEN_INFO.sFRAX.address, TOKEN_INFO.dUSD.address],
-            poolFeeSchemaPath: [FeeAmount.MEDIUM],
-          },
+      redeemers: {
+        odos: {
+          router: "0x56c85a254DD12eE8D9C04049a4ab62769Ce98210", // Dummy address
         },
-        curve: {
-          swapRouter: CURVE_SWAP_ROUTER_ADDRESS,
-          defaultSwapParamsList: [
-            // dUSD -> sFRAX (and sFRAX -> dUSD)
-            {
-              inputToken: TOKEN_INFO.dUSD.address,
-              outputToken: TOKEN_INFO.sFRAX.address,
-              swapExtraParams: {
-                route: [
-                  TOKEN_INFO.dUSD.address,
-                  CURVE_POOLS.stableswapng.dUSD_FRAX.address,
-                  TOKEN_INFO.FRAX.address,
-                  CURVE_POOLS.stableswapng.FRAX_sFRAX.address,
-                  TOKEN_INFO.sFRAX.address,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                ],
-                swapParams: [
-                  [0, 1, 1, 2],
-                  [0, 1, 1, 2],
-                  [0, 0, 0, 0],
-                  [0, 0, 0, 0],
-                  [0, 0, 0, 0],
-                ],
-                swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
-              },
-              reverseSwapExtraParams: {
-                route: [
-                  TOKEN_INFO.sFRAX.address,
-                  CURVE_POOLS.stableswapng.FRAX_sFRAX.address,
-                  TOKEN_INFO.FRAX.address,
-                  CURVE_POOLS.stableswapng.dUSD_FRAX.address,
-                  TOKEN_INFO.dUSD.address,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                  ethers.ZeroAddress,
-                ],
-                swapParams: [
-                  [1, 0, 1, 2],
-                  [1, 0, 1, 2],
-                  [0, 0, 0, 0],
-                  [0, 0, 0, 0],
-                  [0, 0, 0, 0],
-                ],
-                swapSlippageBufferBps: 5 * 100 * ONE_BPS_UNIT, // 5% slippage buffer
-              },
-            },
-          ],
+      },
+      decreaseLeverage: {
+        odos: {
+          router: "0x56c85a254DD12eE8D9C04049a4ab62769Ce98210", // Dummy address
         },
+      },
+      increaseLeverage: {
         odos: {
           router: "0x56c85a254DD12eE8D9C04049a4ab62769Ce98210", // Dummy address
         },
