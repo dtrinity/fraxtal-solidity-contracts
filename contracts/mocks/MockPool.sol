@@ -7,6 +7,14 @@ contract MockPool {
     mapping(address => DataTypes.ReserveData) private reserves;
 
     function setReserveData(address asset, address aToken, address debtToken) external {
+        _setReserveData(asset, aToken, address(0), debtToken);
+    }
+
+    function setReserveData(address asset, address aToken, address stableDebtToken, address variableDebtToken) external {
+        _setReserveData(asset, aToken, stableDebtToken, variableDebtToken);
+    }
+
+    function _setReserveData(address asset, address aToken, address stableDebtToken, address variableDebtToken) internal {
         DataTypes.ReserveData memory newReserve = DataTypes.ReserveData({
             configuration: DataTypes.ReserveConfigurationMap(0),
             liquidityIndex: 1e27, // Initial liquidity index
@@ -17,8 +25,8 @@ contract MockPool {
             lastUpdateTimestamp: uint40(block.timestamp),
             id: 0,
             aTokenAddress: aToken,
-            stableDebtTokenAddress: address(0),
-            variableDebtTokenAddress: debtToken,
+            stableDebtTokenAddress: stableDebtToken,
+            variableDebtTokenAddress: variableDebtToken,
             interestRateStrategyAddress: address(0),
             accruedToTreasury: 0,
             unbacked: 0,

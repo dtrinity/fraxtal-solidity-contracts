@@ -15,13 +15,13 @@
 - [x] Step 02 complete — config types updated + network-agnostic config loader implemented + example configs added
 - [x] Step 03 complete — deploy scripts complete (core logic + quoter + periphery) and idempotent
 - [x] Step 04 complete — Tier A tests ported + passing
-- [ ] Step 05 complete (optional) — Tier B DLend integration tests ported + passing
+- [x] Step 05 complete (optional) — Tier B DLend integration tests ported + passing
 - [ ] Step 06 complete (optional) — CI green
 
 ### Current step
 
-- **In progress**: Step 04 (ready for review)
-- **Blocked on**: Review of Step 04
+- **In progress**: Step 05 (ready for review)
+- **Blocked on**: Review of Step 05
 
 ### Session log
 
@@ -82,3 +82,12 @@
     - `./node_modules/.bin/hardhat test test/dloop/**/*.ts`
   - Notes / follow-ups:
     - Awaiting review before starting Step 05.
+- 2025-12-26: Step 05
+  - What changed:
+    - Added DLoopCoreDLend harness and dLend testing mocks (price oracle, addresses provider, rewards controller).
+    - Extended `MockPool` to support stable + variable debt token reserve data for DLend tests.
+    - Ported DLoopCoreDLend mock integration tests (`simple-test`, `getTotalCollateralAndDebtOfUserInBase`, `reward-compound`).
+  - Commands run:
+    - `./node_modules/.bin/eslint test/dloop/DLoopCoreDLend`
+  - Notes / follow-ups:
+    - Full-stack DLend full-flow test not ported; would require local dLOOP core vault config + stack deploy.
