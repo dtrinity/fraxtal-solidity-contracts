@@ -16,12 +16,12 @@
 - [x] Step 03 complete — deploy scripts complete (core logic + quoter + periphery) and idempotent
 - [x] Step 04 complete — Tier A tests ported + passing
 - [x] Step 05 complete (optional) — Tier B DLend integration tests ported + passing
-- [ ] Step 06 complete (optional) — CI green
+- [x] Step 06 complete (optional) — CI green
 
 ### Current step
 
-- **In progress**: Step 05 (ready for review)
-- **Blocked on**: Review of Step 05
+- **In progress**: Step 06 (ready for review)
+- **Blocked on**: Review of Step 06
 
 ### Session log
 
@@ -91,3 +91,11 @@
     - `./node_modules/.bin/eslint test/dloop/DLoopCoreDLend`
   - Notes / follow-ups:
     - Full-stack DLend full-flow test not ported; would require local dLOOP core vault config + stack deploy.
+- 2025-12-26: Step 06
+  - What changed:
+    - Added a dedicated dLOOP test job to the shared guardrails workflow.
+    - Extended the guardrails summary to report dLOOP test status.
+  - Commands run:
+    - `./node_modules/.bin/eslint .`
+  - Notes / follow-ups:
+    - Awaiting review before concluding migration steps.

@@ -157,9 +157,42 @@ jobs:
             echo "::warning::No tests configured; skipping."
           fi
 
+  dloop-tests:
+    name: Run dLOOP Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          set -eo pipefail
+          if [ -f yarn.lock ]; then
+            corepack enable
+            yarn install --frozen-lockfile --silent
+          elif [ -f pnpm-lock.yaml ]; then
+            corepack enable
+            pnpm install --frozen-lockfile
+          else
+            npm ci
+          fi
+
+      - name: Execute dLOOP tests
+        run: |
+          set -eo pipefail
+          if [ -x "node_modules/.bin/hardhat" ]; then
+            node_modules/.bin/hardhat test test/dloop
+          else
+            echo "::warning::Hardhat not installed; skipping dLOOP tests."
+          fi
+
   guardrails-summary:
     name: Guardrails Summary
-    needs: [lint, compile, test]
+    needs: [lint, compile, test, dloop-tests]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -184,5 +217,11 @@ jobs:
               echo "✅ Tests passed"
             else
               echo "❌ Tests failed"
+            fi
+
+            if [ "${{ needs.dloop-tests.result }}" = "success" ]; then
+              echo "✅ dLOOP tests passed"
+            else
+              echo "❌ dLOOP tests failed"
             fi
           } >> $GITHUB_STEP_SUMMARY
