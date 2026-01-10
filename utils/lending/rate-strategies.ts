@@ -12,7 +12,7 @@ export const rateStrategyDUSD: IInterestRateStrategyParams = {
   name: "rateStrategyDUSD",
   optimalUsageRatio: ethers.parseUnits("0.8", 27).toString(),
   baseVariableBorrowRate: ethers.parseUnits("0.05", 27).toString(),
-  variableRateSlope1: ethers.parseUnits("0.05", 27).toString(),
+  variableRateSlope1: ethers.parseUnits("0.025", 27).toString(),
   variableRateSlope2: ethers.parseUnits("0.2", 27).toString(),
   stableRateSlope1: ethers.parseUnits("0", 27).toString(),
   stableRateSlope2: ethers.parseUnits("0", 27).toString(),
