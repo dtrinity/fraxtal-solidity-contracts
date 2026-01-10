@@ -70,10 +70,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const setStrategyTx = (): SafeTransactionData => ({
     to: configuratorDeployment.address,
     value: "0",
-    data: configurator.interface.encodeFunctionData("setReserveInterestRateStrategyAddress", [
-      dusdAddress,
-      newStrategyAddress,
-    ]),
+    data: configurator.interface.encodeFunctionData("setReserveInterestRateStrategyAddress", [dusdAddress, newStrategyAddress]),
   });
 
   const updateComplete = await executor.tryOrQueue(async () => {
