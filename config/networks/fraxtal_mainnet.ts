@@ -250,10 +250,48 @@ export async function getConfig(_hre: HardhatRuntimeEnvironment): Promise<Config
     },
     dLoop: {
       dUSDAddress: TOKEN_INFO.dUSD.address,
-      // TODO: will add later
-      coreVaults: {},
-      depositors: {},
-      withdrawers: {},
+      coreVaults: {
+        "3x_sfrxUSD_dUSD": {
+          venue: "dlend",
+          name: "dLOOP 3X sfrxUSD dLEND",
+          symbol: "3X-sfrxUSD",
+          underlyingAsset: TOKEN_INFO.sfrxUSD.address,
+          dStable: TOKEN_INFO.dUSD.address,
+          targetLeverageBps: 300 * ONE_PERCENT_BPS, // 300% leverage, meaning 3x leverage
+          lowerBoundTargetLeverageBps: 200 * ONE_PERCENT_BPS, // 200% leverage, meaning 2x leverage
+          upperBoundTargetLeverageBps: 400 * ONE_PERCENT_BPS, // 400% leverage, meaning 4x leverage
+          maxSubsidyBps: 2 * ONE_PERCENT_BPS, // 2% subsidy
+          minDeviationBps: 2 * ONE_PERCENT_BPS, // 2% deviation
+          withdrawalFeeBps: 0.4 * ONE_PERCENT_BPS, // 0.4% withdrawal fee
+          extraParams: {
+            targetStaticATokenWrapper: dUSDStaticATokenDeployment?.address,
+            treasury: "0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9", // governance multisig
+            maxTreasuryFeeBps: ONE_PERCENT_BPS / 10, // 0.1%
+            initialTreasuryFeeBps: ONE_PERCENT_BPS / 20, // 0.05%
+            initialExchangeThreshold: ethers.parseUnits("10", 6), // 10 dUSD (6 decimals)
+          },
+        },
+      },
+      depositors: {
+        odos: {
+          router: "0x56c85a254DD12eE8D9C04049a4ab62769Ce98210",
+        },
+      },
+      redeemers: {
+        odos: {
+          router: "0x56c85a254DD12eE8D9C04049a4ab62769Ce98210",
+        },
+      },
+      decreaseLeverage: {
+        odos: {
+          router: "0x56c85a254DD12eE8D9C04049a4ab62769Ce98210",
+        },
+      },
+      increaseLeverage: {
+        odos: {
+          router: "0x56c85a254DD12eE8D9C04049a4ab62769Ce98210",
+        },
+      },
     },
     oracleAggregator: {
       hardDusdPeg: 10 ** AAVE_ORACLE_USD_DECIMALS,

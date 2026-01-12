@@ -9,7 +9,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { dloopDeployer } = await hre.getNamedAccounts();
 
   if (!dloopDeployer) {
-    throw new Error("DLoopDeployer is not set in the named accounts");
+    throw new Error("dloopDeployer is not set in the named accounts");
   }
 
   const chainId = await hre.getChainId();

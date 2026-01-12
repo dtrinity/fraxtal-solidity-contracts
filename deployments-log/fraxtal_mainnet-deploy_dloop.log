@@ -1,0 +1,71 @@
+WARNING: You are currently using Node.js v24.2.0, which is not supported by Hardhat. This can lead to unexpected behavior. See https://hardhat.org/nodejs-versions
+
+
+Nothing to compile
+No need to generate any newer typings.
+Deploying DLoopCoreLogic on network fraxtal_mainnet (chainId: 252)
+-----------------
+Deploying 'DLoopCoreLogic' contract
+  - Address : 0x73cEE697C22Baba5fC111a7a87A1f140CD41ece9
+  - From    : 0xA08C2442B14B1C4363e874F81Fa804671A0Ef0De
+  - TxHash  : 0x9d9b4157f56e79903705cc386e3863633528b2716f7e1400134b196afd516054
+  - GasUsed : 374445
+-----------------
+Deploying dLOOP core vaults on network fraxtal_mainnet (chainId: 252)
+Deploying dLOOP core vault: 3x_sfrxUSD_dUSD
+-----------------
+Deploying 'DLoopCoreDLend-3X-sfrxUSD' contract
+  - Address : 0x057cb8E1f7eE111199796E1e760e7476E8984515
+  - From    : 0xA08C2442B14B1C4363e874F81Fa804671A0Ef0De
+  - TxHash  : 0xa5bc7c6bdb9f8730ea8918c74542c75c2bfd19a7856797f8397f9a0b2facdb70
+  - GasUsed : 5393722
+-----------------
+All dLOOP core vaults deployed successfully
+Deploying DLoopQuoter on network fraxtal_mainnet (chainId: 252)
+-----------------
+Deploying 'DLoopQuoter' contract
+  - Address : 0x553993B45B78d337F36A00692e39c7fE32aa9357
+  - From    : 0xA08C2442B14B1C4363e874F81Fa804671A0Ef0De
+  - TxHash  : 0x3095c89dbd49f49f37aed809ed08397c94add8b21b8fc997abcbcb5ca390ca80
+  - GasUsed : 427825
+-----------------
+UniswapV3 depositor not defined for network fraxtal_mainnet. Skipping.
+UniswapV3 withdrawer not defined for network fraxtal_mainnet. Skipping.
+Curve depositor not defined for network fraxtal_mainnet. Skipping.
+Curve withdrawer not defined for network fraxtal_mainnet. Skipping.
+Deploying DLoopDepositorOdos...
+-----------------
+Deploying 'DLoopDepositorOdos' contract
+  - Address : 0x29fa9FEBd6AD0d3160849871f83e6Ae2363B8044
+  - From    : 0xA08C2442B14B1C4363e874F81Fa804671A0Ef0De
+  - TxHash  : 0x87570b5e94eedbd5f20c5c27e37aef3072aadf9ffa430823d41b8f30677952e2
+  - GasUsed : 2220327
+-----------------
+DLoopDepositorOdos deployed successfully
+Deploying DLoopRedeemerOdos...
+-----------------
+Deploying 'DLoopRedeemerOdos' contract
+  - Address : 0x9aaB28fc96A61f97F3FAf1F22418B1df93c4394f
+  - From    : 0xA08C2442B14B1C4363e874F81Fa804671A0Ef0De
+  - TxHash  : 0x2d5eb7e61f0e2d59273fc10fb0edb1e2db6308ed8fa69319f3499fe37e1632e6
+  - GasUsed : 2439846
+-----------------
+DLoopRedeemerOdos deployed successfully
+Deploying DLoopDecreaseLeverageOdos...
+-----------------
+Deploying 'DLoopDecreaseLeverageOdos' contract
+  - Address : 0x3142be9F9595d50D78eD262Cf040773DE8598777
+  - From    : 0xA08C2442B14B1C4363e874F81Fa804671A0Ef0De
+  - TxHash  : 0x34972c469b20df0014625cd8660b4beb1f7c347bb6bf2a05e87a2818ad2bdceb
+  - GasUsed : 2059455
+-----------------
+DLoopDecreaseLeverageOdos deployed successfully
+Deploying DLoopIncreaseLeverageOdos...
+-----------------
+Deploying 'DLoopIncreaseLeverageOdos' contract
+  - Address : 0x49fD349FC819dD3bFcdf09c52024349EFDc22918
+  - From    : 0xA08C2442B14B1C4363e874F81Fa804671A0Ef0De
+  - TxHash  : 0xcdeee2d2376be6ea4a6feb4509c41a03fc965d640c9ff8d18305a2cc45baba62
+  - GasUsed : 2136875
+-----------------
+DLoopIncreaseLeverageOdos deployed successfully

@@ -254,7 +254,7 @@ export function getDefaultNamedAccounts(): {
       hardhat: 0,
       localhost: 0,
       fraxtal_testnet: 0,
-      fraxtal_mainnet: 0,
+      fraxtal_mainnet: 3,
       local_ethereum: 0,
     },
     /* eslint-enable camelcase -- Use camelcase for network config */

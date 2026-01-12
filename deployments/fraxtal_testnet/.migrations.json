@@ -54,18 +54,6 @@
   "AddFXB20291231Reserve:dTrinity-Lend:lending-core@0.0.0": 1739437600,
   "FlashMintLiquidatorAaveBorrowRepayCurve": 1739442775,
   "FlashLoanLiquidatorAaveBorrowRepayCurve": 1739442788,
-  "UniswapV3SwapLogic": 1744569597,
-  "OdosSwapLogic": 1744569620,
-  "CurveSwapLogic": 1744570496,
-  "dloop-depositors": 1744570524,
-  "dloop-withdrawers": 1744570561,
-  "DLoopCoreDLend": 1744571926,
-  "DLoopDepositorUniswapV3": 1744571928,
-  "DLoopWithdrawerUniswapV3": 1744571930,
-  "DLoopDepositorCurve": 1744571934,
-  "DLoopWithdrawerCurve": 1744571937,
-  "DLoopDepositorOdos": 1744571940,
-  "DLoopWithdrawerOdos": 1744571943,
   "CurveHelper": 1753197704,
   "deploy_dstable_tokens": 1753197704,
   "ReservesInit:dTrinity-Lend:lending-core@0.0.0:v2": 1753198023,
@@ -75,5 +63,6 @@
   "OdosAdapters:dTrinity-Lend:lending-periphery@0.0.0": 1753198579,
   "NewWrappedTokenGateway": 1753198590,
   "verify_redeemer_with_fees": 1753198656,
-  "configure_redeemer_fees": 1753198715
+  "configure_redeemer_fees": 1753198715,
+  "DLoopCoreLogic": 1768250497
 }

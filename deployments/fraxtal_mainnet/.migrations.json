@@ -64,5 +64,12 @@
   "22_1_setup_issuerv2": 1764220578,
   "22_2_setup_redeemerv2": 1764220704,
   "dUSD:IssuerV2_2": 1764220710,
-  "dUSD:AmoManagerV2": 1764297951
+  "dUSD:AmoManagerV2": 1764297951,
+  "DLoopCoreLogic": 1768251881,
+  "DLoopCoreDLend": 1768251890,
+  "DLoopQuoter": 1768251898,
+  "DLoopDepositorOdos": 1768251906,
+  "DLoopRedeemerOdos": 1768251912,
+  "DLoopDecreaseLeverageOdos": 1768251919,
+  "DLoopIncreaseLeverageOdos": 1768251925
 }

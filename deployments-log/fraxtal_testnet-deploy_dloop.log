@@ -1,0 +1,42 @@
+WARNING: You are currently using Node.js v24.2.0, which is not supported by Hardhat. This can lead to unexpected behavior. See https://hardhat.org/nodejs-versions
+
+
+MNEMONIC_FRAXTAL_MAINNET_DEPLOYER is not set in the .env file
+MNEMONIC_FRAXTAL_MAINNET_DEX_POOL_ADDER is not set in the .env file
+MNEMONIC_FRAXTAL_MAINNET_LENDING_REWARDS_VAULT is not set in the .env file
+Nothing to compile
+No need to generate any newer typings.
+Deploying DLoopCoreLogic on network fraxtal_testnet (chainId: 2523)
+-----------------
+Deploying 'DLoopCoreLogic' contract
+  - Address : 0x9f2013831e371587a8E39f2A43DF774af2178e35
+  - From    : 0xd2f775Ff2cD41bfe43C7A8c016eD10393553fe44
+  - TxHash  : 0xe8bb7bd5408a0a8a80454e5bc9f4417e135633cf0bac01401cac5cf06a3d7fc3
+  - GasUsed : 374445
+-----------------
+Deploying dLOOP core vaults on network fraxtal_testnet (chainId: 2523)
+Deploying dLOOP core vault: 3x_sFRAX_DUSD
+An unexpected error occurred:
+
+Error: ERROR processing /Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/deploy/19_dloop/00_core/00_dlend.ts:
+Error: could not decode result data (value="0x", info={ "method": "getReserveTokensAddresses", "signature": "getReserveTokensAddresses(address)" }, code=BAD_DATA, version=6.11.1)
+    at makeError (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/ethers/src.ts/utils/errors.ts:694:21)
+    at assert (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/ethers/src.ts/utils/errors.ts:715:25)
+    at Interface.decodeFunctionResult (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/ethers/src.ts/abi/interface.ts:916:15)
+    at staticCallResult (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/ethers/src.ts/contract/contract.ts:346:35)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async staticCall (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/ethers/src.ts/contract/contract.ts:303:24)
+    at async Proxy.getReserveTokensAddresses (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/ethers/src.ts/contract/contract.ts:351:41)
+    at async deployDLoopCoreDLend (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/deploy/19_dloop/00_core/00_dlend.ts:44:25)
+    at async Object.func (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/deploy/19_dloop/00_core/00_dlend.ts:146:9)
+    at async DeploymentsManager.executeDeployScripts (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/hardhat-deploy/src/DeploymentsManager.ts:1212:22)
+    at DeploymentsManager.executeDeployScripts (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/hardhat-deploy/src/DeploymentsManager.ts:1215:19)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async DeploymentsManager.runDeploy (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/hardhat-deploy/src/DeploymentsManager.ts:1061:5)
+    at async SimpleTaskDefinition.action (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/hardhat-deploy/src/index.ts:450:5)
+    at async Environment._runTaskDefinition (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/hardhat/src/internal/core/runtime-environment.ts:359:14)
+    at async Environment.run (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/hardhat/src/internal/core/runtime-environment.ts:192:14)
+    at async SimpleTaskDefinition.action (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/hardhat-deploy/src/index.ts:601:32)
+    at async Environment._runTaskDefinition (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/hardhat/src/internal/core/runtime-environment.ts:359:14)
+    at async Environment.run (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/hardhat/src/internal/core/runtime-environment.ts:192:14)
+    at async SimpleTaskDefinition.action (/Users/dinosaurchi/Desktop/Project/dtrinity/fraxtal-solidity-contracts/node_modules/hardhat-deploy/src/index.ts:690:5)
