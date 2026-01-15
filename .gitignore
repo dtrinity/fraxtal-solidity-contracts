@@ -64,3 +64,4 @@ contract-addresses_*.md
 liquidator-bot-image/*
 # Exclude materials directory
 !liquidator-bot-image/materials
+.verify-args/
