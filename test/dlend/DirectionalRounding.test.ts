@@ -6,9 +6,10 @@ describe("dLEND directional rounding", function () {
   const WAD = 10n ** 18n;
   const LIVE_DUSD_LIQUIDITY_INDEX = 1092999621896032150128470224n;
   const LIVE_DUSD_VARIABLE_BORROW_INDEX = 1124411779241122369413420458n;
+  const rayDivCeil = (amount: bigint, index: bigint) => (amount === 0n ? 0n : (amount * RAY + index - 1n) / index);
 
   async function deployHarnesses() {
-    const [deployer, treasury, user] = await ethers.getSigners();
+    const [deployer, treasury, user, recipient] = await ethers.getSigners();
 
     const providerFactory = await ethers.getContractFactory("RoundingPoolAddressesProviderMock");
     const provider = await providerFactory.deploy();
@@ -51,7 +52,7 @@ describe("dLEND directional rounding", function () {
       "0x",
     );
 
-    return { pool, underlying, aToken, variableDebtToken, deployer, user };
+    return { pool, underlying, aToken, variableDebtToken, deployer, user, recipient };
   }
 
   async function deployATokenLoopHarnesses() {
@@ -200,6 +201,28 @@ describe("dLEND directional rounding", function () {
 
     expect(await aToken.scaledBalanceOf(user.address)).to.equal(0n);
     expect(await aToken.balanceOf(user.address)).to.equal(0n);
+  });
+
+  it("ceils transfer scaling and emits BalanceTransfer with the moved scaled amount", async function () {
+    const { pool, underlying, aToken, deployer, user, recipient } = await deployHarnesses();
+    const index = 2n * RAY + 1n;
+    const supplyAmount = 8n * WAD;
+    const transferAmount = 7n * WAD - 5n;
+    const expectedScaledTransfer = rayDivCeil(transferAmount, index);
+
+    await pool.setReserveNormalizedIncome(await underlying.getAddress(), index);
+    await aToken.harnessMint(deployer.address, user.address, supplyAmount, index);
+
+    const transferTx = await aToken.connect(user).transfer(recipient.address, transferAmount);
+    await expect(transferTx).to.emit(aToken, "Transfer").withArgs(user.address, recipient.address, transferAmount);
+    await expect(transferTx)
+      .to.emit(aToken, "BalanceTransfer")
+      .withArgs(user.address, recipient.address, expectedScaledTransfer, index);
+
+    expect(await aToken.scaledBalanceOf(user.address)).to.equal(500000000000000001n);
+    expect(await aToken.scaledBalanceOf(recipient.address)).to.equal(expectedScaledTransfer);
+    expect(await aToken.balanceOf(user.address)).to.equal(1000000000000000002n);
+    expect(await aToken.balanceOf(recipient.address)).to.equal(6999999999999999996n);
   });
 
   it("matches the upstream ceil semantics for variable debt mint and burn", async function () {
