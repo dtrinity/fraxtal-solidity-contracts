@@ -54,6 +54,104 @@ describe("dLEND directional rounding", function () {
     return { pool, underlying, aToken, variableDebtToken, deployer, user };
   }
 
+  async function deployATokenLoopHarnesses() {
+    const [, treasury, user] = await ethers.getSigners();
+
+    const providerFactory = await ethers.getContractFactory("RoundingPoolAddressesProviderMock");
+    const provider = await providerFactory.deploy();
+    await provider.waitForDeployment();
+
+    const poolFactory = await ethers.getContractFactory("RoundingPoolMock");
+    const pool = await poolFactory.deploy(await provider.getAddress());
+    await pool.waitForDeployment();
+
+    const underlyingFactory = await ethers.getContractFactory(
+      "contracts/lending/core/mocks/tokens/MintableERC20.sol:MintableERC20",
+    );
+
+    const fixedUnderlying = await underlyingFactory.deploy("Fixed Underlying", "FIX", 6);
+    await fixedUnderlying.waitForDeployment();
+
+    const legacyUnderlying = await underlyingFactory.deploy("Legacy Underlying", "LEG", 6);
+    await legacyUnderlying.waitForDeployment();
+
+    const fixedFactory = await ethers.getContractFactory("ATokenHarness");
+    const fixedAToken = await fixedFactory.deploy(await pool.getAddress());
+    await fixedAToken.waitForDeployment();
+    await fixedAToken.initialize(
+      await pool.getAddress(),
+      treasury.address,
+      await fixedUnderlying.getAddress(),
+      ethers.ZeroAddress,
+      6,
+      "Fixed AToken",
+      "faFIX",
+      "0x",
+    );
+
+    const legacyFactory = await ethers.getContractFactory("LegacyATokenHarness");
+    const legacyAToken = await legacyFactory.deploy(await pool.getAddress());
+    await legacyAToken.waitForDeployment();
+    await legacyAToken.initialize(
+      await pool.getAddress(),
+      treasury.address,
+      await legacyUnderlying.getAddress(),
+      ethers.ZeroAddress,
+      6,
+      "Legacy AToken",
+      "laLEG",
+      "0x",
+    );
+
+    await pool.setReserveNormalizedIncome(await fixedUnderlying.getAddress(), LIVE_DUSD_LIQUIDITY_INDEX);
+    await pool.setReserveNormalizedIncome(await legacyUnderlying.getAddress(), LIVE_DUSD_LIQUIDITY_INDEX);
+
+    return { pool, user, fixedUnderlying, legacyUnderlying, fixedAToken, legacyAToken };
+  }
+
+  async function runSupplyWithdrawLoop(args: {
+    underlying: any;
+    token: any;
+    user: any;
+    depositAmount: bigint;
+    loopCount: number;
+    legacy: boolean;
+  }) {
+    const { underlying, token, user, depositAmount, loopCount, legacy } = args;
+    let totalProfit = 0n;
+
+    await underlying["mint(address,uint256)"](await token.getAddress(), 1000n);
+
+    for (let i = 0; i < loopCount; i++) {
+      const before = await underlying.balanceOf(user.address);
+
+      await underlying["mint(address,uint256)"](user.address, depositAmount);
+      await underlying.connect(user).transfer(await token.getAddress(), depositAmount);
+
+      if (legacy) {
+        await token.legacyMint(user.address, user.address, depositAmount, LIVE_DUSD_LIQUIDITY_INDEX);
+        expect(await token.scaledBalanceOf(user.address)).to.equal(27n);
+        const claimAmount = await token.legacyBalanceOf(user.address);
+        expect(claimAmount).to.equal(30n);
+        await token.legacyWithdraw(user.address, user.address, claimAmount, LIVE_DUSD_LIQUIDITY_INDEX);
+      } else {
+        await token.harnessMint(user.address, user.address, depositAmount, LIVE_DUSD_LIQUIDITY_INDEX);
+        expect(await token.scaledBalanceOf(user.address)).to.equal(26n);
+        const claimAmount = await token.balanceOf(user.address);
+        expect(claimAmount).to.equal(28n);
+        await token.harnessWithdraw(user.address, user.address, claimAmount, LIVE_DUSD_LIQUIDITY_INDEX);
+      }
+
+      const after = await underlying.balanceOf(user.address);
+      totalProfit += after - before - depositAmount;
+
+      expect(await token.scaledBalanceOf(user.address)).to.equal(0n);
+      expect(await token.balanceOf(user.address)).to.equal(0n);
+    }
+
+    return totalProfit;
+  }
+
   it("floors aToken balances at the live dUSD liquidity index", async function () {
     const { pool, underlying, aToken, deployer, user } = await deployHarnesses();
     const rawAmount = 29n;
@@ -120,5 +218,32 @@ describe("dLEND directional rounding", function () {
 
     expect(await variableDebtToken.scaledBalanceOf(user.address)).to.equal(0n);
     expect(await variableDebtToken.balanceOf(user.address)).to.equal(0n);
+  });
+
+  it("reproduces the legacy supply-withdraw extraction loop and shows the fix makes it non-profitable", async function () {
+    const { user, fixedUnderlying, legacyUnderlying, fixedAToken, legacyAToken } = await deployATokenLoopHarnesses();
+    const depositAmount = 29n;
+    const loopCount = 10;
+
+    const legacyProfit = await runSupplyWithdrawLoop({
+      underlying: legacyUnderlying,
+      token: legacyAToken,
+      user,
+      depositAmount,
+      loopCount,
+      legacy: true,
+    });
+
+    const fixedProfit = await runSupplyWithdrawLoop({
+      underlying: fixedUnderlying,
+      token: fixedAToken,
+      user,
+      depositAmount,
+      loopCount,
+      legacy: false,
+    });
+
+    expect(legacyProfit).to.equal(10n);
+    expect(fixedProfit).to.be.at.most(0n);
   });
 });
