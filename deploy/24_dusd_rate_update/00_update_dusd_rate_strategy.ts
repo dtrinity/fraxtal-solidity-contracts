@@ -24,7 +24,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     return false;
   }
 
-  const reserveConfig = config.lending.reservesConfig.dUSD;
+  const reserveConfig = config.lending.reservesConfig.dUSD ?? config.lending.reservesConfig.DUSD;
+
+  if (!reserveConfig?.strategy) {
+    console.warn("[WARNING] dUSD reserve config not found; skipping rate strategy update.");
+    return true;
+  }
+
   const desiredStrategy = reserveConfig.strategy;
   const addressProviderDeployment = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
   const addressProvider = await hre.ethers.getContractAt("PoolAddressesProvider", addressProviderDeployment.address, deployer);
