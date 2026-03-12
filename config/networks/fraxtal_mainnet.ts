@@ -12,6 +12,7 @@ import {
 import { AAVE_ORACLE_USD_DECIMALS, ONE_PERCENT_BPS } from "../../utils/constants";
 import {
   rateStrategyDUSD,
+  rateStrategyDUSDFraxtalMainnetV2,
   rateStrategyHighLiquidityStable,
   rateStrategyHighLiquidityVolatile,
   rateStrategyMediumLiquidityStable,
@@ -116,6 +117,12 @@ export const TOKEN_INFO = {
   },
 };
 
+const strategyDUSDFraxtalMainnet = {
+  ...strategyDUSD,
+  reserveFactor: "0",
+  strategy: rateStrategyDUSDFraxtalMainnetV2,
+};
+
 /**
  * Get the configuration for the network
  *
@@ -209,7 +216,7 @@ export async function getConfig(_hre: HardhatRuntimeEnvironment): Promise<Config
       },
       reservesConfig: {
         // The symbol keys here must match those in TOKEN_INFO above
-        dUSD: strategyDUSD,
+        dUSD: strategyDUSDFraxtalMainnet,
         wfrxETH: strategyWETH,
         sfrxETH: strategyETHLST,
         sfrxUSD: strategyYieldBearingStablecoin,
@@ -230,6 +237,7 @@ export async function getConfig(_hre: HardhatRuntimeEnvironment): Promise<Config
         rateStrategyHighLiquidityStable,
         rateStrategyMediumLiquidityStable,
         rateStrategyDUSD,
+        rateStrategyDUSDFraxtalMainnetV2,
       ],
       // ref: https://docs.redstone.finance/docs/smart-contract-devs/price-feeds
       chainlinkEthUsdAggregatorProxy: "0x89e60b56efD70a1D4FBBaE947bC33cae41e37A72", // Redstone
