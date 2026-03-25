@@ -233,17 +233,21 @@ library FlashLoanLogic {
         DataTypes.ReserveData storage reserve,
         DataTypes.FlashLoanRepaymentParams memory params
     ) internal {
-        uint256 premiumToProtocol = params.totalPremium.percentMul(params.flashLoanPremiumToProtocol);
-        uint256 premiumToLP = params.totalPremium - premiumToProtocol;
+        // Route the full flash-loan premium to the protocol treasury.
+        //
+        // Rationale: attributing any part of the premium to suppliers via
+        // `cumulateToLiquidityIndex()` makes the reserve-wide liquidity index
+        // sensitive to a thin aToken supply, which is the core condition behind
+        // empty / near-empty reserve index inflation exploits.
+        //
+        // This keeps the total premium paid by the borrower unchanged, while
+        // removing the supplier-side instantaneous index jump that made the
+        // exploit possible.
+        uint256 premiumToProtocol = params.totalPremium;
         uint256 amountPlusPremium = params.amount + params.totalPremium;
 
         DataTypes.ReserveCache memory reserveCache = reserve.cache();
         reserve.updateState(reserveCache);
-        reserveCache.nextLiquidityIndex = reserve.cumulateToLiquidityIndex(
-            IERC20(reserveCache.aTokenAddress).totalSupply() +
-                uint256(reserve.accruedToTreasury).rayMul(reserveCache.nextLiquidityIndex),
-            premiumToLP
-        );
 
         reserve.accruedToTreasury += premiumToProtocol.rayDiv(reserveCache.nextLiquidityIndex).toUint128();
 
