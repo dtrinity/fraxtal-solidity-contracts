@@ -84,6 +84,9 @@ const config: HardhatUserConfig = {
   sourcify: {
     enabled: true,
   },
+  mocha: {
+    timeout: 120_000, // 2 min per test for deployment-heavy suites on CI
+  },
 };
 
 export default config;

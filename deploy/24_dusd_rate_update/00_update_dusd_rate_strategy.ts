@@ -10,9 +10,26 @@ import { getReserveConfigurationData } from "../../utils/lending/reserve";
 import { getReserveTokenAddresses } from "../../utils/lending/token";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  // This update is only for Fraxtal mainnet; skip on other networks (e.g. hardhat test fixtures, CI)
+  if (hre.network.name !== "fraxtal_mainnet") {
+    return true;
+  }
+
   const { lendingDeployer } = await hre.getNamedAccounts();
   const deployer = await hre.ethers.getSigner(lendingDeployer);
   const config = await getConfig(hre);
+  const reserveConfig = config.lending?.reservesConfig?.dUSD ?? config.lending?.reservesConfig?.DUSD;
+
+  if (!reserveConfig?.strategy) {
+    console.warn("[WARNING] dUSD reserve config not found; skipping rate strategy update.");
+    return true;
+  }
+
+  if (!config.safeConfig) {
+    console.warn("[WARNING] safeConfig not set; skipping dUSD rate strategy update (e.g. CI/fixture).");
+    return true;
+  }
+
   const executor = new GovernanceExecutor(hre, deployer, config.safeConfig);
   await executor.initialize();
 
@@ -22,13 +39,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   if (!dusdAddress) {
     console.warn("[WARNING] dUSD reserve address not found; skipping rate strategy update.");
     return false;
-  }
-
-  const reserveConfig = config.lending.reservesConfig.dUSD ?? config.lending.reservesConfig.DUSD;
-
-  if (!reserveConfig?.strategy) {
-    console.warn("[WARNING] dUSD reserve config not found; skipping rate strategy update.");
-    return true;
   }
 
   const desiredStrategy = reserveConfig.strategy;
