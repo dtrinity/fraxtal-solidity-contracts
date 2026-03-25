@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 import { getConfig } from "../../config/config";
+import { BORROW_LOGIC_ID, CALLDATA_LOGIC_ID } from "../../typescript/deploy-ids";
 import { GovernanceExecutor } from "../../typescript/hardhat/governance";
 import { POOL_ADDRESSES_PROVIDER_ID } from "../../utils/lending/deploy-ids";
 import { SECURITY_UPGRADE_FLASH_LOAN_LOGIC_ID, SECURITY_UPGRADE_L2_POOL_IMPL_ID } from "../../utils/lending/security-upgrade-ids";
@@ -39,9 +40,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment): Pr
     return true;
   }
 
-  const borrowLogic = await hre.deployments.get("BorrowLogic");
+  const borrowLogic = await hre.deployments.get(BORROW_LOGIC_ID);
   const commonLibraries = await getPoolLibraries(hre);
-  const calldataLogic = await hre.deployments.get("CalldataLogic");
+  const calldataLogic = await hre.deployments.get(CALLDATA_LOGIC_ID);
 
   const flashLoanLogicDeployment = await hre.deployments.deploy(SECURITY_UPGRADE_FLASH_LOAN_LOGIC_ID, {
     from: deployer.address,
