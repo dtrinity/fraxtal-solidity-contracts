@@ -18,20 +18,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment): Pr
     skipIfAlreadyDeployed: true,
   });
 
-  const helper = await hre.ethers.getContractAt(
-    "AtomicMarketListingHelper",
-    deployment.address,
-    deployer,
-  );
+  const helper = await hre.ethers.getContractAt("AtomicMarketListingHelper", deployment.address, deployer);
 
-  const desiredOwner =
-    config.safeConfig?.safeAddress ?? config.walletAddresses.governanceMultisig;
+  const desiredOwner = config.safeConfig?.safeAddress ?? config.walletAddresses.governanceMultisig;
 
   if (!desiredOwner) {
     return true;
   }
 
   const currentOwner = await helper.owner();
+
   if (currentOwner.toLowerCase() === desiredOwner.toLowerCase()) {
     return true;
   }

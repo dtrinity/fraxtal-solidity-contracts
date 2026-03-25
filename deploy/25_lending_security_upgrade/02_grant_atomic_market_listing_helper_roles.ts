@@ -13,30 +13,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment): Pr
   const config = await getConfig(hre);
 
   const helperDeployment = await hre.deployments.get(ATOMIC_MARKET_LISTING_HELPER_ID);
-  const addressesProviderDeployment = await hre.deployments.get(
-    POOL_ADDRESSES_PROVIDER_ID,
-  );
+  const addressesProviderDeployment = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
 
-  const addressesProvider = await hre.ethers.getContractAt(
-    "PoolAddressesProvider",
-    addressesProviderDeployment.address,
-    deployer,
-  );
+  const addressesProvider = await hre.ethers.getContractAt("PoolAddressesProvider", addressesProviderDeployment.address, deployer);
   const aclManagerAddress = await addressesProvider.getACLManager();
-  const aclManager = await hre.ethers.getContractAt(
-    "ACLManager",
-    aclManagerAddress,
-    deployer,
-  );
+  const aclManager = await hre.ethers.getContractAt("ACLManager", aclManagerAddress, deployer);
 
   const helperAddress = helperDeployment.address;
   const hasAssetListingAdmin = await aclManager.isAssetListingAdmin(helperAddress);
   const hasRiskAdmin = await aclManager.isRiskAdmin(helperAddress);
 
   if (hasAssetListingAdmin && hasRiskAdmin) {
-    console.log(
-      `AtomicMarketListingHelper already has ASSET_LISTING_ADMIN and RISK_ADMIN on ${aclManagerAddress}.`,
-    );
+    console.log(`AtomicMarketListingHelper already has ASSET_LISTING_ADMIN and RISK_ADMIN on ${aclManagerAddress}.`);
     return true;
   }
 
@@ -74,9 +62,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment): Pr
   }
 
   if (pendingGovernance) {
-    await executor.flush(
-      "Fraxtal lending security upgrade: grant AtomicMarketListingHelper ACL roles",
-    );
+    await executor.flush("Fraxtal lending security upgrade: grant AtomicMarketListingHelper ACL roles");
     console.log("\n⏳ AtomicMarketListingHelper role grants queued for governance signatures.");
     console.log("   Re-run the script after the Safe batch is executed to finalize.");
     return false;

@@ -29,10 +29,24 @@ export type DecodedReserveConfig = {
   debtCeiling: bigint;
 };
 
+/**
+ * Extracts a bitfield from a bigint.
+ *
+ * @param value The value to extract from
+ * @param start The starting bit
+ * @param width The width of the bitfield
+ * @returns The extracted bitfield
+ */
 function bit(value: bigint, start: bigint, width = 1n): bigint {
   return (value >> start) & ((1n << width) - 1n);
 }
 
+/**
+ * Decodes the reserve configuration data.
+ *
+ * @param data The raw data
+ * @returns The decoded reserve configuration
+ */
 export function decodeReserveConfig(data: bigint): DecodedReserveConfig {
   return {
     ltv: bit(data, 0n, 16n),
@@ -54,12 +68,24 @@ export function decodeReserveConfig(data: bigint): DecodedReserveConfig {
   };
 }
 
+/**
+ * Reads the reserve configuration from the pool.
+ *
+ * @param pool The pool contract
+ * @param asset The asset address
+ * @returns The decoded reserve configuration
+ */
 export async function readConfig(pool: any, asset: string): Promise<DecodedReserveConfig> {
   const raw = await pool.getConfiguration(asset);
   return decodeReserveConfig(BigInt(raw.data.toString()));
 }
 
-async function buildSecurityUpgradeFixture() {
+/**
+ * Builds the security upgrade fixture.
+ *
+ * @returns The fixture data
+ */
+async function buildSecurityUpgradeFixture(): Promise<any> {
   await deployments.fixture();
   await deployments.fixture(["mock", "lbp", "lbp-security-upgrade"]);
 
@@ -68,21 +94,9 @@ async function buildSecurityUpgradeFixture() {
   const user1 = await ethers.getSigner(testTokenOwner1);
 
   const providerDeployment = await deployments.get(POOL_ADDRESSES_PROVIDER_ID);
-  const poolAddressesProvider = await ethers.getContractAt(
-    "PoolAddressesProvider",
-    providerDeployment.address,
-    deployer,
-  );
-  const pool = await ethers.getContractAt(
-    "Pool",
-    await poolAddressesProvider.getPool(),
-    deployer,
-  );
-  const poolConfigurator = await ethers.getContractAt(
-    "PoolConfigurator",
-    await poolAddressesProvider.getPoolConfigurator(),
-    deployer,
-  );
+  const poolAddressesProvider = await ethers.getContractAt("PoolAddressesProvider", providerDeployment.address, deployer);
+  const pool = await ethers.getContractAt("Pool", await poolAddressesProvider.getPool(), deployer);
+  const poolConfigurator = await ethers.getContractAt("PoolConfigurator", await poolAddressesProvider.getPoolConfigurator(), deployer);
   const dataProvider = await ethers.getContractAt(
     "AaveProtocolDataProvider",
     (await deployments.get(POOL_DATA_PROVIDER_ID)).address,
@@ -93,15 +107,12 @@ async function buildSecurityUpgradeFixture() {
     (await deployments.get(ATOMIC_MARKET_LISTING_HELPER_ID)).address,
     deployer,
   );
-  const aclManager = await ethers.getContractAt(
-    "ACLManager",
-    await poolAddressesProvider.getACLManager(),
-    deployer,
-  );
+  const aclManager = await ethers.getContractAt("ACLManager", await poolAddressesProvider.getACLManager(), deployer);
 
   if (!(await aclManager.isAssetListingAdmin(await helper.getAddress()))) {
     await (await aclManager.addAssetListingAdmin(await helper.getAddress())).wait();
   }
+
   if (!(await aclManager.isRiskAdmin(await helper.getAddress()))) {
     await (await aclManager.addRiskAdmin(await helper.getAddress())).wait();
   }

@@ -38,11 +38,12 @@ describe("Fraxtal lending security upgrade - flash loan premium routing", () => 
         params: "0x10",
         reserveFactor: 1000n,
         supplyCap: 1_000_000n,
+        debtCeiling: 0n,
       },
     ]);
 
     const seedAmount = ethers.parseUnits("10000", 18);
-    await (await asset.mint(user1.address, seedAmount)).wait();
+    await (await asset["mint(address,uint256)"](user1.address, seedAmount)).wait();
     await (await asset.connect(user1).approve(await pool.getAddress(), seedAmount)).wait();
     await (await pool.connect(user1).supply(assetAddress, seedAmount, user1.address, 0)).wait();
 
@@ -50,8 +51,8 @@ describe("Fraxtal lending security upgrade - flash loan premium routing", () => 
       {
         asset: assetAddress,
         baseLTV: 0,
-        liquidationThreshold: 0,
-        liquidationBonus: 0,
+        liquidationThreshold: 1000,
+        liquidationBonus: 10500,
         reserveFactor: 1000n,
         borrowCap: 0n,
         supplyCap: 1_000_000n,
@@ -70,10 +71,7 @@ describe("Fraxtal lending security upgrade - flash loan premium routing", () => 
     const aToken = await ethers.getContractAt("AToken", reserveBefore.aTokenAddress, fixture.deployer);
     const userABalanceBefore = await aToken.balanceOf(user1.address);
 
-    const receiverFactory = await ethers.getContractFactory(
-      "MockFlashLoanSimpleReceiver",
-      fixture.deployer,
-    );
+    const receiverFactory = await ethers.getContractFactory("MockFlashLoanSimpleReceiver", fixture.deployer);
     const receiver = await receiverFactory.deploy(await fixture.poolAddressesProvider.getAddress());
     await receiver.waitForDeployment();
 

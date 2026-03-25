@@ -9,10 +9,12 @@ describe("Fraxtal lending security upgrade - AtomicMarketListingHelper", () => {
     const { pool, poolConfigurator, helper, user1 } = fixture;
 
     let collateralAsset = "";
+
     for (const asset of fixture.reservesList) {
       const config = await readConfig(pool, asset);
       const token = await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/extensions/IERC20Metadata.sol:IERC20Metadata", asset);
       const symbol = await token.symbol();
+
       if (config.ltv > 0n && symbol !== "WETH") {
         collateralAsset = asset;
         break;
@@ -125,10 +127,12 @@ describe("Fraxtal lending security upgrade - AtomicMarketListingHelper", () => {
     const { pool, poolConfigurator, helper, user1 } = fixture;
 
     let collateralAsset = "";
+
     for (const asset of fixture.reservesList) {
       const config = await readConfig(pool, asset);
       const token = await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/extensions/IERC20Metadata.sol:IERC20Metadata", asset);
       const symbol = await token.symbol();
+
       if (config.ltv > 0n && symbol !== "WETH") {
         collateralAsset = asset;
         break;
@@ -195,10 +199,12 @@ describe("Fraxtal lending security upgrade - AtomicMarketListingHelper", () => {
     const { pool, poolConfigurator, helper, user1 } = fixture;
 
     let collateralAsset = "";
+
     for (const asset of fixture.reservesList) {
       const config = await readConfig(pool, asset);
       const token = await ethers.getContractAt("@openzeppelin/contracts-5/token/ERC20/extensions/IERC20Metadata.sol:IERC20Metadata", asset);
       const symbol = await token.symbol();
+
       if (config.ltv > 0n && symbol !== "WETH") {
         collateralAsset = asset;
         break;
