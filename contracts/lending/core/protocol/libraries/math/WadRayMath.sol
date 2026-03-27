@@ -90,6 +90,23 @@ library WadRayMath {
     }
 
     /**
+     * @notice Multiplies two ray, rounding down to the nearest ray
+     * @param a Ray
+     * @param b Ray
+     * @return c = a raymul b (rounded down)
+     */
+    function rayMulDown(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        // to avoid overflow, a <= type(uint256).max / b
+        assembly {
+            if iszero(or(iszero(b), iszero(gt(a, div(not(0), b))))) {
+                revert(0, 0)
+            }
+
+            c := div(mul(a, b), RAY)
+        }
+    }
+
+    /**
      * @notice Divides two ray, rounding half up to the nearest ray
      * @dev assembly optimized for improved gas savings, see https://twitter.com/transmissions11/status/1451131036377571328
      * @param a Ray
