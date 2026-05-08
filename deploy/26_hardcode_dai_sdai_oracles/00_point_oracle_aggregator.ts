@@ -13,6 +13,15 @@ const TARGET_ASSETS = [
   { symbol: "sDAI", address: TOKEN_INFO.sDAI.address },
 ];
 
+/**
+ * Build Safe transaction data for `OracleAggregator.setOracle`.
+ *
+ * @param oracleAggregatorAddress Address of the OracleAggregator contract.
+ * @param assetAddress Address of the asset whose oracle will be updated.
+ * @param oracleAddress Address of the replacement oracle contract.
+ * @param contractInterface Contract interface used to encode the calldata.
+ * @returns Safe transaction payload for the oracle update.
+ */
 function createSetOracleTransaction(
   oracleAggregatorAddress: string,
   assetAddress: string,
@@ -61,9 +70,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   console.log(`${step++}. HardPegOracleWrapper price check: ${hardPegPrice.toString()}`);
 
   if (hardPegPrice !== expectedPrice) {
-    throw new Error(
-      `HardPegOracleWrapper returned ${hardPegPrice.toString()}, expected ${expectedPrice.toString()}`,
-    );
+    throw new Error(`HardPegOracleWrapper returned ${hardPegPrice.toString()}, expected ${expectedPrice.toString()}`);
   }
 
   console.log(`${step++}. Deployer ${deployer.address} has ORACLE_MANAGER_ROLE: ${canSetDirect}`);
@@ -87,12 +94,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     }
 
     const setOracleTx = (): SafeTransactionData =>
-      createSetOracleTransaction(
-        oracleAggregatorAddress,
-        asset.address,
-        hardPegOracleWrapperAddress,
-        oracleAggregator.interface,
-      );
+      createSetOracleTransaction(oracleAggregatorAddress, asset.address, hardPegOracleWrapperAddress, oracleAggregator.interface);
 
     console.log(`${step++}. Repoint ${asset.symbol} to HardPegOracleWrapper`);
 
@@ -121,9 +123,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     }
 
     if (updatedPrice !== expectedPrice) {
-      throw new Error(
-        `${asset.symbol} price mismatch after update: ${updatedPrice.toString()} != ${expectedPrice.toString()}`,
-      );
+      throw new Error(`${asset.symbol} price mismatch after update: ${updatedPrice.toString()} != ${expectedPrice.toString()}`);
     }
   }
 
