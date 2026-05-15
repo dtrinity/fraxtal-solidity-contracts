@@ -7,6 +7,9 @@ import { GovernanceExecutor } from "../../typescript/hardhat/governance";
 import { POOL_ADDRESSES_PROVIDER_ID } from "../../utils/lending/deploy-ids";
 import { ATOMIC_MARKET_LISTING_HELPER_ID } from "../../utils/lending/security-upgrade-ids";
 
+const SECURITY_UPGRADE_POOL_REVISION = 0x2n;
+const SECURITY_UPGRADE_POOL_IMPLEMENTATION_ID = "FraxtalLendingSecurityUpgrade:PoolImplementation";
+
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment): Promise<boolean> {
   const { lendingDeployer } = await hre.getNamedAccounts();
   const deployer = await hre.ethers.getSigner(lendingDeployer);
@@ -16,6 +19,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment): Pr
   const addressesProviderDeployment = await hre.deployments.get(POOL_ADDRESSES_PROVIDER_ID);
 
   const addressesProvider = await hre.ethers.getContractAt("PoolAddressesProvider", addressesProviderDeployment.address, deployer);
+  const poolProxyAddress = await addressesProvider.getPool();
+  const poolProxy = await hre.ethers.getContractAt("Pool", poolProxyAddress, deployer);
+  const currentRevision = await poolProxy.POOL_REVISION();
+
+  if (currentRevision < SECURITY_UPGRADE_POOL_REVISION) {
+    console.warn(
+      `Pool upgrade not yet live. Current revision ${currentRevision.toString()} is below required revision ${SECURITY_UPGRADE_POOL_REVISION.toString()}; skipping AtomicMarketListingHelper role grants.`,
+    );
+    return false;
+  }
+
   const aclManagerAddress = await addressesProvider.getACLManager();
   const aclManager = await hre.ethers.getContractAt("ACLManager", aclManagerAddress, deployer);
 
@@ -73,6 +87,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment): Pr
 
 func.id = "FraxtalLendingSecurityUpgrade:AtomicMarketListingHelperRoles";
 func.tags = ["lbp", "lbp-security-upgrade", "lbp-market-listing-helper-roles"];
-func.dependencies = ["lbp-market", ATOMIC_MARKET_LISTING_HELPER_ID];
+func.dependencies = ["lbp-market", ATOMIC_MARKET_LISTING_HELPER_ID, SECURITY_UPGRADE_POOL_IMPLEMENTATION_ID];
 
 export default func;
