@@ -21,7 +21,7 @@ export function getDefaultPrivateKeys(network: string): string[] {
     case "fraxtal_mainnet":
       // 4 private keys
       pks = [
-        getPrivateKeyFromMnemonic(`fraxtal_mainnet_deployer`),
+        getPrivateKeyFromEnvOrMnemonic(`fraxtal_mainnet_deployer`),
         getPrivateKeyFromMnemonic(`fraxtal_mainnet_dex_pool_adder`),
         getPrivateKeyFromMnemonic(`fraxtal_mainnet_lending_rewards_vault`),
         getPrivateKeyFromEnv(`fraxtal_mainnet_liquidator_bot`),
@@ -32,11 +32,7 @@ export function getDefaultPrivateKeys(network: string): string[] {
   }
 
   // Filter out Zero private keys
-  pks = pks.filter(
-    (pk) =>
-      pk !==
-      "0x0000000000000000000000000000000000000000000000000000000000000000",
-  );
+  pks = pks.filter((pk) => pk !== "0x0000000000000000000000000000000000000000000000000000000000000000");
 
   if (pks.length === 0) {
     console.log(`No private keys found for ${network} in the .env file`);
@@ -51,6 +47,24 @@ export function getDefaultPrivateKeys(network: string): string[] {
   }
 
   return pks;
+}
+
+/**
+ * Get the private key from the environment variable first, then fall back to
+ * deriving it from the mnemonic in the `.env` file.
+ *
+ * @param envNamePostfix - The postfix of the environment variable name
+ * @returns The private key
+ */
+export function getPrivateKeyFromEnvOrMnemonic(envNamePostfix: string): string {
+  const envName = "PK_" + envNamePostfix.toUpperCase();
+  const privateKey = process.env[envName];
+
+  if (privateKey && privateKey !== "") {
+    return privateKey;
+  }
+
+  return getPrivateKeyFromMnemonic(envNamePostfix);
 }
 
 /**

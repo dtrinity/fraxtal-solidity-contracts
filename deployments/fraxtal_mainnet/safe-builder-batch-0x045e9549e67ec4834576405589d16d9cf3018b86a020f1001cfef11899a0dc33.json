@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "chainId": "252",
+  "createdAt": 1779344633424,
+  "meta": {
+    "name": "DLend freeze guardian: grant RISK_ADMIN_ROLE (1 operations)",
+    "description": "DLend freeze guardian: grant RISK_ADMIN_ROLE (1 operations)",
+    "txBuilderVersion": "export-1"
+  },
+  "transactions": [
+    {
+      "to": "0x93d2e552f0aC25927Bbd3f6C71CaB43B73A3ACdF",
+      "value": "0",
+      "data": "0x5b9a94e4000000000000000000000000f2052f08b9c7ec914800ded7f33ad22f200e1955"
+    }
+  ]
+}

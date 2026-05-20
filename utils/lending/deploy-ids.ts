@@ -123,3 +123,5 @@ export const INCENTIVES_STAKED_TOKEN_STRATEGY_ID = `StakedTokenTransferStrategy`
 export const DLEND_BALANCE_CHECKER_ID = "dLendBalanceChecker";
 
 export const REWARDS_CONTROLLER_ID = "RewardsController";
+
+export const DLEND_FREEZE_GUARDIAN_ID = "DlendFreezeGuardian";
