@@ -17,6 +17,7 @@ interface GrantTarget {
   readonly deployment: string;
   readonly contractName: string;
   readonly address: string;
+  readonly newAdmin: string;
   readonly manifestSource: ManifestSource;
   readonly defaultAdminRoleHash: string;
   readonly rolesInfo: ScanResult["rolesContracts"][number];
@@ -132,18 +133,25 @@ async function main(): Promise<void> {
       const deployerHasAdmin = rolesInfo.rolesHeldByDeployer.some(
         (role) => role.hash.toLowerCase() === defaultAdminRoleHash.toLowerCase(),
       );
-      const governedHasAdmin = rolesInfo.governedHasDefaultAdmin;
+      const targetHasAdmin = await targetHasDefaultAdmin({
+        hre,
+        manifest,
+        rolesInfo,
+        defaultAdminRoleHash,
+        newAdmin: plan.defaultAdmin.newAdmin,
+      });
 
       const target: GrantTarget = {
         deployment: plan.deployment,
         contractName,
         address,
+        newAdmin: plan.defaultAdmin.newAdmin,
         manifestSource: (plan.defaultAdminSource ?? "auto") as ManifestSource,
         defaultAdminRoleHash,
         rolesInfo,
       };
 
-      if (governedHasAdmin) {
+      if (targetHasAdmin) {
         skippedExisting.push({
           deployment: target.deployment,
           contractName,
@@ -203,16 +211,16 @@ async function main(): Promise<void> {
     logger.info(`Manifest opt-outs: ${manifestOptOuts.length}`);
 
     if (actionable.length > 0) {
-      logger.info(`\nGranting DEFAULT_ADMIN_ROLE to governance multisig ${manifest.governance}:`);
+      logger.info("\nGranting DEFAULT_ADMIN_ROLE to manifest admin targets:");
       actionable.forEach((target, index) => {
         logger.info(
-          `- [${index + 1}/${actionable.length}] ${target.contractName} (${target.address}) :: grant from deployer -> ${manifest.governance} (${target.manifestSource})`,
+          `- [${index + 1}/${actionable.length}] ${target.contractName} (${target.address}) :: grant from deployer -> ${target.newAdmin} (${target.manifestSource})`,
         );
       });
     }
 
     if (skippedExisting.length > 0) {
-      logger.info("\nAlready satisfied (governance already holds DEFAULT_ADMIN_ROLE):");
+      logger.info("\nAlready satisfied (manifest admin target already holds DEFAULT_ADMIN_ROLE):");
       skippedExisting.forEach((entry) => {
         logger.info(`- ${entry.contractName} (${entry.address}) [${entry.manifestSource}]`);
       });
@@ -240,7 +248,11 @@ async function main(): Promise<void> {
     }
 
     if (actionable.length === 0) {
-      logger.success("\nNo grants required. Governance already holds DEFAULT_ADMIN_ROLE (or manifest opts out).");
+      if (skippedNoPermission.length > 0 || skippedMissingRole.length > 0) {
+        logger.warn("\nNo grants can be sent by the deployer. Review skipped items before treating this migration as complete.");
+      } else {
+        logger.success("\nNo grants required. Manifest admin targets already hold DEFAULT_ADMIN_ROLE (or manifest opts out).");
+      }
       await maybeEmitJson(options.jsonOutput, {
         status: "no-action",
         granted: [],
@@ -274,12 +286,12 @@ async function main(): Promise<void> {
         const contract = await hre.ethers.getContractAt(target.rolesInfo.abi as any, target.address, signer);
 
         if (dryRun) {
-          logger.info("  [dry-run] Would call grantRole(DEFAULT_ADMIN_ROLE, governance)");
+          logger.info(`  [dry-run] Would call grantRole(DEFAULT_ADMIN_ROLE, ${target.newAdmin})`);
           resultsGranted.push(target);
           continue;
         }
 
-        const tx = await contract.grantRole(target.defaultAdminRoleHash, manifest.governance);
+        const tx = await contract.grantRole(target.defaultAdminRoleHash, target.newAdmin);
         const receipt = await waitForTxReceipt(tx, {
           onRetry: (message) => logger.warn(`  ${message}`),
         });
@@ -336,6 +348,32 @@ async function main(): Promise<void> {
     logger.error(String(error instanceof Error ? error.message : error));
     process.exitCode = 1;
   }
+}
+
+async function targetHasDefaultAdmin({
+  hre,
+  manifest,
+  rolesInfo,
+  defaultAdminRoleHash,
+  newAdmin,
+}: {
+  readonly hre: any;
+  readonly manifest: ReturnType<typeof resolveRoleManifest>;
+  readonly rolesInfo: ScanResult["rolesContracts"][number];
+  readonly defaultAdminRoleHash: string;
+  readonly newAdmin: string;
+}): Promise<boolean> {
+  const newAdminLower = newAdmin.toLowerCase();
+  if (newAdminLower === manifest.governance.toLowerCase()) {
+    return rolesInfo.governanceHasDefaultAdmin;
+  }
+
+  if (manifest.timelock && newAdminLower === manifest.timelock.toLowerCase()) {
+    return rolesInfo.timelockHasDefaultAdmin;
+  }
+
+  const contract = await hre.ethers.getContractAt(rolesInfo.abi as any, rolesInfo.address);
+  return Boolean(await contract.hasRole(defaultAdminRoleHash, newAdmin));
 }
 
 async function maybeEmitJson(
