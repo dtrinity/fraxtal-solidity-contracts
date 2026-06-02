@@ -221,10 +221,10 @@ const success = runSlither({ network: 'mainnet', failOnHigh: true });
 
 The shared tooling now splits role/ownership hardening into focused scripts driven by a single manifest:
 
-- `scan-roles` – read-only visibility into AccessControl and Ownable exposure.
+- `scan-roles` – read-only visibility into AccessControl, Ownable, and upgradeable-proxy admin exposure.
 - `grant-default-admin` – grants `DEFAULT_ADMIN_ROLE` to governance (direct execution).
 - `revoke-roles` – prepares a Safe batch that revokes every deployer-held role.
-- `transfer-ownership` – transfers `Ownable` contracts from the deployer to governance.
+- `transfer-ownership` – transfers `Ownable` ownership and upgradeable-proxy admin (`changeAdmin`) from the deployer to governance.
 
 Version 2 manifests still auto-include every contract the deployer controls and let you opt out with exclusions or overrides. The schema is simpler—there is no renounce list or removal strategy anymore. A minimal manifest:
 
@@ -233,10 +233,12 @@ Version 2 manifests still auto-include every contract the deployer controls and 
   "version": 2,
   "deployer": "0xDeployer...",
   "governance": "0xGovernance...",
-  "autoInclude": { "ownable": true, "defaultAdmin": true },
+  "timelock": "0xTimelock...",
+  "autoInclude": { "ownable": true, "defaultAdmin": true, "proxyAdmin": true },
   "defaults": {
-    "ownable": { "newOwner": "{{governance}}" },
-    "defaultAdmin": { "newAdmin": "{{governance}}" }
+    "ownable": { "newOwner": "{{timelock}}" },
+    "defaultAdmin": { "newAdmin": "{{timelock}}" },
+    "proxyAdmin": { "newAdmin": "{{timelock}}" }
   },
   "safe": {
     "safeAddress": "0xSafe...",
@@ -259,12 +261,14 @@ Version 2 manifests still auto-include every contract the deployer controls and 
 }
 ```
 
-- `{{deployer}}` and `{{governance}}` placeholders resolve to the manifest addresses.
+- `{{deployer}}`, `{{governance}}`, and `{{timelock}}` placeholders resolve to the manifest addresses.
+- Optional `timelock` marks the OpenZeppelin `TimelockController` (or equivalent). Scans treat owners/admins held by the Safe **or** timelock as governed; `transfer-ownership` skips contracts already on either.
 - `autoInclude` determines the default sweep; exclusions and overrides explicitly change the plan.
-- `ownable.execution` must stay `direct`; Safe batches cannot call `transferOwnership`.
+- `ownable.execution` and `proxyAdmin.execution` must stay `direct`; Safe batches cannot call `transferOwnership` or `changeAdmin`.
+- Proxy admin is read from the Aave/dLEND `ADMIN_SLOT` storage layout (deployments exposing `changeAdmin(address)`).
 - The revoke script always generates `revokeRole` calls that the governance Safe executes offline.
 
-Before running the CLI, add `roles.deployer` and `roles.governance` to your Hardhat network config. The shared scripts fall back to these values when the CLI flags are omitted, and refuse to run if neither source is provided.
+Before running the CLI, add `roles.deployer` and `roles.governance` (and optionally `roles.timelock`) to your Hardhat network config. The shared scripts fall back to these values when the CLI flags are omitted, and refuse to run if neither deployer nor governance source is provided.
 
 Usage:
 
@@ -278,7 +282,7 @@ ts-node .shared/scripts/roles/grant-default-admin.ts --manifest manifests/roles.
 # Queue Safe revokeRole transactions for every deployer-held role
 ts-node .shared/scripts/roles/revoke-roles.ts --manifest manifests/roles.mainnet.json --network mainnet
 
-# Transfer Ownable contracts directly (prompted unless --yes)
+# Transfer Ownable ownership and proxy admin directly (prompted unless --yes)
 ts-node .shared/scripts/roles/transfer-ownership.ts --manifest manifests/roles.mainnet.json --network mainnet
 
 # Add --dry-run to any script to print the plan without sending transactions

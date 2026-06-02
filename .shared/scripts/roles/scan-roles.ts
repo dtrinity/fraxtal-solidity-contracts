@@ -7,7 +7,7 @@ import { loadRoleManifest, resolveRoleManifest, ResolvedDefaultAdminAction } fro
 import { prepareContractPlans, isDeploymentExcluded } from '../../lib/roles/planner';
 
 interface DriftIssue {
-  readonly type: 'ownable' | 'defaultAdmin';
+  readonly type: 'ownable' | 'defaultAdmin' | 'proxyAdmin';
   readonly deployment: string;
   readonly address: string;
   readonly contract: string;
@@ -17,6 +17,7 @@ interface DriftIssue {
 type ScanResult = Awaited<ReturnType<typeof scanRolesAndOwnership>>;
 type RolesExposure = ScanResult['rolesContracts'][number];
 type OwnableExposure = ScanResult['ownableContracts'][number];
+type ProxyAdminExposure = ScanResult['proxyAdminContracts'][number];
 
 async function main(): Promise<void> {
   const program = new Command();
@@ -26,6 +27,7 @@ async function main(): Promise<void> {
     .requiredOption('-n, --network <name>', 'Network to scan (must have deployments)')
     .option('-d, --deployer <address>', 'Deployer address to check for role ownership (defaults to network.config.roles.deployer)')
     .option('-g, --governance <address>', 'Governance multisig address to check (defaults to network.config.roles.governance)')
+    .option('-t, --timelock <address>', 'Timelock controller address (defaults to manifest.timelock or network.config.roles.timelock)')
     .option('--manifest <path>', 'Path to a role manifest to evaluate coverage')
     .option('--drift-check', 'Exit non-zero when deployer-held roles are not covered by the manifest')
     .option('--json-output <path>', 'Write scan report JSON to path (or stdout when set to "-")')
@@ -44,21 +46,38 @@ async function main(): Promise<void> {
     process.env.HARDHAT_NETWORK = options.network;
     const hre = require('hardhat');
 
-    const networkConfig = (hre.network?.config ?? {}) as { roles?: { deployer?: string; governance?: string } };
+    const networkConfig = (hre.network?.config ?? {}) as {
+      roles?: { deployer?: string; governance?: string; timelock?: string };
+    };
     const configRoles = networkConfig.roles ?? {};
     const deployer: string | undefined = options.deployer as string | undefined ?? configRoles.deployer;
     const governance: string | undefined = options.governance as string | undefined ?? configRoles.governance;
+    let timelock: string | undefined = options.timelock as string | undefined ?? configRoles.timelock;
 
     if (!deployer || !governance) {
       throw new Error('Missing deployer/governance addresses. Provide --deployer/--governance or set roles.deployer / roles.governance in the Hardhat network config.');
     }
 
+    if (options.manifest) {
+      const manifestForTimelock = resolveRoleManifest(loadRoleManifest(options.manifest));
+      timelock = timelock ?? manifestForTimelock.timelock;
+    }
+
+    // Warn if deployer === governance on mainnet (suspicious configuration)
+    if (deployer.toLowerCase() === governance.toLowerCase() && options.network.toLowerCase().includes('mainnet')) {
+      logger.warn(`\n⚠️  deployer === governance on mainnet network "${options.network}". Is this intentional?`);
+    }
+
     logger.info(`Scanning roles/ownership on ${options.network}`);
+    if (timelock) {
+      logger.info(`Timelock: ${timelock} (owners/admins held here count as governed)`);
+    }
 
     const result = await scanRolesAndOwnership({
       hre,
       deployer,
       governanceMultisig: governance,
+      timelock,
       deploymentsPath: options.deploymentsDir,
       logger: (m: string) => logger.info(m),
     });
@@ -66,21 +85,23 @@ async function main(): Promise<void> {
     const { stats } = result;
     const durationSeconds = (stats.durationMs / 1000).toFixed(2);
     logger.info(
-      `\nCompleted scan in ${durationSeconds}s :: deployments=${stats.deploymentsEvaluated}, rolesContracts=${stats.rolesContractsEvaluated}, ownableContracts=${stats.ownableContractsEvaluated}`,
+      `\nCompleted scan in ${durationSeconds}s :: deployments=${stats.deploymentsEvaluated}, rolesContracts=${stats.rolesContractsEvaluated}, ownableContracts=${stats.ownableContractsEvaluated}, proxyAdminContracts=${stats.proxyAdminContractsEvaluated}`,
     );
     logger.info(
       `Multicall batches=${stats.multicall.batchesExecuted}, requests=${stats.multicall.requestsAttempted}, fallbacks=${stats.multicall.fallbacks}, supported=${stats.multicall.supported}`,
     );
     logger.info(
-      `Direct calls roleHashes=${stats.directCalls.roleConstants}, hasRole=${stats.directCalls.hasRole}, owner=${stats.directCalls.owner}`,
+      `Direct calls roleHashes=${stats.directCalls.roleConstants}, hasRole=${stats.directCalls.hasRole}, owner=${stats.directCalls.owner}, proxyAdmin=${stats.directCalls.proxyAdmin}`,
     );
 
     const exposureRoles = result.rolesContracts.filter((c) => c.rolesHeldByDeployer.length > 0);
     const governanceMissingAdmin = result.rolesContracts.filter(
-      (c) => c.defaultAdminRoleHash && !c.governanceHasDefaultAdmin,
+      (c) => c.defaultAdminRoleHash && !c.governedHasDefaultAdmin,
     );
     const exposureOwnable = result.ownableContracts.filter((c) => c.deployerIsOwner);
-    const governanceOwnableMismatches = result.ownableContracts.filter((c) => !c.governanceIsOwner);
+    const governanceOwnableMismatches = result.ownableContracts.filter((c) => !c.underGovernance);
+    const exposureProxyAdmin = result.proxyAdminContracts.filter((c) => c.deployerIsAdmin);
+    const governanceProxyAdminMismatches = result.proxyAdminContracts.filter((c) => !c.underGovernance);
 
     logger.info('\nAccessControl exposures (deployer-held roles):');
     if (exposureRoles.length === 0) {
@@ -94,9 +115,9 @@ async function main(): Promise<void> {
       });
     }
 
-    logger.info('\nGovernance default admin coverage:');
+    logger.info('\nGovernance default admin coverage (Safe or timelock):');
     if (governanceMissingAdmin.length === 0) {
-      logger.success('- Governance already holds DEFAULT_ADMIN_ROLE everywhere.');
+      logger.success('- Governed party already holds DEFAULT_ADMIN_ROLE everywhere.');
     } else {
       governanceMissingAdmin.forEach((contract, index) => {
         logger.warn(`- [${index + 1}/${governanceMissingAdmin.length}] ${contract.name} (${contract.address})`);
@@ -112,13 +133,58 @@ async function main(): Promise<void> {
       });
     }
 
-    logger.info('\nOwnable contracts not yet under governance:');
+    logger.info('\nOwnable contracts not yet under governance (Safe or timelock):');
     if (governanceOwnableMismatches.length === 0) {
-      logger.success('- All Ownable contracts are governed by the multisig.');
+      logger.success('- All Ownable contracts are held by the multisig or timelock.');
     } else {
       governanceOwnableMismatches.forEach((contract, index) => {
         logger.warn(
           `- [${index + 1}/${governanceOwnableMismatches.length}] ${contract.name} (${contract.address}) owner=${contract.owner}`,
+        );
+      });
+    }
+
+    // Detect contracts owned by addresses that are neither deployer nor governance
+    // This helps catch manifest misconfigurations where the wrong deployer address is specified
+    const unknownOwners = new Map<string, number>();
+    for (const c of governanceOwnableMismatches) {
+      const owner = c.owner.toLowerCase();
+      const timelockLower = timelock?.toLowerCase();
+      if (
+        owner !== deployer.toLowerCase() &&
+        owner !== governance.toLowerCase() &&
+        (!timelockLower || owner !== timelockLower)
+      ) {
+        unknownOwners.set(c.owner, (unknownOwners.get(c.owner) || 0) + 1);
+      }
+    }
+
+    if (unknownOwners.size > 0) {
+      logger.warn('\n⚠️  Potential manifest misconfiguration detected:');
+      for (const [addr, count] of unknownOwners) {
+        logger.warn(`   ${count} contract(s) owned by ${addr} (not deployer or governance)`);
+        if (count >= 3) {
+          logger.warn(`   → Consider: Is "${addr}" the actual deployer? Update manifest if so.`);
+        }
+      }
+    }
+
+    logger.info('\nProxy admin exposures (deployer-held):');
+    if (exposureProxyAdmin.length === 0) {
+      logger.success('- Deployer is not the proxy admin of any scanned upgradeable proxies.');
+    } else {
+      exposureProxyAdmin.forEach((contract, index) => {
+        logger.info(`- [${index + 1}/${exposureProxyAdmin.length}] ${contract.name} (${contract.address})`);
+      });
+    }
+
+    logger.info('\nUpgradeable proxies not yet administered by governance (Safe or timelock):');
+    if (governanceProxyAdminMismatches.length === 0) {
+      logger.success('- Governed party is the proxy admin for all scanned upgradeable proxies.');
+    } else {
+      governanceProxyAdminMismatches.forEach((contract, index) => {
+        logger.warn(
+          `- [${index + 1}/${governanceProxyAdminMismatches.length}] ${contract.name} (${contract.address}) admin=${contract.admin}`,
         );
       });
     }
@@ -128,11 +194,28 @@ async function main(): Promise<void> {
 
     if (options.manifest) {
       manifest = resolveRoleManifest(loadRoleManifest(options.manifest));
+
+      // Warn if manifest network doesn't match the scan network
+      if (manifest.network && manifest.network !== options.network) {
+        logger.warn(
+          `\n⚠️  Network mismatch: manifest.network="${manifest.network}" but scanning "${options.network}"`,
+        );
+      }
+
       const rolesByDeployment = new Map(result.rolesContracts.map((info) => [info.deploymentName, info]));
       const ownableByDeployment = new Map(result.ownableContracts.map((info) => [info.deploymentName, info]));
-      const plans = prepareContractPlans({ manifest, rolesByDeployment, ownableByDeployment });
+      const proxyAdminByDeployment = new Map(result.proxyAdminContracts.map((info) => [info.deploymentName, info]));
+      const plans = prepareContractPlans({
+        manifest,
+        rolesByDeployment,
+        ownableByDeployment,
+        proxyAdminByDeployment,
+      });
 
       const plannedOwnable = new Set(plans.filter((plan) => Boolean(plan.ownable)).map((plan) => plan.deployment));
+      const plannedProxyAdmin = new Set(
+        plans.filter((plan) => Boolean(plan.proxyAdmin)).map((plan) => plan.deployment),
+      );
       const plannedDefaultAdmin = new Map<string, ResolvedDefaultAdminAction>();
       for (const plan of plans) {
         if (plan.defaultAdmin) {
@@ -141,6 +224,7 @@ async function main(): Promise<void> {
       }
 
       driftIssues = [...findOwnableDrift({ manifest, plannedOwnable, exposureOwnable })];
+      driftIssues.push(...findProxyAdminDrift({ manifest, plannedProxyAdmin, exposureProxyAdmin }));
       driftIssues.push(...findDefaultAdminDrift({ manifest, plannedDefaultAdmin, exposureRoles }));
 
       if (options.driftCheck) {
@@ -163,9 +247,11 @@ async function main(): Promise<void> {
         network: options.network,
         deployer,
         governance,
+        timelock: timelock ?? null,
         summary: {
           rolesContracts: result.rolesContracts.length,
           ownableContracts: result.ownableContracts.length,
+          proxyAdminContracts: result.proxyAdminContracts.length,
         },
         stats,
         exposures: {
@@ -174,6 +260,12 @@ async function main(): Promise<void> {
             address: c.address,
             contract: c.name,
             owner: c.owner,
+          })),
+          proxyAdmin: exposureProxyAdmin.map((c) => ({
+            deployment: c.deploymentName,
+            address: c.address,
+            contract: c.name,
+            admin: c.admin,
           })),
           defaultAdmin: exposureRoles.map((c) => ({
             deployment: c.deploymentName,
@@ -235,6 +327,38 @@ function findOwnableDrift({
       address: exposure.address,
       contract: exposure.name,
       detail: 'Manifest does not include an Ownable transfer for this deployment.',
+    });
+  }
+
+  return issues;
+}
+
+function findProxyAdminDrift({
+  manifest,
+  plannedProxyAdmin,
+  exposureProxyAdmin,
+}: {
+  manifest: ReturnType<typeof resolveRoleManifest>;
+  plannedProxyAdmin: Set<string>;
+  exposureProxyAdmin: ProxyAdminExposure[];
+}): DriftIssue[] {
+  const issues: DriftIssue[] = [];
+
+  for (const exposure of exposureProxyAdmin) {
+    if (plannedProxyAdmin.has(exposure.deploymentName)) {
+      continue;
+    }
+
+    if (isDeploymentExcluded(manifest, exposure.deploymentName, 'proxyAdmin')) {
+      continue;
+    }
+
+    issues.push({
+      type: 'proxyAdmin',
+      deployment: exposure.deploymentName,
+      address: exposure.address,
+      contract: exposure.name,
+      detail: 'Manifest does not include a proxy admin transfer (changeAdmin) for this deployment.',
     });
   }
 

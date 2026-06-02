@@ -1,8 +1,14 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { AbiItem } from "web3-utils";
 import { Interface } from "@ethersproject/abi";
+import { Logger } from "@ethersproject/logger";
 import * as fs from "fs";
 import * as path from "path";
+
+// Suppress ethers.js warnings about duplicate ABI fragment definitions.
+// This occurs when multiple contracts define the same custom error (e.g., ArrayLengthMismatch).
+// The warning is harmless but noisy when scanning many deployments.
+Logger.setLogLevel(Logger.levels.ERROR);
 
 import {
   DEFAULT_MULTICALL3_ADDRESS,
@@ -10,6 +16,8 @@ import {
   MulticallRequest,
   MulticallResult,
 } from "./multicall";
+import { detectProxyAdminFragment, readProxyAdminFromStorage } from "./proxy-admin";
+import { isGovernedHolder, matchesGovernance, matchesTimelock, resolveGovernanceTargets } from "./governance-targets";
 
 type FunctionAbiItem = AbiItem & {
   readonly type: "function";
@@ -47,7 +55,7 @@ interface RoleConstantTask {
 interface HasRoleTask {
   readonly context: RoleContractContext;
   readonly role: RoleInfo;
-  readonly holder: "deployer" | "governance";
+  readonly holder: "deployer" | "governance" | "timelock";
   readonly request: MulticallRequest;
 }
 
@@ -64,8 +72,11 @@ export interface RolesContractInfo {
   readonly roles: RoleInfo[];
   readonly rolesHeldByDeployer: RoleInfo[];
   readonly rolesHeldByGovernance: RoleInfo[];
+  readonly rolesHeldByTimelock: RoleInfo[];
   readonly defaultAdminRoleHash?: string;
   governanceHasDefaultAdmin: boolean;
+  timelockHasDefaultAdmin: boolean;
+  governedHasDefaultAdmin: boolean;
 }
 
 export interface OwnableContractInfo {
@@ -76,6 +87,20 @@ export interface OwnableContractInfo {
   readonly owner: string;
   readonly deployerIsOwner: boolean;
   readonly governanceIsOwner: boolean;
+  readonly timelockIsOwner: boolean;
+  readonly underGovernance: boolean;
+}
+
+export interface ProxyAdminContractInfo {
+  readonly deploymentName: string;
+  readonly name: string;
+  readonly address: string;
+  readonly abi: AbiItem[];
+  readonly admin: string;
+  readonly deployerIsAdmin: boolean;
+  readonly governanceIsAdmin: boolean;
+  readonly timelockIsAdmin: boolean;
+  readonly underGovernance: boolean;
 }
 
 export interface ScanTelemetry {
@@ -85,6 +110,7 @@ export interface ScanTelemetry {
   deploymentsEvaluated: number;
   rolesContractsEvaluated: number;
   ownableContractsEvaluated: number;
+  proxyAdminContractsEvaluated: number;
   multicall: {
     supported: boolean;
     batchesExecuted: number;
@@ -95,12 +121,14 @@ export interface ScanTelemetry {
     roleConstants: number;
     hasRole: number;
     owner: number;
+    proxyAdmin: number;
   };
 }
 
 export interface ScanResult {
   readonly rolesContracts: RolesContractInfo[];
   readonly ownableContracts: OwnableContractInfo[];
+  readonly proxyAdminContracts: ProxyAdminContractInfo[];
   readonly stats: ScanTelemetry;
 }
 
@@ -108,6 +136,7 @@ export interface ScanOptions {
   readonly hre: HardhatRuntimeEnvironment;
   readonly deployer: string;
   readonly governanceMultisig: string;
+  readonly timelock?: string;
   readonly deploymentsPath?: string;
   readonly logger?: (message: string) => void;
   readonly multicallAddress?: string;
@@ -172,6 +201,11 @@ async function decodeViaProvider(
 
 export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanResult> {
   const { hre, deployer, governanceMultisig, logger } = options;
+  const targets = resolveGovernanceTargets({
+    deployer,
+    governance: governanceMultisig,
+    timelock: options.timelock,
+  });
   const ethers = (hre as any).ethers;
   const network = (hre as any).network;
   const log = logger ?? (() => {});
@@ -185,6 +219,7 @@ export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanR
     deploymentsEvaluated: 0,
     rolesContractsEvaluated: 0,
     ownableContractsEvaluated: 0,
+    proxyAdminContractsEvaluated: 0,
     multicall: {
       supported: true,
       batchesExecuted: 0,
@@ -195,6 +230,7 @@ export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanR
       roleConstants: 0,
       hasRole: 0,
       owner: 0,
+      proxyAdmin: 0,
     },
   };
 
@@ -227,10 +263,12 @@ export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanR
 
   const roleContexts: RoleContractContext[] = [];
   const ownableCandidates: { summary: DeploymentSummary; fragment: FunctionAbiItem }[] = [];
+  const proxyAdminCandidates: DeploymentSummary[] = [];
 
   for (const summary of deployments) {
     const hasRoleFragment = detectHasRoleFragment(summary.abi);
     const ownableFragment = detectOwnableFragment(summary.abi);
+    const proxyAdminFragment = detectProxyAdminFragment(summary.abi);
 
     if (hasRoleFragment) {
       const roleConstantFragments = detectRoleConstantFragments(summary.abi);
@@ -246,10 +284,15 @@ export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanR
     if (ownableFragment) {
       ownableCandidates.push({ summary, fragment: ownableFragment });
     }
+
+    if (proxyAdminFragment) {
+      proxyAdminCandidates.push(summary);
+    }
   }
 
   telemetry.rolesContractsEvaluated = roleContexts.length;
   telemetry.ownableContractsEvaluated = ownableCandidates.length;
+  telemetry.proxyAdminContractsEvaluated = proxyAdminCandidates.length;
 
   const constantTasks: RoleConstantTask[] = [];
   for (const context of roleContexts) {
@@ -351,8 +394,11 @@ export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanR
       roles,
       rolesHeldByDeployer: [],
       rolesHeldByGovernance: [],
+      rolesHeldByTimelock: [],
       defaultAdminRoleHash: defaultAdmin?.hash,
       governanceHasDefaultAdmin: false,
+      timelockHasDefaultAdmin: false,
+      governedHasDefaultAdmin: false,
     };
 
     roleContracts.push(contractRecord);
@@ -376,9 +422,22 @@ export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanR
         request: {
           target: context.address,
           allowFailure: true,
-          callData: context.iface.encodeFunctionData("hasRole", [role.hash, governanceMultisig]),
+          callData: context.iface.encodeFunctionData("hasRole", [role.hash, targets.governance]),
         },
       });
+
+      if (targets.timelock) {
+        hasRoleTasks.push({
+          context,
+          role,
+          holder: "timelock",
+          request: {
+            target: context.address,
+            allowFailure: true,
+            callData: context.iface.encodeFunctionData("hasRole", [role.hash, targets.timelock]),
+          },
+        });
+      }
     }
   }
 
@@ -390,9 +449,10 @@ export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanR
   const holderSet = {
     deployer: new Map<string, Set<string>>(),
     governance: new Map<string, Set<string>>(),
+    timelock: new Map<string, Set<string>>(),
   };
 
-  const addHeldRole = (contract: RolesContractInfo, holder: "deployer" | "governance", role: RoleInfo) => {
+  const addHeldRole = (contract: RolesContractInfo, holder: HasRoleTask["holder"], role: RoleInfo) => {
     const registry = holderSet[holder];
     const key = contract.address.toLowerCase();
     const set = registry.get(key) ?? new Set<string>();
@@ -405,8 +465,10 @@ export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanR
     set.add(role.hash);
     if (holder === "deployer") {
       contract.rolesHeldByDeployer.push(role);
-    } else {
+    } else if (holder === "governance") {
       contract.rolesHeldByGovernance.push(role);
+    } else {
+      contract.rolesHeldByTimelock.push(role);
     }
   };
 
@@ -476,7 +538,14 @@ export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanR
             hre,
             task.context,
             "hasRole",
-            [task.role.hash, task.holder === "deployer" ? deployer : governanceMultisig],
+            [
+              task.role.hash,
+              task.holder === "deployer"
+                ? targets.deployer
+                : task.holder === "timelock"
+                  ? targets.timelock!
+                  : targets.governance,
+            ],
           );
 
           if (!callResult || !callResult.success) {
@@ -508,7 +577,12 @@ export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanR
     const governanceHasDefaultAdmin = contract.rolesHeldByGovernance.some(
       (role) => role.hash.toLowerCase() === defaultAdminHash.toLowerCase(),
     );
+    const timelockHasDefaultAdmin = contract.rolesHeldByTimelock.some(
+      (role) => role.hash.toLowerCase() === defaultAdminHash.toLowerCase(),
+    );
     contract.governanceHasDefaultAdmin = governanceHasDefaultAdmin;
+    contract.timelockHasDefaultAdmin = timelockHasDefaultAdmin;
+    contract.governedHasDefaultAdmin = governanceHasDefaultAdmin || timelockHasDefaultAdmin;
   }
 
   const ownableContracts: OwnableContractInfo[] = [];
@@ -529,8 +603,7 @@ export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanR
       const decoded = iface.decodeFunctionResult("owner", returnData);
       const owner = String(decoded[0]);
       const ownerLower = owner.toLowerCase();
-      const deployerLower = deployer.toLowerCase();
-      const governanceLower = governanceMultisig.toLowerCase();
+      const deployerLower = targets.deployer.toLowerCase();
       ownableContracts.push({
         deploymentName: candidate.summary.deploymentName,
         name: candidate.summary.contractName,
@@ -538,10 +611,45 @@ export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanR
         abi: candidate.summary.abi,
         owner,
         deployerIsOwner: ownerLower === deployerLower,
-        governanceIsOwner: ownerLower === governanceLower,
+        governanceIsOwner: matchesGovernance(owner, targets),
+        timelockIsOwner: matchesTimelock(owner, targets),
+        underGovernance: isGovernedHolder(owner, targets),
       });
     } catch {
       // ignore failures to read owner
+    }
+  }
+
+  const proxyAdminContracts: ProxyAdminContractInfo[] = [];
+
+  if (proxyAdminCandidates.length > 0) {
+    log(`Resolving proxy admins for ${proxyAdminCandidates.length} upgradeable proxy deployments.`);
+  }
+
+  const deployerLower = targets.deployer.toLowerCase();
+
+  for (const summary of proxyAdminCandidates) {
+    try {
+      const admin = await readProxyAdminFromStorage(ethers.provider, summary.address);
+      if (!admin) {
+        continue;
+      }
+
+      telemetry.directCalls.proxyAdmin += 1;
+      const adminLower = admin.toLowerCase();
+      proxyAdminContracts.push({
+        deploymentName: summary.deploymentName,
+        name: summary.contractName,
+        address: summary.address,
+        abi: summary.abi,
+        admin,
+        deployerIsAdmin: adminLower === deployerLower,
+        governanceIsAdmin: matchesGovernance(admin, targets),
+        timelockIsAdmin: matchesTimelock(admin, targets),
+        underGovernance: isGovernedHolder(admin, targets),
+      });
+    } catch {
+      // ignore failures to read proxy admin slot
     }
   }
 
@@ -552,6 +660,7 @@ export async function scanRolesAndOwnership(options: ScanOptions): Promise<ScanR
   return {
     rolesContracts: roleContracts,
     ownableContracts,
+    proxyAdminContracts,
     stats: telemetry,
   };
 }

@@ -17,9 +17,15 @@ export interface ManifestDefaultAdminDefaults {
   readonly grantExecution?: ExecutionMode;
 }
 
+export interface ManifestProxyAdminDefaults {
+  readonly newAdmin?: string;
+  readonly execution?: ExecutionMode;
+}
+
 export interface ManifestDefaults {
   readonly ownable?: ManifestOwnableDefaults;
   readonly defaultAdmin?: ManifestDefaultAdminDefaults;
+  readonly proxyAdmin?: ManifestProxyAdminDefaults;
 }
 
 export interface ManifestOwnableOverrides extends ManifestOwnableDefaults {
@@ -30,12 +36,17 @@ export interface ManifestDefaultAdminOverrides extends ManifestDefaultAdminDefau
   readonly enabled?: boolean;
 }
 
+export interface ManifestProxyAdminOverrides extends ManifestProxyAdminDefaults {
+  readonly enabled?: boolean;
+}
+
 export interface ManifestContractOverride {
   readonly deployment: string;
   readonly alias?: string;
   readonly notes?: string;
   readonly ownable?: ManifestOwnableOverrides;
   readonly defaultAdmin?: ManifestDefaultAdminOverrides;
+  readonly proxyAdmin?: ManifestProxyAdminOverrides;
   readonly disabled?: boolean;
 }
 
@@ -50,6 +61,7 @@ export interface ManifestSafeConfig extends SafeConfig {
 export interface ManifestAutoIncludeConfig {
   readonly ownable?: boolean;
   readonly defaultAdmin?: boolean;
+  readonly proxyAdmin?: boolean;
 }
 
 export interface ManifestExclusionConfig {
@@ -59,6 +71,7 @@ export interface ManifestExclusionConfig {
   readonly reason?: string;
   readonly ownable?: boolean;
   readonly defaultAdmin?: boolean;
+  readonly proxyAdmin?: boolean;
 }
 
 export interface RoleManifest {
@@ -66,6 +79,8 @@ export interface RoleManifest {
   readonly network?: string;
   readonly deployer: string;
   readonly governance: string;
+  /** OpenZeppelin TimelockController (or equivalent) that executes delayed governance actions. */
+  readonly timelock?: string;
   readonly defaults?: ManifestDefaults;
   readonly autoInclude?: ManifestAutoIncludeConfig;
   readonly exclusions?: ManifestExclusionConfig[];
@@ -84,6 +99,11 @@ export interface ResolvedDefaultAdminAction {
   readonly grantExecution: ExecutionMode;
 }
 
+export interface ResolvedProxyAdminAction {
+  readonly newAdmin: string;
+  readonly execution: ExecutionMode;
+}
+
 export interface ResolvedOwnableOverride {
   readonly enabled?: boolean;
   readonly action?: ResolvedOwnableAction;
@@ -94,23 +114,31 @@ export interface ResolvedDefaultAdminOverride {
   readonly action?: ResolvedDefaultAdminAction;
 }
 
+export interface ResolvedProxyAdminOverride {
+  readonly enabled?: boolean;
+  readonly action?: ResolvedProxyAdminAction;
+}
+
 export interface ResolvedContractOverride {
   readonly deployment: string;
   readonly alias?: string;
   readonly notes?: string;
   readonly ownable?: ResolvedOwnableOverride;
   readonly defaultAdmin?: ResolvedDefaultAdminOverride;
+  readonly proxyAdmin?: ResolvedProxyAdminOverride;
   readonly disabled?: boolean;
 }
 
 export interface ResolvedManifestDefaults {
   readonly ownable: ResolvedOwnableAction;
   readonly defaultAdmin: ResolvedDefaultAdminAction;
+  readonly proxyAdmin: ResolvedProxyAdminAction;
 }
 
 export interface ResolvedAutoIncludeConfig {
   readonly ownable: boolean;
   readonly defaultAdmin: boolean;
+  readonly proxyAdmin: boolean;
 }
 
 export interface ResolvedExclusion {
@@ -120,6 +148,7 @@ export interface ResolvedExclusion {
   readonly reason?: string;
   readonly ownable: boolean;
   readonly defaultAdmin: boolean;
+  readonly proxyAdmin: boolean;
 }
 
 export interface ResolvedRoleManifest {
@@ -127,6 +156,7 @@ export interface ResolvedRoleManifest {
   readonly network?: string;
   readonly deployer: string;
   readonly governance: string;
+  readonly timelock?: string;
   readonly defaults: ResolvedManifestDefaults;
   readonly autoInclude: ResolvedAutoIncludeConfig;
   readonly exclusions: ResolvedExclusion[];
@@ -145,6 +175,7 @@ export class ManifestValidationError extends Error {
 interface AddressContext {
   readonly deployer: string;
   readonly governance: string;
+  readonly timelock?: string;
 }
 
 function resolveAddress(value: string | undefined, context: AddressContext, field: string): string {
@@ -160,6 +191,15 @@ function resolveAddress(value: string | undefined, context: AddressContext, fiel
 
   if (trimmed === "{{governance}}") {
     return context.governance;
+  }
+
+  if (trimmed === "{{timelock}}") {
+    if (!context.timelock) {
+      throw new ManifestValidationError(
+        "{{timelock}} was used but manifest.timelock is not set. Add timelock or use an explicit address.",
+      );
+    }
+    return context.timelock;
   }
 
   try {
@@ -198,6 +238,16 @@ export function loadRoleManifest(manifestPath: string): RoleManifest {
   }
 }
 
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+const BURN_ADDRESSES = new Set([
+  ZERO_ADDRESS.toLowerCase(),
+  "0x000000000000000000000000000000000000dead",
+]);
+
+function isPlaceholderOrBurnAddress(address: string): boolean {
+  return BURN_ADDRESSES.has(address.toLowerCase());
+}
+
 export function resolveRoleManifest(manifest: RoleManifest): ResolvedRoleManifest {
   if (manifest.version !== 2) {
     throw new ManifestValidationError(`Unsupported manifest version: ${manifest.version}`);
@@ -205,11 +255,30 @@ export function resolveRoleManifest(manifest: RoleManifest): ResolvedRoleManifes
 
   const deployer = getAddress(manifest.deployer);
   const governance = getAddress(manifest.governance);
-  const context: AddressContext = { deployer, governance };
+
+  if (isPlaceholderOrBurnAddress(deployer)) {
+    throw new ManifestValidationError(
+      `deployer cannot be a zero/burn address: ${deployer}. Update the manifest with the actual deployer wallet.`,
+    );
+  }
+
+  if (isPlaceholderOrBurnAddress(governance)) {
+    throw new ManifestValidationError(
+      `governance cannot be a zero/burn address: ${governance}. Update the manifest with the actual governance multisig.`,
+    );
+  }
+
+  const timelock = manifest.timelock?.trim() ? getAddress(manifest.timelock.trim()) : undefined;
+  if (timelock && isPlaceholderOrBurnAddress(timelock)) {
+    throw new ManifestValidationError(`timelock cannot be a zero/burn address: ${timelock}`);
+  }
+
+  const context: AddressContext = { deployer, governance, timelock };
 
   const autoInclude: ResolvedAutoIncludeConfig = {
     ownable: manifest.autoInclude?.ownable ?? true,
     defaultAdmin: manifest.autoInclude?.defaultAdmin ?? true,
+    proxyAdmin: manifest.autoInclude?.proxyAdmin ?? true,
   };
 
   const defaults = resolveManifestDefaults(manifest.defaults, context);
@@ -228,6 +297,7 @@ export function resolveRoleManifest(manifest: RoleManifest): ResolvedRoleManifes
       reason: exclusion.reason?.trim(),
       ownable: exclusion.ownable ?? true,
       defaultAdmin: exclusion.defaultAdmin ?? true,
+      proxyAdmin: exclusion.proxyAdmin ?? true,
     } satisfies ResolvedExclusion;
   });
 
@@ -260,12 +330,17 @@ export function resolveRoleManifest(manifest: RoleManifest): ResolvedRoleManifes
       ? resolveDefaultAdminOverride(contract.defaultAdmin, defaults.defaultAdmin, context, `overrides[${index}]`)
       : undefined;
 
+    const proxyAdminOverride = contract.proxyAdmin
+      ? resolveProxyAdminOverride(contract.proxyAdmin, defaults.proxyAdmin, context, `overrides[${index}]`)
+      : undefined;
+
     const resolvedOverride: ResolvedContractOverride = {
       deployment,
       ...(contract.alias && contract.alias.trim().length > 0 ? { alias: contract.alias.trim() } : {}),
       ...(contract.notes ? { notes: contract.notes } : {}),
       ...(ownableOverride ? { ownable: ownableOverride } : {}),
       ...(defaultAdminOverride ? { defaultAdmin: defaultAdminOverride } : {}),
+      ...(proxyAdminOverride ? { proxyAdmin: proxyAdminOverride } : {}),
     };
 
     overrides.push(resolvedOverride);
@@ -296,6 +371,7 @@ export function resolveRoleManifest(manifest: RoleManifest): ResolvedRoleManifes
     network: manifest.network,
     deployer,
     governance,
+    timelock,
     defaults,
     autoInclude,
     exclusions,
@@ -345,9 +421,27 @@ function resolveManifestDefaults(defaults: ManifestDefaults | undefined, context
     grantExecution,
   };
 
+  const proxyAdminDefaults = defaults?.proxyAdmin;
+  const proxyAdminExecution = normalizeExecution(proxyAdminDefaults?.execution, "direct");
+  if (proxyAdminExecution !== "direct") {
+    throw new ManifestValidationError(
+      `defaults.proxyAdmin.execution must be 'direct'. Safe execution is not supported for proxy admin transfers.`,
+    );
+  }
+
+  const resolvedProxyAdmin: ResolvedProxyAdminAction = {
+    newAdmin: resolveAddress(
+      proxyAdminDefaults?.newAdmin ?? context.governance,
+      context,
+      "defaults.proxyAdmin.newAdmin",
+    ),
+    execution: proxyAdminExecution,
+  };
+
   return {
     ownable: resolvedOwnable,
     defaultAdmin: resolvedDefaultAdmin,
+    proxyAdmin: resolvedProxyAdmin,
   };
 }
 
@@ -421,6 +515,40 @@ function resolveDefaultAdminOverride(
     action: {
       newAdmin,
       grantExecution,
+    },
+  };
+}
+
+function resolveProxyAdminOverride(
+  override: ManifestProxyAdminOverrides,
+  defaults: ResolvedProxyAdminAction,
+  context: AddressContext,
+  label: string,
+): ResolvedProxyAdminOverride {
+  const enabled = override.enabled;
+
+  if (enabled === false) {
+    return { enabled };
+  }
+
+  const execution = normalizeExecution(override.execution, defaults.execution);
+  if (execution !== "direct") {
+    throw new ManifestValidationError(
+      `${label}.proxyAdmin.execution must be 'direct'. Safe execution is not supported for proxy admin transfers.`,
+    );
+  }
+
+  const newAdmin = resolveAddress(
+    override.newAdmin ?? defaults.newAdmin,
+    context,
+    `${label}.proxyAdmin.newAdmin`,
+  );
+
+  return {
+    enabled,
+    action: {
+      newAdmin,
+      execution,
     },
   };
 }

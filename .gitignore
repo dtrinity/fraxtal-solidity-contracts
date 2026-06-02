@@ -60,6 +60,9 @@ remote-state/
 # Script outputs
 contract-addresses_*.md
 
+# Role automation reports
+reports/roles/
+
 # Docker image
 liquidator-bot-image/*
 # Exclude materials directory
