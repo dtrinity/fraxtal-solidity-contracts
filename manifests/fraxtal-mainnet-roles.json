@@ -3,6 +3,7 @@
   "network": "fraxtal_mainnet",
   "deployer": "0x0f5e3D9AEe7Ab5fDa909Af1ef147D98a7f4B3022",
   "governance": "0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9",
+  "timelock": "0x0bafada2a5824864720873ee40cd960b36445212",
   "defaults": {
     "ownable": {
       "newOwner": "{{governance}}",
@@ -11,13 +12,33 @@
     "defaultAdmin": {
       "newAdmin": "{{governance}}",
       "grantExecution": "direct"
+    },
+    "proxyAdmin": {
+      "newAdmin": "{{governance}}",
+      "execution": "direct"
     }
   },
   "autoInclude": {
     "ownable": true,
-    "defaultAdmin": true
+    "defaultAdmin": true,
+    "proxyAdmin": true
   },
-  "exclusions": [],
+  "exclusions": [
+    {
+      "deploymentPrefix": "FlashLoanLiquidator",
+      "reason": "Liquidator bot-owned ops contracts; do not move without ops sign-off.",
+      "ownable": true,
+      "defaultAdmin": false,
+      "proxyAdmin": false
+    },
+    {
+      "deploymentPrefix": "FlashMintLiquidator",
+      "reason": "Liquidator bot-owned ops contracts; do not move without ops sign-off.",
+      "ownable": true,
+      "defaultAdmin": false,
+      "proxyAdmin": false
+    }
+  ],
   "overrides": [],
   "safe": {
     "safeAddress": "0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9",
@@ -30,4 +51,3 @@
     "json": "reports/roles/fraxtal-mainnet-latest.json"
   }
 }
-

@@ -10,6 +10,13 @@ import { generateNSLOCReport } from '../../lib/deployments/nsloc';
 import { loadProjectModule, getSolidityFiles } from '../../lib/utils';
 import { validateConfig } from '../../lib/validators';
 import { buildAggregatorList } from '../../lib/oracles/prices/asset-extractors';
+import {
+  detectProxyAdminFragment,
+  parseAddressFromStorageSlot,
+  isZeroAddress,
+} from '../../lib/roles/proxy-admin';
+import { isGovernedHolder, matchesTimelock } from '../../lib/roles/governance-targets';
+import { resolveRoleManifest, ManifestValidationError } from '../../lib/roles/manifest';
 
 type TestCase = {
   name: string;
@@ -61,6 +68,70 @@ test('validateConfig surfaces missing required keys and type mismatches', () => 
     ),
     'type mismatch should be reported'
   );
+});
+
+test('detectProxyAdminFragment matches changeAdmin(address) proxies', () => {
+  const abi = [
+    {
+      type: 'function',
+      name: 'changeAdmin',
+      inputs: [{ type: 'address', name: 'newAdmin' }],
+      outputs: [],
+      stateMutability: 'nonpayable',
+    },
+  ];
+
+  const fragment = detectProxyAdminFragment(abi as any);
+  assert.ok(fragment, 'changeAdmin fragment should be detected');
+  assert.equal(fragment?.name, 'changeAdmin');
+});
+
+test('isGovernedHolder accepts governance Safe or timelock', () => {
+  const targets = {
+    deployer: '0x0000000000000000000000000000000000000001',
+    governance: '0x0000000000000000000000000000000000000002',
+    timelock: '0x0000000000000000000000000000000000000003',
+  };
+  assert.equal(isGovernedHolder(targets.governance, targets), true);
+  assert.equal(isGovernedHolder(targets.timelock!, targets), true);
+  assert.equal(isGovernedHolder(targets.deployer, targets), false);
+  assert.equal(matchesTimelock(targets.timelock!, targets), true);
+});
+
+test('resolveRoleManifest resolves {{timelock}} placeholder', () => {
+  const resolved = resolveRoleManifest({
+    version: 2,
+    deployer: '0x0000000000000000000000000000000000000001',
+    governance: '0x0000000000000000000000000000000000000002',
+    timelock: '0x0000000000000000000000000000000000000003',
+    defaults: {
+      ownable: { newOwner: '{{timelock}}' },
+    },
+  });
+  assert.equal(resolved.defaults.ownable.newOwner, '0x0000000000000000000000000000000000000003');
+});
+
+test('resolveRoleManifest rejects {{timelock}} without manifest.timelock', () => {
+  assert.throws(
+    () =>
+      resolveRoleManifest({
+        version: 2,
+        deployer: '0x0000000000000000000000000000000000000001',
+        governance: '0x0000000000000000000000000000000000000002',
+        defaults: {
+          ownable: { newOwner: '{{timelock}}' },
+        },
+      }),
+    ManifestValidationError,
+  );
+});
+
+test('parseAddressFromStorageSlot extracts trailing 20 bytes', () => {
+  const deployer = '0x0f5e3D9AEe7Ab5fDa909Af1ef147D98a7f4B3022';
+  const slot =
+    '0x0000000000000000000000000f5e3d9aee7ab5fda909af1ef147d98a7f4b3022';
+  assert.equal(parseAddressFromStorageSlot(slot).toLowerCase(), deployer.toLowerCase());
+  assert.equal(isZeroAddress('0x0000000000000000000000000000000000000000'), true);
 });
 
 test('getSolidityFiles discovers Solidity sources recursively', () => {

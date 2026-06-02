@@ -4,6 +4,7 @@ import { Command } from "commander";
 import * as readline from "readline";
 
 import { logger } from "../../lib/logger";
+import { waitForTxReceipt } from "../../lib/transactions";
 import { scanRolesAndOwnership } from "../../lib/roles/scan";
 import { loadRoleManifest, resolveRoleManifest } from "../../lib/roles/manifest";
 import { prepareContractPlans, isDeploymentExcluded } from "../../lib/roles/planner";
@@ -84,6 +85,7 @@ async function main(): Promise<void> {
       hre,
       deployer: manifest.deployer,
       governanceMultisig: manifest.governance,
+      timelock: manifest.timelock,
       deploymentsPath: options.deploymentsDir,
       logger: (message: string) => logger.info(message),
     });
@@ -93,6 +95,7 @@ async function main(): Promise<void> {
       manifest,
       rolesByDeployment,
       ownableByDeployment: new Map(),
+      proxyAdminByDeployment: new Map(),
     });
 
     const actionable: GrantTarget[] = [];
@@ -129,7 +132,7 @@ async function main(): Promise<void> {
       const deployerHasAdmin = rolesInfo.rolesHeldByDeployer.some(
         (role) => role.hash.toLowerCase() === defaultAdminRoleHash.toLowerCase(),
       );
-      const governanceHasAdmin = rolesInfo.governanceHasDefaultAdmin;
+      const governedHasAdmin = rolesInfo.governedHasDefaultAdmin;
 
       const target: GrantTarget = {
         deployment: plan.deployment,
@@ -140,7 +143,7 @@ async function main(): Promise<void> {
         rolesInfo,
       };
 
-      if (governanceHasAdmin) {
+      if (governedHasAdmin) {
         skippedExisting.push({
           deployment: target.deployment,
           contractName,
@@ -277,7 +280,9 @@ async function main(): Promise<void> {
         }
 
         const tx = await contract.grantRole(target.defaultAdminRoleHash, manifest.governance);
-        const receipt = await tx.wait();
+        const receipt = await waitForTxReceipt(tx, {
+          onRetry: (message) => logger.warn(`  ${message}`),
+        });
         const txHash = receipt?.hash ?? tx.hash ?? "unknown";
         logger.info(`  ✅ Transaction hash: ${txHash}`);
         resultsGranted.push(target);

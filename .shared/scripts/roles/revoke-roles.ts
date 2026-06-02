@@ -73,6 +73,7 @@ async function main(): Promise<void> {
       hre,
       deployer: manifest.deployer,
       governanceMultisig: manifest.governance,
+      timelock: manifest.timelock,
       deploymentsPath: options.deploymentsDir,
       logger: (msg: string) => logger.info(msg),
     });

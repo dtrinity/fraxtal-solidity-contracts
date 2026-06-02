@@ -1,8 +1,9 @@
-import { OwnableContractInfo, RolesContractInfo } from "./scan";
+import { OwnableContractInfo, ProxyAdminContractInfo, RolesContractInfo } from "./scan";
 import {
   ResolvedContractOverride,
   ResolvedDefaultAdminAction,
   ResolvedOwnableAction,
+  ResolvedProxyAdminAction,
   ResolvedRoleManifest,
 } from "./manifest";
 
@@ -16,6 +17,8 @@ export interface PreparedContractPlan {
   readonly ownableSource?: ActionSource;
   readonly defaultAdmin?: ResolvedDefaultAdminAction;
   readonly defaultAdminSource?: ActionSource;
+  readonly proxyAdmin?: ResolvedProxyAdminAction;
+  readonly proxyAdminSource?: ActionSource;
 }
 
 interface SelectionResult<TAction> {
@@ -28,6 +31,7 @@ interface PrepareContractPlansOptions {
   readonly manifest: ResolvedRoleManifest;
   readonly rolesByDeployment: Map<string, RolesContractInfo>;
   readonly ownableByDeployment: Map<string, OwnableContractInfo>;
+  readonly proxyAdminByDeployment: Map<string, ProxyAdminContractInfo>;
 }
 
 interface OwnableSelectionOptions {
@@ -44,8 +48,15 @@ interface DefaultAdminSelectionOptions {
   readonly hasRoles: boolean;
 }
 
+interface ProxyAdminSelectionOptions {
+  readonly manifest: ResolvedRoleManifest;
+  readonly override?: ResolvedContractOverride;
+  readonly deployment: string;
+  readonly hasProxyAdmin: boolean;
+}
+
 export function prepareContractPlans(options: PrepareContractPlansOptions): PreparedContractPlan[] {
-  const { manifest, rolesByDeployment, ownableByDeployment } = options;
+  const { manifest, rolesByDeployment, ownableByDeployment, proxyAdminByDeployment } = options;
   const overrides: ResolvedContractOverride[] = Array.from(manifest.overrides ?? []);
   const overridesByDeployment: Map<string, ResolvedContractOverride> = new Map(overrides.map((o) => [o.deployment, o]));
 
@@ -53,6 +64,9 @@ export function prepareContractPlans(options: PrepareContractPlansOptions): Prep
 
   const autoCandidatesSet = new Set<string>();
   for (const deploymentName of ownableByDeployment.keys()) {
+    autoCandidatesSet.add(deploymentName);
+  }
+  for (const deploymentName of proxyAdminByDeployment.keys()) {
     autoCandidatesSet.add(deploymentName);
   }
   for (const deploymentName of rolesByDeployment.keys()) {
@@ -69,6 +83,7 @@ export function prepareContractPlans(options: PrepareContractPlansOptions): Prep
     const override: ResolvedContractOverride | undefined = overridesByDeployment.get(deployment);
     const rolesInfo = rolesByDeployment.get(deployment);
     const ownableInfo = ownableByDeployment.get(deployment);
+    const proxyAdminInfo = proxyAdminByDeployment.get(deployment);
 
     const ownableSelection = computeOwnableSelection({
       manifest,
@@ -84,7 +99,16 @@ export function prepareContractPlans(options: PrepareContractPlansOptions): Prep
       hasRoles: Boolean(rolesInfo?.defaultAdminRoleHash),
     });
 
-    const hasAction = Boolean(ownableSelection.action || defaultAdminSelection.action);
+    const proxyAdminSelection = computeProxyAdminSelection({
+      manifest,
+      override,
+      deployment,
+      hasProxyAdmin: Boolean(proxyAdminInfo),
+    });
+
+    const hasAction = Boolean(
+      ownableSelection.action || defaultAdminSelection.action || proxyAdminSelection.action,
+    );
     let hasOverride = false;
     let hasPresentation = false;
     if (override) {
@@ -104,10 +128,50 @@ export function prepareContractPlans(options: PrepareContractPlansOptions): Prep
       ownableSource: ownableSelection.source,
       defaultAdmin: defaultAdminSelection.action,
       defaultAdminSource: defaultAdminSelection.source,
+      proxyAdmin: proxyAdminSelection.action,
+      proxyAdminSource: proxyAdminSelection.source,
     });
   }
 
   return plans;
+}
+
+function computeProxyAdminSelection(
+  options: ProxyAdminSelectionOptions,
+): SelectionResult<ResolvedProxyAdminAction> {
+  const { manifest, override, deployment, hasProxyAdmin } = options;
+  const excluded = isDeploymentExcluded(manifest, deployment, "proxyAdmin");
+  const overrideConfig = override?.proxyAdmin;
+
+  if (overrideConfig && overrideConfig.enabled === false) {
+    return { excluded };
+  }
+
+  if (overrideConfig && overrideConfig.action) {
+    if (excluded && overrideConfig.enabled !== true) {
+      return { excluded: true };
+    }
+
+    return {
+      action: cloneProxyAdminAction(overrideConfig.action),
+      source: "override",
+      excluded: false,
+    };
+  }
+
+  if (excluded) {
+    return { excluded: true };
+  }
+
+  if (manifest.autoInclude.proxyAdmin && hasProxyAdmin) {
+    return {
+      action: cloneProxyAdminAction(manifest.defaults.proxyAdmin),
+      source: "auto",
+      excluded: false,
+    };
+  }
+
+  return { excluded: false };
 }
 
 function computeOwnableSelection(options: OwnableSelectionOptions): SelectionResult<ResolvedOwnableAction> {
@@ -185,7 +249,7 @@ function computeDefaultAdminSelection(options: DefaultAdminSelectionOptions): Se
 export function isDeploymentExcluded(
   manifest: ResolvedRoleManifest,
   deployment: string,
-  kind: "ownable" | "defaultAdmin",
+  kind: "ownable" | "defaultAdmin" | "proxyAdmin",
 ): boolean {
   return manifest.exclusions.some((exclusion) => {
     const appliesToKind = exclusion[kind];
@@ -216,5 +280,12 @@ export function cloneDefaultAdminAction(action: ResolvedDefaultAdminAction): Res
   return {
     newAdmin: action.newAdmin,
     grantExecution: action.grantExecution,
+  };
+}
+
+export function cloneProxyAdminAction(action: ResolvedProxyAdminAction): ResolvedProxyAdminAction {
+  return {
+    newAdmin: action.newAdmin,
+    execution: action.execution,
   };
 }
