@@ -21,7 +21,7 @@
   "overrides": [],
   "safe": {
     "safeAddress": "0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9",
-    "threshold": 2,
+    "threshold": 3,
     "chainId": 252,
     "rpcUrl": "https://rpc.frax.com",
     "description": "Fraxtal mainnet governance Safe"
@@ -30,4 +30,3 @@
     "json": "reports/roles/fraxtal-mainnet-latest.json"
   }
 }
-
