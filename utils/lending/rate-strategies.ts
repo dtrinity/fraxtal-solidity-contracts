@@ -34,6 +34,20 @@ export const rateStrategyDUSDFraxtalMainnetV2: IInterestRateStrategyParams = {
   optimalStableToTotalDebtRatio: ethers.parseUnits("0", 27).toString(),
 };
 
+// 3% at 0% utilization, 7.5% at the 80% utilization kink, and 60% at 100% utilization.
+export const rateStrategyDUSDFraxtalMainnetV3: IInterestRateStrategyParams = {
+  name: "rateStrategyDUSDFraxtalMainnetV3",
+  optimalUsageRatio: ethers.parseUnits("0.8", 27).toString(),
+  baseVariableBorrowRate: ethers.parseUnits("0.03", 27).toString(),
+  variableRateSlope1: ethers.parseUnits("0.045", 27).toString(),
+  variableRateSlope2: ethers.parseUnits("0.525", 27).toString(),
+  stableRateSlope1: ethers.parseUnits("0", 27).toString(),
+  stableRateSlope2: ethers.parseUnits("0", 27).toString(),
+  baseStableRateOffset: ethers.parseUnits("0", 27).toString(),
+  stableRateExcessOffset: ethers.parseUnits("0", 27).toString(),
+  optimalStableToTotalDebtRatio: ethers.parseUnits("0", 27).toString(),
+};
+
 export const rateStrategyHighLiquidityVolatile: IInterestRateStrategyParams = {
   name: "rateStrategyHighLiquidityVolatile",
   optimalUsageRatio: ethers.parseUnits("0.5", 27).toString(), // This is the "kink" in the curve
