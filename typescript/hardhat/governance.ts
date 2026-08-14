@@ -56,6 +56,21 @@ export class GovernanceExecutor {
   }
 
   /**
+   * Queue an operation for the governance Safe without attempting a direct
+   * execution. Use this for calls that must originate from the Safe, such as
+   * timelock scheduling.
+   *
+   * @param transaction Safe transaction to include in the next batch
+   */
+  queue(transaction: SafeTransactionData): void {
+    if (!this.useSafe) {
+      throw new Error("Safe queueing is not enabled for this network");
+    }
+    this.transactions.push(transaction);
+    console.log("   ➕ Queued governance operation for multisig");
+  }
+
+  /**
    * Attempt an on-chain call; on failure, queue a Safe transaction if enabled.
    * Returns whether the requirement is considered complete (true) or pending
    * governance/manual action (false).
