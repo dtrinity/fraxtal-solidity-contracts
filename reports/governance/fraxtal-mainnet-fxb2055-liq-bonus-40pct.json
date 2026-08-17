@@ -1,0 +1,139 @@
+{
+  "version": "2.0",
+  "chainId": 252,
+  "createdAt": "2026-08-17T22:04:00.910Z",
+  "createdAtBlock": 40096764,
+  "description": "FXB20551231: raise liquidation bonus 10500 -> 14000 (5% -> 40% liquidation penalty) on Fraxtal mainnet; liquidationProtocolFee discovery documented (on-chain 0, repo config says 7000)",
+  "safe": {
+    "safeAddress": "0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9",
+    "threshold": "3",
+    "nonce": "193",
+    "nonceProof": {
+      "method": "storage slot 5 read at block 40096764 (Safe v1.3.0 fork without getNonce); layout cross-checked: slot3 ownerCount=5 == getOwners().length, slot4 threshold=3 == getThreshold()",
+      "slot5Raw": "0x00000000000000000000000000000000000000000000000000000000000000c1",
+      "revalidateBeforeSigning": "re-run this script immediately before collecting signatures; any executed Safe tx bumps the nonce (a separate dUSD proposal shares the pending queue)"
+    },
+    "domainSeparator": "0xd4655f2f9a43f2cabc7f3387760dec8daf15f5d738590503628616e19509d338",
+    "safeTxHash": "0x9ed816011e3ce070b9af00ae960ee51a9bdf15b9423493135ae6e889f1770c65",
+    "transaction": {
+      "to": "0x0bafada2a5824864720873ee40cd960b36445212",
+      "value": "0",
+      "data": "0x01d5062a0000000000000000000000005357f3d35a25f11d18d4c487e01934d2ad63dae7000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000dbea0566a8f967a03db821adcbe4748e1b599a7b5d38fc398e3e7a15918617fb000000000000000000000000000000000000000000000000000000000001518000000000000000000000000000000000000000000000000000000000000000847c4e560b000000000000000000000000c38173d34afaea88bc482813b3cd267bc8a1ea830000000000000000000000000000000000000000000000000000000000001770000000000000000000000000000000000000000000000000000000000000196400000000000000000000000000000000000000000000000000000000000036b000000000000000000000000000000000000000000000000000000000",
+      "operation": 0
+    }
+  },
+  "signers": {
+    "threshold": "3",
+    "owners": [
+      "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+      "0x4B58fF1AAE6AdD7465A5584eBCaeb876ec8f21FD",
+      "0x64dbDD2AAD00383Defc305398F18a019161558CB",
+      "0xDC672ba6e55B71b39FA5423D42B88E7aDF9d24A4",
+      "0x9E0c8376940aBE845A89b7304147a95c72644f59"
+    ],
+    "instructions": [
+      "Collect 3 of 5 owner EIP-712 signatures over safeTxHash 0x9ed816011e3ce070b9af00ae960ee51a9bdf15b9423493135ae6e889f1770c65 (domain separator 0xd4655f2f9a43f2cabc7f3387760dec8daf15f5d738590503628616e19509d338, Safe 0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9, chain 252).",
+      "Signers sign the same message hash; sort signatures by owner address ascending (lowercase) when assembling execTransaction.",
+      "Anyone may submit/exec the Safe tx once 3 valid signatures are assembled (execTransaction is permissionless with valid sigs)."
+    ]
+  },
+  "scheduledLeg": {
+    "target": "0x5357F3D35a25f11D18D4C487e01934D2AD63dAe7",
+    "function": "configureReserveAsCollateral(address,uint256,uint256,uint256)",
+    "innerData": "0x7c4e560b000000000000000000000000c38173d34afaea88bc482813b3cd267bc8a1ea830000000000000000000000000000000000000000000000000000000000001770000000000000000000000000000000000000000000000000000000000000196400000000000000000000000000000000000000000000000000000000000036b0",
+    "timelock": {
+      "schedule": {
+        "to": "0x0bafaDA2a5824864720873EE40cd960b36445212",
+        "value": "0",
+        "data": "0x01d5062a0000000000000000000000005357f3d35a25f11d18d4c487e01934d2ad63dae7000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000dbea0566a8f967a03db821adcbe4748e1b599a7b5d38fc398e3e7a15918617fb000000000000000000000000000000000000000000000000000000000001518000000000000000000000000000000000000000000000000000000000000000847c4e560b000000000000000000000000c38173d34afaea88bc482813b3cd267bc8a1ea830000000000000000000000000000000000000000000000000000000000001770000000000000000000000000000000000000000000000000000000000000196400000000000000000000000000000000000000000000000000000000000036b000000000000000000000000000000000000000000000000000000000"
+      },
+      "execute": {
+        "to": "0x0bafaDA2a5824864720873EE40cd960b36445212",
+        "value": "0",
+        "data": "0x134008d30000000000000000000000005357f3d35a25f11d18d4c487e01934d2ad63dae7000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000dbea0566a8f967a03db821adcbe4748e1b599a7b5d38fc398e3e7a15918617fb00000000000000000000000000000000000000000000000000000000000000847c4e560b000000000000000000000000c38173d34afaea88bc482813b3cd267bc8a1ea830000000000000000000000000000000000000000000000000000000000001770000000000000000000000000000000000000000000000000000000000000196400000000000000000000000000000000000000000000000000000000000036b000000000000000000000000000000000000000000000000000000000"
+      },
+      "salt": "0xdbea0566a8f967a03db821adcbe4748e1b599a7b5d38fc398e3e7a15918617fb",
+      "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "delaySeconds": "86400"
+    },
+    "args": {
+      "asset": "0xc38173D34afaEA88Bc482813B3CD267bc8A1EA83",
+      "ltv": "6000",
+      "liquidationThreshold": "6500",
+      "liquidationBonus": "14000"
+    },
+    "safeTxHash": "0x9ed816011e3ce070b9af00ae960ee51a9bdf15b9423493135ae6e889f1770c65",
+    "safeNonce": "193"
+  },
+  "feeLeg": {
+    "status": "OPTIONAL - NOT SCHEDULED (on-chain fee is 0; setting 1500 would raise it and cut liquidator share from 100% to 85% of the penalty)",
+    "rationale": "Original task assumed on-chain fee 7000 (repo deploy-config default). Actual on-chain value is 0 (Pool.getConfiguration bits 152-167; corroborated by competitor liquidation tx 0x3e585404...8686b where the liquidator received the entire bonus with no treasury cut). Scheduling 1500 would work against the stated intent of increasing liquidator incentive.",
+    "target": "0x5357F3D35a25f11D18D4C487e01934D2AD63dAe7",
+    "function": "setLiquidationProtocolFee(address,uint256)",
+    "innerData": "0x26d2cec2000000000000000000000000c38173d34afaea88bc482813b3cd267bc8a1ea8300000000000000000000000000000000000000000000000000000000000005dc",
+    "timelock": {
+      "schedule": {
+        "to": "0x0bafaDA2a5824864720873EE40cd960b36445212",
+        "value": "0",
+        "data": "0x01d5062a0000000000000000000000005357f3d35a25f11d18d4c487e01934d2ad63dae7000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000da27bee9ee7bd56c04569807424a605439f892fe6b5b5b7da603c55ae92a4cf0000000000000000000000000000000000000000000000000000000000015180000000000000000000000000000000000000000000000000000000000000004426d2cec2000000000000000000000000c38173d34afaea88bc482813b3cd267bc8a1ea8300000000000000000000000000000000000000000000000000000000000005dc00000000000000000000000000000000000000000000000000000000"
+      },
+      "execute": {
+        "to": "0x0bafaDA2a5824864720873EE40cd960b36445212",
+        "value": "0",
+        "data": "0x134008d30000000000000000000000005357f3d35a25f11d18d4c487e01934d2ad63dae7000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000000da27bee9ee7bd56c04569807424a605439f892fe6b5b5b7da603c55ae92a4cf000000000000000000000000000000000000000000000000000000000000004426d2cec2000000000000000000000000c38173d34afaea88bc482813b3cd267bc8a1ea8300000000000000000000000000000000000000000000000000000000000005dc00000000000000000000000000000000000000000000000000000000"
+      },
+      "salt": "0x0da27bee9ee7bd56c04569807424a605439f892fe6b5b5b7da603c55ae92a4cf",
+      "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "delaySeconds": "86400"
+    },
+    "args": {
+      "asset": "0xc38173D34afaEA88Bc482813B3CD267bc8A1EA83",
+      "newFee": "1500"
+    },
+    "prebuiltSafeTxHashForNonce": "0x6e33b6357ef339d816d384b890facd3b9fcf96b8d46f49ea1572b8ddf4499261",
+    "prebuiltSafeNonce": "194",
+    "howToActivate": "If governance deliberately wants a 15% protocol share of the penalty: re-run this script (fresh nonce), collect 3 sigs over the fee-leg schedule tx, execute, wait 86400s, then execute the timelock op. setLiquidationProtocolFee valid range is 0..10000 (PoolConfigurator.sol:302) and storage cap 65535 (ReserveConfiguration.sol:76)."
+  },
+  "currentConfig": {
+    "ltv": "6000",
+    "liquidationThreshold": "6500",
+    "liquidationBonus": "10500",
+    "liquidationProtocolFeeOnChain": "0",
+    "liquidationProtocolFeeRepoConfig": "7000 (deploy-config default, never applied on-chain for this reserve)",
+    "reserveFactor": "1000",
+    "usageAsCollateralEnabled": true,
+    "isActive": true
+  },
+  "effectiveEconomics": {
+    "note": "With on-chain fee 0, the liquidator keeps 100% of the liquidation penalty and the protocol 0%.",
+    "today": {
+      "penalty": "5%",
+      "liquidatorKeeps": "5% (100% of penalty)",
+      "protocolKeeps": "0%"
+    },
+    "afterScheduledLeg": {
+      "penalty": "40%",
+      "liquidatorKeeps": "40% (100% of penalty)",
+      "protocolKeeps": "0%"
+    },
+    "ifOptionalFeeLegActivated": {
+      "penalty": "40%",
+      "liquidatorKeeps": "34% (85% of penalty)",
+      "protocolKeeps": "6% (15% of penalty)"
+    }
+  },
+  "simulations": {
+    "bonusScheduleFromSafe": true,
+    "bonusInnerFromTimelock": true,
+    "feeScheduleFromSafe": true,
+    "feeInnerFromTimelock": true,
+    "fullExecTransactionWithDummySigs": "reverted-at-signature-check (expected: no owner keys available for eth_call; rely on the two-level inner-path simulations above)"
+  },
+  "notes": [
+    "configureReserveAsCollateral (4 args) does NOT touch liquidationProtocolFee bits; the two legs are order-independent (PoolConfigurator.sol:176-178 sets only ltv/threshold/bonus).",
+    "One Safe tx carries one call and no MultiSend deployment is verified on Fraxtal, so two governance changes require two sequential Safe txs (nonces N, N+1) - both timelock ops can then execute independently after their delays.",
+    "The governance Safe is a GnosisSafe 1.3.0 fork without getNonce(); nonce is read from storage slot 5.",
+    "safeTxHash is invalidated if any other Safe transaction executes first (nonce bump); re-run the script to regenerate.",
+    "Do NOT trust deployments/fraxtal_mainnet/safe-deployment-state.json (corrupt calldata from a prior task)."
+  ]
+}
