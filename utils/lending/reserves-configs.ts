@@ -157,6 +157,8 @@ export const strategyscrvUSD: IReserveParams = {
 export const strategyFXB20551231: IReserveParams = {
   ...strategyFXB20291231,
   supplyCap: "2000000",
+  // 40% liquidation penalty, see docs/governance/fxb2055-liquidation-bonus-40pct.md
+  liquidationBonus: "14000",
 };
 
 export const strategyFXB20251231: IReserveParams = {

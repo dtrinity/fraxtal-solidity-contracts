@@ -1,0 +1,62 @@
+{
+  "version": "1.0",
+  "chainId": 252,
+  "createdAt": "2026-08-17T21:08:22.932Z",
+  "createdAtBlock": 40095095,
+  "description": "FXB20551231: raise liquidation bonus 10500 -> 14000 (5% -> 40% liquidation penalty) on Fraxtal mainnet",
+  "safe": {
+    "safeAddress": "0xfC2f89F9982BE98A9672CEFc3Ea6dBBdd88bc8e9",
+    "threshold": "3",
+    "nonce": "193",
+    "domainSeparator": "0xd4655f2f9a43f2cabc7f3387760dec8daf15f5d738590503628616e19509d338",
+    "safeTxHash": "0x9ed816011e3ce070b9af00ae960ee51a9bdf15b9423493135ae6e889f1770c65",
+    "transaction": {
+      "to": "0x0bafada2a5824864720873ee40cd960b36445212",
+      "value": "0",
+      "data": "0x01d5062a0000000000000000000000005357f3d35a25f11d18d4c487e01934d2ad63dae7000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000dbea0566a8f967a03db821adcbe4748e1b599a7b5d38fc398e3e7a15918617fb000000000000000000000000000000000000000000000000000000000001518000000000000000000000000000000000000000000000000000000000000000847c4e560b000000000000000000000000c38173d34afaea88bc482813b3cd267bc8a1ea830000000000000000000000000000000000000000000000000000000000001770000000000000000000000000000000000000000000000000000000000000196400000000000000000000000000000000000000000000000000000000000036b000000000000000000000000000000000000000000000000000000000",
+      "operation": 0
+    }
+  },
+  "timelock": {
+    "timelockAddress": "0x0bafaDA2a5824864720873EE40cd960b36445212",
+    "minDelay": "86400",
+    "delay": "86400",
+    "salt": "0xdbea0566a8f967a03db821adcbe4748e1b599a7b5d38fc398e3e7a15918617fb",
+    "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "innerCall": {
+    "to": "0x5357F3D35a25f11D18D4C487e01934D2AD63dAe7",
+    "function": "configureReserveAsCollateral(address,uint256,uint256,uint256)",
+    "args": {
+      "asset": "0xc38173D34afaEA88Bc482813B3CD267bc8A1EA83",
+      "ltv": "6000",
+      "liquidationThreshold": "6500",
+      "liquidationBonus": "14000"
+    },
+    "decoded": [
+      "0xc38173D34afaEA88Bc482813B3CD267bc8A1EA83",
+      "6000",
+      "6500",
+      "14000"
+    ],
+    "data": "0x7c4e560b000000000000000000000000c38173d34afaea88bc482813b3cd267bc8a1ea830000000000000000000000000000000000000000000000000000000000001770000000000000000000000000000000000000000000000000000000000000196400000000000000000000000000000000000000000000000000000000000036b0"
+  },
+  "currentConfig": {
+    "ltv": "6000",
+    "liquidationThreshold": "6500",
+    "liquidationBonus": "10500",
+    "reserveFactor": "1000",
+    "usageAsCollateralEnabled": true,
+    "isActive": true
+  },
+  "simulations": {
+    "scheduleFromSafe": true,
+    "innerCallFromTimelock": true
+  },
+  "notes": [
+    "liquidationProtocolFee stays at its current 7000 (70%); configureReserveAsCollateral on this deployment takes 4 args and does not touch the fee.",
+    "The governance Safe is a GnosisSafe 1.3.0 fork without getNonce(); nonce is read from storage slot 5.",
+    "safeTxHash is invalidated if any other Safe transaction executes first (nonce bump); re-run the script to regenerate.",
+    "Requires 3-of-5 owner signatures (on-chain threshold), then wait 86400s after schedule() before timelock execute()."
+  ]
+}
