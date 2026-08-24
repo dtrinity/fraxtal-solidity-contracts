@@ -77,13 +77,19 @@ abstract contract ScaledBalanceTokenBase is MintableIncentivizedERC20, IScaledBa
      * @param index The next liquidity index of the reserve
      * @return `true` if the the previous balance of the user was 0
      */
-    function _mintScaled(address caller, address onBehalfOf, uint256 amount, uint256 index) internal returns (bool) {
-        uint256 amountScaled = amount.rayDiv(index);
+    function _mintScaled(
+        address caller,
+        address onBehalfOf,
+        uint256 amount,
+        uint256 index,
+        WadRayMath.Rounding rounding
+    ) internal returns (bool) {
+        uint256 amountScaled = amount.rayDiv(index, rounding);
         require(amountScaled != 0, Errors.INVALID_MINT_AMOUNT);
 
         uint256 scaledBalance = super.balanceOf(onBehalfOf);
-        uint256 balanceIncrease = scaledBalance.rayMul(index) -
-            scaledBalance.rayMul(_userState[onBehalfOf].additionalData);
+        uint256 balanceIncrease = scaledBalance.rayMul(index, rounding) -
+            scaledBalance.rayMul(_userState[onBehalfOf].additionalData, rounding);
 
         _userState[onBehalfOf].additionalData = index.toUint128();
 
@@ -105,12 +111,20 @@ abstract contract ScaledBalanceTokenBase is MintableIncentivizedERC20, IScaledBa
      * @param amount The amount getting burned
      * @param index The variable debt index of the reserve
      */
-    function _burnScaled(address user, address target, uint256 amount, uint256 index) internal {
-        uint256 amountScaled = amount.rayDiv(index);
+    function _burnScaled(
+        address user,
+        address target,
+        uint256 amount,
+        uint256 index,
+        WadRayMath.Rounding rounding
+    ) internal {
+        uint256 amountScaled = amount.rayDiv(index, rounding);
         require(amountScaled != 0, Errors.INVALID_BURN_AMOUNT);
 
         uint256 scaledBalance = super.balanceOf(user);
-        uint256 balanceIncrease = scaledBalance.rayMul(index) - scaledBalance.rayMul(_userState[user].additionalData);
+        WadRayMath.Rounding reverseRounding = WadRayMath.reverseRounding(rounding);
+        uint256 balanceIncrease = scaledBalance.rayMul(index, reverseRounding) -
+            scaledBalance.rayMul(_userState[user].additionalData, reverseRounding);
 
         _userState[user].additionalData = index.toUint128();
 
@@ -137,17 +151,17 @@ abstract contract ScaledBalanceTokenBase is MintableIncentivizedERC20, IScaledBa
      */
     function _transfer(address sender, address recipient, uint256 amount, uint256 index) internal {
         uint256 senderScaledBalance = super.balanceOf(sender);
-        uint256 senderBalanceIncrease = senderScaledBalance.rayMul(index) -
-            senderScaledBalance.rayMul(_userState[sender].additionalData);
+        uint256 senderBalanceIncrease = senderScaledBalance.rayMulFloor(index) -
+            senderScaledBalance.rayMulFloor(_userState[sender].additionalData);
 
         uint256 recipientScaledBalance = super.balanceOf(recipient);
-        uint256 recipientBalanceIncrease = recipientScaledBalance.rayMul(index) -
-            recipientScaledBalance.rayMul(_userState[recipient].additionalData);
+        uint256 recipientBalanceIncrease = recipientScaledBalance.rayMulFloor(index) -
+            recipientScaledBalance.rayMulFloor(_userState[recipient].additionalData);
 
         _userState[sender].additionalData = index.toUint128();
         _userState[recipient].additionalData = index.toUint128();
 
-        super._transfer(sender, recipient, amount.rayDiv(index).toUint128());
+        super._transfer(sender, recipient, amount.rayDivCeil(index).toUint128());
 
         if (senderBalanceIncrease > 0) {
             emit Transfer(address(0), sender, senderBalanceIncrease);

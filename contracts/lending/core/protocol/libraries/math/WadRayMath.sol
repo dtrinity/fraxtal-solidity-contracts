@@ -26,6 +26,11 @@ pragma solidity ^0.8.0;
  * @dev Operations are rounded. If a value is >=.5, will be rounded up, otherwise rounded down.
  */
 library WadRayMath {
+    enum Rounding {
+        Floor,
+        Ceil
+    }
+
     // HALF_WAD and HALF_RAY expressed with extended notation as constant with operations are not supported in Yul assembly
     uint256 internal constant WAD = 1e18;
     uint256 internal constant HALF_WAD = 0.5e18;
@@ -89,6 +94,34 @@ library WadRayMath {
         }
     }
 
+    function rayMul(uint256 a, uint256 b, Rounding rounding) internal pure returns (uint256 c) {
+        if (rounding == Rounding.Floor) {
+            return rayMulFloor(a, b);
+        }
+        return rayMulCeil(a, b);
+    }
+
+    function rayMulFloor(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        assembly {
+            if iszero(or(iszero(b), iszero(gt(a, div(not(0), b))))) {
+                revert(0, 0)
+            }
+
+            c := div(mul(a, b), RAY)
+        }
+    }
+
+    function rayMulCeil(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        assembly {
+            if iszero(or(iszero(b), iszero(gt(a, div(not(0), b))))) {
+                revert(0, 0)
+            }
+
+            let product := mul(a, b)
+            c := add(div(product, RAY), iszero(iszero(mod(product, RAY))))
+        }
+    }
+
     /**
      * @notice Divides two ray, rounding half up to the nearest ray
      * @dev assembly optimized for improved gas savings, see https://twitter.com/transmissions11/status/1451131036377571328
@@ -105,6 +138,41 @@ library WadRayMath {
 
             c := div(add(mul(a, RAY), div(b, 2)), b)
         }
+    }
+
+    function rayDiv(uint256 a, uint256 b, Rounding rounding) internal pure returns (uint256 c) {
+        if (rounding == Rounding.Floor) {
+            return rayDivFloor(a, b);
+        }
+        return rayDivCeil(a, b);
+    }
+
+    function rayDivFloor(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        assembly {
+            if or(iszero(b), iszero(iszero(gt(a, div(not(0), RAY))))) {
+                revert(0, 0)
+            }
+
+            c := div(mul(a, RAY), b)
+        }
+    }
+
+    function rayDivCeil(uint256 a, uint256 b) internal pure returns (uint256 c) {
+        assembly {
+            if or(iszero(b), iszero(iszero(gt(a, div(not(0), RAY))))) {
+                revert(0, 0)
+            }
+
+            let scaled := mul(a, RAY)
+            c := add(div(scaled, b), iszero(iszero(mod(scaled, b))))
+        }
+    }
+
+    function reverseRounding(Rounding rounding) internal pure returns (Rounding) {
+        if (rounding == Rounding.Floor) {
+            return Rounding.Ceil;
+        }
+        return Rounding.Floor;
     }
 
     /**
