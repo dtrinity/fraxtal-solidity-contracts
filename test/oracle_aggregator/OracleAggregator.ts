@@ -199,3 +199,58 @@ describe("OracleAggregator using API3", () => {
     expect(assetPrice).to.equal(api3Price);
   });
 });
+
+describe("OracleAggregator hard-pegged DAI and sDAI", () => {
+  let oracleAggregatorContract: OracleAggregator;
+  let dusdDeployer: Address;
+
+  const daiAddress = "0x0000000000000000000000000000000000000009";
+  const sdaiAddress = "0x000000000000000000000000000000000000000A";
+
+  beforeEach(async function () {
+    await dexOracleFixture();
+
+    ({ dusdDeployer } = await getNamedAccounts());
+
+    const oracleAggregatorAddress = (await hre.deployments.get("OracleAggregator")).address;
+    oracleAggregatorContract = await hre.ethers.getContractAt(
+      "OracleAggregator",
+      oracleAggregatorAddress,
+      await hre.ethers.getSigner(dusdDeployer),
+    );
+
+    const oracleManagerRole = await oracleAggregatorContract.ORACLE_MANAGER_ROLE();
+    await oracleAggregatorContract.grantRole(oracleManagerRole, dusdDeployer);
+
+    const { address: hardPegOracleWrapperAddress } = await deployContract(
+      hre,
+      "HardPegOracleWrapper-DAI-sDAI-Test",
+      [hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS), hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS)],
+      undefined,
+      await hre.ethers.getSigner(dusdDeployer),
+      undefined,
+      "HardPegOracleWrapper",
+    );
+
+    await oracleAggregatorContract.setOracle(daiAddress, hardPegOracleWrapperAddress);
+    await oracleAggregatorContract.setOracle(sdaiAddress, hardPegOracleWrapperAddress);
+  });
+
+  it("should return 1 USD for DAI and sDAI through OracleAggregator", async function () {
+    const expectedPrice = hre.ethers.parseUnits("1", AAVE_ORACLE_USD_DECIMALS);
+
+    const daiOracle = await oracleAggregatorContract.assetOracles(daiAddress);
+    const sdaiOracle = await oracleAggregatorContract.assetOracles(sdaiAddress);
+    const daiPrice = await oracleAggregatorContract.getAssetPrice(daiAddress);
+    const sdaiPrice = await oracleAggregatorContract.getAssetPrice(sdaiAddress);
+
+    console.log(`1. DAI oracle: ${daiOracle}`);
+    console.log(`2. DAI price: ${daiPrice.toString()}`);
+    console.log(`3. sDAI oracle: ${sdaiOracle}`);
+    console.log(`4. sDAI price: ${sdaiPrice.toString()}`);
+
+    expect(daiPrice).to.equal(expectedPrice);
+    expect(sdaiPrice).to.equal(expectedPrice);
+    expect(daiOracle).to.equal(sdaiOracle);
+  });
+});
